@@ -232,6 +232,24 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Camera.
+        /// </summary>
+        internal static string Camera {
+            get {
+                return ResourceManager.GetString("Camera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Camera setup.
+        /// </summary>
+        internal static string CameraSetup {
+            get {
+                return ResourceManager.GetString("CameraSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string Cancel {

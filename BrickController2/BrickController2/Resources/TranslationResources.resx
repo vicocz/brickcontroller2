@@ -369,4 +369,10 @@
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>
   </data>
+  <data name="Camera" xml:space="preserve">
+    <value>Camera</value>
+  </data>
+  <data name="CameraSetup" xml:space="preserve">
+    <value>Camera setup</value>
+  </data>
 </root>

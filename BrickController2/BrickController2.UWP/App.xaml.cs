@@ -1,5 +1,7 @@
-﻿using BrickController2.Windows;
+﻿using BrickController2.Helpers;
+using BrickController2.Windows;
 using System;
+using System.Reflection;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -18,8 +20,21 @@ namespace BrickController2.UWP
         /// </summary>
         public App()
         {
+            WorkaroundModernResourceManagement();
+
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+        }
+
+        /// <summary>
+        /// Needed to be called before <see cref="ResourceHelper.TranslationResourceManager"> is initialized
+        /// </summary>
+        private void WorkaroundModernResourceManagement()
+        {
+            // workaround resource loading for EN language
+            // enforce blocking of modern resource loading so as EN resources are properly loaded
+            var location = System.IO.Path.GetDirectoryName(typeof(ResourceHelper).Assembly.Location);
+            AppDomain.CurrentDomain.SetData("PLATFORM_RESOURCE_ROOTS", location);
         }
 
         /// <summary>

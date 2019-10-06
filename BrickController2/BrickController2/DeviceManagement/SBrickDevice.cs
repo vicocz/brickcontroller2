@@ -45,6 +45,17 @@ namespace BrickController2.DeviceManagement
             _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
         }
 
+        protected override void RegisterDefaultPorts()
+        {
+            RegisterPorts(new[]
+            {
+                new DevicePort(0, "1"),
+                new DevicePort(1, "2"),
+                new DevicePort(2, "3"),
+                new DevicePort(3, "4"),
+            });
+        }
+
         protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService> services, CancellationToken token)
         {
             var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_REMOTE_CONTROL);

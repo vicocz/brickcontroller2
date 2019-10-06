@@ -51,14 +51,13 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
 
         internal async Task<bool> EnableNotificationAsync(Action<Guid, byte[]> callback)
         {
+            // setup callback before writing client char. so as no event is skipped
+            _gattCharacteristic.ValueChanged += _gattCharacteristic_ValueChanged;
+            _valueChangedCallback = callback;
+
             var result = await ApplyClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify, isNotifySet)
                 .ConfigureAwait(false);
 
-            if (result)
-            {
-                _valueChangedCallback = callback;
-                _gattCharacteristic.ValueChanged += _gattCharacteristic_ValueChanged;
-            }
             isNotifySet = result;
             return result;
         }
@@ -67,11 +66,9 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         {
             var result = await ApplyClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None, isNotifySet);
 
-            if (result)
-            {
-                _valueChangedCallback = null;
-                _gattCharacteristic.ValueChanged -= _gattCharacteristic_ValueChanged;
-            }
+            _valueChangedCallback = null;
+            _gattCharacteristic.ValueChanged -= _gattCharacteristic_ValueChanged;
+
             isNotifySet = result;
             return result;
         }

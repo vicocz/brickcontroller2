@@ -16,8 +16,9 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         private readonly AsyncLock _lock = new AsyncLock();
 
         private BluetoothLEDevice _bluetoothDevice;
+        private ICollection<BleGattService> _services;
 
-        private TaskCompletionSource<IEnumerable<IGattService>> _connectCompletionSource;
+        private TaskCompletionSource<ICollection<BleGattService>> _connectCompletionSource;
 
         private Action<Guid, byte[]> _onCharacteristicChanged;
         private Action<IBluetoothLEDevice> _onDeviceDisconnected;
@@ -45,11 +46,12 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
                 }
             }))
             {
-                return await ConnectAsync(onCharacteristicChanged, onDeviceDisconnected);
+                _services = await ConnectAsync(onCharacteristicChanged, onDeviceDisconnected);
+                return _services;
             }
         }
 
-        private async Task<IEnumerable<IGattService>> ConnectAsync(
+        private async Task<ICollection<BleGattService>> ConnectAsync(
             Action<Guid, byte[]> onCharacteristicChanged,
             Action<IBluetoothLEDevice> onDeviceDisconnected)
         {
@@ -78,7 +80,7 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
 
                 _bluetoothDevice.ConnectionStatusChanged += _bluetoothDevice_ConnectionStatusChanged;
 
-                _connectCompletionSource = new TaskCompletionSource<IEnumerable<IGattService>>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _connectCompletionSource = new TaskCompletionSource<ICollection<BleGattService>>(TaskCreationOptions.RunContinuationsAsynchronously);
             }
 
             // enforce connection check
@@ -107,6 +109,15 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         {
             _onDeviceDisconnected = null;
             _onCharacteristicChanged = null;
+
+            if (_services != null)
+            {
+                foreach (var service in _services)
+                {
+                    service.Dispose();
+                }
+                _services = null;
+            }
 
             if (_bluetoothDevice != null)
             {

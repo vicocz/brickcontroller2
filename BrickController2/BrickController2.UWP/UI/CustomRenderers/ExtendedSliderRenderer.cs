@@ -19,6 +19,12 @@ namespace BrickController2.Windows.UI.CustomRenderers
             if (Element is ExtendedSlider extendedSlider && Control != null)
             {
                 Control.PointerCaptureLost += (sender, args) => extendedSlider.TouchUp();
+
+                if (extendedSlider.Step > 0)
+                {
+                    Control.StepFrequency = extendedSlider.Step;
+                    Control.SmallChange = extendedSlider.Step;
+                }
             }
         }
     }

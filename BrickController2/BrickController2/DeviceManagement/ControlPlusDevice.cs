@@ -1,4 +1,5 @@
 ﻿using BrickController2.CreationManagement;
+using BrickController2.DeviceManagement.Sensor;
 using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,17 @@ namespace BrickController2.DeviceManagement
 
         private static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(40);
 
+        /// Hub Property Message <see href="https://lego.github.io/lego-ble-wireless-protocol-docs/index.html#hub-property-message-format"/>
+        // Allow Button Report - 0x02 Button / 0x02 Enable Updates
+        protected static readonly byte[] _activateButtonReportsMessage = new byte[] { 0x01, 0x02, 0x02 }.ToMessageTemplate();
+        // Get Firmware version - 0x03 FW Version / 0x05 Request Update
+        protected static readonly byte[] _requestFirmwareMessage = new byte[] { 0x01, 0x03, 0x05 }.ToMessageTemplate();
+        // Allow batery updates - 0x06 	Battery Voltage / 0x02 Enable Updates
+        protected static readonly byte[] _batteryLevelReportsMessage = new byte[] { 0x01, 0x06, 0x02 }.ToMessageTemplate();
+
+        protected static readonly byte[] _voltageReportsMessage = new byte[] { 0x41, 0x3c, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01 }.ToMessageTemplate();
+        protected static readonly byte[] _currentReportsMessage = new byte[] { 0x41, 0x3b, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01 }.ToMessageTemplate();
+
         private readonly byte[] _sendBuffer = new byte[] { 8, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0x00 };
         private readonly byte[] _servoSendBuffer = new byte[] { 14, 0x00, 0x81, 0x00, 0x11, 0x0d, 0x00, 0x00, 0x00, 0x00, 50, 50, 126, 0x00 };
         private readonly byte[] _virtualPortSendBuffer = new byte[] { 8, 0x00, 0x81, 0x00, 0x00, 0x02, 0x00, 0x00 };
@@ -26,9 +38,21 @@ namespace BrickController2.DeviceManagement
         private readonly int[] _absolutePositions;
         private readonly int[] _relativePositions;
 
+        private float _lastTiltX = 0;
+        private float _lastTiltY = 0;
+        private float _lastTiltZ = 0;
+
+        protected float _current = 0;
+        protected float _rssi = -100;
+
         private IGattCharacteristic _characteristic;
 
         public ControlPlusDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+            : this(name, address, deviceRepository, bleService, new DevicePortInfo[0])
+        {
+        }
+
+        public ControlPlusDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IEnumerable<DevicePortInfo> ports)
             : base(name, address, deviceRepository, bleService)
         {
             _outputValues = new int[NumberOfChannels];
@@ -38,7 +62,6 @@ namespace BrickController2.DeviceManagement
             _absolutePositions = new int[NumberOfChannels];
             _relativePositions = new int[NumberOfChannels];
         }
-
         protected override bool AutoConnectOnFirstConnect => true;
 
         public async override Task<DeviceConnectionResult> ConnectAsync(
@@ -127,7 +150,88 @@ namespace BrickController2.DeviceManagement
                 return;
             }
 
-            var messageCode = data[2];
+            var messageType = data[2];
+            switch (messageType)
+            {
+                case 0x01:
+                    {
+                        ProcessHubPropertyMessage(data);
+                        return;
+                    }
+                case 0x04:
+                    {
+                        //TODO Allow full async
+                        ProcessHubAttachedIoMessageAsync(data).Wait();
+                        return;
+                    }
+                case 0x05:
+                    {
+                        ProcessErrorMessage(data);
+                        return;
+                    }
+                case 0x43: // Port Information
+                    {
+                        //_parsePortInformationResponse(message);
+                        return;
+                    }
+                case 0x45:
+                    {
+                        ProcessSensorMessage(data);
+                        return;
+                    }
+                case 0x46: // Port value information
+                    {
+                        ProcessPortValueInformation(data);
+                        return;
+                    }
+                case 0x47: // Port Input Format(Single)
+                    {
+                        return;
+                    }
+                case 0x82: // Port Output Command Feedback
+                    {
+                        //TODO
+                        return;
+                    }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"MessageType: 0x{messageType:X} NOT SUPPORTED YET");
+        }
+
+        private void ParseMessageAsync(byte[] message)
+        {
+            if (message.Length <= 0)
+            {
+                return;
+            }
+
+            switch (message[2])
+            {
+                case 0x43:
+                    {
+                        //_parsePortInformationResponse(message);
+                        break;
+                    }
+                case 0x44:
+                    {
+                        //                   this._parseModeInformationResponse(message);
+                        break;
+                    }
+                case 0x82:
+                    {
+                        //                  this._parsePortAction(message);
+                        break;
+                    }
+            }
+        }
+
+        private void ProcessPortValueInformation(byte[] data)
+        {
+            if (data.Length < 4)
+            {
+                return;
+            }
+
             var portId = data[3];
 
             if (portId < 0 || portId >= NumberOfChannels)
@@ -135,36 +239,338 @@ namespace BrickController2.DeviceManagement
                 return;
             }
 
-            switch (messageCode)
+            var modeMask = data[5];
+            var dataIndex = 6;
+
+            if ((modeMask & 0x01) != 0)
             {
-                case 0x46: // Port value information
-                    var modeMask = data[5];
-                    var dataIndex = 6;
+                var absPosBuffer = BitConverter.IsLittleEndian ?
+                    new byte[] { data[dataIndex + 0], data[dataIndex + 1] } :
+                    new byte[] { data[dataIndex + 1], data[dataIndex + 0] };
 
-                    if ((modeMask & 0x01) != 0)
-                    {
-                        var absPosBuffer = BitConverter.IsLittleEndian ?
-                            new byte[] { data[dataIndex + 0], data[dataIndex + 1] } :
-                            new byte[] { data[dataIndex + 1], data[dataIndex + 0] };
+                var absPosition = BitConverter.ToInt16(absPosBuffer, 0);
+                _absolutePositions[portId] = absPosition;
 
-                        var absPosition = BitConverter.ToInt16(absPosBuffer, 0);
-                        _absolutePositions[portId] = absPosition;
+                dataIndex += 2;
+            }
 
-                        dataIndex += 2;
-                    }
+            if ((modeMask & 0x02) != 0)
+            {
+                var relPosBuffer = BitConverter.IsLittleEndian ?
+                    new byte[] { data[dataIndex + 0], data[dataIndex + 1], data[dataIndex + 2], data[dataIndex + 3] } :
+                    new byte[] { data[dataIndex + 3], data[dataIndex + 2], data[dataIndex + 1], data[dataIndex + 0] };
 
-                    if ((modeMask & 0x02) != 0)
-                    {
-                        var relPosBuffer = BitConverter.IsLittleEndian ?
-                            new byte[] { data[dataIndex + 0], data[dataIndex + 1], data[dataIndex + 2], data[dataIndex + 3] } :
-                            new byte[] { data[dataIndex + 3], data[dataIndex + 2], data[dataIndex + 1], data[dataIndex + 0] };
+                var relPosition = BitConverter.ToInt32(relPosBuffer, 0);
+                _relativePositions[portId] = relPosition;
+            }
+        }
 
-                        var relPosition = BitConverter.ToInt32(relPosBuffer, 0);
-                        _relativePositions[portId] = relPosition;
-                    }
+        private bool ProcessHubPropertyMessage(byte[] message)
+        {
+            // 3.5.2.Hub Property Message Format
+            var propertyRef = message[3];
 
+            if (propertyRef == 0x02)
+            {
+                // Button press reports
+                var isPressed = (message[5] == 1);
+                //TODO process
+
+                return true;
+            }
+            if (propertyRef == 0x03)
+            {
+                // Firmware version
+                var build = readUInt16LE(message, 5);
+                var bugFix = message[7];
+                var major = message[8] >> 4;
+                var minor = message[8] & 0xf;
+                FirmwareVersion = new Version(major, minor, bugFix, build);
+
+                System.Diagnostics.Debug.WriteLine($"[MessageType:HubProperty, FirmWare={FirmwareVersion}");
+                return true;
+            }
+            if (propertyRef == 0x06)
+            {
+                // Battery level reports
+                BatteryLevel = message[5];
+
+                //DEBUG System.Diagnostics.Debug.WriteLine($"[MessageType:HubProperty, BatteryLevel={BatteryLevel}");
+
+                return true;
+            }
+
+            // DEBUG logging
+            System.Diagnostics.Debug.WriteLine($"[MessageType:HubProperty, PropertyRef: 0x{propertyRef:X}");
+            return false;
+        }
+
+        private void ProcessErrorMessage(byte[] data)
+        {
+            // Message Type - Error Messages [0x05]
+            var commandId = data[3];
+            var errorCode = data[4];
+
+            switch (errorCode)
+            {
+                case 0x01:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: ACK ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x02:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: MACK ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x03:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: Buffer Overflow ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x04:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: Timeout ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x05:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: Command NOT recognized ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x06:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: Invalid use (e.g. parameter error(s) ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x07:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: Overcurrent ERROR of 0x{commandId:X} command.");
+                    break;
+                case 0x08:
+                    System.Diagnostics.Debug.WriteLine($"MessageType: 0x05: Internal ERROR of 0x{commandId:X} command.");
                     break;
             }
+        }
+
+        private static ushort readUInt16LE(byte[] data, int startIndex)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                return BitConverter.ToUInt16(data, startIndex);
+            }
+
+            return BitConverter.ToUInt16(new byte[] { data[startIndex + 1], data[startIndex] }, 0);
+        }
+
+        private void ProcessSensorMessage(byte[] message)
+        {
+            var portNumber = message[3];
+
+            if (ProcessInternalSensorMessage(portNumber, message))
+            {
+                return;
+            }
+
+            if (!TryGetPort(portNumber, out var port) || !port.IsConnected)
+            {
+                // DEBUG logging
+                System.Diagnostics.Debug.WriteLine($"[MessageType: SensorData: 0x{portNumber:X} UNKNOWN PORT");
+
+                return;
+            }
+
+            if (ProcessSensorMessage(port, message))
+            {
+
+                return;
+            }
+
+            // DEBUG logging
+            System.Diagnostics.Debug.WriteLine($"[MessageType: SensorData: {portNumber:X} NOT SUPPORTED YET.");
+        }
+
+        protected ushort ReadRawVoltage(byte[] sensorMessage)
+        {
+            return readUInt16LE(sensorMessage, 4);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool ProcessInternalSensorMessage(byte portNumber, byte[] message)
+        {
+            if (portNumber == 0x3c)
+            {
+                // Voltage
+                var voltageRaw = ReadRawVoltage(message);
+                Voltage = 9.600f * voltageRaw / 3893.0f;
+
+                // DEBUG logging
+                //System.Diagnostics.Debug.WriteLine($"[MessageType:Internal Sensor: {portNumber:X} Voltage: {Voltage}");
+
+                return true;
+            }
+            if (portNumber == 0x3b)
+            {
+                // Current
+                var currentRaw = ReadRawVoltage(message);
+                _current = 2444f * currentRaw / 4095.0f;
+
+                // DEBUG logging
+                //System.Diagnostics.Debug.WriteLine($"[MessageType:Internal Sensor: {portNumber:X} Voltage: {Current}");
+
+                return true;
+            }
+            return false;
+        }
+
+        protected virtual bool ProcessSensorMessage(DevicePort port, byte[] message)
+        {
+            if (port.PortType == DevicePortType.BOOST_DISTANCE)
+            {
+                var colorData = message[4];
+
+                if (colorData <= 10)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[MessageType:SensorData, Port:{port.Channel}, Color:{(BoostSensorColors)colorData}");
+                }
+
+                var distance = message[5];
+                var partial = message[7];
+
+                double distanceValue = (partial <= 0)
+                    ? distance
+                    : distance + 1.0 / partial;
+
+                distanceValue = Math.Floor(distanceValue * 25.4) - 20;
+                System.Diagnostics.Debug.WriteLine($"[MessageType:SensorData, Port:{port.Channel}, Distance:{distanceValue}");
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private async Task<bool> ProcessHubAttachedIoMessageAsync(byte[] data)
+        {
+            // 3.8.1. Hub Attached I/O Message Format
+            byte portNumber = data[3];
+            byte eventType = data[4];
+
+            if (eventType == 0x00)
+            {
+                if (TryGetPort(portNumber, out var port))
+                {
+                    // when an attached motor or sensor is detached from the Hub
+                    port.SetDisconnected();
+
+                    // remove port if virtual
+                    if (portNumber > 0x0f)
+                        RemovePort(portNumber);
+                }
+            }
+            else
+            {
+                // Unique type identification of the attached I/O device / 	UInt16
+                DevicePortType type = (DevicePortType)readUInt16LE(data, 5);
+
+                if (eventType == 0x02)
+                {
+                    // Event = Attached Virtual I/O
+                    var portNumberA = data[7];
+                    var portNumberB = data[8];
+                    if (TryGetPort(portNumberA, out var portA) &&
+                        TryGetPort(portNumberB, out var portB))
+                    {
+                        var newPortName = $"{portA.Name}{portB.Name}";
+                        await RegisterNewPort(portNumber, newPortName, type);
+
+                        System.Diagnostics.Debug.WriteLine($"Registered virtual port: 0x{portNumber:X}, Type:{type}");
+                    }
+                }
+                else if (eventType == 0x01)
+                {
+                    if (TryGetPort(portNumber, out var port))
+                    {
+                        await OnPortDeviceAttaching(port, type);
+                        await RequestPortInfoAsync(port.Channel);
+
+                        System.Diagnostics.Debug.WriteLine($"Connected port: 0x{portNumber:X}, Type:{type}");
+                    }
+                    else
+                    {
+                        var portName = Enum.GetName(typeof(DevicePortType), type) ?? type.ToString();
+                        await RegisterNewPort(portNumber, portName, type);
+
+                        System.Diagnostics.Debug.WriteLine($"Internal port: 0x{portNumber:X}, Type:{type}");
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private async Task RegisterNewPort(byte channel, string name, DevicePortType portType)
+        {
+            var port = new DevicePort(channel, name);
+            RegisterPorts(new[] { port });
+
+            await OnPortDeviceAttaching(port, portType);
+        }
+
+        private async Task<bool> RequestPortInfoAsync(byte port, byte informationType = 0x01)
+        {
+            // https://lego.github.io/lego-ble-wireless-protocol-docs/index.html#port-information-request
+            // Message Type - Port Information Request [0x21]
+            var message = new byte[] { 0x21, port, informationType }.ToMessageTemplate();
+
+            return await _bleDevice?.WriteAsync(_characteristic, message, CancellationToken.None);
+        }
+
+        private async Task OnPortDeviceAttaching(DevicePort port, DevicePortType type)
+        {
+            // a motor or sensor is attached to the Hub
+            port.SetConnected(type);
+
+            if (AutoConnectOnFirstConnect)
+            {
+                var mode = GetDefaultModeForDeviceType(type);
+                await SetupPortInputFormatAsync(port.Channel, type, mode, true);
+            }
+        }
+
+        private byte GetDefaultModeForDeviceType(DevicePortType type)
+        {
+            switch (type)
+            {
+                case DevicePortType.Motor:
+                case DevicePortType.SystemTrainMotor:
+                case DevicePortType.ExternalMotorWithTacho:
+                case DevicePortType.InternalMotorWithTacho:
+                case DevicePortType.CONTROL_PLUS_LARGE_MOTOR:
+                case DevicePortType.CONTROL_PLUS_XLARGE_MOTOR:
+                    return 0x02;
+                case DevicePortType.BOOST_DISTANCE:
+                    return 0x08;
+                case DevicePortType.InternalTilt:
+                    // 0x04: 3 axis (precise)
+                    return 0x04;
+                default:
+                    return 0x00;
+            }
+        }
+
+        private int GetDefaultDeltaIntervalDeviceType(DevicePortType type)
+        {
+            switch (type)
+            {
+                case DevicePortType.InternalTilt:
+                    // 5 degress for 0x04 precise 3 axis
+                    return 5;
+                default:
+                    return 1;
+            }
+        }
+
+        protected async Task<bool> SetupPortInputFormatAsync(byte port, DevicePortType type, byte mode, bool isActive)
+        {
+            // Message Type - Port Input Format Setup (Single) [0x41]
+            // https://lego.github.io/lego-ble-wireless-protocol-docs/index.html#port-input-format-setup-single
+
+            byte isActiveFlag = isActive ? (byte)0x01 : (byte)0x00;
+
+            var message = new byte[] { 0x41, port, mode, 0x01, 0x00, 0x00, 0x00, isActiveFlag }.ToMessageTemplate();
+
+            return await _bleDevice?.WriteAsync(_characteristic, message, CancellationToken.None);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -195,6 +601,13 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
+                // setup required type of notifications
+                await _bleDevice?.WriteAsync(_characteristic, _activateButtonReportsMessage, token);
+                await _bleDevice?.WriteAsync(_characteristic, _requestFirmwareMessage, token);
+                await _bleDevice?.WriteAsync(_characteristic, _batteryLevelReportsMessage, token);
+                await _bleDevice?.WriteAsync(_characteristic, _voltageReportsMessage, token);
+                await _bleDevice?.WriteAsync(_characteristic, _currentReportsMessage, token);
+
                 // Wait until ports finish communicating with the hub
                 await Task.Delay(1000, token);
 

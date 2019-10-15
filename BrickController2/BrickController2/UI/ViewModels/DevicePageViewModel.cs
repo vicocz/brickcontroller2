@@ -41,7 +41,7 @@ namespace BrickController2.UI.ViewModels
 
             Device = parameters.Get<Device>("device");
 
-            ChannelOutputs = new ObservableCollection<ChannelOutputViewModel>(Device.RegisteredPorts.Select(port => new ChannelOutputViewModel(Device, port)));
+            ChannelOutputs = new ObservableCollection<ChannelOutputViewModel>();
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
@@ -95,6 +95,8 @@ namespace BrickController2.UI.ViewModels
                 _connectionTokenSource.Cancel();
                 await _connectionTask;
             }
+
+            ChannelOutputs.Clear();
 
             await Device.DisconnectAsync();
         }
@@ -173,6 +175,12 @@ namespace BrickController2.UI.ViewModels
                 else if (Device.DeviceType == DeviceType.BuWizz2)
                 {
                     SetBuWizzOutputLevel(BuWizz2OutputLevel);
+                }
+
+                ChannelOutputs.Clear();
+                foreach (var port in Device.RegisteredPorts)
+                {
+                    ChannelOutputs.Add(new ChannelOutputViewModel(Device, port));
                 }
             }
             else

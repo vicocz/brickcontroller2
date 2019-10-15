@@ -69,7 +69,7 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
                 if (Address.TryParseBluetoothAddressString(out var bluetoothAddress))
                 {
                     _bluetoothDevice?.Dispose();
-                    _bluetoothDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
+                    _bluetoothDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress, BluetoothAddressType.Public);
                 }
 
                 if (_bluetoothDevice == null)

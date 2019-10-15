@@ -1,6 +1,8 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.UI.Services.UIThread;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,13 +20,38 @@ namespace BrickController2.DeviceManagement
 
         private Action<Device> _onDeviceDisconnected = null;
 
+        private Version _firmwareVersion = new Version();
+        private float _batteryLevel = 100.0f;
+        private float _voltage = 0.0f;
+
         public BluetoothDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository)
         {
             _bleService = bleService;
 
-            // right now it's not expected to be changed
-            RegisterDefaultPorts();
+            // empty port list on creation
+            UnregisterAllPorts();
+        }
+
+        public Version FirmwareVersion
+        {
+            get { return _firmwareVersion; }
+            set { _firmwareVersion = value; RaisePropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Batery level in percent
+        /// </summary>
+        public float BatteryLevel
+        {
+            get { return _batteryLevel; }
+            set { _batteryLevel = value; RaisePropertyChanged(); }
+        }
+
+        public float Voltage
+        {
+            get { return _voltage; }
+            set { _voltage = value; RaisePropertyChanged(); }
         }
 
         protected abstract bool AutoConnectOnFirstConnect { get; }
@@ -65,6 +92,8 @@ namespace BrickController2.DeviceManagement
                         token);
 
                     token.ThrowIfCancellationRequested();
+
+                    RegisterDefaultPorts();
 
                     if (await ValidateServicesAsync(services, token) && 
                         await AfterConnectSetupAsync(token))
@@ -118,9 +147,12 @@ namespace BrickController2.DeviceManagement
 
         private async Task DisconnectInternalAsync()
         {
+            UnregisterAllPorts();
+
+            await StopOutputTaskAsync();
+
             if (_bleDevice != null)
             {
-                await StopOutputTaskAsync();
                 DeviceState = DeviceState.Disconnecting;
                 _bleDevice.Disconnect();
                 _bleDevice = null;

@@ -12,11 +12,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="UI\Html\Blockly\blockly_compressed.js" />
+    <None Remove="UI\Html\Blockly\blocks_compressed.js" />
+    <None Remove="UI\Html\Blockly\javascript_compressed.js" />
+    <None Remove="UI\Html\Blockly\msg\js\en.js" />
+    <None Remove="UI\Html\index.html" />
     <None Remove="UI\Images\boost_image.png" />
     <None Remove="UI\Images\boost_image_small.png" />
     <None Remove="UI\Images\buwizz_image.png" />
     <None Remove="UI\Images\buwizz_image_small.png" />
     <None Remove="UI\Images\ic_add.png" />
+    <None Remove="UI\Images\ic_blocks.png" />
     <None Remove="UI\Images\ic_buttons.png" />
     <None Remove="UI\Images\ic_console.png" />
     <None Remove="UI\Images\ic_delete_black.png" />
@@ -42,10 +48,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="UI\Html\Blockly\blockly_compressed.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Html\Blockly\blocks_compressed.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Html\Blockly\javascript_compressed.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="UI\Html\Blockly\msg\js\en.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="UI\Html\index.html">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\Images\boost_image.png" />
     <EmbeddedResource Include="UI\Images\boost_image_small.png" />
     <EmbeddedResource Include="UI\Images\buwizz_image.png" />
     <EmbeddedResource Include="UI\Images\buwizz_image_small.png" />
+    <EmbeddedResource Include="UI\Images\ic_blocks.png" />
     <EmbeddedResource Include="UI\Images\ic_settings_white.png" />
     <EmbeddedResource Include="UI\Images\technichub_image.png" />
     <EmbeddedResource Include="UI\Images\technichub_image_small.png" />
@@ -70,6 +92,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="IronBlock" Version="1.0.4" />
     <PackageReference Include="Plugin.Permissions" Version="3.0.0.12" />
     <PackageReference Include="sqlite-net-pcl" Version="1.6.292" />
     <PackageReference Include="SQLiteNetExtensions.Async" Version="2.1.0" />
@@ -96,6 +119,9 @@
     </Compile>
     <Compile Update="UI\Pages\DevicePage.xaml.cs">
       <DependentUpon>DevicePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="UI\Pages\BlocksTesterPage.xaml.cs">
+      <DependentUpon>BlocksTesterPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -162,6 +188,9 @@
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="UI\Pages\PlayerPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="UI\Pages\BlocksTesterPage.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>
   </ItemGroup>

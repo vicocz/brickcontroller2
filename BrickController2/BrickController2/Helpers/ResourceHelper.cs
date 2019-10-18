@@ -22,5 +22,7 @@ namespace BrickController2.Helpers
         }
 
         public static string ImageResourceRootNameSpace => "BrickController2.UI.Images";
+
+        public static string WebSourceRootNameSpace => "BrickController2.UI.Html";
     }
 }

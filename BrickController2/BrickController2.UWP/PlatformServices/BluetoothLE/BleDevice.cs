@@ -189,6 +189,24 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             }
         }
 
+        public async Task<byte[]> ReadAsync(IGattCharacteristic characteristic, CancellationToken token)
+        {
+            using (await _lock.LockAsync())
+            {
+                if (State == BluetoothLEDeviceState.Connected &&
+                    characteristic is BleGattCharacteristic bleGattCharacteristic)
+                {
+                    var result = await bleGattCharacteristic.ReadValueAsync();
+
+                    if (result.Status == GattCommunicationStatus.Success)
+                    {
+                        return result.Value.ToByteArray();
+                    }
+                }
+                return null;
+            }
+        }
+
         private void _bluetoothDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
         {
             // check for a raise condition

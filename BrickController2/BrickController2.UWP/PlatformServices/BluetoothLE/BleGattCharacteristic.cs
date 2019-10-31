@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Windows.Extensions;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE
@@ -40,6 +41,12 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             return await _gattCharacteristic
                 .WriteValueWithResultAsync(buffer, GattWriteOption.WriteWithResponse)
                 .AsTask();
+        }
+
+        public async Task<GattReadResult> ReadValueAsync()
+        {
+            return await _gattCharacteristic
+                .ReadValueAsync(BluetoothCacheMode.Uncached);
         }
 
         internal async Task<bool> EnableNotificationAsync(Action<Guid, byte[]> callback)

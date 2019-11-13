@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.Helpers;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement
 {
@@ -19,6 +20,24 @@ namespace BrickController2.DeviceManagement
                 new DevicePort(0, "A"),
                 new DevicePort(1, "B"),
             });
+        }
+
+        protected override bool ProcessInternalSensorMessage(byte portNumber, byte[] message)
+        {
+            if (portNumber == 0x3c)
+            {
+                // Voltage
+                var voltageRaw = message.ReadUInt16LE(4);
+                var voltage = 9.620f * voltageRaw / 3893.0f;
+                BatteryVoltage = voltage.ToString("F0");
+
+                // DEBUG logging
+                //System.Diagnostics.Debug.WriteLine($"[MessageType:Internal Sensor: {portNumber:X} Voltage: {Voltage}");
+
+                return true;
+            }
+
+            return base.ProcessInternalSensorMessage(portNumber, message);
         }
     }
 }

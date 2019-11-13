@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace BrickController2.Helpers
 {
@@ -18,6 +20,16 @@ namespace BrickController2.Helpers
             }
 
             return null;
+        }
+
+        public static ushort ReadUInt16LE(this IReadOnlyList<byte> data, int startIndex)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                return BitConverter.ToUInt16(new byte[] { data[startIndex], data[startIndex + 1] }, 0);
+            }
+
+            return BitConverter.ToUInt16(new byte[] { data[startIndex + 1], data[startIndex] }, 0);
         }
     }
 }

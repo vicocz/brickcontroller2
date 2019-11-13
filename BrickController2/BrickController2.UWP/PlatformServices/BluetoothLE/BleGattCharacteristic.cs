@@ -27,6 +27,8 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
 
         public async Task<GattCommunicationStatus> WriteNoResponseAsync(byte[] data)
         {
+            System.Diagnostics.Debug.WriteLine($"Writing [{_gattCharacteristic.AttributeHandle:X}] - {BitConverter.ToString(data)}");
+
             var buffer = data.ToBuffer();
 
             return await _gattCharacteristic
@@ -36,6 +38,8 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
 
         public async Task<GattWriteResult> WriteWithResponseAsync(byte[] data)
         {
+            System.Diagnostics.Debug.WriteLine($"Writing [{_gattCharacteristic.AttributeHandle:X}] - {BitConverter.ToString(data)}");
+
             var buffer = data.ToBuffer();
 
             return await _gattCharacteristic

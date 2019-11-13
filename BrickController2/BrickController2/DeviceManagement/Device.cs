@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace BrickController2.DeviceManagement
     {
         private readonly IDeviceRepository _deviceRepository;
         protected readonly AsyncLock _asyncLock = new AsyncLock();
-        private ObservableCollectionExt<DevicePort> _registeredPorts;
+        private readonly ObservableCollectionExt<DevicePort> _registeredPorts;
 
         private string _name;
         private string _firmwareVersion = "-";
@@ -130,6 +131,14 @@ namespace BrickController2.DeviceManagement
         }
 
         /// <summary>
+        /// Removes all previously registerd ports
+        /// </summary>
+        protected void UnregisterAllPorts()
+        {
+            _registeredPorts.Clear();
+        }
+
+        /// <summary>
         /// Apply the specified list of ports as currently registered.
         /// </summary>
         /// <param name="ports">List of ports</param>
@@ -138,6 +147,33 @@ namespace BrickController2.DeviceManagement
             if (ports == null) throw new ArgumentNullException(nameof(ports));
 
             _registeredPorts.AddRange(ports);
+        }
+
+        /// <summary>
+        /// Remove port identified by the channel
+        /// </summary>
+        protected void RemovePort(byte channel)
+        {
+            if (TryGetPort(channel, out var port))
+            {
+                _registeredPorts.Remove(port);
+            }
+        }
+
+        protected bool TryGetPort(byte channel, out DevicePort devicePort)
+        {
+            devicePort = _registeredPorts
+                .SingleOrDefault(p => p.Channel == channel);
+
+            return devicePort != null;
+        }
+
+        protected bool TryGetPort(string name, out DevicePort devicePort)
+        {
+            devicePort = _registeredPorts
+                 .SingleOrDefault(p => p.Name == name);
+
+            return devicePort != null;
         }
     }
 }

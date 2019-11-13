@@ -21,8 +21,8 @@ namespace BrickController2.DeviceManagement
         {
             _bleService = bleService;
 
-            // right now it's not expected to be changed
-            RegisterDefaultPorts();
+            // empty port list on creation
+            UnregisterAllPorts();
         }
 
         protected abstract bool AutoConnectOnFirstConnect { get; }
@@ -64,6 +64,8 @@ namespace BrickController2.DeviceManagement
                         token);
 
                     token.ThrowIfCancellationRequested();
+
+                    RegisterDefaultPorts();
 
                     if (await ValidateServicesAsync(services, token) && 
                         await AfterConnectSetupAsync(requestDeviceInformation, token))
@@ -117,9 +119,12 @@ namespace BrickController2.DeviceManagement
 
         private async Task DisconnectInternalAsync()
         {
+            UnregisterAllPorts();
+
+            await StopOutputTaskAsync();
+
             if (_bleDevice != null)
             {
-                await StopOutputTaskAsync();
                 DeviceState = DeviceState.Disconnecting;
                 _bleDevice.Disconnect();
                 _bleDevice = null;

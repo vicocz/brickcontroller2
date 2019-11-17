@@ -36,5 +36,23 @@ namespace BrickController2.CreationManagement
         {
             return Name;
         }
+
+        public ControllerProfile Clone(string newName)
+        {
+            // create new instrance as a copy including events
+            var copy = new ControllerProfile
+            {
+                Name = newName
+            };
+            if (_controllerEvents != null)
+            {
+                foreach (var controllerEvent in _controllerEvents)
+                {
+                    copy.ControllerEvents.Add(controllerEvent.Clone());
+                }
+            }
+
+            return copy;
+        }
     }
 }

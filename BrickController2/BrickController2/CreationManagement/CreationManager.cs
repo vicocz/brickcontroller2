@@ -69,6 +69,23 @@ namespace BrickController2.CreationManagement
             }
         }
 
+        public async Task<Creation> ImportCreationAsync(Creation importCreation)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                var creation = new Creation { Name = importCreation.Name };
+                await _creationRepository.InsertCreationAsync(creation);
+
+                foreach (var profile in importCreation.ControllerProfiles)
+                {
+                    await _creationRepository.InsertControllerProfileAsync(creation, profile);
+                }
+
+                Creations.Add(creation);
+                return creation;
+            }
+        }
+
         public async Task<bool> IsControllerProfileNameAvailableAsync(Creation creation, string controllerProfileName)
         {
             using (await _asyncLock.LockAsync())

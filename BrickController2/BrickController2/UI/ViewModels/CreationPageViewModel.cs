@@ -9,6 +9,8 @@ using BrickController2.DeviceManagement;
 using System.Threading;
 using System;
 using BrickController2.UI.Services.Translation;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -36,6 +38,7 @@ namespace BrickController2.UI.ViewModels
             Creation = parameters.Get<Creation>("creation");
 
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
+            ExportCreationCommand = new SafeCommand(async () => await ExportCreationAsync());
             PlayCommand = new SafeCommand(async () => await PlayAsync());
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));
@@ -45,6 +48,7 @@ namespace BrickController2.UI.ViewModels
         public Creation Creation { get; }
 
         public ICommand RenameCreationCommand { get; }
+        public ICommand ExportCreationCommand { get; }
         public ICommand PlayCommand { get; }
         public ICommand AddControllerProfileCommand { get; }
         public ICommand ControllerProfileTappedCommand { get; }
@@ -94,6 +98,44 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private async Task ExportCreationAsync()
+        {
+            try
+            {
+                var result = await _dialogService.ShowFileSaveDialogAsync(
+                    Translate("Export"),
+                    Translate("EnterCreationName"),
+                    Creation.Name,
+                    ".json",
+                    WriteFile,
+                    _disappearingTokenSource.Token);
+
+                if (!result.IsOk)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("CreationNameCanNotBeEmpty"),
+                        Translate("Ok"),
+                        _disappearingTokenSource.Token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private void WriteFile(Stream outputStream)
+        {
+            // create a copy of the current creation so as any ID are gone
+            var copy = this.Creation.Clone();
+            var serializer = new JsonSerializer();
+
+            using var sw = new StreamWriter(outputStream);
+            using var writer = new JsonTextWriter(sw);
+
+            serializer.Serialize(writer, copy);
         }
 
         private async Task PlayAsync()

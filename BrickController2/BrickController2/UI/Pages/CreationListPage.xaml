@@ -20,6 +20,7 @@
 
     <local:PageBase.ToolbarItems>
         <ToolbarItem Icon="ic_add_white.png" Order="Primary" Command="{Binding AddCreationCommand}"/>
+        <ToolbarItem Icon="ic_xxx_white.png" Order="Primary" Command="{Binding ImportCreationCommand}"/>
     </local:PageBase.ToolbarItems>
 
     <local:PageBase.Content>

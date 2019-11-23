@@ -15,6 +15,8 @@ namespace BrickController2.CreationManagement
         Task DeleteCreationAsync(Creation creation);
         Task RenameCreationAsync(Creation creation, string newName);
 
+        Task<Creation> ImportCreationAsync(Creation importCreation);
+
         Task<bool> IsControllerProfileNameAvailableAsync(Creation creation, string controllerProfileName);
         Task<ControllerProfile> AddControllerProfileAsync(Creation creation, string controllerProfileName);
         Task DeleteControllerProfileAsync(ControllerProfile controllerProfile);

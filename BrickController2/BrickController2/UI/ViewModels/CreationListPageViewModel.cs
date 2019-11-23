@@ -11,6 +11,8 @@ using Plugin.Permissions.Abstractions;
 using System.Threading;
 using System;
 using BrickController2.UI.Services.Translation;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -36,6 +38,7 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             AddCreationCommand = new SafeCommand(async () => await AddCreation());
+            ImportCreationCommand = new SafeCommand(async () => await ImportCreation());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
             NavigateToDevicesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<DeviceListPageViewModel>());
@@ -46,6 +49,7 @@ namespace BrickController2.UI.ViewModels
         public ObservableCollection<Creation> Creations => _creationManager.Creations;
 
         public ICommand AddCreationCommand { get; }
+        public ICommand ImportCreationCommand { get; }
         public ICommand CreationTappedCommand { get; }
         public ICommand DeleteCreationCommand { get; }
         public ICommand NavigateToDevicesCommand { get; }
@@ -176,6 +180,44 @@ namespace BrickController2.UI.ViewModels
             }
             catch (OperationCanceledException)
             {
+            }
+        }
+
+        private async Task ImportCreation()
+        {
+            try
+            {
+                var result = await _dialogService.ShowFilePickerDialogAsync(
+    Translate("Import"),
+    "",
+    ".json",
+    ReadFile,
+    _disappearingTokenSource.Token);
+
+                if (!result.IsOk)
+                {
+
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task ReadFile(StreamReader opennedFile)
+        {
+            using (opennedFile)
+            using (var reader = new JsonTextReader(opennedFile))
+            {
+                var serializer = new JsonSerializer();
+                var creation = serializer.Deserialize<Creation>(reader);
+
+                var importedCreation = await _creationManager.AddCreationAsync(creation.Name);
+
+                foreach (var profile in creation.ControllerProfiles)
+                { 
+                    await _creationManager.UpdateControllerActionAsync
+                }
             }
         }
     }

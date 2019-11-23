@@ -3,6 +3,7 @@ using SQLite;
 using SQLiteNetExtensions.Attributes;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace BrickController2.CreationManagement
 {
@@ -30,6 +31,20 @@ namespace BrickController2.CreationManagement
         public override string ToString()
         {
             return Name;
+        }
+
+        public Creation Clone()
+        {
+            var copy = new Creation
+            {
+                Name = _name
+            };
+            foreach (var profile in _controllerProfiles ?? Enumerable.Empty<ControllerProfile>())
+            {
+                copy._controllerProfiles.Add(profile.Clone());
+            }
+
+            return copy;
         }
 
         public IEnumerable<string> GetDeviceIds()

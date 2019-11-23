@@ -10,6 +10,9 @@ using Windows.UI.Xaml.Controls;
 using ProgressBar = Windows.UI.Xaml.Controls.ProgressBar;
 using Windows.UI.Core;
 using BrickController2.Windows.Extensions;
+using Windows.Storage.Pickers;
+using System.IO;
+using Windows.Storage;
 
 namespace BrickController2.Windows.UI.Services
 {
@@ -118,6 +121,60 @@ namespace BrickController2.Windows.UI.Services
             }
 
             return await completionSource.Task;
+        }
+
+        public async Task<InputDialogResult> ShowFileSaveDialogAsync(string title, string message, string initialName, string extension,
+            Action<Stream> writer,
+            CancellationToken token)
+        {
+            var savePicker = new FileSavePicker
+            {
+                SuggestedFileName = initialName,
+                DefaultFileExtension = extension,
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+            };
+            savePicker.FileTypeChoices.Add("json", new[] { extension });
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                CachedFileManager.DeferUpdates(file);
+                // write to file
+
+                using (var stream = new MemoryStream())
+                {
+                    writer(stream);
+                    await FileIO.WriteBytesAsync(file, stream.ToArray());
+                }
+
+                var status = await CachedFileManager.CompleteUpdatesAsync(file);
+
+                return new InputDialogResult(true, file.Path);
+            }
+            return new InputDialogResult(false, string.Empty);
+        }
+
+        public async Task<InputDialogResult> ShowFilePickerDialogAsync(string title, string message, string extension, Func<StreamReader, Task> fileReader, CancellationToken token)
+        {
+            FileOpenPicker openPicker = new FileOpenPicker
+            {
+                ViewMode = PickerViewMode.Thumbnail,
+                SuggestedStartLocation = PickerLocationId.Downloads
+            };
+            openPicker.FileTypeFilter.Add(extension);
+
+            var file = await openPicker.PickSingleFileAsync();
+            if (file != null)
+            {
+                var stream = await file.OpenReadAsync();
+
+                // Convert the stream to a .NET stream using AsStream, pass to a 
+                // StreamReader and read the stream.
+                await fileReader(new StreamReader(stream.AsStream()));
+
+                return new InputDialogResult(true, file.Path);
+            }
+            return new InputDialogResult(false, string.Empty);
         }
 
         public async Task ShowProgressDialogAsync(bool isDeterministic, Func<IProgressDialog, CancellationToken, Task> action, string title, string message, string cancelButtonText)

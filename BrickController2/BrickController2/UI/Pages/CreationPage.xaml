@@ -11,6 +11,7 @@
     Title="{extensions:Translate Creation}">
 
     <local:PageBase.ToolbarItems>
+        <ToolbarItem Icon="ic_share_white.png" Order="Primary" Command="{Binding ExportCreationCommand}"/>
         <ToolbarItem Icon="ic_edit_white.png" Order="Primary" Command="{Binding RenameCreationCommand}"/>
         <ToolbarItem Icon="ic_add_white.png" Order="Primary" Command="{Binding AddControllerProfileCommand}"/>
     </local:PageBase.ToolbarItems>

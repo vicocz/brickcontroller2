@@ -13,6 +13,7 @@ using System;
 using BrickController2.UI.Services.Translation;
 using System.IO;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -187,37 +188,77 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                var result = await _dialogService.ShowFilePickerDialogAsync(
+                var result = await _dialogService.ShowFileLoadDialogAsync<Creation>(
     Translate("Import"),
     "",
     ".json",
-    ReadFile,
+    LoadCreationFromJson<Creation>,
     _disappearingTokenSource.Token);
 
                 if (!result.IsOk)
                 {
+                    //TODO report
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Error"),
+                        Translate("ImportFailed"),
+                        Translate("Ok"),
+                        _disappearingTokenSource.Token);
 
+                    return;
+                }
+                else
+                {
+                    var importedCreation = await _creationManager.ImportCreationAsync(result.Result);
+
+                    // not found devices
+                    var notFoundDevices = importedCreation.GetDeviceIds()
+                        .Where(id => _deviceManager.GetDeviceById(id) == null)
+                        .ToList()
+                        ;
+
+                    if (notFoundDevices.Any())
+                    {
+                        //TODO report
+                        await _dialogService.ShowMessageBoxAsync(
+                            Translate("Warning"),
+                            Translate("SomeImportedDeviceNotFound"),
+                            Translate("Ok"),
+                            _disappearingTokenSource.Token);
+
+                        return;
+                    }
                 }
             }
             catch (OperationCanceledException)
             {
             }
+            catch (Exception ex)
+            {
+                //TODO report on better place
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Error"),
+                    Translate("ImportFailed" + Environment.NewLine + ex.Message),
+                    Translate("Ok"),
+                    _disappearingTokenSource.Token);
+
+                return;
+            }
         }
 
-        private async Task ReadFile(StreamReader opennedFile)
+        private Task<T> LoadCreationFromJson<T>(StreamReader opennedFile)
         {
-            using (opennedFile)
-            using (var reader = new JsonTextReader(opennedFile))
+            try
             {
-                var serializer = new JsonSerializer();
-                var creation = serializer.Deserialize<Creation>(reader);
-
-                var importedCreation = await _creationManager.AddCreationAsync(creation.Name);
-
-                foreach (var profile in creation.ControllerProfiles)
-                { 
-                    await _creationManager.UpdateControllerActionAsync
+                // stream reader is Disposed by ShowFileLoadDialogAsync
+                using (var reader = new JsonTextReader(opennedFile))
+                {
+                    var serializer = new JsonSerializer();
+                    return Task.FromResult(serializer.Deserialize<T>(reader));
                 }
+            }
+            catch (JsonSerializationException ex)
+            {
+                return Task.FromException<T>(ex);
             }
         }
     }

@@ -154,7 +154,7 @@ namespace BrickController2.Windows.UI.Services
             return new InputDialogResult(false, string.Empty);
         }
 
-        public async Task<InputDialogResult> ShowFilePickerDialogAsync(string title, string message, string extension, Func<StreamReader, Task> fileReader, CancellationToken token)
+        public async Task<FileLoadResult<T>> ShowFileLoadDialogAsync<T>(string title, string message, string extension, Func<StreamReader, Task<T>> contentLoader, CancellationToken token)
         {
             FileOpenPicker openPicker = new FileOpenPicker
             {
@@ -170,11 +170,14 @@ namespace BrickController2.Windows.UI.Services
 
                 // Convert the stream to a .NET stream using AsStream, pass to a 
                 // StreamReader and read the stream.
-                await fileReader(new StreamReader(stream.AsStream()));
+                using (var readerStream = new StreamReader(stream.AsStream()))
+                {
+                    var fileContent = await contentLoader(readerStream);
 
-                return new InputDialogResult(true, file.Path);
+                    return new FileLoadResult<T>(true, fileContent);
+                }
             }
-            return new InputDialogResult(false, string.Empty);
+            return new FileLoadResult<T>(false);
         }
 
         public async Task ShowProgressDialogAsync(bool isDeterministic, Func<IProgressDialog, CancellationToken, Task> action, string title, string message, string cancelButtonText)

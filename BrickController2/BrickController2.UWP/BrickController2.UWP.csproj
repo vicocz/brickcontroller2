@@ -53,6 +53,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -93,10 +94,31 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\AdvertismentExtensions.cs" />
+    <Compile Include="Extensions\ControllerExtensions.cs" />
+    <Compile Include="Extensions\ConvertExtensions.cs" />
+    <Compile Include="Extensions\IBufferExtensions.cs" />
+    <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PlatformServices\BluetoothLE\BleDevice.cs" />
+    <Compile Include="PlatformServices\BluetoothLE\BleGattCharacteristic.cs" />
+    <Compile Include="PlatformServices\BluetoothLE\BleGattService.cs" />
+    <Compile Include="PlatformServices\BluetoothLE\BleScanner.cs" />
+    <Compile Include="PlatformServices\BluetoothLE\BleService.cs" />
+    <Compile Include="PlatformServices\DI\PlatformServicesModule.cs" />
+    <Compile Include="PlatformServices\GameController\GameControllerService.cs" />
+    <Compile Include="PlatformServices\GameController\GamepadController.cs" />
+    <Compile Include="PlatformServices\Infrared\InfraredService.cs" />
+    <Compile Include="PlatformServices\Localization\LocalizationService.cs" />
+    <Compile Include="PlatformServices\Preferences\Preferences.cs" />
+    <Compile Include="PlatformServices\Versioning\VersionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Services\DialogService.cs" />
+    <Compile Include="UI\Services\DI\UIServicesModule.cs" />
+    <Compile Include="UI\Services\GameControllerEventDialog.cs" />
+    <Compile Include="UI\Services\ProgressDialog.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

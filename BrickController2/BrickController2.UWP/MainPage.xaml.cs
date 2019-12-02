@@ -17,11 +17,35 @@ namespace BrickController2.UWP
 {
     public sealed partial class MainPage
     {
+        private readonly GameControllerService _gameControllerService;
+        private readonly IContainer _container;
+
         public MainPage()
         {
             this.InitializeComponent();
 
-            LoadApplication(new BrickController2.App());
+            _container = InitDI();
+            _gameControllerService = _container.Resolve<GameControllerService>();
+
+            base.LoadApplication(_container.Resolve<App>());
+
+            // ensure GameControllerService is properly linked
+            _gameControllerService.InitializeComponent(Window.Current.CoreWindow);
+        }
+
+        private static IContainer InitDI()
+        {
+            var builder = new ContainerBuilder();
+
+            builder.RegisterModule(new PlatformServicesModule());
+            builder.RegisterModule(new UIServicesModule());
+
+            builder.RegisterModule(new DatabaseModule());
+            builder.RegisterModule(new CreationManagementModule());
+            builder.RegisterModule(new DeviceManagementModule());
+            builder.RegisterModule(new UiModule());
+
+            return builder.Build();
         }
     }
 }

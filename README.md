@@ -1,4 +1,4 @@
-# BrickController 2
+﻿# BrickController 2
 
 Cross platform mobile application for controlling Lego creations using a bluetooth gamepad.
 
@@ -6,6 +6,7 @@ Cross platform mobile application for controlling Lego creations using a bluetoo
 
 - Android 4.3+
 - iOS 8+
+- Windows 10 (experimental)
 
 ## Supported receivers
 

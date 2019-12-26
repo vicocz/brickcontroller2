@@ -13,10 +13,8 @@ namespace BrickController2.UI.Services.Dialog
 
         Task<InputDialogResult> ShowInputDialogAsync(string title, string message, string initialValue, string placeHolder, string positiveButtonText, string negativeButtonText, KeyboardType keyboardType, CancellationToken token);
 
-        Task<InputDialogResult> ShowFileSaveDialogAsync(string title, string message, string initialName, string extension,
-            Action<Stream> writer,
-            CancellationToken token);
-        Task<FileLoadResult<T>> ShowFileLoadDialogAsync<T>(string title, string message, string extension, Func<StreamReader, Task<T>> contentLoader, CancellationToken token);
+        Task<InputDialogResult> ShowFileSaveDialogAsync(string title, string fileName, string fileType, Action<Stream> writer, CancellationToken token);
+        Task<FileLoadResult<T>> ShowFileLoadDialogAsync<T>(string title, string fileType, Func<StreamReader, Task<T>> contentLoader, CancellationToken token);
 
         Task ShowProgressDialogAsync(bool isDeterministic, Func<IProgressDialog, CancellationToken, Task> action, string title = null, string message = null, string cancelButtonText = null);
 

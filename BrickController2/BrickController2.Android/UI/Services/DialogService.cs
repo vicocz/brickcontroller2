@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
@@ -9,6 +10,7 @@ using Android.Widget;
 using BrickController2.Droid.PlatformServices.GameController;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.UI.Services.Dialog;
+using Plugin.FilePicker;
 
 namespace BrickController2.Droid.UI.Services
 {
@@ -234,6 +236,42 @@ namespace BrickController2.Droid.UI.Services
                         completionSource.TrySetResult(new GameControllerEventDialogResult(true, controllerEvent.Key.EventType, controllerEvent.Key.EventCode));
                         return;
                     }
+                }
+            }
+        }
+
+        public async Task<InputDialogResult> ShowFileSaveDialogAsync(string title, string fileName, string fileType, Action<Stream> writer, CancellationToken token)
+        {
+            var mimeType = $"application/{fileType}";
+
+            using (var fileData = await CrossFilePicker.Current.PickFile(new[] { mimeType }))
+            {
+                if (fileData == null)
+                    return new InputDialogResult(false, string.Empty); // user canceled file picking
+
+                using (var fileStream = new FileStream(fileData.FilePath, FileMode.Create, FileAccess.Write))
+                {
+                    writer(fileStream);
+
+                    return new InputDialogResult(false, fileData.FilePath);
+                }
+            }
+        }
+
+        public async Task<FileLoadResult<T>> ShowFileLoadDialogAsync<T>(string title, string fileType, Func<StreamReader, Task<T>> contentLoader, CancellationToken token)
+        {
+            var mimeType = $"application/{fileType}";
+
+            using (var fileData = await CrossFilePicker.Current.PickFile(new[] { mimeType }))
+            {
+                if (fileData == null)
+                    return new FileLoadResult<T>(false); // user canceled file picking
+
+                using (var reader = new StreamReader(fileData.GetStream()))
+                {
+                    var content = contentLoader(reader);
+
+                    return new FileLoadResult<T>(true, content.Result);
                 }
             }
         }

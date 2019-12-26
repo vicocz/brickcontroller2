@@ -123,17 +123,17 @@ namespace BrickController2.Windows.UI.Services
             return await completionSource.Task;
         }
 
-        public async Task<InputDialogResult> ShowFileSaveDialogAsync(string title, string message, string initialName, string extension,
-            Action<Stream> writer,
-            CancellationToken token)
+        public async Task<InputDialogResult> ShowFileSaveDialogAsync(string title, string fileName, string fileType, Action<Stream> writer, CancellationToken token)
         {
+            var fileExtension = fileType.StartsWith('.') ? fileType : $".{fileType}";
             var savePicker = new FileSavePicker
             {
-                SuggestedFileName = initialName,
-                DefaultFileExtension = extension,
+                SuggestedFileName = fileName,
+                DefaultFileExtension = fileExtension,
+                CommitButtonText = title,
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary
             };
-            savePicker.FileTypeChoices.Add("json", new[] { extension });
+            savePicker.FileTypeChoices.Add(fileType, new[] { fileExtension });
 
             var file = await savePicker.PickSaveFileAsync();
             if (file != null)
@@ -154,14 +154,15 @@ namespace BrickController2.Windows.UI.Services
             return new InputDialogResult(false, string.Empty);
         }
 
-        public async Task<FileLoadResult<T>> ShowFileLoadDialogAsync<T>(string title, string message, string extension, Func<StreamReader, Task<T>> contentLoader, CancellationToken token)
+        public async Task<FileLoadResult<T>> ShowFileLoadDialogAsync<T>(string title, string fileType, Func<StreamReader, Task<T>> contentLoader, CancellationToken token)
         {
+            var fileExtension = fileType.StartsWith('.') ? fileType : $".{fileType}";
             FileOpenPicker openPicker = new FileOpenPicker
             {
                 ViewMode = PickerViewMode.Thumbnail,
-                SuggestedStartLocation = PickerLocationId.Downloads
+                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
             };
-            openPicker.FileTypeFilter.Add(extension);
+            openPicker.FileTypeFilter.Add(fileExtension);
 
             var file = await openPicker.PickSingleFileAsync();
             if (file != null)

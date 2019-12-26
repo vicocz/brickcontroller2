@@ -109,32 +109,31 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
+                // neither cancellation nor success is reported
                 var result = await _dialogService.ShowFileSaveDialogAsync(
                     Translate("Export"),
-                    Translate("EnterCreationName"),
                     Creation.Name,
-                    ".json",
-                    WriteFile,
+                    "json",
+                    WriteCreationAsJsonFile,
                     _disappearingTokenSource.Token);
-
-                if (!result.IsOk)
-                {
-                    await _dialogService.ShowMessageBoxAsync(
-                        Translate("Warning"),
-                        Translate("CreationNameCanNotBeEmpty"),
-                        Translate("Ok"),
-                        _disappearingTokenSource.Token);
-                }
             }
             catch (OperationCanceledException)
             {
             }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Error"),
+                    Translate("ExportFailed" + Environment.NewLine + ex.Message),
+                    Translate("Ok"),
+                    _disappearingTokenSource.Token);
+            }
         }
 
-        private void WriteFile(Stream outputStream)
+        private void WriteCreationAsJsonFile(Stream outputStream)
         {
             // create a copy of the current creation so as any ID are gone
-            var copy = this.Creation.Clone();
+            var copy = Creation.Clone();
             var serializer = new JsonSerializer();
 
             using var sw = new StreamWriter(outputStream);

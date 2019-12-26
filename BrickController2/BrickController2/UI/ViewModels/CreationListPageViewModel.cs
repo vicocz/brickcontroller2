@@ -191,12 +191,11 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                var result = await _dialogService.ShowFileLoadDialogAsync<Creation>(
-    Translate("Import"),
-    "",
-    ".json",
-    LoadCreationFromJson<Creation>,
-    _disappearingTokenSource.Token);
+                var result = await _dialogService.ShowFileLoadDialogAsync(
+                    Translate("Import"),
+                    "json",
+                    LoadCreationFromJson<Creation>,
+                    _disappearingTokenSource.Token);
 
                 if (!result.IsOk)
                 {
@@ -206,8 +205,6 @@ namespace BrickController2.UI.ViewModels
                         Translate("ImportFailed"),
                         Translate("Ok"),
                         _disappearingTokenSource.Token);
-
-                    return;
                 }
                 else
                 {
@@ -227,8 +224,6 @@ namespace BrickController2.UI.ViewModels
                             Translate("SomeImportedDeviceNotFound"),
                             Translate("Ok"),
                             _disappearingTokenSource.Token);
-
-                        return;
                     }
                 }
             }
@@ -243,8 +238,6 @@ namespace BrickController2.UI.ViewModels
                     Translate("ImportFailed" + Environment.NewLine + ex.Message),
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
-
-                return;
             }
         }
 

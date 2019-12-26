@@ -19,8 +19,8 @@
     </local:PageBase.Resources>
 
     <local:PageBase.ToolbarItems>
-        <ToolbarItem Icon="ic_add_white.png" Order="Primary" Command="{Binding AddCreationCommand}"/>
         <ToolbarItem Icon="ic_import_white.png" Order="Primary" Command="{Binding ImportCreationCommand}"/>
+        <ToolbarItem Icon="ic_add_white.png" Order="Primary" Command="{Binding AddCreationCommand}"/>
     </local:PageBase.ToolbarItems>
 
     <local:PageBase.Content>

@@ -171,7 +171,10 @@
     <Content Include="Assets\Square44x44Logo.targetsize-48.png" />
     <Content Include="ic_add_white.png" />
     <Content Include="ic_checkmark_white.png" />
+    <Content Include="ic_copy_white.png" />
     <Content Include="ic_edit_white.png" />
+    <Content Include="ic_export_white.png" />
+    <Content Include="ic_import_white.png" />
     <Content Include="ic_search_white.png" />
     <Content Include="ic_trashbin_white.png" />
     <Content Include="Properties\Default.rd.xml" />

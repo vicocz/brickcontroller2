@@ -70,7 +70,7 @@ namespace BrickController2.UI.ViewModels
 
         private async Task RequestPermissions()
         {
-            var status = await CrossPermissions.Current.CheckPermissionStatusAsync(Permission.Location);
+            var status = await CrossPermissions.Current.CheckPermissionStatusAsync<LocationPermission>();
             if (status != PermissionStatus.Granted)
             {
                 if (await CrossPermissions.Current.ShouldShowRequestPermissionRationaleAsync(Permission.Location))
@@ -82,11 +82,7 @@ namespace BrickController2.UI.ViewModels
                         _disappearingTokenSource.Token);
                 }
 
-                var result = await CrossPermissions.Current.RequestPermissionsAsync(Permission.Location);
-                if (result.ContainsKey(Permission.Location))
-                {
-                    status = result[Permission.Location];
-                }
+                status = await CrossPermissions.Current.RequestPermissionAsync<LocationPermission>();
             }
 
             if (status != PermissionStatus.Granted)

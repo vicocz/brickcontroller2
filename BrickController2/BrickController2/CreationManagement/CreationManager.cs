@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 
+using File = BrickController2.FileWorkaround;
+
 namespace BrickController2.CreationManagement
 {
     public class CreationManager : ICreationManager

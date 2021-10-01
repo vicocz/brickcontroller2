@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BrickController2.PlatformServices.GameController;
-using BrickController2.UI.Services.UIThread;
+using BrickController2.UI.Services.MainThread;
 using BrickController2.Windows.Extensions;
 using Windows.Gaming.Input;
 using Windows.System;
@@ -45,22 +45,21 @@ namespace BrickController2.Windows.PlatformServices.GameController
             VirtualKey.GamepadRightThumbstickLeft
         };
 
-        private readonly IUIThreadService _threadService;
         private readonly IDictionary<VirtualKey, string> _knownVirtualKeys;
         private readonly IDictionary<string, GamepadController> _availableControllers = new Dictionary<string, GamepadController>();
         private readonly object _lockObject = new object();
-
+        private readonly IMainThreadService _mainThreadService;
         private CoreWindow _coreWindow;
 
         private event EventHandler<GameControllerEventArgs> GameControllerEventInternal;
 
-        public GameControllerService(IUIThreadService threadService) : this(threadService, GamePadVirtualKeys)
+        public GameControllerService(IMainThreadService mainThreadService) : this(mainThreadService, GamePadVirtualKeys)
         {
         }
 
-        private GameControllerService(IUIThreadService threadService, IEnumerable<VirtualKey> gamepadVirtualKeys)
+        private GameControllerService(IMainThreadService mainThreadService, IEnumerable<VirtualKey> gamepadVirtualKeys)
         {
-            _threadService = threadService ?? throw new ArgumentNullException(nameof(threadService));
+            _mainThreadService = mainThreadService;
             _knownVirtualKeys = gamepadVirtualKeys.ToDictionary(x => x, x => Enum.GetName(typeof(VirtualKey), x));
         }
 
@@ -208,7 +207,7 @@ namespace BrickController2.Windows.PlatformServices.GameController
             // get all available gamepads
             if (Gamepad.Gamepads.Any())
             {
-                _ = AddDevicesInMainThread(Gamepad.Gamepads);
+                AddDevices(Gamepad.Gamepads);
             }
 
             Gamepad.GamepadRemoved += Gamepad_GamepadRemoved;
@@ -249,7 +248,7 @@ namespace BrickController2.Windows.PlatformServices.GameController
         private Task AddDevicesInMainThread(IEnumerable<Gamepad> gamepads)
         {
             // enesure created in UI thread
-            return _threadService.RunOnMainThread(() => AddDevices(gamepads));
+            return _mainThreadService.RunOnMainThread(() => AddDevices(gamepads));
         }
 
         private void AddDevices(IEnumerable<Gamepad> gamepads)

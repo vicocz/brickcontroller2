@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+﻿using Autofac;
+using BrickController2.BusinessLogic.DI;
+using BrickController2.CreationManagement.DI;
+using BrickController2.Database.DI;
+using BrickController2.DeviceManagement.DI;
+using BrickController2.UI.DI;
+using BrickController2.Windows.PlatformServices.DI;
+using BrickController2.Windows.PlatformServices.GameController;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 namespace BrickController2.UWP
 {
@@ -27,7 +22,7 @@ namespace BrickController2.UWP
             _container = InitDI();
             _gameControllerService = _container.Resolve<GameControllerService>();
 
-            base.LoadApplication(_container.Resolve<App>());
+            base.LoadApplication(_container.Resolve<BrickController2.App>());
 
             // ensure GameControllerService is properly linked
             _gameControllerService.InitializeComponent(Window.Current.CoreWindow);
@@ -38,8 +33,8 @@ namespace BrickController2.UWP
             var builder = new ContainerBuilder();
 
             builder.RegisterModule(new PlatformServicesModule());
-            builder.RegisterModule(new UIServicesModule());
 
+            builder.RegisterModule(new BusinessLogicModule());
             builder.RegisterModule(new DatabaseModule());
             builder.RegisterModule(new CreationManagementModule());
             builder.RegisterModule(new DeviceManagementModule());

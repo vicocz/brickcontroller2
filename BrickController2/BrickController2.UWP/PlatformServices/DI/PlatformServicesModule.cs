@@ -4,12 +4,15 @@ using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.Localization;
-using BrickController2.PlatformServices.Preferences;
+using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.PlatformServices.Versioning;
 using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Versioning;
 using BrickController2.Windows.PlatformServices.Localization;
 using BrickController2.Windows.PlatformServices.GameController;
+using BrickController2.Windows.PlatformServices.SharedFileStorage;
+using BrickController2.Windows.PlatformServices.Permission;
+using BrickController2.PlatformServices.Permission;
 
 namespace BrickController2.Windows.PlatformServices.DI
 {
@@ -22,7 +25,8 @@ namespace BrickController2.Windows.PlatformServices.DI
             builder.RegisterType<VersionService>().As<IVersionService>().SingleInstance();
             builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
             builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
-            builder.RegisterType<Preferences.Preferences>().As<IPreferences>().SingleInstance();
+            builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
+            builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrickController2.Helpers;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -17,6 +18,12 @@ namespace BrickController2.Windows
         /// </summary>
         public App()
         {
+            // workaround resource loading for EN language
+            // enforce blocking of modern resource loading so as EN resources are properly loaded
+            var location = System.IO.Path.GetDirectoryName(typeof(ResourceHelper).Assembly.Location);
+            AppDomain.CurrentDomain.SetData("PLATFORM_RESOURCE_ROOTS", location);
+
+
             this.InitializeComponent();
             this.Suspending += OnSuspending;
         }

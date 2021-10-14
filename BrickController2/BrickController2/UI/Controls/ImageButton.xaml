@@ -6,11 +6,11 @@
     x:Class="BrickController2.UI.Controls.ImageButton">
     
   <ContentView.Content>
-        <Frame x:Name="Frame" BackgroundColor="Transparent" HasShadow="False" Padding="0">
-            <Frame.GestureRecognizers>
+        <Grid x:Name="Frame" BackgroundColor="Transparent" Padding="0">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer x:Name="TapGuestureRecognizer"/>
-            </Frame.GestureRecognizers>
+            </Grid.GestureRecognizers>
             <controls:ColorImage x:Name="Image" HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFill"/>
-        </Frame>
+        </Grid>
     </ContentView.Content>
 </ContentView>

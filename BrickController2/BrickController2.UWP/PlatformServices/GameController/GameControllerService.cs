@@ -234,8 +234,10 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
                 if (_availableControllers.TryGetValue(deviceId, out var controller))
                 {
-                    controller.Stop();
                     _availableControllers.Remove(deviceId);
+
+                    // enesure created in UI thread
+                    _ = _mainThreadService.RunOnMainThread(() => controller.Stop());
                 }
             }
         }

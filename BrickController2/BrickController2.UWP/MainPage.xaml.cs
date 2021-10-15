@@ -8,7 +8,7 @@ using BrickController2.Windows.PlatformServices.DI;
 using BrickController2.Windows.PlatformServices.GameController;
 using Windows.UI.Xaml;
 
-namespace BrickController2.UWP
+namespace BrickController2.Windows
 {
     public sealed partial class MainPage
     {

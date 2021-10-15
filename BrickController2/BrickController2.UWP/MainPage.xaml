@@ -1,9 +1,9 @@
 ﻿<forms:WindowsPage
-    x:Class="BrickController2.UWP.MainPage"
+    x:Class="BrickController2.Windows.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:forms="using:Xamarin.Forms.Platform.UWP"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:BrickController2.UWP"
+    xmlns:local="using:BrickController2.Windows"
     Background="{ThemeResource SystemAccentColor}">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

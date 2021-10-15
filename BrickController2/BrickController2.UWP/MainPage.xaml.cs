@@ -6,6 +6,8 @@ using BrickController2.DeviceManagement.DI;
 using BrickController2.UI.DI;
 using BrickController2.Windows.PlatformServices.DI;
 using BrickController2.Windows.PlatformServices.GameController;
+using Windows.UI;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
 namespace BrickController2.Windows
@@ -18,6 +20,11 @@ namespace BrickController2.Windows
         public MainPage()
         {
             this.InitializeComponent();
+
+            // override system settings
+            var appView = ApplicationView.GetForCurrentView();
+            appView.TitleBar.ButtonBackgroundColor = Colors.White;
+            appView.TitleBar.ButtonPressedBackgroundColor = appView.TitleBar.ButtonHoverBackgroundColor = Colors.Red;
 
             _container = InitDI();
             _gameControllerService = _container.Resolve<GameControllerService>();

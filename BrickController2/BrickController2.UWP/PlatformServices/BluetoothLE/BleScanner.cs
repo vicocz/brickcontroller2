@@ -38,10 +38,8 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             _passiveWatcher.Start();
 
             // setup ScanResult required data
-            _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern
-            {
-                DataType = BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData
-            });
+            _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern { DataType = BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData });
+            _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern { DataType = BluetoothLEAdvertisementDataTypes.CompleteLocalName });
             _activeWatcher.Start();
         }
 
@@ -76,12 +74,13 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
 
             var manufacturerSpecificData = args.Advertisement.GetSectionsByType(BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData);
-            var advertismentData = GetAdvertismentData(manufacturerSpecificData);
+            var localNameData = args.Advertisement.GetSectionsByType(BluetoothLEAdvertisementDataTypes.CompleteLocalName);
+            var advertismentData = GetAdvertismentData(manufacturerSpecificData.Union(localNameData));
 
             _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
         }
 
-        private static IDictionary<byte, byte[]> GetAdvertismentData(IReadOnlyCollection<BluetoothLEAdvertisementDataSection> sections)
+        private static IDictionary<byte, byte[]> GetAdvertismentData(IEnumerable<BluetoothLEAdvertisementDataSection> sections)
         {
             return sections.ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
         }

@@ -58,21 +58,21 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
             var currentEvents = currentReading
                 .Where(HasChanged)
-                .ToDictionary(x => (x.Item1, x.Item2), x => x.Item3);
+                .ToDictionary(x => (GameControllerEventType.Axis, x.AxisName), x => x.Value);
 
             _controllerService.RaiseEvent(currentEvents);
         }
 
-        private IEnumerable<(GameControllerEventType, string, float)> GetCurrentReadings()
+        private IEnumerable<(string AxisName, float Value)> GetCurrentReadings()
         {
             var currentReading = UwpController.GetCurrentReading();
 
-            yield return (GameControllerEventType.Axis, nameof(GamepadReading.LeftThumbstickX), currentReading.LeftThumbstickX.ToControllerValue());
-            yield return (GameControllerEventType.Axis, nameof(GamepadReading.LeftThumbstickY), currentReading.LeftThumbstickY.ToControllerValue());
-            yield return (GameControllerEventType.Axis, nameof(GamepadReading.LeftTrigger), currentReading.LeftTrigger.ToControllerValue()); ;
-            yield return (GameControllerEventType.Axis, nameof(GamepadReading.RightThumbstickX), currentReading.RightThumbstickX.ToControllerValue());
-            yield return (GameControllerEventType.Axis, nameof(GamepadReading.RightThumbstickY), currentReading.RightThumbstickY.ToControllerValue());
-            yield return (GameControllerEventType.Axis, nameof(GamepadReading.RightTrigger), currentReading.RightTrigger.ToControllerValue());
+            yield return GamepadMapping.GetAxisValue(GamepadMapping.XAxis, currentReading.LeftThumbstickX);
+            yield return GamepadMapping.GetAxisValue(GamepadMapping.YAxis, currentReading.LeftThumbstickY);
+            yield return GamepadMapping.GetAxisValue(GamepadMapping.BrakeAxis, currentReading.LeftTrigger);
+            yield return GamepadMapping.GetAxisValue(GamepadMapping.ZAxis, currentReading.RightThumbstickX);
+            yield return GamepadMapping.GetAxisValue(GamepadMapping.RzAxis, currentReading.RightThumbstickY);
+            yield return GamepadMapping.GetAxisValue(GamepadMapping.GasAxis, currentReading.RightTrigger);
         }
 
         private static bool AreAlmostEqual(float a, float b)
@@ -80,18 +80,18 @@ namespace BrickController2.Windows.PlatformServices.GameController
             return Math.Abs(a - b) < 0.001;
         }
 
-        private bool HasChanged((GameControllerEventType, string, float) readingValue)
+        private bool HasChanged((string AxisName, float Value) readingValue)
         {
-            if (_lastReadingValues.TryGetValue(readingValue.Item2, out float lastValue))
+            if (_lastReadingValues.TryGetValue(readingValue.AxisName, out float lastValue))
             {
-                if (AreAlmostEqual(readingValue.Item3, lastValue))
+                if (AreAlmostEqual(readingValue.Value, lastValue))
                 {
                     // axisValue == lastValue
                     return false;
                 }
             }
 
-            _lastReadingValues[readingValue.Item2] = readingValue.Item3;
+            _lastReadingValues[readingValue.AxisName] = readingValue.Value;
             return true;
         }
     }

@@ -14,38 +14,7 @@ namespace BrickController2.Windows.PlatformServices.GameController
 {
     public class GameControllerService : IGameControllerService
     {
-        /// <summary>
-        /// Set of virtual keys related to gamepads
-        /// </summary>
-        private static readonly VirtualKey[] GamePadVirtualKeys =
-        {
-            VirtualKey.GamepadA,
-            VirtualKey.GamepadB,
-            VirtualKey.GamepadX,
-            VirtualKey.GamepadY,
-            VirtualKey.GamepadRightShoulder,
-            VirtualKey.GamepadLeftShoulder,
-            VirtualKey.GamepadLeftTrigger,
-            VirtualKey.GamepadRightTrigger,
-            VirtualKey.GamepadDPadUp,
-            VirtualKey.GamepadDPadDown,
-            VirtualKey.GamepadDPadLeft,
-            VirtualKey.GamepadDPadRight,
-            VirtualKey.GamepadMenu,
-            VirtualKey.GamepadView,
-            VirtualKey.GamepadLeftThumbstickButton,
-            VirtualKey.GamepadRightThumbstickButton,
-            VirtualKey.GamepadLeftThumbstickUp,
-            VirtualKey.GamepadLeftThumbstickDown,
-            VirtualKey.GamepadLeftThumbstickRight,
-            VirtualKey.GamepadLeftThumbstickLeft,
-            VirtualKey.GamepadRightThumbstickUp,
-            VirtualKey.GamepadRightThumbstickDown,
-            VirtualKey.GamepadRightThumbstickRight,
-            VirtualKey.GamepadRightThumbstickLeft
-        };
 
-        private readonly IDictionary<VirtualKey, string> _knownVirtualKeys;
         private readonly IDictionary<string, GamepadController> _availableControllers = new Dictionary<string, GamepadController>();
         private readonly object _lockObject = new object();
         private readonly IMainThreadService _mainThreadService;
@@ -53,14 +22,9 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
         private event EventHandler<GameControllerEventArgs> GameControllerEventInternal;
 
-        public GameControllerService(IMainThreadService mainThreadService) : this(mainThreadService, GamePadVirtualKeys)
-        {
-        }
-
-        private GameControllerService(IMainThreadService mainThreadService, IEnumerable<VirtualKey> gamepadVirtualKeys)
+        public GameControllerService(IMainThreadService mainThreadService)
         {
             _mainThreadService = mainThreadService;
-            _knownVirtualKeys = gamepadVirtualKeys.ToDictionary(x => x, x => Enum.GetName(typeof(VirtualKey), x));
         }
 
         public event EventHandler<GameControllerEventArgs> GameControllerEvent
@@ -94,11 +58,6 @@ namespace BrickController2.Windows.PlatformServices.GameController
             }
         }
 
-        private bool IsKnownVirtualKey(VirtualKey virtualKey, out string keyCode)
-        {
-            return _knownVirtualKeys.TryGetValue(virtualKey, out keyCode);
-        }
-
         internal void RaiseEvent(IDictionary<(GameControllerEventType, string), float> events)
         {
             if (!events.Any())
@@ -109,14 +68,14 @@ namespace BrickController2.Windows.PlatformServices.GameController
             GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(events));
         }
 
-        internal void RaiseEvent(string deviceId, GameControllerEventType eventType, string key, float value)
+        internal void RaiseEvent(string deviceId,string key, float value = 0.0f)
         {
             if (GameControllerEventInternal == null)
             {
                 return;
             }
 
-            GameControllerEventInternal.Invoke(this, new GameControllerEventArgs(eventType, key, value));
+            GameControllerEventInternal.Invoke(this, new GameControllerEventArgs(GameControllerEventType.Button, key, value));
         }
 
         internal void InitializeComponent(CoreWindow coreWindow)
@@ -158,11 +117,11 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
         private bool HandleKeyDown(string deviceId, VirtualKey key, CorePhysicalKeyStatus keyStatus)
         {
-            if (IsKnownVirtualKey(key, out var keyCode))
+            if (GamepadMapping.IsGamepadButton(key, out string buttonCode, out float buttonValue))
             {
                 if (keyStatus.RepeatCount == 1)
                 {
-                    RaiseEvent(deviceId, GameControllerEventType.Button, keyCode, 1.0F);
+                    RaiseEvent(deviceId, buttonCode, buttonValue);
                     return true;
                 }
             }
@@ -172,11 +131,11 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
         private bool HandleKeyUp(string deviceId, VirtualKey key, CorePhysicalKeyStatus keyStatus)
         {
-            if (IsKnownVirtualKey(key, out var keyCode))
+            if (GamepadMapping.IsGamepadButton(key, out string buttonCode, out var _))
             {
                 if (keyStatus.RepeatCount == 1)
                 {
-                    RaiseEvent(deviceId ,GameControllerEventType.Button, keyCode, 0.0F);
+                    RaiseEvent(deviceId, buttonCode);
                     return true;
                 }
             }

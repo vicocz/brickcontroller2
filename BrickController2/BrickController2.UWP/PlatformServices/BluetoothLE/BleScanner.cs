@@ -16,6 +16,8 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         private readonly BluetoothLEAdvertisementWatcher _passiveWatcher;
         private readonly BluetoothLEAdvertisementWatcher _activeWatcher;
 
+        private static readonly IReadOnlyCollection<byte> AdvertismentDataTypes = new[] { BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData, BluetoothLEAdvertisementDataTypes.CompleteLocalName };
+
         public BleScanner(Action<ScanResult> scanCallback)
         {
             _scanCallback = scanCallback;
@@ -38,8 +40,10 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             _passiveWatcher.Start();
 
             // setup ScanResult required data
-            _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern { DataType = BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData });
-            _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern { DataType = BluetoothLEAdvertisementDataTypes.CompleteLocalName });
+            foreach (var dataType in AdvertismentDataTypes)
+            {
+                _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern { DataType = dataType });
+            }
             _activeWatcher.Start();
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Windows.Extensions;
 using Windows.Devices.Bluetooth.Advertisement;
@@ -16,7 +17,7 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         private readonly BluetoothLEAdvertisementWatcher _passiveWatcher;
         private readonly BluetoothLEAdvertisementWatcher _activeWatcher;
 
-        private static readonly IReadOnlyCollection<byte> AdvertismentDataTypes = new[] { BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData, BluetoothLEAdvertisementDataTypes.CompleteLocalName };
+        private static readonly IReadOnlyCollection<byte> AdvertismentDataTypes = new[] { BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData };
 
         public BleScanner(Action<ScanResult> scanCallback)
         {
@@ -78,8 +79,9 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
 
             var manufacturerSpecificData = args.Advertisement.GetSectionsByType(BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData);
-            var localNameData = args.Advertisement.GetSectionsByType(BluetoothLEAdvertisementDataTypes.CompleteLocalName);
-            var advertismentData = GetAdvertismentData(manufacturerSpecificData.Union(localNameData));
+            var advertismentData = GetAdvertismentData(manufacturerSpecificData);
+            // enrich data with name manually (SBrick do not like CompleteLocalName, but Buwizz3 requires it)
+            advertismentData[BluetoothLEAdvertisementDataTypes.CompleteLocalName] = Encoding.ASCII.GetBytes(deviceName);
 
             _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
         }

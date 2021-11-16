@@ -1,22 +1,18 @@
-﻿using System;
-
-namespace BrickController2.Windows.Extensions
+﻿namespace BrickController2.Windows.Extensions
 {
     public static class ConvertExtensions
     {
         public static string ToBluetoothAddressString(this ulong bluetoothAddress)
         {
             // 48bit physical BT address
-            var bytes6 = new[]
-            {
-                (byte)((bluetoothAddress >> 40) & 0xFF),
-                (byte)((bluetoothAddress >> 32) & 0xFF),
-                (byte)((bluetoothAddress >> 24) & 0xFF),
-                (byte)((bluetoothAddress >> 16) & 0xFF),
-                (byte)((bluetoothAddress >> 8) & 0xFF),
-                (byte)(bluetoothAddress & 0xFF),
-            };
-            return BitConverter.ToString(bytes6);
+            var a = (byte)((bluetoothAddress >> 40) & 0xFF);
+            var b = (byte)((bluetoothAddress >> 32) & 0xFF);
+            var c = (byte)((bluetoothAddress >> 24) & 0xFF);
+            var d = (byte)((bluetoothAddress >> 16) & 0xFF);
+            var e = (byte)((bluetoothAddress >> 8) & 0xFF);
+            var f = (byte)(bluetoothAddress & 0xFF);
+
+            return $"{a:X2}:{b:X2}:{c:X2}:{d:X2}:{e:X2}:{f:X2}";
         }
 
         public static bool TryParseBluetoothAddressString(this string stringValue, out ulong bluetoothAddress)
@@ -35,7 +31,7 @@ namespace BrickController2.Windows.Extensions
                 var ch = (uint)stringValue[i - 1];
                 if (i % 3 == 0)
                 {
-                    if (ch != '-')
+                    if (ch != '-' && ch != ':')
                     {
                         // missing dash
                         return false;

@@ -116,6 +116,7 @@
     <Compile Include="PlatformServices\SharedFileStorage\SharedFileStorageService.cs" />
     <Compile Include="PlatformServices\Versioning\VersionService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\CustomRenderers\ExtendedSwipeViewRenderer.cs" />
     <Compile Include="UI\CustomRenderers\ExtendedSliderRenderer.cs" />
     <Compile Include="UI\CustomRenderers\NavPageOverrideRenderer.cs" />
     <Compile Include="UI\Services\GameControllerEventDialog.cs" />

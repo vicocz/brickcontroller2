@@ -68,14 +68,9 @@ namespace BrickController2.Windows.PlatformServices.GameController
             GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(events));
         }
 
-        internal void RaiseEvent(string deviceId,string key, float value = 0.0f)
+        internal void RaiseEvent(string deviceId, string key, GameControllerEventType eventType, float value = 0.0f)
         {
-            if (GameControllerEventInternal == null)
-            {
-                return;
-            }
-
-            GameControllerEventInternal.Invoke(this, new GameControllerEventArgs(GameControllerEventType.Button, key, value));
+            GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(eventType, key, value));
         }
 
         internal void InitializeComponent(CoreWindow coreWindow)
@@ -117,13 +112,21 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
         private bool HandleKeyDown(string deviceId, VirtualKey key, CorePhysicalKeyStatus keyStatus)
         {
-            if (GamepadMapping.IsGamepadButton(key, out string buttonCode, out float buttonValue))
+            if (GamepadMapping.IsGamepadButton(key, out string buttonCode))
             {
                 if (keyStatus.RepeatCount == 1)
                 {
-                    RaiseEvent(deviceId, buttonCode, buttonValue);
-                    return true;
+                    RaiseEvent(deviceId, buttonCode, GameControllerEventType.Button, GamepadMapping.Positive);
                 }
+                return true;
+            }
+            else if (GamepadMapping.IsGamepadAxis(key, out string axisCode, out float axisValue))
+            {
+                if (keyStatus.RepeatCount == 1)
+                {
+                    RaiseEvent(deviceId, axisCode, GameControllerEventType.Axis, axisValue);
+                }
+                return true;
             }
 
             return false;
@@ -131,13 +134,21 @@ namespace BrickController2.Windows.PlatformServices.GameController
 
         private bool HandleKeyUp(string deviceId, VirtualKey key, CorePhysicalKeyStatus keyStatus)
         {
-            if (GamepadMapping.IsGamepadButton(key, out string buttonCode, out var _))
+            if (GamepadMapping.IsGamepadButton(key, out string buttonCode))
             {
                 if (keyStatus.RepeatCount == 1)
                 {
-                    RaiseEvent(deviceId, buttonCode);
-                    return true;
+                    RaiseEvent(deviceId, buttonCode, GameControllerEventType.Button);
                 }
+                return true;
+            }
+            else if (GamepadMapping.IsGamepadAxis(key, out string axisCode, out float _))
+            {
+                if (keyStatus.RepeatCount == 1)
+                {
+                    RaiseEvent(deviceId, axisCode, GameControllerEventType.Axis);
+                }
+                return true;
             }
 
             return false;

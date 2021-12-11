@@ -17,7 +17,12 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         private readonly BluetoothLEAdvertisementWatcher _passiveWatcher;
         private readonly BluetoothLEAdvertisementWatcher _activeWatcher;
 
-        private static readonly IReadOnlyCollection<byte> AdvertismentDataTypes = new[] { BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData };
+        private static readonly HashSet<byte> AdvertismentDataTypes = new HashSet<byte>(new[]
+        {
+            BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData,
+            BluetoothLEAdvertisementDataTypes.IncompleteService128BitUuids,
+            BluetoothLEAdvertisementDataTypes.CompleteLocalName
+        });
 
         public BleScanner(Action<ScanResult> scanCallback)
         {
@@ -39,12 +44,6 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
         public void Start()
         {
             _passiveWatcher.Start();
-
-            // setup ScanResult required data
-            foreach (var dataType in AdvertismentDataTypes)
-            {
-                _activeWatcher.AdvertisementFilter.BytePatterns.Add(new BluetoothLEAdvertisementBytePattern { DataType = dataType });
-            }
             _activeWatcher.Start();
         }
 
@@ -75,20 +74,20 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             {
                 return;
             }
-
+        
             var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
 
-            var manufacturerSpecificData = args.Advertisement.GetSectionsByType(BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData);
-            var advertismentData = GetAdvertismentData(manufacturerSpecificData);
+            var advertismentData = args.Advertisement.DataSections
+                .Where(s => AdvertismentDataTypes.Contains(s.DataType))
+                .ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
+
             // enrich data with name manually (SBrick do not like CompleteLocalName, but Buwizz3 requires it)
-            advertismentData[BluetoothLEAdvertisementDataTypes.CompleteLocalName] = Encoding.ASCII.GetBytes(deviceName);
+            if (!advertismentData.ContainsKey(BluetoothLEAdvertisementDataTypes.CompleteLocalName))
+            {
+                advertismentData[BluetoothLEAdvertisementDataTypes.CompleteLocalName] = Encoding.ASCII.GetBytes(deviceName);
+            }
 
             _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
-        }
-
-        private static IDictionary<byte, byte[]> GetAdvertismentData(IEnumerable<BluetoothLEAdvertisementDataSection> sections)
-        {
-            return sections.ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
         }
 
         public void Stop()

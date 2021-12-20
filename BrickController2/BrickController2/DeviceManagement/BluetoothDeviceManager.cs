@@ -55,15 +55,14 @@ namespace BrickController2.DeviceManagement
 
         private (DeviceType DeviceType, byte[] ManufacturerData) GetDeviceIfo(IDictionary<byte, byte[]> advertismentData)
         {
-            if (advertismentData == null || !advertismentData.ContainsKey(0xFF))
+            if (advertismentData == null)
             {
                 return (DeviceType.Unknown, null);
             }
 
-            var manufacturerData = advertismentData[0xFF];
-            if (manufacturerData == null || manufacturerData.Length < 2)
+            if (!advertismentData.TryGetValue(0xFF, out var manufacturerData) || manufacturerData.Length < 2)
             {
-                return (DeviceType.Unknown, null);
+                return GetDeviceInfoByService(advertismentData);
             }
 
             var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
@@ -74,8 +73,7 @@ namespace BrickController2.DeviceManagement
                 case "98-01": return (DeviceType.SBrick, manufacturerData);
                 case "48-4d": return (DeviceType.BuWizz, manufacturerData);
                 case "4e-05":
-                    var completeLocalName = advertismentData[0x09];
-                    if (completeLocalName != null)
+                    if (advertismentData.TryGetValue(0x09, out byte[] completeLocalName))
                     {
                         var completeLocalNameString = BitConverter.ToString(completeLocalName).ToLower();
                         if (completeLocalNameString == "42-75-57-69-7a-7a") // BuWizz
@@ -104,6 +102,26 @@ namespace BrickController2.DeviceManagement
             }
 
             return (DeviceType.Unknown, null);
+        }
+
+        private (DeviceType DeviceType, byte[] ManufacturerData) GetDeviceInfoByService(IDictionary<byte, byte[]> advertismentData)
+        {
+            // 0x06: 128 bits Service UUID type
+            if (!advertismentData.TryGetValue(0x06, out byte[] serviceData) || serviceData.Length < 16)
+            {
+                return (DeviceType.Unknown, null);
+            }
+
+            var serviceGuid = serviceData.GetGuid();
+
+            switch (serviceGuid)
+            {
+                case var service when service == CircuitCubeDevice.SERVICE_UUID:
+                    return (DeviceType.CircuitCubes, null);
+
+                default:
+                    return (DeviceType.Unknown, null);
+            };
         }
     }
 }

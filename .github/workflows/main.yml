@@ -1,0 +1,30 @@
+name: Build BrickController2 app
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches:
+      - master
+      - release/*
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: nuget restore BrickController2.sln
+
+    - name: Build Android APK
+      run: msbuild BrickController2/BrickController2.Android/BrickController2.Android.csproj /t:PackageForAndroid /p:Configuration=Release /p:AndroidPackageFormat=apk
+
+    - name: Archive Android APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: com.scn.BrickController2.apk
+        path: BrickController2/BrickController2.Android/bin/Release/com.scn.BrickController2.apk
+        retention-days: 14

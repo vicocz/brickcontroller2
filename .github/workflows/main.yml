@@ -11,20 +11,25 @@ on:
 jobs:
   build:
 
-    runs-on: macos-latest
+    runs-on: macos-11
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Setup .NET Core SDK 5.0.x
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: "5.0.x"
 
     - name: Install dependencies
       run: nuget restore BrickController2.sln
 
     - name: Build Android APK
-      run: msbuild BrickController2/BrickController2.Android/BrickController2.Android.csproj /t:PackageForAndroid /p:AndroidPackageFormat=apk /p:Configuration=Release
+      run: msbuild BrickController2/BrickController2.Android/BrickController2.Android.csproj /t:PackageForAndroid /t:Rebuild /p:AndroidPackageFormat=apk /p:Configuration=Release
 
     - name: Archive Android APK
       uses: actions/upload-artifact@v2
       with:
-        name: com.scn.BrickController2.zip
+        name: com.scn.BrickController2
         path: BrickController2/BrickController2.Android/bin/Release/com.scn.BrickController2.apk
         retention-days: 14

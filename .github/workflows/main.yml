@@ -25,7 +25,7 @@ jobs:
       run: nuget restore BrickController2.sln
 
     - name: Build Android APK
-      run: msbuild BrickController2/BrickController2.Android/BrickController2.Android.csproj /t:PackageForAndroid /t:Rebuild /p:AndroidPackageFormat=apk /p:Configuration=Release
+      run: msbuild BrickController2/BrickController2.Android/BrickController2.Android.csproj /t:PackageForAndroid /p:AndroidPackageFormat=apk /p:Configuration=Release
 
     - name: Archive Android APK
       uses: actions/upload-artifact@v2

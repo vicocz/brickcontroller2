@@ -112,6 +112,7 @@
     <Compile Include="PlatformServices\GameController\GamepadMapping.cs" />
     <Compile Include="PlatformServices\Infrared\InfraredService.cs" />
     <Compile Include="PlatformServices\Localization\LocalizationService.cs" />
+    <Compile Include="PlatformServices\Permission\BluetoothPermission.cs" />
     <Compile Include="PlatformServices\Permission\ReadWriteExternalStoragePermission.cs" />
     <Compile Include="PlatformServices\SharedFileStorage\SharedFileStorageService.cs" />
     <Compile Include="PlatformServices\Versioning\VersionService.cs" />

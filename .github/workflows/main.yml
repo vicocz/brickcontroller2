@@ -11,11 +11,11 @@ on:
 jobs:
   build:
 
-    runs-on: macos-11
+    runs-on: macos-latest
 
     steps:
-    - uses: actions/checkout@v2
     - name: Set default Xamarin SDK versions
+    - uses: actions/checkout@v3
       run: |
         $VM_ASSETS/select-xamarin-sdk-v2.sh --mono=6.10 --android=10.2
 

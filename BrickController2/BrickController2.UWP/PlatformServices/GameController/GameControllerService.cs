@@ -78,28 +78,6 @@ namespace BrickController2.Windows.PlatformServices.GameController
             _coreWindow = coreWindow;
         }
 
-        internal bool OnKeyDown(KeyRoutedEventArgs e)
-        {
-            if (HandleKeyDown(e.DeviceId, e.OriginalKey, e.KeyStatus))
-            {
-                e.Handled = true;
-                return true;
-            }
-
-            return false;
-        }
-
-        internal bool OnKeyUp(KeyRoutedEventArgs e)
-        {
-            if (HandleKeyUp(e.DeviceId, e.OriginalKey, e.KeyStatus))
-            { 
-                e.Handled = true;
-                return true;
-            }
-
-            return false;
-        }
-
         private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             args.Handled = HandleKeyDown(args.DeviceId, args.VirtualKey, args.KeyStatus);

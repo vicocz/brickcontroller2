@@ -1,4 +1,4 @@
-# BrickController Essentials
+﻿# BrickController Essentials
 
 A fork of [BrickController 2](https://github.com/imurvai/brickcontroller2) which has [features](#features-and-fixes) not included in the original application yet.
 
@@ -8,6 +8,7 @@ Cross platform mobile application for controlling Lego creations using a bluetoo
 
 - Android 4.3+
 - iOS 8+
+- Windows 10 (experimental)
 
 ## Supported receivers
 

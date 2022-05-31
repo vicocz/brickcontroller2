@@ -119,6 +119,12 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
                 result[0x09] = completeDeviceName;
             }
 
+            var serviceUuid = GetUuidDataForKey(advertisementData, CBAdvertisement.DataServiceUUIDsKey);
+            if (serviceUuid != null)
+            {
+                result[0x06] = serviceUuid;
+            }
+
             // TODO: add the rest of the advertisementdata...
 
             return result;
@@ -139,6 +145,34 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             else if (rawObject is NSString stringObject)
             {
                 return Encoding.ASCII.GetBytes(stringObject.ToString());
+            }
+
+            return null;
+        }
+
+        private byte[] GetUuidDataForKey(NSDictionary advertisementData, NSString key)
+        {
+            if (advertisementData == null || !advertisementData.TryGetValue(key, out var rawObject))
+            {
+                return null;
+            }
+
+            if (rawObject is NSArray arrayObject)
+            {
+                for (nuint i = 0; i < arrayObject.Count; i++)
+                {
+                    var cbuuid = arrayObject.GetItem<CBUUID>(i);
+
+                    switch (cbuuid.Data.Length)
+                    {
+                        case 16:
+                            // 128-bit UUID
+                            return cbuuid.Data.ToArray();
+                        default:
+                            // unsupported data length for UUID
+                            break;
+                    }
+                }
             }
 
             return null;

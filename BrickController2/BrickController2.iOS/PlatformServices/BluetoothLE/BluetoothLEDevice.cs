@@ -92,6 +92,13 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             return Task.CompletedTask;
         }
 
+        public Task DisconnectAsync()
+        {
+            Disconnect();
+
+            return Task.CompletedTask;
+        }
+
         public Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
         {
             lock(_lock)

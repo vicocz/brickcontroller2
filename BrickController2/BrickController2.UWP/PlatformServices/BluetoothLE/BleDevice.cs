@@ -92,11 +92,6 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE
             return result;
         }
 
-        public void Disconnect()
-        {
-            DisconnectAsync().Wait();
-        }
-
         public async Task DisconnectAsync()
         {
             using (await _lock.LockAsync())

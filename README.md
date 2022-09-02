@@ -1,6 +1,9 @@
-# BrickController 2
+# BrickController Essentials
 
 Cross platform mobile application for controlling Lego creations using a bluetooth gamepad.
+
+This is my fork of [BrickController 2](https://github.com/imurvai/brickcontroller2) which contains fixes and features which are not part of the original app yet. The list of differences is maintained kept [here](README_Essentials.md).
+
 
 ## Supported platforms
 
@@ -22,6 +25,17 @@ Cross platform mobile application for controlling Lego creations using a bluetoo
 ## Project details
 
 BrickController 2 is a Xamarin.Forms application and can be compiled using Visual Studio 2017 (Professional, Enterprise and Community Editions).
+
+Based on released BrickController 2 version [3.2](https://github.com/imurvai/brickcontroller2/tree/6dfe8f2865616bf60b16c4bb4149f7fa5e8d8893).
+### Addtional fixes and features
+
+The following fixes are part of the application:
+
+|  Issue | BrickController 2 status | Description | Verification status |
+| :-- | :-- | :-- | :-- |
+| imurvai#78 | imurvai#79 | Buwizz v1 device is not able to keep constant channel output for longer period | Manually tested |
+| | imurvai#87 | Make BluetoothDevice.Disconnect asynchronous | Manually tested |
+
 
 ## 3rd party libraries used
 

@@ -2,7 +2,7 @@
 
 Cross platform mobile application for controlling Lego creations using a bluetooth gamepad.
 
-This is my fork of [BrickController 2](https://github.com/imurvai/brickcontroller2) which contains fixes and features which are not part of the original app yet. The list of differences is maintained kept [here](README_Essentials.md).
+This is my fork of [BrickController 2](https://github.com/imurvai/brickcontroller2) which contains fixes and features which are not part of the original app yet. The list of differences is maintained kept [here](#addtional-fixes-and-features).
 
 
 ## Supported platforms

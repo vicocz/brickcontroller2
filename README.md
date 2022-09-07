@@ -2,7 +2,7 @@
 
 Cross platform mobile application for controlling Lego creations using a bluetooth gamepad.
 
-This is my fork of [BrickController 2](https://github.com/imurvai/brickcontroller2) which contains fixes and features which are not part of the original app yet. The list of differences is maintained kept [here](#addtional-fixes-and-features).
+Fork of the original application [BrickController 2](https://github.com/imurvai/brickcontroller2). It contains additional features, which are not part of the original application yet. See details [here](#features-and-fixes).
 
 
 ## Supported platforms
@@ -24,12 +24,12 @@ This is my fork of [BrickController 2](https://github.com/imurvai/brickcontrolle
 
 ## Project details
 
-BrickController 2 is a Xamarin.Forms application and can be compiled using Visual Studio 2017 (Professional, Enterprise and Community Editions).
+BrickController 2 is a Xamarin.Forms application and can be compiled using Visual Studio 2019 (Professional, Enterprise and Community Editions).
 
-Based on released BrickController 2 version [3.2](https://github.com/imurvai/brickcontroller2/tree/6dfe8f2865616bf60b16c4bb4149f7fa5e8d8893).
-### Addtional fixes and features
+### Features and fixes
+Base set of features comes from released BrickController 2 version [3.2](https://github.com/imurvai/brickcontroller2/tree/6dfe8f2865616bf60b16c4bb4149f7fa5e8d8893).
 
-The following fixes are part of the application:
+The following features are part of the application:
 
 |  Issue | BrickController 2 status | Description | Verification status |
 | :-- | :-- | :-- | :-- |
@@ -46,3 +46,4 @@ The following fixes are part of the application:
 ## Author
 
 István Murvai
+Vit Nemecky (minor improvements and features)

@@ -23,7 +23,7 @@ Cross platform mobile application for controlling Lego creations using a bluetoo
 
 ## Project details
 
-BrickController 2 is a Xamarin.Forms application and can be compiled using Visual Studio 2019 (Professional, Enterprise and Community Editions).
+BrickController 2 is a Xamarin.Forms application and can be compiled using Visual Studio 2017 (Professional, Enterprise and Community Editions).
 
 ### Features and fixes
 The application contains basic features of the released BrickController 2 version [3.2](https://github.com/imurvai/brickcontroller2/tree/6dfe8f2865616bf60b16c4bb4149f7fa5e8d8893) and the following set of improvements and bug fixes:

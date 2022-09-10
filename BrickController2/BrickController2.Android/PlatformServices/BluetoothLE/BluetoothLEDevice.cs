@@ -131,15 +131,10 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             {
                 Disconnect();
             }
-
-        public Task DisconnectAsync()
-        {
-            Disconnect();
-
             return Task.CompletedTask;
         }
 
-        public Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+        public async Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
         {
             using (token.Register(() =>
             {

@@ -32,6 +32,7 @@ The application contains basic features of the released BrickController 2 versio
 | :-- | :-- | :-- | :-- |
 | imurvai#78 | imurvai#79 | Buwizz v1 device is not able to keep constant channel output for longer period | Manually tested |
 | | imurvai#87 | Make BluetoothDevice.Disconnect asynchronous | Manually tested |
+| vicocz#10 | imurvai#89 | Await completion of WriteDescriptor [Android] | Manually tested |
 
 
 ## 3rd party libraries used

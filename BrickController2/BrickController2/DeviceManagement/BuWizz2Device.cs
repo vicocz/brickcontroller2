@@ -21,6 +21,18 @@ namespace BrickController2.DeviceManagement
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
+        private static IReadOnlyDictionary<string, DeviceSetting> DefaultSettings = new Dictionary<string, DeviceSetting>()
+        {
+            {
+                "SwapChannels",
+                new DeviceSetting
+                {
+                    Type = typeof(bool),
+                    DefaultValue = true
+                }
+            }
+        };
+
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _lastOutputValues = new int[4];
         private readonly object _outputLock = new object();
@@ -52,6 +64,8 @@ namespace BrickController2.DeviceManagement
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override string BatteryVoltageSign => "V";
+
+        public override IReadOnlyDictionary<string, DeviceSetting> DeviceSettings => DefaultSettings;
 
         public override void SetOutput(int channel, float value)
         {

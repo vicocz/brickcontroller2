@@ -65,6 +65,14 @@ namespace BrickController2.DeviceManagement
             protected set { _deviceState = value; RaisePropertyChanged(); }
         }
 
+        public virtual IReadOnlyDictionary<string, DeviceSetting> DeviceSettings => new Dictionary<string, DeviceSetting>();
+
+        public Dictionary<string, object> Settings
+        {
+            get;
+            set;
+        } = new();
+
         public int OutputLevel => _outputLevel;
 
         public abstract int NumberOfChannels { get; }

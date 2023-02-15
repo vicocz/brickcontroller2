@@ -1,6 +1,7 @@
 ﻿using BrickController2.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace BrickController2.DeviceManagement
         private string _firmwareVersion = "-";
         private string _hardwareVersion = "-";
         private string _batteryVoltage = "-";
+        private Dictionary<string, object> _settings = new Dictionary<string, object>();
 
         private volatile DeviceState _deviceState;
         protected int _outputLevel;
@@ -65,6 +67,25 @@ namespace BrickController2.DeviceManagement
             protected set { _deviceState = value; RaisePropertyChanged(); }
         }
 
+        /// <summary>Collection of settings for this type of device</summary>
+        public virtual IReadOnlyCollection<DeviceSetting> DefaultSettings => Array.Empty<DeviceSetting>();
+
+        public Dictionary<string, object> CurrentSettings
+        {
+            get { return _settings; }
+            protected set { _settings = value; RaisePropertyChanged(); }
+        }
+
+        protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default)
+        {
+            if (_settings.TryGetValue(settingName, out var value) && value is TValue typedValue)
+            {
+                return typedValue;
+            }
+
+            return defaultValue;
+        }
+
         public int OutputLevel => _outputLevel;
 
         public abstract int NumberOfChannels { get; }
@@ -105,6 +126,20 @@ namespace BrickController2.DeviceManagement
             {
                 await _deviceRepository.UpdateDeviceAsync(device.DeviceType, device.Address, newName);
                 device.Name = newName;
+            }
+        }
+
+        public async Task UpdateSettingsAsync(IEnumerable<KeyValuePair<string, object>> settings)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                // update
+                foreach (var s in settings)
+                {
+                    CurrentSettings[s.Key] = s.Value;
+                }
+
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, String.Empty);
             }
         }
 

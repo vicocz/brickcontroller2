@@ -21,6 +21,8 @@ namespace BrickController2.DeviceManagement
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
+        private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
+
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _lastOutputValues = new int[4];
         private readonly object _outputLock = new object();
@@ -37,7 +39,7 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic _modelNumberCharacteristic;
         private IGattCharacteristic _firmwareRevisionCharacteristic;
 
-        public BuWizz2Device(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizz2Device(string name, string address, byte[] deviceData, IDictionary<string, object> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
             // On BuWizz2 with manufacturer data 0x4e054257001e the ports are swapped
@@ -52,6 +54,25 @@ namespace BrickController2.DeviceManagement
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override string BatteryVoltageSign => "V";
+
+        private bool SwapChannels => base.GetSettingValue<bool>(SwapChannelsSettingName);
+
+        public override IReadOnlyCollection<DeviceSetting> DefaultSettings => new[]
+        {
+            // Allow user to swap channels per device
+            new DeviceSetting
+            {
+                SettingName = SwapChannelsSettingName,
+                Type = typeof(bool),
+                DefaultValue = true
+            },
+            new DeviceSetting
+            {
+                SettingName = "test setting",
+                Type = typeof(bool),
+                DefaultValue = false
+            },
+        };
 
         public override void SetOutput(int channel, float value)
         {
@@ -221,7 +242,7 @@ namespace BrickController2.DeviceManagement
             {
                 var sendOutputBuffer = new byte[] { 0x10, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-                if (_swapChannels)
+                if (SwapChannels)
                 {
                     sendOutputBuffer[1] = (byte)(v1 / 2);
                     sendOutputBuffer[2] = (byte)(v0 / 2);

@@ -12,6 +12,7 @@ using Device = BrickController2.DeviceManagement.Device;
 using BrickController2.Helpers;
 using Xamarin.Forms;
 using System.Collections.Generic;
+using BrickController2.CreationManagement;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -46,15 +47,19 @@ namespace BrickController2.UI.ViewModels
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new NavigationParameters(("device", Device))), () => !_dialogService.IsDialogOpen);
         }
 
         public Device Device { get; }
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
 
+        public bool HasSettings => Device.DefaultSettings.Any();
+
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
+        public ICommand OpenDeviceSettingsPageCommand { get; }
 
         public int BuWizzOutputLevel { get; set; } = 1;
         public int BuWizz2OutputLevel { get; set; } = 1;

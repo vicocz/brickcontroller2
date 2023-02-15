@@ -201,6 +201,9 @@
   <data name="BuWizz2OutputLevel" xml:space="preserve">
     <value>BuWizz 2 output level</value>
   </data>
+  <data name="BuWizz2SwapChannels" xml:space="preserve">
+    <value>Swap channels</value>
+  </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz output level</value>
   </data>

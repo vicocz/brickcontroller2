@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -113,6 +113,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>TranslationResources.resx</DependentUpon>
     </Compile>
+    <Compile Update="UI\Controls\DeviceSettingControl.xaml.cs">
+      <DependentUpon>DeviceSettingControl.xaml</DependentUpon>
+    </Compile>
     <Compile Update="UI\Controls\DeviceChannelSelector.xaml.cs">
       <DependentUpon>DeviceChannelSelector.xaml</DependentUpon>
     </Compile>
@@ -127,6 +130,9 @@
     </Compile>
     <Compile Update="UI\Pages\DevicePage.xaml.cs">
       <DependentUpon>DevicePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="UI\Pages\DeviceSettingsPage.xaml.cs">
+      <DependentUpon>DeviceSettingsPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 

@@ -15,7 +15,7 @@ namespace BrickController2.UI.ViewModels
             base(navigationService, translationService)
         {
             Device = parameters.Get<Device>("device");
-            Settings = new ObservableCollection<DeviceSettingViewModel>(Device.DefaultSettings.Select(s => new DeviceSettingViewModel(Device, s, translationService)));
+            Settings = new ObservableCollection<DeviceSettingViewModel>(Device.CurrentSettings.Select(setting => new DeviceSettingViewModel(setting, translationService)));
         }
 
         public Device Device { get; }
@@ -24,8 +24,14 @@ namespace BrickController2.UI.ViewModels
 
         public override async void OnDisappearing()
         {
-            // update on exit
-            await Device.UpdateSettingsAsync(null);
+            // update changed settings on exit
+            var changedSettings = Settings
+                .Where(s => s.HasChanged)
+                .Select(s => s.Setting)
+                .ToArray();
+
+            if (changedSettings.Any())
+                await Device.UpdateDeviceSettingsAsync(changedSettings);
         }
     }
 }

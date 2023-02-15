@@ -26,7 +26,6 @@ namespace BrickController2.DeviceManagement
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _lastOutputValues = new int[4];
         private readonly object _outputLock = new object();
-        private readonly bool _swapChannels;
 
         private DateTime _batteryMeasurementTimestamp;
         private byte _batteryVoltageRaw;
@@ -39,12 +38,16 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic _modelNumberCharacteristic;
         private IGattCharacteristic _firmwareRevisionCharacteristic;
 
-        public BuWizz2Device(string name, string address, byte[] deviceData, IDictionary<string, object> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizz2Device(string name, string address, byte[] deviceData, IEnumerable<DeviceSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
             // On BuWizz2 with manufacturer data 0x4e054257001e the ports are swapped
             // (no normal BuWizz2es manufacturer data is 0x4e054257001b)
-            _swapChannels = deviceData != null && deviceData.Length >= 6 && deviceData[5] == 0x1E;
+            var swapChannels = deviceData != null && deviceData.Length >= 6 && deviceData[5] == 0x1E;
+
+            // apply values (if any) or default
+            SetSettingValue(SwapChannelsSettingName, settings, swapChannels);
+            SetSettingValue("test another", settings, false);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz2;
@@ -54,25 +57,6 @@ namespace BrickController2.DeviceManagement
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override string BatteryVoltageSign => "V";
-
-        private bool SwapChannels => base.GetSettingValue<bool>(SwapChannelsSettingName);
-
-        public override IReadOnlyCollection<DeviceSetting> DefaultSettings => new[]
-        {
-            // Allow user to swap channels per device
-            new DeviceSetting
-            {
-                SettingName = SwapChannelsSettingName,
-                Type = typeof(bool),
-                DefaultValue = true
-            },
-            new DeviceSetting
-            {
-                SettingName = "test setting",
-                Type = typeof(bool),
-                DefaultValue = false
-            },
-        };
 
         public override void SetOutput(int channel, float value)
         {
@@ -235,6 +219,8 @@ namespace BrickController2.DeviceManagement
             {
             }
         }
+
+        private bool SwapChannels => base.GetSettingValue<bool>(SwapChannelsSettingName);
 
         private async Task<bool> SendOutputValuesAsync(int v0, int v1, int v2, int v3, CancellationToken token)
         {

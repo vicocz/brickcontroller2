@@ -80,5 +80,18 @@ namespace BrickController2.DeviceManagement
                 }
             }
         }
+
+        public async Task UpdateDeviceAsync(DeviceType type, string address, IEnumerable<DeviceSetting> settings)
+        {
+            using (await _lock.LockAsync())
+            {
+                var device = await _databaseConnection.Table<DeviceDTO>().Where(d => d.DeviceType == type && d.Address == address).FirstOrDefaultAsync();
+                if (device != null)
+                {
+                    //TODO device.Name = newName;
+                    await _databaseConnection.UpdateAsync(device);
+                }
+            }
+        }
     }
 }

@@ -54,7 +54,7 @@ namespace BrickController2.UI.ViewModels
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
 
-        public bool HasSettings => Device.DefaultSettings.Any();
+        public bool HasSettings => Device.CurrentSettings.Any();
 
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }

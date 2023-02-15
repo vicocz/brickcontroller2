@@ -1,6 +1,7 @@
 ﻿using BrickController2.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace BrickController2.DeviceManagement
         private string _firmwareVersion = "-";
         private string _hardwareVersion = "-";
         private string _batteryVoltage = "-";
-        private Dictionary<string, object> _settings = new Dictionary<string, object>();
+        private readonly Dictionary<string, DeviceSetting> _settings = new Dictionary<string, DeviceSetting>();
 
         private volatile DeviceState _deviceState;
         protected int _outputLevel;
@@ -67,25 +68,6 @@ namespace BrickController2.DeviceManagement
             protected set { _deviceState = value; RaisePropertyChanged(); }
         }
 
-        /// <summary>Collection of settings for this type of device</summary>
-        public virtual IReadOnlyCollection<DeviceSetting> DefaultSettings => Array.Empty<DeviceSetting>();
-
-        public Dictionary<string, object> CurrentSettings
-        {
-            get { return _settings; }
-            protected set { _settings = value; RaisePropertyChanged(); }
-        }
-
-        protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default)
-        {
-            if (_settings.TryGetValue(settingName, out var value) && value is TValue typedValue)
-            {
-                return typedValue;
-            }
-
-            return defaultValue;
-        }
-
         public int OutputLevel => _outputLevel;
 
         public abstract int NumberOfChannels { get; }
@@ -129,18 +111,37 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task UpdateSettingsAsync(IEnumerable<KeyValuePair<string, object>> settings)
+        public async Task UpdateDeviceSettingsAsync(IEnumerable<DeviceSetting> settings)
         {
             using (await _asyncLock.LockAsync())
             {
-                // update
-                foreach (var s in settings)
+                // update provided settings
+                foreach (var s in settings ?? Enumerable.Empty<DeviceSetting>())
                 {
-                    CurrentSettings[s.Key] = s.Value;
+                    SetSettingValue(s.Name, s.Value);
                 }
 
-                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, String.Empty);
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, CurrentSettings);
             }
+        }
+        public IReadOnlyCollection<DeviceSetting> CurrentSettings => _settings.Values;
+
+        protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default)
+        {
+            if (_settings.TryGetValue(settingName, out var setting) && setting.Value is TValue value)
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        protected void SetSettingValue<TValue>(string settingName, TValue value) => SetSettingValue(settingName, null, value);
+
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting> settings, TValue defaultValue)
+        {
+            var foundSetting = settings?.FirstOrDefault(s => s.Name == settingName);
+            _settings[settingName] = new DeviceSetting { Name = settingName, Value = foundSetting?.Value ?? defaultValue };
         }
 
         public override string ToString()

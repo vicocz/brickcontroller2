@@ -39,9 +39,9 @@
                 </Grid>
 
                 <!-- Setting list -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,10,10,10">
+                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,20,10,10">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="40" />
+                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="30" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>

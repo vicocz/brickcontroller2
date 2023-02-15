@@ -556,6 +556,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Device settings.
+        /// </summary>
+        internal static string DeviceSettings {
+            get {
+                return ResourceManager.GetString("DeviceSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device type.
         /// </summary>
         internal static string DeviceType {

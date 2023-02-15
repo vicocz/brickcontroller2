@@ -282,6 +282,9 @@
   <data name="Devices" xml:space="preserve">
     <value>Devices</value>
   </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Device settings</value>
+  </data>
   <data name="DeviceType" xml:space="preserve">
     <value>Device type</value>
   </data>

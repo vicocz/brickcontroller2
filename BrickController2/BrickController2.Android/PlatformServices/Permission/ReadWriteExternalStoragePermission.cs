@@ -1,7 +1,6 @@
 ﻿using Android.OS;
-using System;
-using static Xamarin.Essentials.Permissions;
 using BrickController2.PlatformServices.Permission;
+using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace BrickController2.Droid.PlatformServices.Permission
 {

@@ -53,7 +53,7 @@ public class BleService : IBluetoothLEService
         try
         {
             _isScanning = true;
-            return await NewScanAsync(scanCallback, token);                
+            return await NewScanAsync(scanCallback, token);
         }
         catch (Exception)
         {

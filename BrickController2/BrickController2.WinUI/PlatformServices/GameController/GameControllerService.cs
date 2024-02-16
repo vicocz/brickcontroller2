@@ -8,8 +8,8 @@ namespace BrickController2.Windows.PlatformServices.GameController;
 public class GameControllerService : IGameControllerService
 {
 
-    private readonly Dictionary<string, GamepadController> _availableControllers = new ();
-    private readonly object _lockObject = new ();
+    private readonly Dictionary<string, GamepadController> _availableControllers = new();
+    private readonly object _lockObject = new();
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
 

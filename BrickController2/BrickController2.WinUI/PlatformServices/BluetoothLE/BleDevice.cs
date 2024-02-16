@@ -8,7 +8,7 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 public class BleDevice : IBluetoothLEDevice
 {
-    private readonly AsyncLock _lock = new ();
+    private readonly AsyncLock _lock = new();
 
     private BluetoothLEDevice _bluetoothDevice;
     private ICollection<BleGattService> _services;

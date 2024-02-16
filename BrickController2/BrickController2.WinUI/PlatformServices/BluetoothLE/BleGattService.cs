@@ -10,7 +10,7 @@ internal class BleGattService : IGattService, IDisposable
         BluetoothGattService = bluetoothGattService;
         Characteristics = characteristics;
     }
-    
+
     public GattDeviceService BluetoothGattService { get; }
     public Guid Uuid => BluetoothGattService.Uuid;
     public IEnumerable<IGattCharacteristic> Characteristics { get; }
@@ -28,7 +28,7 @@ internal class BleGattService : IGattService, IDisposable
             }
         }
         catch (ObjectDisposedException)
-        { 
+        {
         }
     }
 }

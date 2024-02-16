@@ -6,7 +6,7 @@ using Windows.Devices.Bluetooth.Advertisement;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
-public class BleScanner 
+public class BleScanner
 {
     private readonly Action<ScanResult> _scanCallback;
     private readonly ConcurrentDictionary<ulong, string> _deviceNameCache;
@@ -71,7 +71,7 @@ public class BleScanner
         {
             return;
         }
-    
+
         var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
 
         var advertismentData = args.Advertisement.DataSections

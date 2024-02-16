@@ -12,7 +12,7 @@ internal class GamepadController
     private readonly Gamepad _gamepad;
     private readonly IDispatcherTimer _timer;
 
-    private readonly Dictionary<string, float> _lastReadingValues = new ();
+    private readonly Dictionary<string, float> _lastReadingValues = new();
 
     public GamepadController(GameControllerService service, Gamepad gamepad, IDispatcherTimer timer)
         : this(service, gamepad, timer, DefaultInterval)

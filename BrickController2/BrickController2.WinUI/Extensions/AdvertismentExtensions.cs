@@ -6,7 +6,7 @@ public static class AdvertismentExtensions
 {
     public static string GetLocalName(this BluetoothLEAdvertisementReceivedEventArgs args)
     {
-        return args.Advertisement.LocalName.TrimEnd(); 
+        return args.Advertisement.LocalName.TrimEnd();
     }
 
     public static bool IsValidDeviceName(this string deviceName)

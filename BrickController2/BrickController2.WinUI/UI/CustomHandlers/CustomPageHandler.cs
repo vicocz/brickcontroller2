@@ -21,7 +21,6 @@ internal class CustomPageHandler : PageHandler
             window.SizeChanged += Window_SizeChanged;
             page.Unloaded += (sender, args) => window.SizeChanged -= Window_SizeChanged;
 
-
             ApplyTitleViewWidth(page);
         }
     }

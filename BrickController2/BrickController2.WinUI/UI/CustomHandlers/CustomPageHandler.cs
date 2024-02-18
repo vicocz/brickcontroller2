@@ -16,9 +16,19 @@ internal class CustomPageHandler : PageHandler
 
         if (VirtualView is PageBase page)
         {
-            page.Window.SizeChanged += (sender, args) => ApplyTitleViewWidth(page);
+            var window = page.Window;
+
+            window.SizeChanged += Window_SizeChanged;
+            page.Unloaded += (sender, args) => window.SizeChanged -= Window_SizeChanged;
+
+
             ApplyTitleViewWidth(page);
         }
+    }
+
+    private void Window_SizeChanged(object sender, EventArgs e)
+    {
+        ApplyTitleViewWidth(VirtualView as PageBase);
     }
 
     private static void ApplyTitleViewWidth(PageBase page)

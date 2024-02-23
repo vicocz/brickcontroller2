@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<local:PageBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+	xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    x:Class="BrickController2.UI.Pages.BarcodeScannerPage"
+    Title="{extensions:Translate Scan}"
+    ios:Page.UseSafeArea="True"
+    BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <NavigationPage.TitleView>
+        <Grid Style="{StaticResource TitleViewGridStyle}">
+            <Label Text="{extensions:Translate Scan}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
+        </Grid>
+    </NavigationPage.TitleView>
+
+    <local:PageBase.Content>
+        <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- QR code scanner -->
+                <zxing:CameraBarcodeReaderView Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" BarcodesDetected="BarcodesDetected" Options="{Binding Options}" ZIndex="0" />
+
+                <!-- Detected QR preview -->
+                <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BackgroundColor="#80000000" ZIndex="1"/>
+                <zxing:BarcodeGeneratorView Grid.Row="1" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="64" WidthRequest="64" Format="{Binding Format}" Value="{Binding CurrentValue}" BarcodeMargin="0" Margin="20" ZIndex="2" />
+
+                <controls:FloatingActionButton Grid.Row="3" Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" ImageSource="{extensions:ImageResource Source=ic_import.png}" Command="{Binding ImportCommand}" HorizontalOptions="Center" VerticalOptions="Center" Margin="10" ZIndex="3">
+                    <controls:FloatingActionButton.Triggers>
+                        <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding IsCurrentValueValid}" Value="True">
+                            <Setter Property="ButtonColor" Value="{DynamicResource InlineButtonColor}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding IsCurrentValueValid}" Value="False">
+                            <Setter Property="ButtonColor" Value="{DynamicResource SecondaryColor}" />
+                        </DataTrigger>                        
+                    </controls:FloatingActionButton.Triggers>
+                </controls:FloatingActionButton>
+            </Grid>
+           
+            <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>
+
+        </AbsoluteLayout>
+    </local:PageBase.Content>
+</local:PageBase>

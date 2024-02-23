@@ -1,5 +1,6 @@
 ﻿using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
+using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
@@ -15,6 +16,7 @@ namespace BrickController2.UI.ViewModels
         private readonly ICreationManager _creationManager;
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
+        private readonly ISharingManager<Creation> _sharingManager;
 
         private CancellationTokenSource _disappearingTokenSource;
 
@@ -25,6 +27,7 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
+            ISharingManager<Creation> sharingManager,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -32,9 +35,10 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
             SharedFileStorageService = sharedFileStorageService;
             _playLogic = playLogic;
-
+            _sharingManager = sharingManager;
             Creation = parameters.Get<Creation>("creation");
 
+            CopyCreationCommand = new SafeCommand(CopyCreationAsync);
             ImportControllerProfileCommand = new SafeCommand(async () => await ImportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             ExportCreationCommand = new SafeCommand(async () => await ExportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
@@ -47,7 +51,7 @@ namespace BrickController2.UI.ViewModels
         public Creation Creation { get; }
 
         public ISharedFileStorageService SharedFileStorageService { get; }
-
+        public ICommand CopyCreationCommand { get; }
         public ICommand ImportControllerProfileCommand { get; }
         public ICommand ExportCreationCommand { get; }
         public ICommand RenameCreationCommand { get; }
@@ -308,6 +312,17 @@ namespace BrickController2.UI.ViewModels
                     }
                 }
                 while (!done);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task CopyCreationAsync()
+        {
+            try
+            {
+                await _sharingManager.ShareToClipboardAsync(Creation);
             }
             catch (OperationCanceledException)
             {

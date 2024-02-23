@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.GameController;
 using Foundation;
 using GameController;
 

@@ -1,47 +1,45 @@
-﻿using System.ComponentModel;
-using BrickController2.iOS.UI.CustomRenderers;
-using BrickController2.UI.Controls;
+﻿using BrickController2.UI.Controls;
+using Microsoft.Maui.Graphics.Platform;
+using Microsoft.Maui.Handlers;
 using UIKit;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.iOS;
 
-[assembly:ExportRenderer(typeof(ColorImage), typeof(ColorImageRenderer))]
 namespace BrickController2.iOS.UI.CustomRenderers
 {
-    public class ColorImageRenderer : ImageRenderer
+    public class ColorImageRenderer : ImageHandler
     {
-        protected override void OnElementChanged(ElementChangedEventArgs<Image> e)
+        public static readonly PropertyMapper<ColorImage, ColorImageRenderer> PropertyMapper = new(ImageHandler.Mapper)
         {
-            base.OnElementChanged(e);
-            SetColor();
+            [ColorImage.ColorProperty.PropertyName] = SetColor,
+            [ColorImage.SourceProperty.PropertyName] = SetColor,
+            [ColorImage.IsLoadingProperty.PropertyName] = SetColor,
+        };
+
+        public ColorImageRenderer() : base(PropertyMapper)
+        {
         }
 
-        protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected override void ConnectHandler(UIImageView platformView)
         {
-            base.OnElementPropertyChanged(sender, e);
-
-            if (e.PropertyName == ColorImage.ColorProperty.PropertyName || e.PropertyName == ColorImage.SourceProperty.PropertyName || e.PropertyName == ColorImage.IsLoadingProperty.PropertyName)
-            {
-                SetColor();
-            }
+            base.ConnectHandler(platformView);
+            SetColor(this, VirtualView as ColorImage);
         }
 
-        private void SetColor()
+        private static void SetColor(ColorImageRenderer renderer, ColorImage colorImage)
         {
-            if (Control == null || Control.Image == null || !(Element is ColorImage colorImage))
+            if (renderer?.PlatformView?.Image == null || colorImage is null)
             {
                 return;
             }
 
-            if (colorImage.Color.Equals(Xamarin.Forms.Color.Transparent))
+            if (colorImage.Color.Equals(Colors.Transparent))
             {
-                Control.Image = Control.Image.ImageWithRenderingMode(UIImageRenderingMode.Automatic);
-                Control.TintColor = null;
+                renderer.PlatformView.Image = renderer.PlatformView.Image.ImageWithRenderingMode(UIImageRenderingMode.Automatic);
+                renderer.PlatformView.TintColor = null;
             }
             else
             {
-                Control.Image = Control.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate);
-                Control.TintColor = colorImage.Color.ToUIColor();
+                renderer.PlatformView.Image = renderer.PlatformView.Image.ImageWithRenderingMode(UIImageRenderingMode.AlwaysTemplate);
+                renderer.PlatformView.TintColor = colorImage.Color.AsUIColor();
             }
         }
     }

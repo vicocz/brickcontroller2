@@ -1,5 +1,5 @@
 ﻿using BrickController2.Helpers;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
 

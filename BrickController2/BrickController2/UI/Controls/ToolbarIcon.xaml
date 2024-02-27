@@ -6,6 +6,6 @@
     x:Class="BrickController2.UI.Controls.ToolbarIcon"
     Order="Primary">
     <ToolbarItem.IconImageSource>
-        <FontImageSource x:Name="imageSource" Color="{DynamicResource NavigationBarItemColor}" FontFamily="Icons" Glyph="abc"/>
+        <FontImageSource x:Name="ImageSource" Color="{DynamicResource NavigationBarItemColor}" FontFamily="Icons" />
     </ToolbarItem.IconImageSource>
 </ToolbarItem>

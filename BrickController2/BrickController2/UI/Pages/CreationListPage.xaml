@@ -45,7 +45,7 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <SwipeItem Text="{extensions:Translate Delete}" IconImageSource="{extensions:ImageResource Source=ic_delete.png}" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <Grid Style="{StaticResource CollectionItemGridStyle}">

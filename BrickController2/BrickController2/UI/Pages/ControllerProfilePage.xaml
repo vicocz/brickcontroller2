@@ -56,7 +56,7 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <SwipeItem Text="{extensions:Translate Delete}" IconImageSource="{extensions:ImageResource Source=ic_delete.png}" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerEventCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerEvent}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerEventCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerEvent}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <Grid Style="{StaticResource CollectionViewHeaderGridStyle}">
@@ -79,7 +79,7 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <SwipeItem Text="{extensions:Translate Delete}" IconImageSource="{extensions:ImageResource Source=ic_delete.png}" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerActionCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerActionCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <Grid Style="{StaticResource CollectionItemGridStyle}">

@@ -1,14 +1,14 @@
 ﻿namespace BrickController2.UI.Controls;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class ToolbarIcon : ToolbarItem
+public partial class SwipeIcon : SwipeItem
 {
-    public ToolbarIcon()
+    public SwipeIcon()
     {
         InitializeComponent();
     }
 
-    public static readonly BindableProperty IconProperty = BindableProperty.Create(nameof(Icon), typeof(string), typeof(ToolbarIcon), null, BindingMode.OneWay, null, IconChanged);
+    public static readonly BindableProperty IconProperty = BindableProperty.Create(nameof(Icon), typeof(string), typeof(SwipeIcon), null, BindingMode.OneWay, null, IconChanged);
 
     public string Icon
     {
@@ -18,9 +18,9 @@ public partial class ToolbarIcon : ToolbarItem
 
     private static void IconChanged(BindableObject bindable, object oldValue, object newValue)
     {
-        if (bindable is ToolbarIcon toolbarIcon && newValue is string iconName)
+        if (bindable is SwipeIcon icon && newValue is string iconName)
         {
-            toolbarIcon.ImageSource.Glyph = iconName;
+            icon.ImageSource.Glyph = iconName;
         }
     }
 }

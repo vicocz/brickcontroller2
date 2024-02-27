@@ -46,7 +46,7 @@
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,16,5,16"/>
 
                         <Label Text="{extensions:Translate IconSet}" FontAttributes="Bold"/>
-                        <Label Text="FlatIcon"/>
+                        <Label Text="Material Icons"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,16,5,16"/>
 

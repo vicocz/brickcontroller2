@@ -16,7 +16,7 @@ namespace BrickController2.UI.Converters
             return eventType switch
             {
                 GameControllerEventType.Button => "abc",
-                GameControllerEventType.Axis => "joystick",
+                GameControllerEventType.Axis => "gamepad",
                 _ => null,
             };
         }

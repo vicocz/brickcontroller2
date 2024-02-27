@@ -11,7 +11,7 @@ namespace BrickController2.UI.Controls
         }
 
         public static readonly BindableProperty ButtonColorProperty = BindableProperty.Create(nameof(ButtonColor), typeof(Color), typeof(FloatingActionButton), default(Color), BindingMode.OneWay, null, ButtonColorChanged);
-        public static readonly BindableProperty ImageSourceProperty = BindableProperty.Create(nameof(ImageSource), typeof(ImageSource), typeof(FloatingActionButton), null, BindingMode.OneWay, null, ImageSourceChanged);
+        public static readonly BindableProperty IconProperty = BindableProperty.Create(nameof(Icon), typeof(string), typeof(FloatingActionButton), null, BindingMode.OneWay, null, IconChanged);
         public static readonly BindableProperty ImageColorProperty = BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(FloatingActionButton), null, BindingMode.OneWay, null, ImageColorChanged);
         public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(FloatingActionButton), null, BindingMode.OneWay, null, CommandChanged);
 
@@ -21,10 +21,10 @@ namespace BrickController2.UI.Controls
             set => SetValue(ButtonColorProperty, value);
         }
 
-        public ImageSource ImageSource
+        public string Icon
         {
-            get => (ImageSource)GetValue(ImageSourceProperty);
-            set => SetValue(ImageSourceProperty, value);
+            get => (string)GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
         }
 
         public Color ImageColor
@@ -47,11 +47,11 @@ namespace BrickController2.UI.Controls
             }
         }
 
-        private static void ImageSourceChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void IconChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is FloatingActionButton fab && newValue is ImageSource imageSource)
+            if (bindable is FloatingActionButton fab && newValue is string iconName)
             {
-                fab.Image.Source = imageSource;
+                fab.ImageSource.Glyph = iconName;
             }
         }
 
@@ -59,7 +59,7 @@ namespace BrickController2.UI.Controls
         {
             if (bindable is FloatingActionButton fab && newValue is Color imageColor)
             {
-                fab.Image.Color = imageColor;
+                fab.ImageSource.Color = imageColor;
             }
         }
 

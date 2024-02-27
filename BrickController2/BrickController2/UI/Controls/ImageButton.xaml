@@ -10,7 +10,11 @@
             <StackLayout.GestureRecognizers>
                 <TapGestureRecognizer x:Name="TapGuestureRecognizer"/>
             </StackLayout.GestureRecognizers>
-            <controls:ColorImage x:Name="Image" HorizontalOptions="Center" VerticalOptions="Center" Aspect="AspectFill"/>
+            <Image>
+                <Image.Source>
+                    <FontImageSource x:Name="ImageSource" FontFamily="Icons" />
+                </Image.Source>
+            </Image>
         </StackLayout>
     </ContentView.Content>
 </ContentView>

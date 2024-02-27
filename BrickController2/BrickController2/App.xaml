@@ -68,12 +68,6 @@
             <Setter Property="TextColor" Value="{DynamicResource NavigationBarItemColor}"/>
             <Setter Property="FontSize" Value="Large"/>
         </Style>
-
-        <Style x:Key="NavigationBarImageButtonStyle" TargetType="controls:ImageButton">
-            <Setter Property="WidthRequest" Value="30"/>
-            <Setter Property="HeightRequest" Value="30"/>
-            <Setter Property="ImageColor" Value="{DynamicResource NavigationBarItemColor}"/>
-        </Style>
         
         <!-- Header bar -->
 
@@ -81,12 +75,6 @@
             <Setter Property="BackgroundColor" Value="{DynamicResource HeaderBackgroundColor}"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="ColumnSpacing" Value="6"/>
-        </Style>
-
-        <Style x:Key="HeaderBarImageButtonStyle" TargetType="controls:ImageButton">
-            <Setter Property="WidthRequest" Value="30"/>
-            <Setter Property="HeightRequest" Value="30"/>
-            <Setter Property="ImageColor" Value="{DynamicResource HeaderItemColor}"/>
         </Style>
 
         <!-- Footer bar -->

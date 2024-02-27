@@ -23,11 +23,11 @@
     <NavigationPage.TitleView>
         <Grid HorizontalOptions="FillAndExpand">
             <Label Text="{extensions:Translate Sequences}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="End" Margin="12,0" Spacing="12">
-                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_import.png}" Command="{Binding ImportSequenceCommand}" Style="{StaticResource NavigationBarImageButtonStyle}" IsVisible="{Binding SharedFileStorageService.IsSharedStorageAvailable}"/>
-            </StackLayout>
         </Grid>
     </NavigationPage.TitleView>
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportSequenceCommand}" />
+    </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -64,7 +64,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" ImageSource="{extensions:ImageResource Source=ic_add.png}" Command="{Binding AddSequenceCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddSequenceCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

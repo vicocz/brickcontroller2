@@ -58,7 +58,7 @@ namespace BrickController2.UI.Commands
             }
         }
 
-        private void RaiseCanExecuteChanged()
+        internal void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }

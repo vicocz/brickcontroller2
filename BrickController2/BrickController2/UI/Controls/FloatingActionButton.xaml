@@ -10,7 +10,11 @@
             <Frame.GestureRecognizers>
                 <TapGestureRecognizer x:Name="TapGuestureRecognizer"/>
             </Frame.GestureRecognizers>
-            <controls:ColorImage x:Name="Image" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <Image WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center">
+                <Image.Source>
+                    <FontImageSource x:Name="ImageSource" FontFamily="Icons" Glyph="123"/>
+                </Image.Source>
+            </Image>
         </Frame>
     </ContentView.Content>
 </ContentView>

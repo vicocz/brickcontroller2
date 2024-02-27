@@ -23,11 +23,11 @@
     <NavigationPage.TitleView>
         <Grid HorizontalOptions="FillAndExpand">
             <Label Text="{extensions:Translate ControllerProfile}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="End" Margin="12,0" Spacing="12">
-                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_export.png}" Command="{Binding ExportControllerProfileCommand}" Style="{StaticResource NavigationBarImageButtonStyle}" IsVisible="{Binding SharedFileStorageService.IsSharedStorageAvailable}"/>
-            </StackLayout>
         </Grid>
     </NavigationPage.TitleView>
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="file_upload" Command="{Binding ExportControllerProfileCommand}" />
+    </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -44,7 +44,7 @@
                             <TapGestureRecognizer Command="{Binding RenameProfileCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
-                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" ImageSource="{extensions:ImageResource Source=ic_play.png}" Command="{Binding PlayCommand}" HorizontalOptions="End" VerticalOptions="Center"/>
+                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" HorizontalOptions="End" VerticalOptions="Center"/>
                 </Grid>
 
                 <!-- Controller event list -->
@@ -64,7 +64,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <controls:ColorImage Grid.Column="0" Source="{Binding ControllerEvent.EventType, Converter={StaticResource EventTypeToImage}}" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
+                                    <controls:ColorImage Grid.Column="0" Icon="{Binding ControllerEvent.EventType, Converter={StaticResource EventTypeToImage}}" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
                                     <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center">
                                         <Label Text="{Binding ControllerEvent.EventCode}" FontSize="Large" FontAttributes="Bold"/>
                                     </StackLayout>
@@ -90,7 +90,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <controls:ColorImage Grid.Column="0" Source="{extensions:ImageResource Source=ic_exclamation_mark.png}" Color="{DynamicResource NegativeColor}" IsVisible="{Binding ControllerActionValid, Converter={StaticResource InverseBool}}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
+                                    <controls:ColorImage Grid.Column="0" Icon="warning_amber" Color="{DynamicResource NegativeColor}" IsVisible="{Binding ControllerActionValid, Converter={StaticResource InverseBool}}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
                                     <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center" Margin="0,4" Spacing="6">
                                         <Label Text="{extensions:Translate Device}"/>
                                         <Label Text=":"/>
@@ -111,7 +111,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" ImageSource="{extensions:ImageResource Source=ic_add.png}" Command="{Binding AddControllerEventCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerEventCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

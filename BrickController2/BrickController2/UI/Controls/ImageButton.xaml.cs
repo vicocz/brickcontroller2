@@ -10,15 +10,15 @@ namespace BrickController2.UI.Controls
             InitializeComponent();
         }
 
-        public static readonly BindableProperty ImageSourceProperty = BindableProperty.Create(nameof(ImageSource), typeof(ImageSource), typeof(ImageButton), null, BindingMode.OneWay, null, ImageSourceChanged);
+        public static readonly BindableProperty IconProperty = BindableProperty.Create(nameof(Icon), typeof(string), typeof(ToolbarIcon), null, BindingMode.OneWay, null, IconChanged);
         public static readonly BindableProperty ImageColorProperty = BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(ImageButton), default(Color), BindingMode.OneWay, null, ImageColorChanged);
         public static readonly BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ImageButton), null, BindingMode.OneWay, null, CommandChanged);
         public static readonly BindableProperty CommandParameterProperty = BindableProperty.Create(nameof(Command), typeof(object), typeof(ImageButton), null, BindingMode.OneWay, null, CommandParameterChanged);
 
-        public ImageSource ImageSource
+        public string Icon
         {
-            get => (ImageSource)GetValue(ImageSourceProperty);
-            set => SetValue(ImageSourceProperty, value);
+            get => (string)GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
         }
 
         public Color ImageColor
@@ -39,11 +39,11 @@ namespace BrickController2.UI.Controls
             set => SetValue(CommandParameterProperty, value);
         }
 
-        private static void ImageSourceChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void IconChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is ImageButton imageButton && newValue is ImageSource imageSource)
+            if (bindable is ImageButton imageButton && newValue is string iconName)
             {
-                imageButton.Image.Source = imageSource;
+                imageButton.ImageSource.Glyph = iconName;
             }
         }
 
@@ -51,7 +51,7 @@ namespace BrickController2.UI.Controls
         {
             if (bindable is ImageButton imageButton && newValue is Color color)
             {
-                imageButton.Image.Color = color;
+                imageButton.ImageSource.Color = color;
             }
         }
 

@@ -20,11 +20,6 @@
         </ResourceDictionary>
     </local:PageBase.Resources>
 
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate Sequences}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-        </Grid>
-    </NavigationPage.TitleView>
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportSequenceCommand}" />
     </ContentPage.ToolbarItems>

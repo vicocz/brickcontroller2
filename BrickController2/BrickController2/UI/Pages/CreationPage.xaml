@@ -12,11 +12,6 @@
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate Creation}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-        </Grid>
-    </NavigationPage.TitleView>
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportControllerProfileCommand}" />
         <controls:ToolbarIcon Icon="file_upload" Command="{Binding ExportCreationCommand}" />

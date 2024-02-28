@@ -21,11 +21,6 @@
         </ResourceDictionary>
     </local:PageBase.Resources>
 
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate ControllerAction}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-        </Grid>
-    </NavigationPage.TitleView>
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="done_outline" Command="{Binding SaveControllerActionCommand}" />
     </ContentPage.ToolbarItems>

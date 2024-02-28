@@ -19,11 +19,6 @@
         </ResourceDictionary>
     </local:PageBase.Resources>
 
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate Sequence}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-        </Grid>
-    </NavigationPage.TitleView>
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="file_upload" Command="{Binding ExportSequenceCommand}" />
         <controls:ToolbarIcon Icon="done_outline" Command="{Binding SaveSequenceCommand}" />
@@ -95,7 +90,11 @@
                                     <Label Text="{Binding Value, Converter={StaticResource FloatValueToPercent}}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End" VerticalTextAlignment="Center"/>
                                 </StackLayout>
                                 <Button Grid.Column="1" Text="{Binding DurationMs}" Command="{Binding BindingContext.ChangeControlPointDurationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}" Style="{StaticResource PickerButtonStyle}" FontSize="Small"/>
-                                <controls:ImageButton Grid.Column="2" Icon="clear" ImageColor="{DynamicResource NegativeColor}" Command="{Binding BindingContext.DeleteControlPointCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="4,0,4,0"/>
+                                <ImageButton Grid.Column="2" Command="{Binding BindingContext.DeleteControlPointCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}" BackgroundColor="Transparent" WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="4,0,4,0">
+                                    <ImageButton.Source>
+                                        <FontImageSource x:Name="ImageSource" FontFamily="Icons" Glyph="clear" Color="{DynamicResource NegativeColor}" />
+                                    </ImageButton.Source>
+                                </ImageButton>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

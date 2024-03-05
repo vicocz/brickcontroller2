@@ -78,7 +78,7 @@
                             <TapGestureRecognizer Command="{Binding NavigateToDevicesCommand}"/>
                         </Frame.GestureRecognizers>
                         <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
-                            <controls:ColorImage Icon="device_hub" Style="{StaticResource FooterColorImageStyle}"/>
+                            <controls:ColorImage Icon="hub" Style="{StaticResource FooterColorImageStyle}"/>
                             <Label Text="{extensions:Translate Devices}" FontSize="Small"/>
                         </VerticalStackLayout>
                     </Frame>

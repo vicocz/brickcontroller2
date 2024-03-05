@@ -2,17 +2,13 @@
 
 namespace BrickController2.UI.Commands;
 
-public static class CommandExtensions
+internal static class CommandExtensions
 {
-    public static void RaiseCanExecuteChanged(this ICommand command)
+    internal static void RaiseCanExecuteChanged(this ICommand command)
     {
-        if (command is SafeCommand cmd)
+        if (command is IExtendableCommand cmd)
         {
             cmd.RaiseCanExecuteChanged();
         }
-        //else if (command is SafeCommand<> cmd)
-        //{
-        //    cmd.RaiseCanExecuteChanged();
-        //}
     }
 }

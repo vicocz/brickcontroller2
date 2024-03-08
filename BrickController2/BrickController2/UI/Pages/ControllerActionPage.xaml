@@ -22,7 +22,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="done_outline" Command="{Binding SaveControllerActionCommand}" />
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveControllerActionCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
@@ -43,7 +43,7 @@
 
                             <Label Grid.Column="0" Text="{extensions:Translate Device}" VerticalOptions="Center"/>
                             <Button Grid.Column="1" Text="{Binding SelectedDevice.Name}" Command="{Binding SelectDeviceCommand}" Style="{StaticResource PickerButtonStyle}"/>
-                            <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="device_hub" Command="{Binding OpenDeviceDetailsCommand}" VerticalOptions="Center"/>
+                            <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="contactless" Command="{Binding OpenDeviceDetailsCommand}" VerticalOptions="Center"/>
                         </Grid>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,8,5,8"/>

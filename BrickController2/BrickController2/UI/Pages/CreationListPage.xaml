@@ -21,9 +21,9 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportCreationCommand}" />
+        <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportCreation}" Command="{Binding ImportCreationCommand}" />
         <controls:ToolbarIcon Icon="paste" Command="{Binding ImportCreationFromClipboardCommand}" />
-        <controls:ToolbarIcon Icon="settings" Command="{Binding OpenSettingsPageCommand}" />
+        <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Śettings}" Command="{Binding OpenSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
@@ -79,7 +79,7 @@
                             <TapGestureRecognizer Command="{Binding NavigateToDevicesCommand}"/>
                         </Frame.GestureRecognizers>
                         <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
-                            <controls:ColorImage Icon="device_hub" Style="{StaticResource FooterColorImageStyle}"/>
+                            <controls:ColorImage Icon="hub" Style="{StaticResource FooterColorImageStyle}"/>
                             <Label Text="{extensions:Translate Devices}" FontSize="Small"/>
                         </VerticalStackLayout>
                     </Frame>

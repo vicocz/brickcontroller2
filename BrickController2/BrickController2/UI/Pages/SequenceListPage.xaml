@@ -21,7 +21,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportSequenceCommand}" />
+        <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportSequence}" Command="{Binding ImportSequenceCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

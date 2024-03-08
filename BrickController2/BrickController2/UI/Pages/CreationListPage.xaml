@@ -22,6 +22,7 @@
 
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportCreationCommand}" />
+        <controls:ToolbarIcon Icon="paste" Command="{Binding ImportCreationFromClipboardCommand}" />
         <controls:ToolbarIcon Icon="settings" Command="{Binding OpenSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 

@@ -15,6 +15,7 @@
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportControllerProfileCommand}" />
         <controls:ToolbarIcon Icon="file_upload" Command="{Binding ExportCreationCommand}" />
+        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopyToClipboard}" Command="{Binding CopyCreationCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

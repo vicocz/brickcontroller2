@@ -9,6 +9,7 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using BrickController2.PlatformServices.Permission;
+using BrickController2.CreationManagement.Sharing;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -19,7 +20,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IBluetoothPermission _bluetoothPermission;
         private readonly IReadWriteExternalStoragePermission _readWriteExternalStoragePermission;
-
+        private readonly ISharingManager<Creation> _sharingManager;
         private CancellationTokenSource _disappearingTokenSource;
         private bool _isLoaded;
 
@@ -37,7 +38,8 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IBluetoothPermission bluetoothPermission,
-            IReadWriteExternalStoragePermission readWriteExternalStoragePermission)
+            IReadWriteExternalStoragePermission readWriteExternalStoragePermission,
+            ISharingManager<Creation> sharingManager)
             : base(navigationService, translationService)
         {
             _creationManager = creationManager;
@@ -45,8 +47,10 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
             _bluetoothPermission = bluetoothPermission;
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
+            _sharingManager = sharingManager;
             SharedFileStorageService = sharedFileStorageService;
 
+            ImportCreationFromClipboardCommand = new SafeCommand(async () => await ImportCreationFromClipboardAsync());
             ImportCreationCommand = new SafeCommand(async () => await ImportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
@@ -67,6 +71,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand CreationTappedCommand { get; }
         public ICommand DeleteCreationCommand { get; }
         public ICommand ImportCreationCommand { get; }
+        public ICommand ImportCreationFromClipboardCommand { get; }
         public ICommand NavigateToDevicesCommand { get; }
         public ICommand NavigateToControllerTesterCommand { get; }
         public ICommand NavigateToSequencesCommand { get; }
@@ -183,6 +188,27 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private async Task ImportCreationFromClipboardAsync()
+         {
+            try
+            {
+                var creation = await _sharingManager.ImportFromClipboardAsync();
+                await _creationManager.ImportCreationAsync(creation);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Error"),
+                    Translate("FailedToImportCreation"),
+                    Translate("Ok"),
+                    _disappearingTokenSource.Token);
+            }
+
         }
 
         private async Task LoadCreationsAndDevicesAsync()

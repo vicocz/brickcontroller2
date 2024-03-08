@@ -42,11 +42,17 @@ namespace BrickController2.CreationManagement
 
         public async Task ImportCreationAsync(string creationFilename)
         {
+            var creationJson = await File.ReadAllTextAsync(creationFilename);
+            var creation = JsonConvert.DeserializeObject<Creation>(creationJson);
+
+            await ImportCreationAsync(creation);
+        }
+
+
+        public async Task ImportCreationAsync(Creation creation)
+        {
             using (await _asyncLock.LockAsync())
             {
-                var creationJson = await File.ReadAllTextAsync(creationFilename);
-                var creation = JsonConvert.DeserializeObject<Creation>(creationJson);
-
                 var creationName = creation.Name;
                 if (!IsCreationNameAvailable(creationName))
                 {

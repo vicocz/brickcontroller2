@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.CreationManagement.Sharing;
+using BrickController2.Helpers;
 using Newtonsoft.Json;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
@@ -7,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace BrickController2.CreationManagement
 {
-    public class Creation : NotifyPropertyChangedSource
+    public class Creation : NotifyPropertyChangedSource, IShareable
     {
         private string _name;
         private ObservableCollection<ControllerProfile> _controllerProfiles = new ObservableCollection<ControllerProfile>();
@@ -28,6 +29,9 @@ namespace BrickController2.CreationManagement
             get { return _controllerProfiles; }
             set { _controllerProfiles = value; RaisePropertyChanged(); }
         }
+
+        [JsonIgnore]
+        public static string Type => "bc2p";
 
         public override string ToString()
         {

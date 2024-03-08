@@ -3,7 +3,7 @@
 public interface IShareable
 {
     /// <summary>
-    /// Unique sharing ID
+    /// Defines the unique identifier of shareable model
     /// </summary>
     static abstract string Type { get; }
 }

@@ -20,6 +20,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopyToClipboard}" Command="{Binding CopySequenceCommand}" />        
         <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportSequence}" Command="{Binding ExportSequenceCommand}" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSequenceCommand}" />
     </ContentPage.ToolbarItems>

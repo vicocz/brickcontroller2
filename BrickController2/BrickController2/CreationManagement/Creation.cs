@@ -3,7 +3,6 @@ using BrickController2.Helpers;
 using Newtonsoft.Json;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace BrickController2.CreationManagement
@@ -31,7 +30,7 @@ namespace BrickController2.CreationManagement
         }
 
         [JsonIgnore]
-        public static string Type => "bc2p";
+        public static string Type => "bc2c";
 
         public override string ToString()
         {

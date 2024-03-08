@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace BrickController2.CreationManagement.Sharing;
 
@@ -8,13 +7,13 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     public SharingManager()
     {
         // default options for JSON
-        JsonOptions = new JsonSerializerOptions
+        JsonOptions = new JsonSerializerSettings
         {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+            DefaultValueHandling = DefaultValueHandling.Ignore
         };
     }
 
-    internal JsonSerializerOptions JsonOptions { get; }
+    internal JsonSerializerSettings JsonOptions { get; }
 
     /// <summary>
     /// Export the specified <paramref name="item"/> as serialized JSON model
@@ -22,7 +21,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     internal Task<string> ShareAsync(TModel model)
     {
         var payload = new ShareablePayload<TModel>(model);
-        var json = JsonSerializer.Serialize(payload, JsonOptions);
+        var json = JsonConvert.SerializeObject(payload, JsonOptions);
         return Task.FromResult(json);
     }
 
@@ -45,7 +44,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
 
     internal TModel Import(string json)
     {
-        var model = JsonSerializer.Deserialize<ShareablePayload<TModel>>(json, JsonOptions);
+        var model = JsonConvert.DeserializeObject<ShareablePayload<TModel>>(json, JsonOptions);
 
         if (model?.Payload is null || model.PayloadType != TModel.Type)
             throw new InvalidOperationException("Invalid json data.");

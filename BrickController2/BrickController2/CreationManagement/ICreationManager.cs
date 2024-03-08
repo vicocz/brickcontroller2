@@ -62,6 +62,7 @@ namespace BrickController2.CreationManagement
             string sequenceName);
 
         Task ImportSequenceAsync(string sequenceFilename);
+        Task ImportSequenceAsync(Sequence sequence);
         Task ExportSequenceAsync(Sequence sequence, string sequenceFilename);
         Task<bool> IsSequenceNameAvailableAsync(string sequenceName);
         Task<Sequence> AddSequenceAsync(string sequenceName);

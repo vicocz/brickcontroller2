@@ -38,9 +38,9 @@ namespace BrickController2.UI.ViewModels
             _sharingManager = sharingManager;
             Creation = parameters.Get<Creation>("creation");
 
-            CopyCreationCommand = new SafeCommand(CopyCreationAsync);
             ImportControllerProfileCommand = new SafeCommand(async () => await ImportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             ExportCreationCommand = new SafeCommand(async () => await ExportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            CopyCreationCommand = new SafeCommand(CopyCreationAsync);
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
             PlayCommand = new SafeCommand(async () => await PlayAsync());
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
@@ -51,9 +51,9 @@ namespace BrickController2.UI.ViewModels
         public Creation Creation { get; }
 
         public ISharedFileStorageService SharedFileStorageService { get; }
-        public ICommand CopyCreationCommand { get; }
         public ICommand ImportControllerProfileCommand { get; }
         public ICommand ExportCreationCommand { get; }
+        public ICommand CopyCreationCommand { get; }
         public ICommand RenameCreationCommand { get; }
         public ICommand PlayCommand { get; }
         public ICommand AddControllerProfileCommand { get; }

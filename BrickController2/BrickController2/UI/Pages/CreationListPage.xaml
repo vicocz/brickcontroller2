@@ -21,8 +21,8 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="file_download" Command="{Binding ImportCreationCommand}" />
-        <controls:ToolbarIcon Icon="settings" Command="{Binding OpenSettingsPageCommand}" />
+        <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportCreation}" Command="{Binding ImportCreationCommand}" />
+        <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Śettings}" Command="{Binding OpenSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

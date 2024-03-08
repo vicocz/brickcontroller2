@@ -23,7 +23,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="done_outline" Command="{Binding SaveChannelSettingsCommand}" />
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveChannelSettingsCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

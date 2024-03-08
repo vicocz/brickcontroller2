@@ -22,7 +22,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="done_outline" Command="{Binding SaveControllerActionCommand}" />
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveControllerActionCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

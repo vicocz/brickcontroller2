@@ -21,7 +21,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="file_upload" Command="{Binding ExportControllerProfileCommand}" />
+        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportControllerProfile}" Command="{Binding ExportControllerProfileCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

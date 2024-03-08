@@ -23,7 +23,6 @@ namespace BrickController2.Windows
             {
                 handlers
                     .AddHandler<ExtendedSlider, ExtendedSliderHandler>()
-                    .AddHandler<PageBase, CustomPageHandler>()
                 ;
 
                 // handle swipe if there is no touch screen

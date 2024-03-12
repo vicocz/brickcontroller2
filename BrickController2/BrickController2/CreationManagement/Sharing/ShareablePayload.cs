@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace BrickController2.CreationManagement.Sharing;
 
@@ -19,9 +19,9 @@ internal class ShareablePayload<TModel> where TModel : class, IShareable
         Payload = payload;
     }
 
-    [JsonProperty(ContentTypeProperty)]
+    [JsonPropertyName(ContentTypeProperty)]
     public string PayloadType { get; private init; }
 
-    [JsonProperty(PayloadProperty)]
+    [JsonPropertyName(PayloadProperty)]
     public TModel Payload { get; private init; }
 }

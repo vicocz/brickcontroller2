@@ -1,7 +1,7 @@
 ﻿using BrickController2.PlatformServices.GameController;
 using BrickController2.Helpers;
 using System.Collections.ObjectModel;
-using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace BrickController2.CreationManagement
 {
@@ -43,7 +43,7 @@ namespace BrickController2.CreationManagement
         public async Task ImportCreationAsync(string creationFilename)
         {
             var creationJson = await File.ReadAllTextAsync(creationFilename);
-            var creation = JsonConvert.DeserializeObject<Creation>(creationJson);
+            var creation = JsonSerializer.Deserialize<Creation>(creationJson);
 
             await ImportCreationAsync(creation);
         }
@@ -77,7 +77,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                var creationJson = JsonConvert.SerializeObject(creation);
+                var creationJson = JsonSerializer.Serialize(creation);
                 await File.WriteAllTextAsync(creationFilename, creationJson);
             }
         }
@@ -140,7 +140,7 @@ namespace BrickController2.CreationManagement
         public async Task ImportControllerProfileAsync(Creation creation, string controllerProfileFilename)
         {
             var controllerProfileJson = await File.ReadAllTextAsync(controllerProfileFilename);
-            var controllerProfile = JsonConvert.DeserializeObject<ControllerProfile>(controllerProfileJson);
+            var controllerProfile = JsonSerializer.Deserialize<ControllerProfile>(controllerProfileJson);
 
             await ImportControllerProfileAsync(creation, controllerProfile);
         }
@@ -175,7 +175,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                var controllerProfileJson = JsonConvert.SerializeObject(controllerProfile);
+                var controllerProfileJson = JsonSerializer.Serialize(controllerProfile);
                 await File.WriteAllTextAsync(controllerProfileFilename, controllerProfileJson);
             }
         }
@@ -354,7 +354,7 @@ namespace BrickController2.CreationManagement
         public async Task ImportSequenceAsync(string sequenceFilename)
         {
             var sequenceJson = await File.ReadAllTextAsync(sequenceFilename);
-            var sequence = JsonConvert.DeserializeObject<Sequence>(sequenceJson);
+            var sequence = JsonSerializer.Deserialize<Sequence>(sequenceJson);
 
             await ImportSequenceAsync(sequence);
         }
@@ -389,7 +389,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                var sequenceJson = JsonConvert.SerializeObject(sequence);
+                var sequenceJson = JsonSerializer.Serialize(sequence);
                 await File.WriteAllTextAsync(sequenceFilename, sequenceJson);
             }
         }

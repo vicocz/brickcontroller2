@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.CreationManagement.Sharing;
+using BrickController2.Helpers;
 using Newtonsoft.Json;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
@@ -6,7 +7,7 @@ using System.Collections.ObjectModel;
 
 namespace BrickController2.CreationManagement
 {
-    public class Sequence : NotifyPropertyChangedSource
+    public class Sequence : NotifyPropertyChangedSource, IShareable
     {
         private string _name;
         private bool _loop;
@@ -62,6 +63,9 @@ namespace BrickController2.CreationManagement
                 return td;
             }
         }
+
+        [JsonIgnore]
+        public static string Type => "bc2s";
 
         public override string ToString()
         {

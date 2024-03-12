@@ -1,7 +1,7 @@
 ﻿using BrickController2.Helpers;
-using Newtonsoft.Json;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
+using System.Text.Json.Serialization;
 
 namespace BrickController2.CreationManagement
 {

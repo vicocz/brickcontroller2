@@ -9,6 +9,7 @@ using BrickController2.BusinessLogic;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.Helpers;
 using DeviceType = BrickController2.DeviceManagement.DeviceType;
+using BrickController2.CreationManagement.Sharing;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -16,6 +17,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly ICreationManager _creationManager;
         private readonly IDeviceManager _deviceManager;
+        private readonly ISharingManager<ControllerProfile> _sharingManager;
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
 
@@ -28,6 +30,7 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             ICreationManager creationManager,
             IDeviceManager deviceManager,
+            ISharingManager<ControllerProfile> sharingManager,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
@@ -36,6 +39,7 @@ namespace BrickController2.UI.ViewModels
         {
             _creationManager = creationManager;
             _deviceManager = deviceManager;
+            _sharingManager = sharingManager;
             _dialogService = dialogService;
             SharedFileStorageService = sharedFileStorageService;
             _playLogic = playLogic;
@@ -43,6 +47,7 @@ namespace BrickController2.UI.ViewModels
             ControllerProfile = parameters.Get<ControllerProfile>("controllerprofile");
 
             ExportControllerProfileCommand = new SafeCommand(async () => await ExportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            CopyControllerProfileCommand = new SafeCommand(CopyControllerProfileAsync);
             RenameProfileCommand = new SafeCommand(async () => await RenameControllerProfileAsync());
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync());
             PlayCommand = new SafeCommand(async () => await PlayAsync());
@@ -77,6 +82,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         public ICommand ExportControllerProfileCommand { get; }
+        public ICommand CopyControllerProfileCommand { get; }
         public ICommand RenameProfileCommand { get; }
         public ICommand AddControllerEventCommand { get; }
         public ICommand PlayCommand { get; }
@@ -147,6 +153,17 @@ namespace BrickController2.UI.ViewModels
                     }
                 }
                 while (!done);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task CopyControllerProfileAsync()
+        {
+            try
+            {
+                await _sharingManager.ShareToClipboardAsync(ControllerProfile);
             }
             catch (OperationCanceledException)
             {

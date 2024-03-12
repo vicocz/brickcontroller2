@@ -6,6 +6,7 @@ using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
@@ -114,11 +115,11 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
-            catch (InvalidOperationException)
+            catch (Exception ex)
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Error"),
-                    Translate("FailedToImportSequence"),
+                    Translate("FailedToImportSequence") + " " + ex.Message,
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

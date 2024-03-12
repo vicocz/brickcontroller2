@@ -139,11 +139,16 @@ namespace BrickController2.CreationManagement
 
         public async Task ImportControllerProfileAsync(Creation creation, string controllerProfileFilename)
         {
+            var controllerProfileJson = await File.ReadAllTextAsync(controllerProfileFilename);
+            var controllerProfile = JsonConvert.DeserializeObject<ControllerProfile>(controllerProfileJson);
+
+            await ImportControllerProfileAsync(creation, controllerProfile);
+        }
+
+        public async Task ImportControllerProfileAsync(Creation creation, ControllerProfile controllerProfile)
+        {
             using (await _asyncLock.LockAsync())
             {
-                var controllerProfileJson = await File.ReadAllTextAsync(controllerProfileFilename);
-                var controllerProfile = JsonConvert.DeserializeObject<ControllerProfile>(controllerProfileJson);
-
                 controllerProfile.Creation = null;
                 controllerProfile.CreationId = 0;
 

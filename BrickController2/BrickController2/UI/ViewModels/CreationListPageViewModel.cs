@@ -201,11 +201,11 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
-            catch (InvalidOperationException)
+            catch (Exception ex)
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Error"),
-                    Translate("FailedToImportCreation"),
+                    Translate("FailedToImportCreation") + " " + ex.Message,
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

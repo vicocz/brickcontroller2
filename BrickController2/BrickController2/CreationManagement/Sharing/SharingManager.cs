@@ -31,14 +31,14 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
         var json = await ShareAsync(model);
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
-            Clipboard.Default.SetTextAsync(json);
+            Clipboard.SetTextAsync(json);
         });
     }
 
     /// <inheritdoc/>
     public async Task<TModel> ImportFromClipboardAsync()
     {
-        var json = await MainThread.InvokeOnMainThreadAsync(Clipboard.Default.GetTextAsync);
+        var json = await MainThread.InvokeOnMainThreadAsync(Clipboard.GetTextAsync);
         return Import(json);
     }
 

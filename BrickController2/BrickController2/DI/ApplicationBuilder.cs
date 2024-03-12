@@ -5,6 +5,7 @@ using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
 using BrickController2.DeviceManagement.DI;
 using BrickController2.UI.DI;
+using ZXing.Net.Maui.Controls;
 
 namespace BrickController2.DI;
 
@@ -23,6 +24,7 @@ public static class ApplicationBuilder
                 fonts.AddFont("MaterialIconsOutlined-Regular", "Icons");
             })
             // configure other common dependencies if needed
+            .UseBarcodeReader();
             ;
     }
 

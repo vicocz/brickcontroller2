@@ -1,7 +1,5 @@
 ﻿using BrickController2.PlatformServices.GameController;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace BrickController2.CreationManagement
 {
@@ -12,6 +10,7 @@ namespace BrickController2.CreationManagement
 
         Task LoadCreationsAndSequencesAsync();
         Task ImportCreationAsync(string creationFilename);
+        Task ImportCreationAsync(Creation creation);
         Task ExportCreationAsync(Creation creation, string creationFilename);
         Task<bool> IsCreationNameAvailableAsync(string creationName);
         Task<Creation> AddCreationAsync(string creationName);
@@ -19,6 +18,7 @@ namespace BrickController2.CreationManagement
         Task RenameCreationAsync(Creation creation, string newName);
 
         Task ImportControllerProfileAsync(Creation creation, string controllerProfileFilename);
+        Task ImportControllerProfileAsync(Creation creation, ControllerProfile controllerProfile);
         Task ExportControllerProfileAsync(ControllerProfile controllerProfile, string ControllerProfileFilename);
         Task<bool> IsControllerProfileNameAvailableAsync(Creation creation, string controllerProfileName);
         Task<ControllerProfile> AddControllerProfileAsync(Creation creation, string controllerProfileName);
@@ -63,6 +63,7 @@ namespace BrickController2.CreationManagement
             string sequenceName);
 
         Task ImportSequenceAsync(string sequenceFilename);
+        Task ImportSequenceAsync(Sequence sequence);
         Task ExportSequenceAsync(Sequence sequence, string sequenceFilename);
         Task<bool> IsSequenceNameAvailableAsync(string sequenceName);
         Task<Sequence> AddSequenceAsync(string sequenceName);

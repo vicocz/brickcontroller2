@@ -243,6 +243,15 @@
   <data name="ControlPoint" xml:space="preserve">
     <value>Control point</value>
   </data>
+  <data name="CopyControllerProfile" xml:space="preserve">
+    <value>Copy the controller profile to clipboard</value>
+  </data>
+  <data name="CopyCreation" xml:space="preserve">
+    <value>Copy the creation to clipboard</value>
+  </data>
+  <data name="CopySequence" xml:space="preserve">
+    <value>Copy the sequence to clipboard</value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
@@ -428,6 +437,15 @@
   </data>
   <data name="OutputLevel" xml:space="preserve">
     <value>Output level</value>
+  </data>
+  <data name="PasteControllerProfile" xml:space="preserve">
+    <value>Import a controller profile from clipboard</value>
+  </data>
+  <data name="PasteCreation" xml:space="preserve">
+    <value>Import a creation from clipboard</value>
+  </data>
+  <data name="PasteSequence" xml:space="preserve">
+    <value>Import a sequence from clipboard</value>
   </data>
   <data name="PermissionRequest" xml:space="preserve">
     <value>Permission request</value>

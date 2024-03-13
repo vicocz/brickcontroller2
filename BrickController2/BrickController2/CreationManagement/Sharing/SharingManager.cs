@@ -57,8 +57,11 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     {
         var model = JsonSerializer.Deserialize<ShareablePayload<TModel>>(json, options);
 
-        if (model?.Payload is null || model.PayloadType != TModel.Type)
+        if (model?.Payload is null)
             throw new InvalidOperationException("Invalid json data.");
+
+        if (model.PayloadType != TModel.Type)
+            throw new InvalidOperationException($"Invalid json data, PayloadType {model.PayloadType} does not match the expected value.");
 
         return model.Payload;
     }

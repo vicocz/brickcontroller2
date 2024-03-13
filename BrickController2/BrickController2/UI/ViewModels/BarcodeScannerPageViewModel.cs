@@ -14,7 +14,6 @@ namespace BrickController2.UI.ViewModels
         private readonly ICreationManager _creationManager;
         private readonly ISharingManager<Creation> _sharingManager;
         private readonly IDialogService _dialogService;
-        private bool _scanningEnabled;
         private string _currentValue;
         private bool _currentValueValidity;
         private CancellationTokenSource _disappearingTokenSource;
@@ -32,19 +31,7 @@ namespace BrickController2.UI.ViewModels
             _sharingManager = sharingManager;
             _dialogService = dialogService;
 
-            ImportCommand = new SafeCommand(ImportAsync, () => ScanningEnabled && IsCurrentValueValid);
-        }
-
-        public bool ScanningEnabled
-        {
-            get { return _scanningEnabled; }
-            set
-            {
-                _scanningEnabled = value;
-                RaisePropertyChanged();
-                // update button availability
-                ImportCommand.RaiseCanExecuteChanged();
-            }
+            ImportCommand = new SafeCommand(ImportAsync, () => IsCurrentValueValid);
         }
 
         public string CurrentValue
@@ -67,8 +54,6 @@ namespace BrickController2.UI.ViewModels
             {
                 _currentValueValidity = value;
                 RaisePropertyChanged();
-                // update button availability
-                ImportCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -88,15 +73,12 @@ namespace BrickController2.UI.ViewModels
         {
             _disappearingTokenSource?.Cancel();
             _disappearingTokenSource = new CancellationTokenSource();
-
-            // enable scanning
-            ScanningEnabled = true;
         }
 
         public override void OnDisappearing()
         {
             // disable scanning
-            ScanningEnabled = false;
+            IsCurrentValueValid = false;
 
             _disappearingTokenSource.Cancel();
         }
@@ -115,13 +97,12 @@ namespace BrickController2.UI.ViewModels
             {
                 IsCurrentValueValid = false;
             }
+            // update button availability
+            MainThread.BeginInvokeOnMainThread(() => ImportCommand.RaiseCanExecuteChanged());
         }
 
         private async Task ImportAsync()
         {
-            // disable scanning
-            ScanningEnabled = false;
-
             try
             {
                 var creation = _sharingManager.Import(CurrentValue);
@@ -142,10 +123,9 @@ namespace BrickController2.UI.ViewModels
                     _disappearingTokenSource.Token);
             }
 
-            // clear imported code and enable scanning
+            // clear imported code
             CurrentValue = default;
             IsCurrentValueValid = false;
-            ScanningEnabled = true;
         }
     }
 }

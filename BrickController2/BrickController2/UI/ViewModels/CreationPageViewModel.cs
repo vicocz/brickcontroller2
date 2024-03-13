@@ -358,7 +358,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                await NavigationService.NavigateToAsync<BarcodeSharePageViewModel>(new NavigationParameters(("item", Creation)));
+                await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", Creation)));
             }
             catch (OperationCanceledException)
             {

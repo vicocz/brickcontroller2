@@ -216,7 +216,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                await NavigationService.NavigateToAsync<BarcodeScannerPageViewModel>(new NavigationParameters());
+                await NavigationService.NavigateToAsync<CreationScannerPageViewModel>(new NavigationParameters());
             }
             catch (OperationCanceledException)
             {

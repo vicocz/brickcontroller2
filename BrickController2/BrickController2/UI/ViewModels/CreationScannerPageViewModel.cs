@@ -9,7 +9,7 @@ using ZXing.Net.Maui;
 
 namespace BrickController2.UI.ViewModels
 {
-    public class BarcodeScannerPageViewModel : PageViewModelBase
+    public class CreationScannerPageViewModel : PageViewModelBase
     {
         private readonly ICreationManager _creationManager;
         private readonly ISharingManager<Creation> _sharingManager;
@@ -18,7 +18,7 @@ namespace BrickController2.UI.ViewModels
         private bool _currentValueValidity;
         private CancellationTokenSource _disappearingTokenSource;
 
-        public BarcodeScannerPageViewModel(
+        public CreationScannerPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
             ICreationManager creationManager,
@@ -110,7 +110,7 @@ namespace BrickController2.UI.ViewModels
 
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Import"),
-                    Translate("CreationImported") + " " + creation.Name,
+                    Translate("ImportSuccessful") + " " + creation.Name,
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

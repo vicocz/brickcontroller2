@@ -5,9 +5,9 @@ using BrickController2.UI.ViewModels;
 namespace BrickController2.UI.Pages;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class BarcodeSharePage
+public partial class CreationSharePage
 {
-    public BarcodeSharePage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
+    public CreationSharePage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
         : base(backgroundService, dialogServerHost)
     {
         InitializeComponent();

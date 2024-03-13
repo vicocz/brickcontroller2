@@ -378,6 +378,9 @@
   <data name="ImportSequence" xml:space="preserve">
     <value>Import a sequence</value>
   </data>
+  <data name="ImportSuccessful" xml:space="preserve">
+    <value>Import successful:</value>
+  </data>
   <data name="Information" xml:space="preserve">
     <value>Information</value>
   </data>
@@ -495,6 +498,9 @@
   <data name="Scanning" xml:space="preserve">
     <value>Scanning...</value>
   </data>
+  <data name="ScanQr" xml:space="preserve">
+    <value>Scan QR code</value>
+  </data>
   <data name="SearchingForDevices" xml:space="preserve">
     <value>Searching for devices.</value>
   </data>
@@ -527,6 +533,9 @@
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>Share</value>
   </data>
   <data name="ShortChannel" xml:space="preserve">
     <value>Ch</value>

@@ -31,7 +31,7 @@
                 </Grid>
 
                 <!-- QR code -->
-                <zxing:BarcodeGeneratorView Grid.Row="1" x:Name="BarcodeBoxView" HeightRequest="320" WidthRequest="320" HorizontalOptions="Center" Margin="3" Format="{Binding BarcodeFormat}" Value="{Binding BarcodeValue}" />
+                <zxing:BarcodeGeneratorView Grid.Row="1" HorizontalOptions="Fill" Format="{Binding BarcodeFormat}" Value="{Binding BarcodeValue}" />
             </Grid>
 
             <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>

@@ -379,7 +379,7 @@
     <value>Import a sequence</value>
   </data>
   <data name="ImportSuccessful" xml:space="preserve">
-    <value>Import successful</value>
+    <value>Import successful:</value>
   </data>
   <data name="Information" xml:space="preserve">
     <value>Information</value>

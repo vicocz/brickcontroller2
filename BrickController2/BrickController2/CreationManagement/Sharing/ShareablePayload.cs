@@ -4,24 +4,27 @@ namespace BrickController2.CreationManagement.Sharing;
 
 /// <summary>
 /// Wrapper for serialization of <typeparam name="TModel"></typeparam>
-internal class ShareablePayload<TModel> where TModel : class, IShareable
+internal sealed class ShareablePayload<TModel> where TModel : class, IShareable
 {
     public const string ContentTypeProperty = "ct";
     public const string PayloadProperty = "p";
 
+    [JsonConstructor]
     private ShareablePayload()
     { 
     }
 
-    public ShareablePayload(TModel payload)
+    internal ShareablePayload(TModel payload)
     {
         PayloadType = TModel.Type;
         Payload = payload;
     }
 
     [JsonPropertyName(ContentTypeProperty)]
-    public string PayloadType { get; private init; }
+    [JsonInclude]
+    public string PayloadType { get; private set; }
 
     [JsonPropertyName(PayloadProperty)]
-    public TModel Payload { get; private init; }
+    [JsonInclude]
+    public TModel Payload { get; private set; }
 }

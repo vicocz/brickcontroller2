@@ -21,7 +21,6 @@ namespace BrickController2.UI.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IBluetoothPermission _bluetoothPermission;
         private readonly IReadWriteExternalStoragePermission _readWriteExternalStoragePermission;
-
         private CancellationTokenSource _disappearingTokenSource;
         private bool _isLoaded;
 
@@ -52,6 +51,7 @@ namespace BrickController2.UI.ViewModels
             SharedFileStorageService = sharedFileStorageService;
 
             ImportCreationCommand = new SafeCommand(async () => await ImportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            ScanCreationCommand = new SafeCommand(ScanCreationAsync);
             PasteCreationCommand = new SafeCommand(PasteCreationAsync);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
@@ -73,6 +73,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand DeleteCreationCommand { get; }
         public ICommand ImportCreationCommand { get; }
         public ICommand PasteCreationCommand { get; }
+        public ICommand ScanCreationCommand { get; }
         public ICommand NavigateToDevicesCommand { get; }
         public ICommand NavigateToControllerTesterCommand { get; }
         public ICommand NavigateToSequencesCommand { get; }
@@ -208,6 +209,17 @@ namespace BrickController2.UI.ViewModels
                     Translate("FailedToImportCreation") + " " + ex.Message,
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
+            }
+        }
+
+        private async Task ScanCreationAsync()
+        {
+            try
+            {
+                await NavigationService.NavigateToAsync<CreationScannerPageViewModel>(new NavigationParameters());
+            }
+            catch (OperationCanceledException)
+            {
             }
         }
 

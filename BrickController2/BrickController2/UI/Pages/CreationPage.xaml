@@ -13,6 +13,7 @@
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="share" Text="{extensions:Translate Share}" Command="{Binding ShareCreationCommand}" />
         <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportControllerProfile}" Command="{Binding ImportControllerProfileCommand}" />
         <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportCreation}" Command="{Binding ExportCreationCommand}" />
         <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopyCreation}" Command="{Binding CopyCreationCommand}"  Order="Secondary" />

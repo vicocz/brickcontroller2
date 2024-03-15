@@ -51,7 +51,7 @@ namespace BrickController2.UI.ViewModels
             RenameProfileCommand = new SafeCommand(async () => await RenameControllerProfileAsync());
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync());
             PlayCommand = new SafeCommand(async () => await PlayAsync());
-            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(async controllerActionViewModel => await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction))));
+            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
 
@@ -237,6 +237,26 @@ namespace BrickController2.UI.ViewModels
 
                     await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent)));
                 }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+        private async Task ShowActionAsync(ControllerActionViewModel controllerActionViewModel)
+        {
+            try
+            {
+                if (_deviceManager.Devices?.Count == 0)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("NoDevices"),
+                        Translate("Ok"),
+                        _disappearingTokenSource.Token);
+                    return;
+                }
+
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction)));
             }
             catch (OperationCanceledException)
             {

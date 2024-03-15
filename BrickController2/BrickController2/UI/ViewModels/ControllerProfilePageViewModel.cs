@@ -250,7 +250,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
-                        Translate("NoDevices"),
+                        Translate("MissingDevices"),
                         Translate("Ok"),
                         _disappearingTokenSource.Token);
                     return;

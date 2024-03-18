@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0-tizen</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    
+    <SupportedOSPlatformVersion>6.5</SupportedOSPlatformVersion>
+	<Platforms>x86</Platforms>
+	<!--<RuntimeIdentifiers>tizen-x86</RuntimeIdentifiers>-->
+    <RootNamespace>BrickController2.Tizen</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Microsoft.Maui.Controls" />
+	<PackageReference Include ="Tizen.NET" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BrickController2\BrickController2.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <MauiSplashScreen Include="Resources\launcher.svg" BaseSize="128,128" /> 
+  </ItemGroup>
+</Project>

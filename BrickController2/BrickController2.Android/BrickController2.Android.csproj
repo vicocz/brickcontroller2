@@ -19,6 +19,10 @@
     <AndroidSigningKeyStore>C:\Users\imurv\AppData\Local\Xamarin\Mono for Android\Keystore\keystore\keystore.keystore</AndroidSigningKeyStore>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <RunAOTCompilation>False</RunAOTCompilation>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Resources\mipmap-hdpi\ic_launcher.png" />
     <None Remove="Resources\mipmap-mdpi\ic_launcher.png" />

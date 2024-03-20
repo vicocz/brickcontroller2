@@ -34,7 +34,7 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
     - name: Build MAUI Android
-      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net8.0-android --no-restore
+      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net8.0-android /p:AndroidPackageFormats=apk --no-restore
 
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v4

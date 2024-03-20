@@ -1,32 +1,22 @@
 ﻿using System.Windows.Input;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace BrickController2.UI.Controls
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class FloatingActionButton : ContentView
-	{
-		public FloatingActionButton()
-		{
-			InitializeComponent();
-		}
-
-        public static BindableProperty ButtonColorProperty = BindableProperty.Create(nameof(BackgroundColor), typeof(Color), typeof(FloatingActionButton), default(Color), BindingMode.OneWay, null, ButtonColorChanged);
-        public static BindableProperty ImageSourceProperty = BindableProperty.Create(nameof(ImageSource), typeof(ImageSource), typeof(FloatingActionButton), null, BindingMode.OneWay, null, ImageSourceChanged);
-        public static BindableProperty ImageColorProperty = BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(FloatingActionButton), null, BindingMode.OneWay, null, ImageColorChanged);
-        public static BindableProperty CommandProperty = BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(FloatingActionButton), null, BindingMode.OneWay, null, CommandChanged);
-
-        public Color ButtonColor
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class FloatingActionButton : ImageButton
+    {
+        public FloatingActionButton()
         {
-            get => (Color)GetValue(BackgroundColorProperty);
-            set => SetValue(BackgroundColorProperty, value);
+            InitializeComponent();
         }
 
-        public ImageSource ImageSource
+        public static readonly BindableProperty IconProperty = BindableProperty.Create(nameof(Icon), typeof(string), typeof(FloatingActionButton), null, BindingMode.OneWay, null, IconChanged);
+        public static readonly BindableProperty ImageColorProperty = BindableProperty.Create(nameof(ImageColor), typeof(Color), typeof(FloatingActionButton), null, BindingMode.OneWay, null, ImageColorChanged);
+
+        public string Icon
         {
-            get => (ImageSource)GetValue(ImageSourceProperty);
-            set => SetValue(ImageSourceProperty, value);
+            get => (string)GetValue(IconProperty);
+            set => SetValue(IconProperty, value);
         }
 
         public Color ImageColor
@@ -35,25 +25,11 @@ namespace BrickController2.UI.Controls
             set => SetValue(ImageColorProperty, value);
         }
 
-        public ICommand Command
+        private static void IconChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            get => (ICommand)GetValue(CommandProperty);
-            set => SetValue(CommandProperty, value);
-        }
-
-        private static void ButtonColorChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is FloatingActionButton fab && newValue is Color backgroundColor)
+            if (bindable is FloatingActionButton fab && newValue is string iconName)
             {
-                fab.Frame.BackgroundColor = backgroundColor;
-            }
-        }
-
-        private static void ImageSourceChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is FloatingActionButton fab && newValue is ImageSource imageSource)
-            {
-                fab.Image.Source = imageSource;
+                fab.ImageSource.Glyph = iconName;
             }
         }
 
@@ -61,15 +37,7 @@ namespace BrickController2.UI.Controls
         {
             if (bindable is FloatingActionButton fab && newValue is Color imageColor)
             {
-                fab.Image.Color = imageColor;
-            }
-        }
-
-        private static void CommandChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is FloatingActionButton fab && newValue is ICommand command)
-            {
-                fab.TapGuestureRecognizer.Command = command;
+                fab.ImageSource.Color = imageColor;
             }
         }
     }

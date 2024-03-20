@@ -1,15 +1,19 @@
-﻿using BrickController2.Helpers;
-using Newtonsoft.Json;
+﻿using BrickController2.CreationManagement.Sharing;
+using BrickController2.Helpers;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 
 namespace BrickController2.CreationManagement
 {
-    public class ControllerProfile : NotifyPropertyChangedSource
+    public class ControllerProfile : NotifyPropertyChangedSource, IShareable
     {
         private string _name;
         private ObservableCollection<ControllerEvent> _controllerEvents = new ObservableCollection<ControllerEvent>();
+
+        [JsonIgnore]
+        public static string Type => "bc2p";
 
         [PrimaryKey, AutoIncrement]
         [JsonIgnore]

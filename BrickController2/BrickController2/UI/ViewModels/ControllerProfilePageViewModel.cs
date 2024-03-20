@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using BrickController2.CreationManagement;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Navigation;
@@ -14,6 +8,8 @@ using BrickController2.UI.Services.Translation;
 using BrickController2.BusinessLogic;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.Helpers;
+using DeviceType = BrickController2.DeviceManagement.DeviceType;
+using BrickController2.CreationManagement.Sharing;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -21,6 +17,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly ICreationManager _creationManager;
         private readonly IDeviceManager _deviceManager;
+        private readonly ISharingManager<ControllerProfile> _sharingManager;
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
 
@@ -33,6 +30,7 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             ICreationManager creationManager,
             IDeviceManager deviceManager,
+            ISharingManager<ControllerProfile> sharingManager,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
@@ -41,6 +39,7 @@ namespace BrickController2.UI.ViewModels
         {
             _creationManager = creationManager;
             _deviceManager = deviceManager;
+            _sharingManager = sharingManager;
             _dialogService = dialogService;
             SharedFileStorageService = sharedFileStorageService;
             _playLogic = playLogic;
@@ -48,10 +47,11 @@ namespace BrickController2.UI.ViewModels
             ControllerProfile = parameters.Get<ControllerProfile>("controllerprofile");
 
             ExportControllerProfileCommand = new SafeCommand(async () => await ExportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            CopyControllerProfileCommand = new SafeCommand(CopyControllerProfileAsync);
             RenameProfileCommand = new SafeCommand(async () => await RenameControllerProfileAsync());
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync());
             PlayCommand = new SafeCommand(async () => await PlayAsync());
-            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(async controllerActionViewModel => await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction))));
+            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
 
@@ -82,6 +82,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         public ICommand ExportControllerProfileCommand { get; }
+        public ICommand CopyControllerProfileCommand { get; }
         public ICommand RenameProfileCommand { get; }
         public ICommand AddControllerEventCommand { get; }
         public ICommand PlayCommand { get; }
@@ -158,6 +159,17 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private async Task CopyControllerProfileAsync()
+        {
+            try
+            {
+                await _sharingManager.ShareToClipboardAsync(ControllerProfile);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
         private async Task RenameControllerProfileAsync()
         {
             try
@@ -225,6 +237,26 @@ namespace BrickController2.UI.ViewModels
 
                     await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent)));
                 }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+        private async Task ShowActionAsync(ControllerActionViewModel controllerActionViewModel)
+        {
+            try
+            {
+                if (_deviceManager.Devices?.Count == 0)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("MissingDevices"),
+                        Translate("Ok"),
+                        _disappearingTokenSource.Token);
+                    return;
+                }
+
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction)));
             }
             catch (OperationCanceledException)
             {

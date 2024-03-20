@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using BrickController2.DeviceManagement;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Navigation;
@@ -10,8 +6,7 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
 using BrickController2.Helpers;
-using Xamarin.Forms;
-using System.Collections.Generic;
+using DeviceType = BrickController2.DeviceManagement.DeviceType;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -38,7 +33,7 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             Device = parameters.Get<Device>("device");
-            DeviceOutputs =  Enumerable
+            DeviceOutputs = Enumerable
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(Device, channel))
                 .ToArray();
@@ -46,15 +41,21 @@ namespace BrickController2.UI.ViewModels
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
+            ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
         }
 
         public Device Device { get; }
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
+        public bool CanBePowerSource => Device.CanBePowerSource;
+        public bool CanExecuteScan => Device.CanBePowerSource &&
+            Device.DeviceState == DeviceState.Connected &&
+            !_deviceManager.IsScanning;
 
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
+        public ICommand ScanCommand { get; }
 
         public int BuWizzOutputLevel { get; set; } = 1;
         public int BuWizz2OutputLevel { get; set; } = 1;
@@ -204,6 +205,8 @@ namespace BrickController2.UI.ViewModels
                             {
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
+                            // update command enablement
+                            ScanCommand.RaiseCanExecuteChanged();
                         }
                     }
                 }
@@ -211,6 +214,66 @@ namespace BrickController2.UI.ViewModels
                 {
                     await Task.Delay(50);
                 }
+            }
+        }
+
+        private async Task ScanAsync()
+        {
+            if (!_deviceManager.IsBluetoothOn)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Warning"),
+                    Translate("BluetoothIsTurnedOff"),
+                    Translate("Ok"),
+                    _disappearingTokenSource.Token);
+            }
+
+            var percent = 0;
+            var scanResult = true;
+            await _dialogService.ShowProgressDialogAsync(
+                true,
+                async (progressDialog, token) =>
+                {
+                    if (!_isDisappearing)
+                    {
+                        using (var cts = new CancellationTokenSource())
+                        using (_disappearingTokenSource.Token.Register(() => cts.Cancel()))
+                        {
+                            Task<bool> scanTask = null;
+                            try
+                            {
+                                scanTask = _deviceManager.ScanAsync(cts.Token);
+
+                                while (!token.IsCancellationRequested && percent <= 100 && !scanTask.IsCompleted)
+                                {
+                                    progressDialog.Percent = percent;
+                                    await Task.Delay(100, token);
+                                    percent += 1;
+                                }
+                            }
+                            catch (Exception)
+                            { }
+
+                            cts.Cancel();
+
+                            if (scanTask != null)
+                            {
+                                scanResult = await scanTask;
+                            }
+                        }
+                    }
+                },
+                Translate("Scanning"),
+                Translate("SearchingForDevices"),
+                Translate("Cancel"));
+
+            if (!scanResult && !_isDisappearing)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Warning"),
+                    Translate("ErrorDuringScanning"),
+                    Translate("Ok"),
+                    CancellationToken.None);
             }
         }
 

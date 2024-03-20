@@ -141,6 +141,9 @@
   <data name="AdvancedSettings" xml:space="preserve">
     <value>Advanced settings</value>
   </data>
+  <data name="ApplyChanges" xml:space="preserve">
+    <value>Apply changes</value>
+  </data>
   <data name="AreYouSureToDeleteControllerAction" xml:space="preserve">
     <value>Are you sure to delete this controller action?</value>
   </data>
@@ -240,6 +243,15 @@
   <data name="ControlPoint" xml:space="preserve">
     <value>Control point</value>
   </data>
+  <data name="CopyControllerProfile" xml:space="preserve">
+    <value>Copy the controller profile to clipboard</value>
+  </data>
+  <data name="CopyCreation" xml:space="preserve">
+    <value>Copy the creation to clipboard</value>
+  </data>
+  <data name="CopySequence" xml:space="preserve">
+    <value>Copy the sequence to clipboard</value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
@@ -315,6 +327,15 @@
   <data name="ErrorDuringScanning" xml:space="preserve">
     <value>Error during scanning</value>
   </data>
+  <data name="ExportControllerProfile" xml:space="preserve">
+    <value>Export the controller profile</value>
+  </data>
+  <data name="ExportCreation" xml:space="preserve">
+    <value>Export the creation</value>
+  </data>
+  <data name="ExportSequence" xml:space="preserve">
+    <value>Export the sequence</value>
+  </data>
   <data name="ExportSuccessful" xml:space="preserve">
     <value>Export successful:</value>
   </data>
@@ -347,6 +368,18 @@
   </data>
   <data name="IconSet" xml:space="preserve">
     <value>Icon set</value>
+  </data>
+  <data name="ImportControllerProfile" xml:space="preserve">
+    <value>Import a controller profile</value>
+  </data>
+  <data name="ImportCreation" xml:space="preserve">
+    <value>Import a creation</value>
+  </data>
+  <data name="ImportSequence" xml:space="preserve">
+    <value>Import a sequence</value>
+  </data>
+  <data name="ImportSuccessful" xml:space="preserve">
+    <value>Import successful:</value>
   </data>
   <data name="Information" xml:space="preserve">
     <value>Information</value>
@@ -408,6 +441,15 @@
   <data name="OutputLevel" xml:space="preserve">
     <value>Output level</value>
   </data>
+  <data name="PasteControllerProfile" xml:space="preserve">
+    <value>Import a controller profile from clipboard</value>
+  </data>
+  <data name="PasteCreation" xml:space="preserve">
+    <value>Import a creation from clipboard</value>
+  </data>
+  <data name="PasteSequence" xml:space="preserve">
+    <value>Import a sequence from clipboard</value>
+  </data>
   <data name="PermissionRequest" xml:space="preserve">
     <value>Permission request</value>
   </data>
@@ -456,6 +498,9 @@
   <data name="Scanning" xml:space="preserve">
     <value>Scanning...</value>
   </data>
+  <data name="ScanQr" xml:space="preserve">
+    <value>Scan QR code</value>
+  </data>
   <data name="SearchingForDevices" xml:space="preserve">
     <value>Searching for devices.</value>
   </data>
@@ -488,6 +533,9 @@
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>Share</value>
   </data>
   <data name="ShortChannel" xml:space="preserve">
     <value>Ch</value>

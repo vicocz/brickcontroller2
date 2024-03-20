@@ -1,7 +1,5 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace BrickController2.BusinessLogic
 {
@@ -123,7 +121,7 @@ namespace BrickController2.BusinessLogic
             var sequenceDurationMs = sequence.TotalDurationMs;
             var elapsedTimeMs = nowMs - startTimeMs;
 
-            if ((!sequence.Loop && (sequenceDurationMs < elapsedTimeMs)) || sequenceDurationMs == 0)
+            if ((!sequence.Loop && (sequenceDurationMs <= elapsedTimeMs)) || sequenceDurationMs == 0)
             {
                 // Sequence is not looping and has finished
                 return false;
@@ -138,7 +136,7 @@ namespace BrickController2.BusinessLogic
 
             for (int i = 1; i <= sequence.ControlPoints.Count; i++)
             {
-                controlPoint2 = i < sequence.ControlPoints.Count ? 
+                controlPoint2 = i < sequence.ControlPoints.Count ?
                     sequence.ControlPoints[i] :
                     sequence.Loop ?
                         sequence.ControlPoints[0] :

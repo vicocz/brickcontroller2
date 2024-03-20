@@ -1,21 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <local:PageBase
-    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.AboutPage"
     Title="{extensions:Translate About}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
-
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate About}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-        </Grid>
-    </NavigationPage.TitleView>
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -27,10 +21,10 @@
 
                         <Label Text="BrickController 2" FontSize="Medium" FontAttributes="Bold"/>
 
-                        <StackLayout Orientation="Horizontal">
-                            <Label Text="{extensions:Translate Version}  "/>
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="{extensions:Translate Version}"/>
                             <Label Text="{Binding Version}"/>
-                        </StackLayout>
+                        </HorizontalStackLayout>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,16,5,16"/>
 
@@ -41,13 +35,13 @@
                         <Label Text="{extensions:Translate ExternalLibraries}" FontAttributes="Bold"/>
                         <Label Text="Autofac"/>
                         <Label Text="SQLiteNetExtensionsAsync"/>
-                        <Label Text="Xamarin.Forms"/>
-                        <Label Text="Xamarin.Essentials"/>
+                        <Label Text=".NET MAUI"/>
+                        <Label Text="ZXing.Net.MAUI"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,16,5,16"/>
 
                         <Label Text="{extensions:Translate IconSet}" FontAttributes="Bold"/>
-                        <Label Text="FlatIcon"/>
+                        <Label Text="Material Icons"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,16,5,16"/>
 

@@ -1,0 +1,43 @@
+name: Build 
+
+on:
+  push:
+    branches:
+      - master
+      - '*'      
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
+  pull_request:
+    branches:    
+      - main
+      - '*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: windows-2022
+    name: BrickController Android Build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Install MAUI Workload
+      run: dotnet workload install maui --ignore-failed-sources
+            
+    - name: Restore Dependencies
+      run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
+    - name: Build MAUI Android
+      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net8.0-android /p:AndroidPackageFormats=apk --no-restore
+
+    - name: Upload Android Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: com.scn.BrickController2-dev
+        path: BrickController2/BrickController2.Android/bin/Release/net8.0-android/*Signed.a*

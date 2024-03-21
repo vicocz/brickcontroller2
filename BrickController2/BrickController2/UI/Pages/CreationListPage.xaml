@@ -113,7 +113,7 @@
                     </Frame>
                 </Grid>
 
-                <controls:FloatingActionButton Grid.Row="0" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddCreationCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="0" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddCreationCommand}" ToolTipProperties.Text="{extensions:Translate AddCreation}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
             </Grid>
 
             <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>

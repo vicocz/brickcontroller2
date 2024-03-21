@@ -35,7 +35,7 @@
                             <TapGestureRecognizer Command="{Binding RenameCreationCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
-                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" HorizontalOptions="End" VerticalOptions="Center"/>
+                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" ToolTipProperties.Text="{extensions:Translate Play}" HorizontalOptions="End" VerticalOptions="Center"/>
                 </Grid>
 
                 <!-- Controller profile list -->
@@ -62,7 +62,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerProfileCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerProfileCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerProfile}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

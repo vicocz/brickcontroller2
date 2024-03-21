@@ -120,20 +120,35 @@
   <data name="About" xml:space="preserve">
     <value>About</value>
   </data>
+  <data name="AddControllerEvent" xml:space="preserve">
+    <value>Add a new controller event</value>
+  </data>
   <data name="AddControllerEvents" xml:space="preserve">
     <value>Add controller events</value>
+  </data>
+  <data name="AddControllerProfile" xml:space="preserve">
+    <value>Add a new controller profile</value>
   </data>
   <data name="AddControllerProfiles" xml:space="preserve">
     <value>Add controller profiles</value>
   </data>
+  <data name="AddControlPoint" xml:space="preserve">
+    <value>Add a new control point</value>
+  </data>
   <data name="AddControlPoints" xml:space="preserve">
     <value>Add control points</value>
+  </data>
+  <data name="AddCreation" xml:space="preserve">
+    <value>Add a new creation</value>
   </data>
   <data name="AddCreations" xml:space="preserve">
     <value>Add creations</value>
   </data>
   <data name="Address" xml:space="preserve">
     <value>Address</value>
+  </data>
+  <data name="AddSequence" xml:space="preserve">
+    <value>Add a new sequence</value>
   </data>
   <data name="AddSequences" xml:space="preserve">
     <value>Add sequences</value>
@@ -228,6 +243,9 @@
   <data name="ConnectingTo" xml:space="preserve">
     <value>Connecting to: </value>
   </data>
+  <data name="ConnectToDevice" xml:space="preserve">
+    <value>Connect to the device</value>
+  </data>
   <data name="Controller" xml:space="preserve">
     <value>Controller</value>
   </data>
@@ -276,6 +294,9 @@
   <data name="DefaultProfile" xml:space="preserve">
     <value>Default profile</value>
   </data>
+  <data name="DeleteControlPoint" xml:space="preserve">
+    <value>Delete the control point</value>
+  </data>
   <data name="Deleting" xml:space="preserve">
     <value>Deleting...</value>
   </data>
@@ -305,6 +326,9 @@
   </data>
   <data name="DurationMs" xml:space="preserve">
     <value>Duration (ms)</value>
+  </data>
+  <data name="EditSequence" xml:space="preserve">
+    <value>Edit the sequence</value>
   </data>
   <data name="EnterControlPointDuration" xml:space="preserve">
     <value>Enter the control point duration between 300 and 10000 ms.</value>
@@ -380,6 +404,9 @@
   </data>
   <data name="ImportSuccessful" xml:space="preserve">
     <value>Import successful:</value>
+  </data>
+  <data name="ImportTheCreation" xml:space="preserve">
+    <value>Import the creation</value>
   </data>
   <data name="Information" xml:space="preserve">
     <value>Information</value>
@@ -492,6 +519,9 @@
   <data name="Saving" xml:space="preserve">
     <value>Saving...</value>
   </data>
+  <data name="Scan" xml:space="preserve">
+    <value>Scan for devices</value>
+  </data>
   <data name="ScanForDevicesFirst" xml:space="preserve">
     <value>Scan for devices before adding controller events!</value>
   </data>
@@ -533,6 +563,9 @@
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
+  </data>
+  <data name="SetupChannel" xml:space="preserve">
+    <value>Set up the channel</value>
   </data>
   <data name="Share" xml:space="preserve">
     <value>Share</value>

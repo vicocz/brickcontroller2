@@ -21,6 +21,10 @@
         </ResourceDictionary>
     </local:PageBase.Resources>
 
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
+    </ContentPage.ToolbarItems>
+
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">

@@ -22,7 +22,6 @@ namespace BrickController2.Droid
             {
                 handlers
                     .AddHandler<ExtendedSlider, ExtendedSliderHandler>()
-                    .AddHandler<ColorImage, ColorImageHandler>()
                 ;
             })
             .ConfigureContainer((containerBuilder) =>

@@ -12,15 +12,10 @@
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate Creation}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="End" Margin="12,0" Spacing="12">
-                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_import.png}" Command="{Binding ImportControllerProfileCommand}" Style="{StaticResource NavigationBarImageButtonStyle}" IsVisible="{Binding SharedFileStorageService.IsSharedStorageAvailable}"/>
-                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_export.png}" Command="{Binding ExportCreationCommand}" Style="{StaticResource NavigationBarImageButtonStyle}" IsVisible="{Binding SharedFileStorageService.IsSharedStorageAvailable}"/>
-            </StackLayout>
-        </Grid>
-    </NavigationPage.TitleView>
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportControllerProfile}" Command="{Binding ImportControllerProfileCommand}" />
+        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportCreation}" Command="{Binding ExportCreationCommand}" />
+    </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -37,7 +32,7 @@
                             <TapGestureRecognizer Command="{Binding RenameCreationCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
-                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" ImageSource="{extensions:ImageResource Source=ic_play.png}" Command="{Binding PlayCommand}" HorizontalOptions="End" VerticalOptions="Center"/>
+                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" HorizontalOptions="End" VerticalOptions="Center"/>
                 </Grid>
 
                 <!-- Controller profile list -->
@@ -47,7 +42,7 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <SwipeItem Text="{extensions:Translate Delete}" IconImageSource="{extensions:ImageResource Source=ic_delete.png}" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerProfileCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerProfileCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <Grid Style="{StaticResource CollectionItemGridStyle}">
@@ -64,7 +59,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" ImageSource="{extensions:ImageResource Source=ic_add.png}" Command="{Binding AddControllerProfileCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerProfileCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

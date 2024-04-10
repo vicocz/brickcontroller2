@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ImageButton
+<Image
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui" 
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="BrickController2.UI.Controls.FloatingActionButton">
-
-    <ImageButton.Source>
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    x:Class="BrickController2.UI.Controls.ColorImage">
+	<Image.Source>
         <FontImageSource x:Name="ImageSource" FontFamily="Icons" />
-    </ImageButton.Source>
-</ImageButton>
+    </Image.Source>
+</Image>

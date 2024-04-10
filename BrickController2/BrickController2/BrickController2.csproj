@@ -9,6 +9,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Custom Fonts -->
+	<MauiFont Include="Resources\Fonts\*" />
+  </ItemGroup>	
+	
+  <ItemGroup>
     <PackageReference Include="Autofac" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
 	<PackageReference Include="Microsoft.Maui.Controls" />

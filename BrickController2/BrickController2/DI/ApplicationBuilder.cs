@@ -17,6 +17,11 @@ public static class ApplicationBuilder
         return builder
             // configure BC2 app
             .UseMauiApp<App>()
+            .ConfigureFonts(fonts =>
+            {
+                // source: https://github.com/google/material-design-icons/blob/master/font/MaterialIconsOutlined-Regular.otf
+                fonts.AddFont("MaterialIconsOutlined-Regular", "Icons");
+            })
             // configure other common dependencies if needed
             ;
     }

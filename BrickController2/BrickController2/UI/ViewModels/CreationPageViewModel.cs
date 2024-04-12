@@ -341,15 +341,7 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task CopyCreationAsync()
-        {
-            try
-            {
-                await _sharingManager.ShareToClipboardAsync(Creation);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
+        private Task CopyCreationAsync()
+            => _sharingManager.ShareToClipboardAsync(Creation);
     }
 }

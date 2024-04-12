@@ -159,16 +159,8 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task CopyControllerProfileAsync()
-        {
-            try
-            {
-                await _sharingManager.ShareToClipboardAsync(ControllerProfile);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
+        private Task CopyControllerProfileAsync()
+            => _sharingManager.ShareToClipboardAsync(ControllerProfile);
 
         private async Task RenameControllerProfileAsync()
         {

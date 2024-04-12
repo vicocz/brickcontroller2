@@ -12,8 +12,6 @@ namespace BrickController2.CreationManagement
         private string _name;
         private ObservableCollection<ControllerEvent> _controllerEvents = new ObservableCollection<ControllerEvent>();
 
-        public static string Type => "bc2p";
-
         [PrimaryKey, AutoIncrement]
         [JsonIgnore]
         public int Id { get; set; }
@@ -38,6 +36,9 @@ namespace BrickController2.CreationManagement
             get { return _controllerEvents; }
             set { _controllerEvents = value; RaisePropertyChanged(); }
         }
+
+        [JsonIgnore]
+        public static string Type => "bc2p";
 
         public override string ToString()
         {

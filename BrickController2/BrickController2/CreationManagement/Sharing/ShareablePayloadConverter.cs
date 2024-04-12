@@ -1,7 +1,6 @@
-﻿using System.IO.Compression;
+﻿using Newtonsoft.Json;
+using System.IO.Compression;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace BrickController2.CreationManagement.Sharing;
 
@@ -11,34 +10,34 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
     // reasonable value to optimize both json text readibility and pixel size of rendered QR
     private const int MaxSize = 1600;
 
-    public override ShareablePayload<TModel> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ShareablePayload<TModel> ReadJson(JsonReader reader, Type objectType, ShareablePayload<TModel> existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        if (reader.TokenType != JsonTokenType.StartObject)
-            throw new JsonException();
+        if (reader.TokenType != JsonToken.StartObject)
+            throw new JsonException($"Incorrect payload format. TokenType:{reader.TokenType}");
 
         TModel payload = default;
 
         while (reader.Read())
         {
-            if (reader.TokenType == JsonTokenType.EndObject)
+            if (reader.TokenType == JsonToken.EndObject)
                 return new(payload);
 
-            if (reader.TokenType != JsonTokenType.PropertyName)
-                throw new JsonException();
+            if (reader.TokenType != JsonToken.PropertyName)
+                throw new JsonException($"Incorrect payload format. TokenType:{reader.TokenType}");
 
-            var propertyName = reader.GetString();
-            reader.Read();
+            var propertyName = reader.Value.ToString();
             switch (propertyName)
             {
                 case ShareablePayload<TModel>.ContentTypeProperty:
                     // validate expected content type
-                    var contentType = reader.GetString();
+                    var contentType = reader.ReadAsString();
                     if (contentType != TModel.Type)
-                        throw new JsonException($"Unsuppported conent type: {contentType}.");
+                        throw new JsonException($"Unsuppported content type: {contentType}.");
                     break;
                 case ShareablePayload<TModel>.PayloadProperty:
                     // load payload
-                    payload = DeserializePayload(ref reader, options);
+                    reader.Read();
+                    payload = DeserializePayload(reader, serializer);
                     break;
 
                 default:
@@ -47,27 +46,27 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
             }
         }
 
-        throw new JsonException();
+        throw new JsonException("Incorrect payload format.");
     }
 
-    private static TModel DeserializePayload(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    private static TModel DeserializePayload(JsonReader reader, JsonSerializer serializer)
     {
         switch (reader.TokenType)
         {
-            case JsonTokenType.StartObject:
+            case JsonToken.StartObject:
                 // directly deserialize payload
-                return JsonSerializer.Deserialize<TModel>(ref reader, options);
+                return serializer.Deserialize<TModel>(reader);
 
-            case JsonTokenType.String:
+            case JsonToken.String:
                 // unzip Base64 payload string
                 {
-                    using var output = new MemoryStream();
-                    using var input = new MemoryStream(reader.GetBytesFromBase64());
+                    using var input = new MemoryStream(Convert.FromBase64String((string)reader.Value));
                     using var unzip = new GZipStream(input, CompressionMode.Decompress);
-                    unzip.CopyTo(output);
-                    output.Position = 0;
-
-                    return JsonSerializer.Deserialize<TModel>(output, options);
+                    using (var output = new StreamReader(unzip))
+                    using (var unzipReader = new JsonTextReader(output))
+                    {
+                        return serializer.Deserialize<TModel>(unzipReader);
+                    }
                 }
 
             default:
@@ -75,13 +74,14 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
         }
     }
 
-    public override void Write(Utf8JsonWriter writer, ShareablePayload<TModel> model, JsonSerializerOptions options)
+    public override void WriteJson(JsonWriter writer, ShareablePayload<TModel> value, JsonSerializer serializer)
     {
         writer.WriteStartObject();
         // write content type of the model
-        writer.WriteString(ShareablePayload<TModel>.ContentTypeProperty, TModel.Type);
+        writer.WritePropertyName(ShareablePayload<TModel>.ContentTypeProperty);
+        writer.WriteValue(TModel.Type);
         // write payload based on size autodetection
-        var payload = JsonSerializer.Serialize(model.Payload, options);
+        var payload = JsonConvert.SerializeObject(value.Payload, new JsonSerializerSettings());
 
         writer.WritePropertyName(ShareablePayload<TModel>.PayloadProperty);
 
@@ -97,8 +97,8 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
             zip.Write(Encoding.UTF8.GetBytes(payload));
             zip.Flush();
 
-            output.TryGetBuffer(out var buffer);
-            writer.WriteBase64StringValue(buffer.AsSpan());
+            // zipped byte[] is writen as base64
+            writer.WriteValue(output.ToArray());
         }
 
         writer.WriteEndObject();

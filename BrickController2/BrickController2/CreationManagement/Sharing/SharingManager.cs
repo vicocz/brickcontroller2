@@ -7,17 +7,19 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     public SharingManager()
     {
         // default options for JSON
-        JsonOptions = new JsonSerializerSettings
-        {
-            DefaultValueHandling = DefaultValueHandling.Ignore
-        };
+        JsonOptions = CreateSetings();
         // compact options using auto gzip converter
-        CompactJsonOptions = new JsonSerializerOptions(JsonOptions);
+        CompactJsonOptions = CreateSetings();
         CompactJsonOptions.Converters.Add(new ShareablePayloadConverter<TModel>());
     }
 
     internal JsonSerializerSettings JsonOptions { get; }
     internal JsonSerializerSettings CompactJsonOptions { get; }
+
+    private static JsonSerializerSettings CreateSetings() => new()
+    {
+        DefaultValueHandling = DefaultValueHandling.Ignore
+    };
 
     /// <inheritdoc/>
     public Task<string> ShareAsync(TModel model) => ShareAsync(model, CompactJsonOptions);
@@ -25,10 +27,10 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     /// <summary>
     /// Export the specified <paramref name="item"/> as serialized JSON model
     /// </summary>
-    internal static Task<string> ShareAsync(TModel model, JsonSerializerOptions options)
+    internal static Task<string> ShareAsync(TModel model, JsonSerializerSettings options)
     {
         var payload = new ShareablePayload<TModel>(model);
-        var json = JsonSerializer.Serialize(payload, options);
+        var json = JsonConvert.SerializeObject(payload, options);
         return Task.FromResult(json);
     }
 
@@ -52,7 +54,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     /// <inheritdoc/>
     public TModel Import(string json) => Import(json, CompactJsonOptions);
 
-    internal static TModel Import(string json, JsonSerializerOptions options)
+    internal static TModel Import(string json, JsonSerializerSettings options)
     {
         var model = JsonConvert.DeserializeObject<ShareablePayload<TModel>>(json, options);
 

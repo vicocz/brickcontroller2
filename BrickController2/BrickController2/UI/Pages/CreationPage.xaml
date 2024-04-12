@@ -15,6 +15,8 @@
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportControllerProfile}" Command="{Binding ImportControllerProfileCommand}" />
         <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportCreation}" Command="{Binding ExportCreationCommand}" />
+        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopyCreation}" Command="{Binding CopyCreationCommand}"  Order="Secondary" />
+        <controls:ToolbarIcon Icon="paste" Text="{extensions:Translate PasteControllerProfile}" Command="{Binding PasteControllerProfileCommand}" Order="Secondary" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

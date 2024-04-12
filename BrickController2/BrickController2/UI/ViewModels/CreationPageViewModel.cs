@@ -271,7 +271,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Error"),
-                    Translate("FailedToImportControllerProfile") + " " + ex.Message,
+                    Translate("FailedToImportControllerProfile", ex),
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

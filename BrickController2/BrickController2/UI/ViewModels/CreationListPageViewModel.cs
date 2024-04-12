@@ -205,7 +205,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Error"),
-                    Translate("FailedToImportCreation") + " " + ex.Message,
+                    Translate("FailedToImportCreation", ex),
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

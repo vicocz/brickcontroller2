@@ -26,5 +26,6 @@ namespace BrickController2.UI.ViewModels
         protected ITranslationService TranslationService { get; }
 
         protected string Translate(string key) => TranslationService.Translate(key);
+        protected string Translate(string key, Exception ex) => Translate(key) + " " + ex.Message;
     }
 }

@@ -119,7 +119,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Error"),
-                    Translate("FailedToImportSequence") + " " + ex.Message,
+                    Translate("FailedToImportSequence", ex),
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

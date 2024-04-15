@@ -17,10 +17,12 @@
     <PackageReference Include="Autofac" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />
 	<PackageReference Include="Microsoft.Maui.Controls" />
+	<PackageReference Include="Newtonsoft.Json" />
 	<PackageReference Include="sqlite-net-pcl" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" />
 	<PackageReference Include="SQLiteNetExtensions" />
     <PackageReference Include="SQLiteNetExtensions.Async" />
+	<PackageReference Include="ZXing.Net.Maui.Controls" />
   </ItemGroup>
 
 </Project>

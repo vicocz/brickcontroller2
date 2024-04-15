@@ -7,19 +7,18 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     public SharingManager()
     {
         // default options for JSON
-        JsonOptions = CreateSetings();
+        JsonOptions = new()
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            DefaultValueHandling = DefaultValueHandling.Ignore
+        };
         // compact options using auto gzip converter
-        CompactJsonOptions = CreateSetings();
-        CompactJsonOptions.Converters.Add(new ShareablePayloadConverter<TModel>());
+        CompactJsonOptions = new(JsonOptions);
+        CompactJsonOptions.Converters.Add(new ShareablePayloadConverter<TModel>(CompactJsonOptions));
     }
 
     internal JsonSerializerSettings JsonOptions { get; }
     internal JsonSerializerSettings CompactJsonOptions { get; }
-
-    private static JsonSerializerSettings CreateSetings() => new()
-    {
-        DefaultValueHandling = DefaultValueHandling.Ignore
-    };
 
     /// <inheritdoc/>
     public Task<string> ShareAsync(TModel model) => ShareAsync(model, CompactJsonOptions);

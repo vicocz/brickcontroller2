@@ -9,6 +9,12 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
 {
     // reasonable value to optimize both json text readibility and pixel size of rendered QR
     private const int MaxSize = 1600;
+    private readonly JsonSerializerSettings _settings;
+
+    public ShareablePayloadConverter(JsonSerializerSettings settings)
+    {
+        _settings = settings;
+    }
 
     public override ShareablePayload<TModel> ReadJson(JsonReader reader, Type objectType, ShareablePayload<TModel> existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
@@ -36,8 +42,10 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
                     break;
                 case ShareablePayload<TModel>.PayloadProperty:
                     // load payload
-                    reader.Read();
-                    payload = DeserializePayload(reader, serializer);
+                    if (reader.Read())
+                    {
+                        payload = DeserializePayload(reader, serializer);
+                    }
                     break;
 
                 default:
@@ -62,11 +70,8 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
                 {
                     using var input = new MemoryStream(Convert.FromBase64String((string)reader.Value));
                     using var unzip = new GZipStream(input, CompressionMode.Decompress);
-                    using (var output = new StreamReader(unzip))
-                    using (var unzipReader = new JsonTextReader(output))
-                    {
-                        return serializer.Deserialize<TModel>(unzipReader);
-                    }
+                    using var json = new StreamReader(unzip);
+                    return (TModel)serializer.Deserialize(json, typeof(TModel));
                 }
 
             default:
@@ -81,7 +86,7 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
         writer.WritePropertyName(ShareablePayload<TModel>.ContentTypeProperty);
         writer.WriteValue(TModel.Type);
         // write payload based on size autodetection
-        var payload = JsonConvert.SerializeObject(value.Payload, new JsonSerializerSettings());
+        var payload = JsonConvert.SerializeObject(value.Payload, _settings);
 
         writer.WritePropertyName(ShareablePayload<TModel>.PayloadProperty);
 

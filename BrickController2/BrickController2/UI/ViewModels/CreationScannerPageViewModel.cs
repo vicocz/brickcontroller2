@@ -110,7 +110,7 @@ namespace BrickController2.UI.ViewModels
 
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Import"),
-                    Translate("ImportSuccessful") + " " + creation.Name,
+                    Translate("ImportSuccessful", creation.Name),
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }
@@ -118,7 +118,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Error"),
-                    Translate("FailedToImportCreation") + " " + ex.Message,
+                    Translate("FailedToImportCreation", ex),
                     Translate("Ok"),
                     _disappearingTokenSource.Token);
             }

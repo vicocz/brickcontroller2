@@ -43,7 +43,7 @@
 
                             <Label Grid.Column="0" Text="{extensions:Translate Device}" VerticalOptions="Center"/>
                             <Button Grid.Column="1" Text="{Binding SelectedDevice.Name}" Command="{Binding SelectDeviceCommand}" Style="{StaticResource PickerButtonStyle}"/>
-                            <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="contactless" Command="{Binding OpenDeviceDetailsCommand}" VerticalOptions="Center"/>
+                            <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="contactless" Command="{Binding OpenDeviceDetailsCommand}" ToolTipProperties.Text="{extensions:Translate ConnectToDevice}" VerticalOptions="Center"/>
                         </Grid>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="5,8,5,8"/>
@@ -90,7 +90,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Button Grid.Column="0" Text="{Binding Action.ChannelOutputType}" Command="{Binding SelectChannelOutputTypeCommand}" Style="{StaticResource PickerButtonStyle}"/>
-                                    <controls:FloatingActionButton Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" Command="{Binding OpenChannelSetupCommand}" IsVisible="False">
+                                    <controls:FloatingActionButton Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" Command="{Binding OpenChannelSetupCommand}" ToolTipProperties.Text="{extensions:Translate SetupChannel}" IsVisible="False">
                                         <controls:FloatingActionButton.Triggers>
                                             <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.ServoMotor}">
                                                 <Setter Property="IsVisible" Value="True"/>
@@ -185,7 +185,7 @@
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Grid.Column="0" Text="{Binding Action.SequenceName}" Command="{Binding SelectSequenceCommand}" Style="{StaticResource PickerButtonStyle}"/>
-                                        <controls:FloatingActionButton Grid.Column="1" Style="{StaticResource FloatingActionButtonStyle}" BackgroundColor="Gray" Icon="settings" Command="{Binding OpenSequenceEditorCommand}" VerticalOptions="Center"/>
+                                        <controls:FloatingActionButton Grid.Column="1" Style="{StaticResource FloatingActionButtonStyle}" BackgroundColor="Gray" Icon="settings" Command="{Binding OpenSequenceEditorCommand}" ToolTipProperties.Text="{extensions:Translate EditSequence}" VerticalOptions="Center"/>
                                     </Grid>
                                 </Grid>
                             </StackLayout>

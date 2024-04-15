@@ -32,7 +32,7 @@
                 <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BackgroundColor="#80000000" ZIndex="1"/>
                 <zxing:BarcodeGeneratorView Grid.Row="1" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="64" WidthRequest="64" Format="{Binding Format}" Value="{Binding CurrentValue}" BarcodeMargin="0" Margin="20" ZIndex="2" />
 
-                <controls:FloatingActionButton Grid.Row="3" Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="download" Command="{Binding ImportCommand}" HorizontalOptions="Center" VerticalOptions="Center" Margin="10" ZIndex="3">
+                <controls:FloatingActionButton Grid.Row="3" Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="download" Command="{Binding ImportCommand}" ToolTipProperties.Text="{extensions:Translate ImportTheCreation}" HorizontalOptions="Center" VerticalOptions="Center" Margin="10" ZIndex="3">
                     <controls:FloatingActionButton.Triggers>
                         <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding IsCurrentValueValid}" Value="True">
                             <Setter Property="BackgroundColor" Value="{DynamicResource InlineButtonColor}" />

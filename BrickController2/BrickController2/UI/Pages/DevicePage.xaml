@@ -124,7 +124,7 @@
                     </StackLayout>
                 </ScrollView>
 
-                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" ImageColor="White" Command="{Binding ScanCommand}" IsVisible="{Binding CanBePowerSource}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" ImageColor="White" Command="{Binding ScanCommand}" ToolTipProperties.Text="{extensions:Translate Scan}" IsVisible="{Binding CanBePowerSource}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
             </Grid>
 
             <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>

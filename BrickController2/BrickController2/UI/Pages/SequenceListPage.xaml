@@ -60,7 +60,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddSequenceCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddSequenceCommand}" ToolTipProperties.Text="{extensions:Translate AddSequence}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

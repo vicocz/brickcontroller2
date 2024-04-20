@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-tizen</TargetFramework>
+    <OutputType>Exe</OutputType>
+
+    <SupportedOSPlatformVersion>7</SupportedOSPlatformVersion>
+    <RootNamespace>BrickController2.Tizen</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Microsoft.Maui.Controls" />
+    <PackageReference Include="Tizen.NET" />
+  </ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\BrickController2\BrickController2.csproj" />
+	</ItemGroup>
+
+</Project>

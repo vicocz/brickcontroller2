@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.DeviceSettingControl">
+
+    <ContentView.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
+            <!-- BOOL settings - Checkbox -->
+            <controls:CheckBox Grid.Column="1" Checked="{Binding Value}" HorizontalOptions="Center" IsVisible="{Binding IsBoolType}" />
+        </Grid>
+    </ContentView.Content>
+</ContentView>

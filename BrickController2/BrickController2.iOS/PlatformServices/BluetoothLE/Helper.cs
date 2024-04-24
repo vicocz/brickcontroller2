@@ -1,6 +1,5 @@
 ﻿using CoreBluetooth;
 using Foundation;
-using System;
 
 namespace BrickController2.iOS.PlatformServices.BluetoothLE
 {

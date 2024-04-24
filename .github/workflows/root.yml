@@ -10,7 +10,7 @@ on:
       - "**.md"
       - '**/*.gitignore'
       - '**/*.gitattributes'
-      - '**/*.yml'
+  #    - '**/*.yml'
   pull_request:
     branches:    
       - main

@@ -1,0 +1,44 @@
+name: CD Build # https://thewissen.io/making-maui-cd-pipeline/
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - '*'  
+    paths-ignore:
+      - "**.md"
+      - '**/*.gitignore'
+      - '**/*.gitattributes'
+      - '**/*.yml'
+  pull_request:
+    branches:    
+      - main
+      - '*'
+
+permissions:
+  contents: read
+  
+env:
+  # Setting an environment variable with the value of a configuration variable
+  env_var: ${{ vars.ENV_CONTEXT_VAR }}
+
+jobs:
+
+  build-android:
+    uses: ./.github/workflows/cicd-android.yml
+    with:
+      dotnet-version: ${{ vars.DOTNET_VERSION }}
+      dotnet-version-target: ${{ vars.DOTNET_VERSION_TARGETS }}
+      project-file: BrickController2.Android.csproj
+      project-folder: BrickController2/BrickController2.Android
+      build-config: 'Release'
+      build-version: ${{ vars.BUILD_VERSION }}
+    #secrets:
+    #  # Most interesting here are the PLAY_KEYSTORE and it’s PLAY_KEYSTORE_ALIAS and PLAY_KEYSTORE_PASS secrets. The same applies as before when it comes to the actual keystore file not being compatible with a GitHub secret. In this case, we once again encode it as Base64, but in a way that we can re-construct it later in our pipeline. To do so, we use the following command-line command:
+    #  # openssl base64 < MYKEYSTORE.jks | tr -d '\n' | tee MYKEYSTORE_BASE64.txt
+
+     # keystore: ${{ secrets.PLAY_KEYSTORE }}
+      #keystore-alias: ${{ secrets.PLAY_KEYSTORE_ALIAS }}
+      #keystore-password: ${{ secrets.PLAY_KEYSTORE_PASS }}
+      #playstore-service-account: ${{ secrets.PLAYSTORE_SERVICE_ACC }}

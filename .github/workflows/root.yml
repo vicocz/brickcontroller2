@@ -1,4 +1,4 @@
-name: CD Build # https://thewissen.io/making-maui-cd-pipeline/
+name: CI&CD Build # https://thewissen.io/making-maui-cd-pipeline/
 
 on:
   workflow_dispatch:

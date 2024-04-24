@@ -1,6 +1,4 @@
 ﻿using BrickController2.PlatformServices.Infrared;
-using System;
-using System.Threading.Tasks;
 
 namespace BrickController2.iOS.PlatformServices.Infrared
 {

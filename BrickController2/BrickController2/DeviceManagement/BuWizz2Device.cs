@@ -16,10 +16,11 @@ namespace BrickController2.DeviceManagement
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
+        private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
+
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _lastOutputValues = new int[4];
         private readonly object _outputLock = new object();
-        private readonly bool _swapChannels;
 
         private DateTime _batteryMeasurementTimestamp;
         private byte _batteryVoltageRaw;
@@ -32,12 +33,15 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic _modelNumberCharacteristic;
         private IGattCharacteristic _firmwareRevisionCharacteristic;
 
-        public BuWizz2Device(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizz2Device(string name, string address, byte[] deviceData, IEnumerable<KeyValuePair<string, object>> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
             // On BuWizz2 with manufacturer data 0x4e054257001e the ports are swapped
             // (no normal BuWizz2es manufacturer data is 0x4e054257001b)
-            _swapChannels = deviceData != null && deviceData.Length >= 6 && deviceData[5] == 0x1E;
+            var swapChannels = deviceData != null && deviceData.Length >= 6 && deviceData[5] == 0x1E;
+
+            // apply values (if any) or default
+            SetSettingValue(SwapChannelsSettingName, settings, swapChannels);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz2;
@@ -210,13 +214,15 @@ namespace BrickController2.DeviceManagement
             }
         }
 
+        private bool SwapChannels => GetSettingValue<bool>(SwapChannelsSettingName);
+
         private async Task<bool> SendOutputValuesAsync(int v0, int v1, int v2, int v3, CancellationToken token)
         {
             try
             {
                 var sendOutputBuffer = new byte[] { 0x10, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-                if (_swapChannels)
+                if (SwapChannels)
                 {
                     sendOutputBuffer[1] = (byte)(v1 / 2);
                     sendOutputBuffer[2] = (byte)(v0 / 2);

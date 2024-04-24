@@ -1,5 +1,4 @@
-﻿using System;
-using BrickController2.Helpers;
+﻿using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 
 namespace BrickController2.iOS.PlatformServices.SharedFileStorage

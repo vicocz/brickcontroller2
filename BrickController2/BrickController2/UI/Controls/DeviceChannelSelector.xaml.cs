@@ -1,5 +1,4 @@
-﻿using BrickController2.DeviceManagement;
-using BrickController2.UI.Commands;
+﻿using BrickController2.UI.Commands;
 using DeviceType = BrickController2.DeviceManagement.DeviceType;
 
 namespace BrickController2.UI.Controls
@@ -43,6 +42,9 @@ namespace BrickController2.UI.Controls
             CircuitCubesC.Command = new SafeCommand(() => SelectedChannel = 2);
             WedoChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             WedoChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            NextPoweredUpChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
+            NextPoweredUpChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
+            NextPoweredUpChannelC.Command = new SafeCommand(() => SelectedChannel = 2);
         }
 
         public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelSelector), default(DeviceType), BindingMode.OneWay, null, OnDeviceTypeChanged);
@@ -75,6 +77,7 @@ namespace BrickController2.UI.Controls
                 dcs.DuploTrainHubSection.IsVisible = deviceType == DeviceType.DuploTrainHub;
                 dcs.CircuitCubes.IsVisible = deviceType == DeviceType.CircuitCubes;
                 dcs.Wedo2Section.IsVisible = deviceType == DeviceType.WeDo2;
+                dcs.NextPoweredUpSection.IsVisible = deviceType == DeviceType.TechnicMove;
             }
         }
 
@@ -115,6 +118,9 @@ namespace BrickController2.UI.Controls
                 dcs.CircuitCubesC.SelectedChannel = selectedChannel;
                 dcs.WedoChannel0.SelectedChannel = selectedChannel;
                 dcs.WedoChannel1.SelectedChannel = selectedChannel;
+                dcs.NextPoweredUpChannelA.SelectedChannel = selectedChannel;
+                dcs.NextPoweredUpChannelB.SelectedChannel = selectedChannel;
+                dcs.NextPoweredUpChannelC.SelectedChannel = selectedChannel;
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.PlatformServices.BluetoothLE;
+using System.Diagnostics;
 
 namespace BrickController2.DeviceManagement
 {
@@ -165,6 +166,9 @@ namespace BrickController2.DeviceManagement
             return false;
         }
 
+        protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
+        protected virtual int GetChannelIndex(byte portId) => portId;
+
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
             if (characteristicGuid != CHARACTERISTIC_UUID || data.Length < 4)
@@ -219,7 +223,7 @@ namespace BrickController2.DeviceManagement
                 case 0x46: // Port value (combined mode)
                     lock (_positionLock)
                     {
-                        var portId = data[3];
+                        var channel = GetChannelIndex(data[3]);
                         var modeMask = data[5];
                         var dataIndex = 6;
 
@@ -230,7 +234,7 @@ namespace BrickController2.DeviceManagement
                                 new byte[] { data[dataIndex + 1], data[dataIndex + 0] };
 
                             var absPosition = BitConverter.ToInt16(absPosBuffer, 0);
-                            _absolutePositions[portId] = absPosition;
+                            _absolutePositions[channel] = absPosition;
 
                             dataIndex += 2;
                         }
@@ -245,7 +249,7 @@ namespace BrickController2.DeviceManagement
                                     new byte[] { data[dataIndex + 3], data[dataIndex + 2], data[dataIndex + 1], data[dataIndex + 0] };
 
                                 var relPosition = BitConverter.ToInt32(relPosBuffer, 0);
-                                _relativePositions[portId] = relPosition;
+                                _relativePositions[channel] = relPosition;
                             }
                             else if ((dataIndex + 1) < data.Length)
                             {
@@ -254,15 +258,15 @@ namespace BrickController2.DeviceManagement
                                     new byte[] { data[dataIndex + 1], data[dataIndex + 0] };
 
                                 var relPosition = BitConverter.ToInt16(relPosBuffer, 0);
-                                _relativePositions[portId] = relPosition;
+                                _relativePositions[channel] = relPosition;
                             }
                             else
                             {
-                                _relativePositions[portId] = data[dataIndex];
+                                _relativePositions[channel] = data[dataIndex];
                             }
 
-                            _positionsUpdated[portId] = true;
-                            _positionUpdateTimes[portId] = DateTime.Now;
+                            _positionsUpdated[channel] = true;
+                            _positionUpdateTimes[channel] = DateTime.Now;
                         }
                     }
 
@@ -283,8 +287,8 @@ namespace BrickController2.DeviceManagement
 
         private void DumpData(string header, byte[] data)
         {
-            //var s = BitConverter.ToString(data);
-            //Console.WriteLine(header + " - " + s);
+            var s = BitConverter.ToString(data);
+            Debug.WriteLine(header + " - " + s);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -393,7 +397,7 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
                 {
-                    _sendBuffer[3] = (byte)channel;
+                    _sendBuffer[3] = GetPortId(channel);
                     _sendBuffer[7] = (byte)(v < 0 ? (255 + v) : v);
 
                     if (await _bleDevice?.WriteNoResponseAsync(_characteristic, _sendBuffer, token))
@@ -549,11 +553,13 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                var lockBuffer = new byte[] { 0x05, 0x00, 0x42, (byte)channel, 0x02 };
-                var inputFormatForAbsAngleBuffer = new byte[] { 0x0a, 0x00, 0x41, (byte)channel, 0x03, 0x02, 0x00, 0x00, 0x00, 0x01 };
-                var inputFormatForRelAngleBuffer = new byte[] { 0x0a, 0x00, 0x41, (byte)channel, 0x02, 0x02, 0x00, 0x00, 0x00, 0x01 };
-                var modeAndDataSetBuffer = new byte[] { 0x08, 0x00, 0x42, (byte)channel, 0x01, 0x00, 0x30, 0x20 };
-                var unlockAndEnableBuffer = new byte[] { 0x05, 0x00, 0x42, (byte)channel, 0x03 };
+                var portId = GetPortId(channel);
+
+                var lockBuffer = new byte[] { 0x05, 0x00, 0x42, portId, 0x02 };
+                var inputFormatForAbsAngleBuffer = new byte[] { 0x0a, 0x00, 0x41, portId, 0x03, 0x02, 0x00, 0x00, 0x00, 0x01 };
+                var inputFormatForRelAngleBuffer = new byte[] { 0x0a, 0x00, 0x41, portId, 0x02, 0x02, 0x00, 0x00, 0x00, 0x01 };
+                var modeAndDataSetBuffer = new byte[] { 0x08, 0x00, 0x42, portId, 0x01, 0x00, 0x30, 0x20 };
+                var unlockAndEnableBuffer = new byte[] { 0x05, 0x00, 0x42, portId, 0x03 };
 
                 var result = true;
                 result = result && await _bleDevice?.WriteAsync(_characteristic, lockBuffer, token);
@@ -713,7 +719,8 @@ namespace BrickController2.DeviceManagement
 
         private Task<bool> StopAsync(int channel, CancellationToken token)
         {
-            return _bleDevice.WriteAsync(_characteristic, new byte[] { 0x08, 0x00, 0x81, (byte)channel, 0x11, 0x51, 0x00, 0x00 }, token);
+            var portId = GetPortId(channel);
+            return _bleDevice.WriteAsync(_characteristic, new byte[] { 0x08, 0x00, 0x81, portId, 0x11, 0x51, 0x00, 0x00 }, token);
         }
 
         private Task<bool> TurnAsync(int channel, int angle, int speed, CancellationToken token)
@@ -725,7 +732,8 @@ namespace BrickController2.DeviceManagement
             var a2 = (byte)((angle >> 16) & 0xff);
             var a3 = (byte)((angle >> 24) & 0xff);
 
-            return _bleDevice.WriteAsync(_characteristic, new byte[] { 0x0e, 0x00, 0x81, (byte)channel, 0x11, 0x0d, a0, a1, a2, a3, (byte)speed, 0x64, 0x7e, 0x00 }, token);
+            var portId = GetPortId(channel);
+            return _bleDevice.WriteAsync(_characteristic, new byte[] { 0x0e, 0x00, 0x81, portId, 0x11, 0x0d, a0, a1, a2, a3, (byte)speed, 0x64, 0x7e, 0x00 }, token);
         }
 
         private Task<bool> ResetAsync(int channel, int angle, CancellationToken token)
@@ -737,7 +745,8 @@ namespace BrickController2.DeviceManagement
             var a2 = (byte)((angle >> 16) & 0xff);
             var a3 = (byte)((angle >> 24) & 0xff);
 
-            return _bleDevice.WriteAsync(_characteristic, new byte[] { 0x0b, 0x00, 0x81, (byte)channel, 0x11, 0x51, 0x02, a0, a1, a2, a3 }, token);
+            var portId = GetPortId(channel);
+            return _bleDevice.WriteAsync(_characteristic, new byte[] { 0x0b, 0x00, 0x81, portId, 0x11, 0x51, 0x02, a0, a1, a2, a3 }, token);
         }
 
         private async Task RequestHubPropertiesAsync(CancellationToken token)

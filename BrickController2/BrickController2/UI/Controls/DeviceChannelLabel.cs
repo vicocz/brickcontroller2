@@ -49,6 +49,7 @@ namespace BrickController2.UI.Controls
                 case DeviceType.PoweredUp:
                 case DeviceType.TechnicHub:
                 case DeviceType.WeDo2:
+                case DeviceType.TechnicMove:
                     Text = _controlPlusChannelLetters[Math.Min(Math.Max(Channel, 0), 3)];
                     break;
 

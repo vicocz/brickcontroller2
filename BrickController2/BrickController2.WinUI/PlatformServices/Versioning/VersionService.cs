@@ -5,11 +5,6 @@ namespace BrickController2.Windows.PlatformServices.Versioning;
 
 public class VersionService : IVersionService
 {
-    public VersionService()
-    {
-
-    }
-
     public string ApplicationVersion
     {
         get

@@ -1,4 +1,5 @@
 ﻿using BrickController2.CreationManagement;
+using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
@@ -17,6 +18,7 @@ namespace BrickController2.UI.ViewModels
     public class SequenceListPageViewModel : PageViewModelBase
     {
         private readonly ICreationManager _creationManager;
+        private readonly ISharingManager<Sequence> _sharingManager;
         private readonly IDialogService _dialogService;
 
         private CancellationTokenSource? _disappearingTokenSource;
@@ -25,15 +27,18 @@ namespace BrickController2.UI.ViewModels
             INavigationService navigationService,
             ITranslationService translationService,
             ICreationManager creationManager,
+            ISharingManager<Sequence> sharingManager,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService)
             : base(navigationService, translationService)
         {
             _creationManager = creationManager;
+            _sharingManager = sharingManager;
             _dialogService = dialogService;
             SharedFileStorageService = sharedFileStorageService;
 
             ImportSequenceCommand = new SafeCommand(async () => await ImportSequenceAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            PasteSequenceCommand = new SafeCommand(PasteSequenceAsync);
             AddSequenceCommand = new SafeCommand(async () => await AddSequenceAsync());
             SequenceTappedCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceEditorPageViewModel>(new NavigationParameters(("sequence", sequence))));
             DeleteSequenceCommand = new SafeCommand<Sequence>(async (sequence) => await DeleteSequenceAsync(sequence));
@@ -44,6 +49,7 @@ namespace BrickController2.UI.ViewModels
         public ISharedFileStorageService SharedFileStorageService { get; }
 
         public ICommand ImportSequenceCommand { get; }
+        public ICommand PasteSequenceCommand { get; }
         public ICommand AddSequenceCommand { get; }
         public ICommand SequenceTappedCommand { get; }
         public ICommand DeleteSequenceCommand { get; }
@@ -99,6 +105,23 @@ namespace BrickController2.UI.ViewModels
             }
             catch (OperationCanceledException)
             {
+            }
+        }
+
+        private async Task PasteSequenceAsync()
+        {
+            try
+            {
+                var sequence = await _sharingManager.ImportFromClipboardAsync();
+                await _creationManager.ImportSequenceAsync(sequence);
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Error"),
+                    Translate("FailedToImportSequence", ex),
+                    Translate("Ok"),
+                    _disappearingTokenSource?.Token ?? default);
             }
         }
 

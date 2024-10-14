@@ -1,4 +1,5 @@
 ﻿using BrickController2.CreationManagement;
+using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
@@ -19,7 +20,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly ICreationManager _creationManager;
-
+        private readonly ISharingManager<Sequence> _sharingManager;
         private CancellationTokenSource? _disappearingTokenSource;
 
         public SequenceEditorPageViewModel(
@@ -27,12 +28,14 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDialogService dialogService,
             ICreationManager creationManager,
+            ISharingManager<Sequence> sharingManager,
             ISharedFileStorageService sharedFileStorageService,
             NavigationParameters parameters) :
             base(navigationService, translationService)
         {
             _dialogService = dialogService;
             _creationManager = creationManager;
+            _sharingManager = sharingManager;
             SharedFileStorageService = sharedFileStorageService;
 
             OriginalSequence = parameters.Get<Sequence>("sequence");
@@ -46,6 +49,7 @@ namespace BrickController2.UI.ViewModels
             };
 
             ExportSequenceCommand = new SafeCommand(async () => await ExportSequenceAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            CopySequenceCommand = new SafeCommand(CopySequenceAsync);
             RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
             AddControlPointCommand = new SafeCommand(() => AddControlPoint());
             DeleteControlPointCommand = new SafeCommand<SequenceControlPoint>(async (controlPoint) => await DeleteControlPointAsync(controlPoint));
@@ -59,6 +63,7 @@ namespace BrickController2.UI.ViewModels
         public ISharedFileStorageService SharedFileStorageService { get; }
 
         public ICommand ExportSequenceCommand { get; }
+        public ICommand CopySequenceCommand { get; }
         public ICommand RenameSequenceCommand { get; }
         public ICommand AddControlPointCommand { get; }
         public ICommand DeleteControlPointCommand { get; }
@@ -139,6 +144,9 @@ namespace BrickController2.UI.ViewModels
             {
             }
         }
+
+        private Task CopySequenceAsync()
+            => _sharingManager.ShareToClipboardAsync(Sequence);
 
         private async Task RenameSequenceAsync()
         {

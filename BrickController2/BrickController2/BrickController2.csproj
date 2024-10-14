@@ -18,38 +18,23 @@
     <EmbeddedResource Include="UI\Images\circuitcubes_image_small.png" />
     <EmbeddedResource Include="UI\Images\duplotrainhub_image.png" />
     <EmbeddedResource Include="UI\Images\duplotrainhub_image_small.png" />
-    <EmbeddedResource Include="UI\Images\ic_add.png" />
-    <EmbeddedResource Include="UI\Images\ic_back.png" />
-    <EmbeddedResource Include="UI\Images\ic_checkmark.png" />
-    <EmbeddedResource Include="UI\Images\ic_checkmark_filled.png" />
-    <EmbeddedResource Include="UI\Images\ic_circle.png" />
-    <EmbeddedResource Include="UI\Images\ic_edit.png" />
-    <EmbeddedResource Include="UI\Images\ic_exclamation_mark.png" />
-    <EmbeddedResource Include="UI\Images\ic_export.png" />
-    <EmbeddedResource Include="UI\Images\ic_import.png" />
-    <EmbeddedResource Include="UI\Images\ic_menu.png" />
-    <EmbeddedResource Include="UI\Images\ic_play.png" />
-    <EmbeddedResource Include="UI\Images\ic_search.png" />
-    <EmbeddedResource Include="UI\Images\ic_settings.png" />
     <EmbeddedResource Include="UI\Images\technichub_image.png" />
     <EmbeddedResource Include="UI\Images\technichub_image_small.png" />
-    <EmbeddedResource Include="UI\Images\ic_buttons.png" />
-    <EmbeddedResource Include="UI\Images\ic_console.png" />
-    <EmbeddedResource Include="UI\Images\ic_delete.png" />
-    <EmbeddedResource Include="UI\Images\ic_info.png" />
-    <EmbeddedResource Include="UI\Images\ic_joystick.png" />
-    <EmbeddedResource Include="UI\Images\ic_link.png" />
     <EmbeddedResource Include="UI\Images\infra_image.png" />
     <EmbeddedResource Include="UI\Images\infra_image_small.png" />
     <EmbeddedResource Include="UI\Images\poweredup_image.png" />
     <EmbeddedResource Include="UI\Images\poweredup_image_small.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image_small.png" />
-    <EmbeddedResource Include="UI\Images\ic_sequence.png" />
     <EmbeddedResource Include="UI\Images\wedo2hub_image.png" />
     <EmbeddedResource Include="UI\Images\wedo2hub_image_small.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Custom Fonts -->
+	<MauiFont Include="Resources\Fonts\*" />
+  </ItemGroup>	
+	
   <ItemGroup>
     <PackageReference Include="Autofac" />
     <PackageReference Include="Microsoft.Maui.Controls" />

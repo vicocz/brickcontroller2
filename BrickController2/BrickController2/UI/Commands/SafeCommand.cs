@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace BrickController2.UI.Commands
 {
-    public class SafeCommand : ICommand
+    public class SafeCommand : ICommand, IExtendableCommand
     {
         private readonly Func<object?, Task> _executeAsync;
         private readonly Predicate<object?> _canExecute;
@@ -58,13 +58,13 @@ namespace BrickController2.UI.Commands
             }
         }
 
-        private void RaiseCanExecuteChanged()
+        public void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 
-    public class SafeCommand<TExecute> : ICommand
+    public class SafeCommand<TExecute> : ICommand, IExtendableCommand
     {
         private readonly Func<TExecute, Task> _executeAsync;
         private readonly Predicate<object?> _canExecute;
@@ -106,7 +106,7 @@ namespace BrickController2.UI.Commands
             }
         }
 
-        private void RaiseCanExecuteChanged()
+        public void RaiseCanExecuteChanged()
         {
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }

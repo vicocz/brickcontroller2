@@ -8,6 +8,7 @@ using Foundation;
 using BrickController2.BusinessLogic.DI;
 using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
+using BrickController2.Extensions;
 using BrickController2.DeviceManagement.DI;
 using BrickController2.iOS.PlatformServices.DI;
 using BrickController2.iOS.UI.Services.DI;
@@ -27,9 +28,9 @@ namespace BrickController2.iOS
 
             builder
                 .UseMauiApp<App>()
+                .ConfigureSymbolFonts()
                 .ConfigureMauiHandlers(handlers =>
                 {
-                    handlers.AddHandler<ColorImage, ColorImageHandler>();
                     handlers.AddHandler<ExtendedSlider, ExtendedSliderHandler>();
                     handlers.AddHandler(typeof(ListView), typeof(NoAnimListViewRenderer));
                 })

@@ -210,6 +210,8 @@ namespace BrickController2.UI.ViewModels
                             {
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
+                            // update command enablement
+                            ScanCommand.RaiseCanExecuteChanged();
                         }
                     }
                 }

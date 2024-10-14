@@ -141,6 +141,9 @@
   <data name="AdvancedSettings" xml:space="preserve">
     <value>Advanced settings</value>
   </data>
+  <data name="ApplyChanges" xml:space="preserve">
+    <value>Apply changes</value>
+  </data>
   <data name="AreYouSureToDeleteControllerAction" xml:space="preserve">
     <value>Are you sure to delete this controller action?</value>
   </data>
@@ -315,6 +318,15 @@
   <data name="ErrorDuringScanning" xml:space="preserve">
     <value>Error during scanning</value>
   </data>
+  <data name="ExportControllerProfile" xml:space="preserve">
+    <value>Export the controller profile</value>
+  </data>
+  <data name="ExportCreation" xml:space="preserve">
+    <value>Export the creation</value>
+  </data>
+  <data name="ExportSequence" xml:space="preserve">
+    <value>Export the sequence</value>
+  </data>
   <data name="ExportSuccessful" xml:space="preserve">
     <value>Export successful:</value>
   </data>
@@ -347,6 +359,15 @@
   </data>
   <data name="IconSet" xml:space="preserve">
     <value>Icon set</value>
+  </data>
+  <data name="ImportControllerProfile" xml:space="preserve">
+    <value>Import a controller profile</value>
+  </data>
+  <data name="ImportCreation" xml:space="preserve">
+    <value>Import a creation</value>
+  </data>
+  <data name="ImportSequence" xml:space="preserve">
+    <value>Import a sequence</value>
   </data>
   <data name="Information" xml:space="preserve">
     <value>Information</value>
@@ -527,5 +548,32 @@
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Yes</value>
+  </data>
+  <data name="AddCreation" xml:space="preserve">
+    <value>Add a new creation</value>
+  </data>
+  <data name="ScanForDevices" xml:space="preserve">
+    <value>Scan for new devices</value>
+  </data>
+  <data name="AddControlPoint" xml:space="preserve">
+    <value>Add a new control point</value>
+  </data>
+  <data name="AddControllerProfile" xml:space="preserve">
+    <value>Add a new controller profile</value>
+  </data>
+  <data name="AddControllerEvent" xml:space="preserve">
+    <value>Add a new controller event</value>
+  </data>
+  <data name="OpenDeviceDetails" xml:space="preserve">
+    <value>Show the device details</value>
+  </data>
+  <data name="OpenSequenceEditor" xml:space="preserve">
+    <value>Edit the sequence</value>
+  </data>
+  <data name="AddSequence" xml:space="preserve">
+    <value>Add a new sequence</value>
+  </data>
+  <data name="OpenChannelSetup" xml:space="preserve">
+    <value>Setup the channel</value>
   </data>
 </root>

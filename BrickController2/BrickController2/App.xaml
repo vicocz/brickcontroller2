@@ -68,12 +68,6 @@
             <Setter Property="TextColor" Value="{DynamicResource NavigationBarItemColor}"/>
             <Setter Property="FontSize" Value="Large"/>
         </Style>
-
-        <Style x:Key="NavigationBarImageButtonStyle" TargetType="controls:ImageButton">
-            <Setter Property="WidthRequest" Value="30"/>
-            <Setter Property="HeightRequest" Value="30"/>
-            <Setter Property="ImageColor" Value="{DynamicResource NavigationBarItemColor}"/>
-        </Style>
         
         <!-- Header bar -->
 
@@ -81,12 +75,6 @@
             <Setter Property="BackgroundColor" Value="{DynamicResource HeaderBackgroundColor}"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="ColumnSpacing" Value="6"/>
-        </Style>
-
-        <Style x:Key="HeaderBarImageButtonStyle" TargetType="controls:ImageButton">
-            <Setter Property="WidthRequest" Value="30"/>
-            <Setter Property="HeightRequest" Value="30"/>
-            <Setter Property="ImageColor" Value="{DynamicResource HeaderItemColor}"/>
         </Style>
 
         <!-- Footer bar -->
@@ -169,7 +157,27 @@
             <Setter Property="HeightRequest" Value="40"/>
             <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
-        
+
+        <!-- Floating button styles -->
+        <Style x:Key="FloatingActionButtonStyle" TargetType="controls:FloatingActionButton">
+            <Setter Property="BackgroundColor" Value="{DynamicResource FloatingButtonColor}"/>
+            <Setter Property="ImageColor" Value="{DynamicResource NavigationBarItemColor}"/>
+            <Setter Property="Aspect" Value="Center"/>
+            <Setter Property="CornerRadius" Value="25"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HeightRequest" Value="50"/>
+            <Setter Property="WidthRequest" Value="50"/>
+        </Style>
+        <Style x:Key="InlineActionButtonStyle" TargetType="controls:FloatingActionButton">
+            <Setter Property="BackgroundColor" Value="{DynamicResource InlineButtonColor}"/>
+            <Setter Property="ImageColor" Value="{DynamicResource NavigationBarItemColor}"/>
+            <Setter Property="Aspect" Value="Center"/>
+            <Setter Property="CornerRadius" Value="23"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HeightRequest" Value="46"/>
+            <Setter Property="WidthRequest" Value="46"/>
+        </Style>
+
         <!-- Misc -->
 
         <Style x:Key="DividerBoxViewStyle" TargetType="BoxView">

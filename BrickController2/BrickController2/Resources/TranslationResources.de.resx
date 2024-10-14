@@ -136,10 +136,13 @@
     <value>Adresse</value>
   </data>
   <data name="AddSequences" xml:space="preserve">
-    <value>Sequenzen estellen</value>
+    <value>Sequenzen erstellen</value>
   </data>
   <data name="AdvancedSettings" xml:space="preserve">
     <value>Erweiterte Einstellungen</value>
+  </data>
+  <data name="ApplyChanges" xml:space="preserve">
+    <value>Änderungen übernehmen</value>
   </data>
   <data name="AreYouSureToDeleteControllerAction" xml:space="preserve">
     <value>Wollen Sie diese Aktion wirklich löschen?</value>
@@ -165,6 +168,12 @@
   <data name="AreYouSureToDeleteThisControllerAcrion" xml:space="preserve">
     <value>Wollen Sie diese Controllersaktion wirklich löschen?</value>
   </data>
+  <data name="AutoCalibrate" xml:space="preserve">
+    <value>Automatisch kalibrieren</value>
+  </data>
+  <data name="AxisActiveZone" xml:space="preserve">
+    <value>Joy aktive Zone</value>
+  </data>
   <data name="AxisCharacteristic" xml:space="preserve">
     <value>Achseneigenschaften</value>
   </data>
@@ -173,6 +182,9 @@
   </data>
   <data name="AxisType" xml:space="preserve">
     <value>Joy Typ</value>
+  </data>
+  <data name="BaseAngle" xml:space="preserve">
+    <value>Basiswinkel</value>
   </data>
   <data name="Battery" xml:space="preserve">
     <value>Batterie</value>
@@ -195,8 +207,14 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz Ausgabelautstärke</value>
   </data>
+  <data name="Calibrating" xml:space="preserve">
+    <value>Kalibrieren...</value>
+  </data>
   <data name="Cancel" xml:space="preserve">
     <value>Abbrechen</value>
+  </data>
+  <data name="ChannelSetup" xml:space="preserve">
+    <value>Kanaleinrichtung</value>
   </data>
   <data name="ChannelType" xml:space="preserve">
     <value>Kanaltyp</value>
@@ -300,6 +318,15 @@
   <data name="ErrorDuringScanning" xml:space="preserve">
     <value>Fehler beim Scannen</value>
   </data>
+  <data name="ExportControllerProfile" xml:space="preserve">
+    <value>Das Controller-Profil exportieren</value>
+  </data>
+  <data name="ExportCreation" xml:space="preserve">
+    <value>Die Kreation exportieren</value>
+  </data>
+  <data name="ExportSequence" xml:space="preserve">
+    <value>Die Sequenz exportieren </value>
+  </data>
   <data name="ExportSuccessful" xml:space="preserve">
     <value>Export erfolgreich:</value>
   </data>
@@ -332,6 +359,15 @@
   </data>
   <data name="IconSet" xml:space="preserve">
     <value>Icon-Set</value>
+  </data>
+  <data name="ImportControllerProfile" xml:space="preserve">
+    <value>Ein Controller-Profil importieren</value>
+  </data>
+  <data name="ImportCreation" xml:space="preserve">
+    <value>Eine Kreation importieren</value>
+  </data>
+  <data name="ImportSequence" xml:space="preserve">
+    <value>Eine Sequenz importieren</value>
   </data>
   <data name="Information" xml:space="preserve">
     <value>Information</value>
@@ -426,6 +462,12 @@
   <data name="Renaming" xml:space="preserve">
     <value>Umbenennung...</value>
   </data>
+  <data name="Reset" xml:space="preserve">
+    <value>Zurücksetzen</value>
+  </data>
+  <data name="Reseting" xml:space="preserve">
+    <value>Zurücksetzen...</value>
+  </data>
   <data name="Saving" xml:space="preserve">
     <value>Speichern...</value>
   </data>
@@ -454,7 +496,10 @@
     <value>Name der Sequenze</value>
   </data>
   <data name="SequenceNameCanNotBeEmpty" xml:space="preserve">
-    <value>Neme der Sequenze darf nicht leer bleiben</value>
+    <value>Name der Sequenze darf nicht leer bleiben</value>
+  </data>
+  <data name="SequenceNameIsUsed" xml:space="preserve">
+    <value>Dieser Sequenzname wird bereits verwendet</value>
   </data>
   <data name="Sequences" xml:space="preserve">
     <value>Sequenzen</value>
@@ -468,8 +513,8 @@
   <data name="ShortChannel" xml:space="preserve">
     <value>Ka</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value>Joy Aktive Zone</value>
+  <data name="StepperAngle" xml:space="preserve">
+    <value>Schrittwinkel</value>
   </data>
   <data name="System" xml:space="preserve">
     <value>System</value>
@@ -503,5 +548,32 @@
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Ja</value>
+  </data>
+  <data name="AddCreation" xml:space="preserve">
+    <value>Eine neue Kreation erstellen</value>
+  </data>
+  <data name="ScanForDevices" xml:space="preserve">
+    <value>Neuen Geräten scannen</value>
+  </data>
+  <data name="AddControlPoint" xml:space="preserve">
+    <value>Einen neuen Controll-punkt erstellen</value>
+  </data>
+  <data name="AddControllerProfile" xml:space="preserve">
+    <value>Ein neues Controllerprofil erstellen</value>
+  </data>
+  <data name="AddControllerEvent" xml:space="preserve">
+    <value>Ein neues Controller-event erstellen</value>
+  </data>
+  <data name="OpenDeviceDetails" xml:space="preserve">
+    <value>Die Gerätedetails anzeigen</value>
+  </data>
+  <data name="OpenSequenceEditor" xml:space="preserve">
+    <value>Die Sequenz bearbeiten </value>
+  </data>
+  <data name="AddSequence" xml:space="preserve">
+    <value>Eine neue Sequenz erstellen</value>
+  </data>
+  <data name="OpenChannelSetup" xml:space="preserve">
+    <value>Einrichtung des Kanals</value>
   </data>
 </root>

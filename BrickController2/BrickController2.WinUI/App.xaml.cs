@@ -4,9 +4,9 @@ using BrickController2.BusinessLogic.DI;
 using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
 using BrickController2.DeviceManagement.DI;
+using BrickController2.Extensions;
 using BrickController2.UI.Controls;
 using BrickController2.UI.DI;
-using BrickController2.UI.Pages;
 using BrickController2.Windows.PlatformServices.DI;
 using BrickController2.Windows.UI.CustomHandlers;
 using Microsoft.Maui;
@@ -31,11 +31,11 @@ public partial class App : MauiWinUIApplication
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<BrickController2.App>()
+            .ConfigureSymbolFonts()
             .ConfigureMauiHandlers(handlers =>
             {
                 handlers
                     .AddHandler<ExtendedSlider, ExtendedSliderHandler>()
-                    .AddHandler<PageBase, CustomPageHandler>()
                 ;
 
                 // handle swipe if there is no touch screen

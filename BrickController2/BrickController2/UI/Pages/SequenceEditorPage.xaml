@@ -19,15 +19,10 @@
         </ResourceDictionary>    
     </local:PageBase.Resources>
 
-    <NavigationPage.TitleView>
-        <Grid HorizontalOptions="FillAndExpand">
-            <Label Text="{extensions:Translate Sequence}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center"/>
-            <StackLayout Orientation="Horizontal" HorizontalOptions="End" Margin="12,0" Spacing="12">
-                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_export.png}" Command="{Binding ExportSequenceCommand}" Style="{StaticResource NavigationBarImageButtonStyle}" IsVisible="{Binding SharedFileStorageService.IsSharedStorageAvailable}"/>
-                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_checkmark.png}" Command="{Binding SaveSequenceCommand}" Style="{StaticResource NavigationBarImageButtonStyle}"/>
-            </StackLayout>
-        </Grid>
-    </NavigationPage.TitleView>
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportSequence}" Command="{Binding ExportSequenceCommand}" />
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSequenceCommand}" />
+    </ContentPage.ToolbarItems>
     
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -95,7 +90,11 @@
                                     <Label Text="{Binding Value, Converter={StaticResource FloatValueToPercent}}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End" VerticalTextAlignment="Center"/>
                                 </StackLayout>
                                 <Button Grid.Column="1" Text="{Binding DurationMs}" Command="{Binding BindingContext.ChangeControlPointDurationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}" Style="{StaticResource PickerButtonStyle}" FontSize="Small"/>
-                                <controls:ImageButton Grid.Column="2" ImageSource="{extensions:ImageResource Source=ic_delete.png}" ImageColor="{DynamicResource NegativeColor}" Command="{Binding BindingContext.DeleteControlPointCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="4,0,4,0"/>
+                                <ImageButton Grid.Column="2" Command="{Binding BindingContext.DeleteControlPointCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}" BackgroundColor="Transparent" WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="4,0,4,0">
+                                    <ImageButton.Source>
+                                        <FontImageSource x:Name="ImageSource" FontFamily="Icons" Glyph="clear" Color="{DynamicResource NegativeColor}" />
+                                    </ImageButton.Source>
+                                </ImageButton>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
@@ -104,7 +103,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="4" ButtonColor="Red" ImageSource="{extensions:ImageResource Source=ic_add.png}" ImageColor="White" Command="{Binding AddControlPointCommand}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="4" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControlPointCommand}" ToolTipProperties.Text="{extensions:Translate AddControlPoint}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

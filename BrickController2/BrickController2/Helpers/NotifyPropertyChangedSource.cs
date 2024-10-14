@@ -9,7 +9,10 @@ namespace BrickController2.Helpers
 
         protected void RaisePropertyChanged([CallerMemberName]string? propertyName = null)
         {
-            Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)));
+            if (PropertyChanged is null)
+                return;
+
+            Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() => PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName)));
         }
     }
 }

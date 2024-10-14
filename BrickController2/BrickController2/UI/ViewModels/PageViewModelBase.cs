@@ -2,6 +2,7 @@
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using System;
 using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels
@@ -26,5 +27,6 @@ namespace BrickController2.UI.ViewModels
         protected ITranslationService TranslationService { get; }
 
         protected string Translate(string key) => TranslationService.Translate(key);
+        protected string Translate(string key, Exception ex) => Translate(key) + " " + ex.Message;
     }
 }

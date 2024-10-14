@@ -46,11 +46,17 @@ namespace BrickController2.CreationManagement
 
         public async Task ImportCreationAsync(string creationFilename)
         {
+            var creationJson = await File.ReadAllTextAsync(creationFilename);
+            var creation = JsonConvert.DeserializeObject<Creation>(creationJson);
+
+            await ImportCreationAsync(creation);
+        }
+
+
+        public async Task ImportCreationAsync(Creation creation)
+        {
             using (await _asyncLock.LockAsync())
             {
-                var creationJson = await File.ReadAllTextAsync(creationFilename);
-                var creation = JsonConvert.DeserializeObject<Creation>(creationJson);
-
                 var creationName = creation.Name;
                 if (!IsCreationNameAvailable(creationName))
                 {
@@ -137,11 +143,16 @@ namespace BrickController2.CreationManagement
 
         public async Task ImportControllerProfileAsync(Creation creation, string controllerProfileFilename)
         {
+            var controllerProfileJson = await File.ReadAllTextAsync(controllerProfileFilename);
+            var controllerProfile = JsonConvert.DeserializeObject<ControllerProfile>(controllerProfileJson);
+
+            await ImportControllerProfileAsync(creation, controllerProfile);
+        }
+
+        public async Task ImportControllerProfileAsync(Creation creation, ControllerProfile controllerProfile)
+        {
             using (await _asyncLock.LockAsync())
             {
-                var controllerProfileJson = await File.ReadAllTextAsync(controllerProfileFilename);
-                var controllerProfile = JsonConvert.DeserializeObject<ControllerProfile>(controllerProfileJson);
-
                 controllerProfile.Creation = null;
                 controllerProfile.CreationId = 0;
 
@@ -346,11 +357,16 @@ namespace BrickController2.CreationManagement
 
         public async Task ImportSequenceAsync(string sequenceFilename)
         {
+            var sequenceJson = await File.ReadAllTextAsync(sequenceFilename);
+            var sequence = JsonConvert.DeserializeObject<Sequence>(sequenceJson);
+
+            await ImportSequenceAsync(sequence);
+        }
+
+        public async Task ImportSequenceAsync(Sequence sequence)
+        {
             using (await _asyncLock.LockAsync())
             {
-                var sequenceJson = await File.ReadAllTextAsync(sequenceFilename);
-                var sequence = JsonConvert.DeserializeObject<Sequence>(sequenceJson);
-
                 sequence.Id = 0;
 
                 var sequenceName = sequence.Name;

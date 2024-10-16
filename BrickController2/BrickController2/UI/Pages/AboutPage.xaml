@@ -37,6 +37,7 @@
                         <Label Text="SQLiteNetExtensionsAsync"/>
                         <Label Text="Microsoft.Maui"/>
                         <Label Text="Microsoft.Maui.Essentials"/>
+                        <Label Text="ZXing.Net.MAUI"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 

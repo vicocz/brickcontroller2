@@ -16,6 +16,7 @@ using BrickController2.UI.DI;
 using BrickController2.iOS.UI.CustomHandlers;
 using BrickController2.UI.Controls;
 using BrickController2.iOS.UI.CustomRenderers;
+using ZXing.Net.Maui.Controls;
 
 namespace BrickController2.iOS
 {
@@ -34,6 +35,7 @@ namespace BrickController2.iOS
                     handlers.AddHandler<ExtendedSlider, ExtendedSliderHandler>();
                     handlers.AddHandler(typeof(ListView), typeof(NoAnimListViewRenderer));
                 })
+                .UseBarcodeReader()
                 .ConfigureContainer(new AutofacServiceProviderFactory(), autofacBuilder =>
                 {
                     autofacBuilder.RegisterModule(new PlatformServicesModule());

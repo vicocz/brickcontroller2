@@ -38,6 +38,8 @@
 	<string>Location access is required to use SBrick, BuWizz or Powered-Up devices.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Location access is required to use SBrick, BuWizz or Powered-Up devices.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera is required in order to import a creation via QR code from another application.</string>
 	<key>CFBundleShortVersionString</key>
 	<string>3.4</string>
 	<key>CFBundleVersion</key>

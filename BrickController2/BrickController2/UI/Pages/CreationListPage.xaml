@@ -21,6 +21,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="qr_code_scanner" Text="{extensions:Translate ScanQr}" Command="{Binding ScanCreationCommand}" />
         <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportCreation}" Command="{Binding ImportCreationCommand}" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenSettingsPageCommand}" />
         <controls:ToolbarIcon Icon="paste" Text="{extensions:Translate PasteCreation}" Command="{Binding PasteCreationCommand}" Order="Secondary" />

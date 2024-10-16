@@ -17,6 +17,7 @@ using BrickController2.Droid.PlatformServices.DI;
 using BrickController2.Droid.UI.Services.DI;
 using BrickController2.UI.Controls;
 using BrickController2.UI.DI;
+using ZXing.Net.Maui.Controls;
 
 namespace BrickController2.Droid
 {
@@ -43,6 +44,7 @@ namespace BrickController2.Droid
                 {
                     handlers.AddHandler<ExtendedSlider, ExtendedSliderHandler>();
                 })
+                .UseBarcodeReader()
                 .ConfigureContainer(new AutofacServiceProviderFactory(), autofacBuilder =>
                 {
                     autofacBuilder.RegisterInstance(this).As<Context>();

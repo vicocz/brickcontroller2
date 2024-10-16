@@ -14,6 +14,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 using Windows.Devices.Input;
+using ZXing.Net.Maui.Controls;
 
 namespace BrickController2.Windows;
 
@@ -45,6 +46,7 @@ public partial class App : MauiWinUIApplication
                     handlers.AddHandler<SwipeView, CustomSwipeViewHandler>();
                 }
             })
+            .UseBarcodeReader()
             .ConfigureContainer(new AutofacServiceProviderFactory(), autofacBuilder =>
             {
                 autofacBuilder.RegisterModule<PlatformServicesModule>();

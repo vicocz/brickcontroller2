@@ -8,6 +8,7 @@ namespace BrickController2.UI.Controls
     public class DeviceChannelLabel : Label
     {
         private readonly static string[] _controlPlusChannelLetters = new[] { "A", "B", "C", "D" };
+        private readonly static string[] _technicMove = ["A", "B", "C", "1", "2", "3", "4", "5", "6"];
         private readonly static string[] _circuitCubesChannelLetters = new[] { "A", "B", "C" };
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
 
@@ -51,16 +52,18 @@ namespace BrickController2.UI.Controls
                 case DeviceType.PoweredUp:
                 case DeviceType.TechnicHub:
                 case DeviceType.WeDo2:
+                    SetChannelText(_controlPlusChannelLetters);
+                    break;
                 case DeviceType.TechnicMove:
-                    Text = _controlPlusChannelLetters[Math.Min(Math.Max(Channel, 0), 3)];
+                    SetChannelText(_technicMove);
                     break;
 
                 case DeviceType.CircuitCubes:
-                    Text = _circuitCubesChannelLetters[Math.Min(Math.Max(Channel, 0), 2)];
+                    SetChannelText(_circuitCubesChannelLetters);
                     break;
 
                 case DeviceType.BuWizz3:
-                    Text = _buwizz3ChannelLetters[Math.Min(Math.Max(Channel, 0), 6)];
+                    SetChannelText(_buwizz3ChannelLetters);
                     break;
 
                 case DeviceType.Infrared:
@@ -74,5 +77,8 @@ namespace BrickController2.UI.Controls
                     break;
             }
         }
+
+        private void SetChannelText(string[] labels)
+            => Text = labels[Math.Min(Math.Max(Channel, 0), labels.Length - 1)];
     }
 }

@@ -170,8 +170,27 @@ namespace BrickController2.DeviceManagement
             return false;
         }
 
+        protected Task<bool> WriteNoResponseAsync(byte[] data, CancellationToken token = default)
+            => _bleDevice!.WriteNoResponseAsync(_characteristic!, data, token);
+
+        protected Task<bool> WriteAsync(byte[] data, CancellationToken token = default)
+            => _bleDevice!.WriteAsync(_characteristic!, data, token);
+
         protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
         protected virtual int GetChannelIndex(byte portId) => portId;
+
+        protected virtual byte GetChannelValue(int value)
+            // calculate raw motor value
+            => (byte)(value < 0 ? (255 + value) : value);
+
+        protected virtual async Task<bool> SendOutputValueAsync(int channel, int value, CancellationToken token = default)
+        {
+            // send base motor value (-100 .. 100 %)
+            _sendBuffer[3] = GetPortId(channel);
+            _sendBuffer[7] = GetChannelValue(value);
+
+            return await WriteNoResponseAsync(_sendBuffer, token);
+        }
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
@@ -401,19 +420,12 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
                 {
-                    _sendBuffer[3] = GetPortId(channel);
-                    _sendBuffer[7] = (byte)(v < 0 ? (255 + v) : v);
-
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendBuffer, token))
-                    {
-                        _lastOutputValues[channel] = v;
-                        await Task.Delay(SEND_DELAY, token);
-                        return true;
-                    }
-                    else
+                    if (!await SendOutputValueAsync(channel, v, token))
                     {
                         return false;
                     }
+                    _lastOutputValues[channel] = v;
+                    await Task.Delay(SEND_DELAY, token);
                 }
 
                 return true;

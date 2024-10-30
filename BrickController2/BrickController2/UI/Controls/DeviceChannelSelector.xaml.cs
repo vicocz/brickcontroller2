@@ -47,6 +47,12 @@ namespace BrickController2.UI.Controls
             TechnicMoveChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
             TechnicMoveChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
             TechnicMoveChannelC.Command = new SafeCommand(() => SelectedChannel = 2);
+            TechnicMoveChannel1.Command = new SafeCommand(() => SelectedChannel = 3);
+            TechnicMoveChannel2.Command = new SafeCommand(() => SelectedChannel = 4);
+            TechnicMoveChannel3.Command = new SafeCommand(() => SelectedChannel = 5);
+            TechnicMoveChannel4.Command = new SafeCommand(() => SelectedChannel = 6);
+            TechnicMoveChannel5.Command = new SafeCommand(() => SelectedChannel = 7);
+            TechnicMoveChannel6.Command = new SafeCommand(() => SelectedChannel = 8);
         }
 
         public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelSelector), default(DeviceType), BindingMode.OneWay, null, OnDeviceTypeChanged);
@@ -123,6 +129,12 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannelA.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannelB.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannelC.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel1.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel2.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel3.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel4.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel5.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel6.SelectedChannel = selectedChannel;
             }
         }
     }

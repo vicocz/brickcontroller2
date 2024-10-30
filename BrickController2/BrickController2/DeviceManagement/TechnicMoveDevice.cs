@@ -22,6 +22,7 @@ namespace BrickController2.DeviceManagement
 
         public override bool CanAutoCalibrateOutput(int channel) => channel == 2;
         public override bool CanResetOutput(int channel) => channel == 2;
+        public override bool CanChangeOutputType(int channel) => channel == 2;
 
         protected override byte GetPortId(int channelIndex) => channelIndex switch
         {

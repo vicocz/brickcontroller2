@@ -15,7 +15,7 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid SERVICE_UUID = new Guid("00001623-1212-efde-1623-785feabcd123");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("00001624-1212-efde-1623-785feabcd123");
 
-        private static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(60);
+        private static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(10);
         private static readonly TimeSpan POSITION_EXPIRATION = TimeSpan.FromMilliseconds(200);
 
         private readonly byte[] _sendBuffer = new byte[] { 8, 0x00, 0x81, 0x00, 0x11, 0x51, 0x00, 0x00 };
@@ -282,14 +282,15 @@ namespace BrickController2.DeviceManagement
                     break;
 
                 case 0x82: // Port output command feedback
+                    DumpData("Output command feedback", data);
                     break;
             }
         }
 
         private void DumpData(string header, byte[] data)
         {
-            //var s = BitConverter.ToString(data);
-            //Console.WriteLine(header + " - " + s);
+            var s = BitConverter.ToString(data);
+            Console.WriteLine(header + " - " + s);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -350,6 +351,41 @@ namespace BrickController2.DeviceManagement
             }
         }
 
+        protected virtual async Task SetupServoAsync(int channel, int baseAngle, CancellationToken token = default)
+        {
+            await SetupChannelForPortInformationAsync(channel, token);
+            await Task.Delay(300, token);
+            await ResetServoAsync(channel, baseAngle, token);
+        }
+
+        private void GetOutputValue(int channel, out int value, out bool sendAttemptsLeft)
+        {
+            lock (_outputLock)
+            {
+                value = _outputValues[channel];
+                var attemptsLeft = _sendAttemptsLeft[channel];
+                sendAttemptsLeft = attemptsLeft > 0;
+                _sendAttemptsLeft[channel] = sendAttemptsLeft ? attemptsLeft - 1 : 0;
+            }
+        }
+
+        private void OnOutputValueApplied(int channel, int value)
+        {
+            _lastOutputValues[channel] = value;
+            // reset send attemps due to success
+            lock (_outputLock)
+            {
+                _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+            }
+        }
+
+        private Task OnOutputValueAppliedAsync(int channel, int value, CancellationToken token)
+        {
+            OnOutputValueApplied(channel, value);
+
+            return Task.Delay(SEND_DELAY, token);
+        }
+
         private async Task<bool> SendOutputValuesAsync(CancellationToken token)
         {
             try
@@ -387,30 +423,18 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                int v, sendAttemptsLeft;
+                // get output value (under lock)
+                GetOutputValue(channel, out var v, out var sendAttemptsLeft);
 
-                lock (_outputLock)
-                {
-                    v = _outputValues[channel];
-                    sendAttemptsLeft = _sendAttemptsLeft[channel];
-                    _sendAttemptsLeft[channel] = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
-                }
-
-                if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
+                if (v != _lastOutputValues[channel] || sendAttemptsLeft)
                 {
                     _sendBuffer[3] = (byte)channel;
                     _sendBuffer[7] = (byte)(v < 0 ? (255 + v) : v);
-
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendBuffer, token))
-                    {
-                        _lastOutputValues[channel] = v;
-                        await Task.Delay(SEND_DELAY, token);
-                        return true;
-                    }
-                    else
+                    if (!await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendBuffer, token))
                     {
                         return false;
                     }
+                    await OnOutputValueAppliedAsync(channel, v, token);
                 }
 
                 return true;
@@ -457,16 +481,10 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                int v, sendAttemptsLeft;
+                // get output value (under lock)
+                GetOutputValue(channel, out var v, out var sendAttemptsLeft);
 
-                lock (_outputLock)
-                {
-                    v = _outputValues[channel];
-                    sendAttemptsLeft = _sendAttemptsLeft[channel];
-                    _sendAttemptsLeft[channel] = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
-                }
-
-                if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
+                if (v != _lastOutputValues[channel] || sendAttemptsLeft)
                 {
                     var servoValue = _maxServoAngles[channel] * v / 100;
                     var servoSpeed = CalculateServoSpeed(channel, servoValue);
@@ -483,16 +501,11 @@ namespace BrickController2.DeviceManagement
                     _servoSendBuffer[9] = (byte)((servoValue >> 24) & 0xff);
                     _servoSendBuffer[10] = (byte)servoSpeed;
 
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _servoSendBuffer, token))
-                    {
-                        _lastOutputValues[channel] = v;
-                        await Task.Delay(SEND_DELAY, token);
-                        return true;
-                    }
-                    else
+                    if (!await _bleDevice!.WriteNoResponseAsync(_characteristic!, _servoSendBuffer, token))
                     {
                         return false;
                     }
+                    await OnOutputValueAppliedAsync(channel, v, token);
                 }
 
                 return true;
@@ -507,14 +520,8 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                int v, sendAttemptsLeft;
-
-                lock (_outputLock)
-                {
-                    v = _outputValues[channel];
-                    sendAttemptsLeft = _sendAttemptsLeft[channel];
-                    _sendAttemptsLeft[channel] = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
-                }
+                // get output value (under lock)
+                GetOutputValue(channel, out var v, out var sendAttemptsLeft);
 
                 var stepperAngle = _stepperAngles[channel];
                 _stepperSendBuffer[3] = (byte)channel;
@@ -526,20 +533,15 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] && Math.Abs(v) == 100)
                 {
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _stepperSendBuffer, token))
-                    {
-                        _lastOutputValues[channel] = v;
-                        await Task.Delay(SEND_DELAY, token);
-                        return true;
-                    }
-                    else
+                    if (!await _bleDevice!.WriteNoResponseAsync(_characteristic!, _stepperSendBuffer, token))
                     {
                         return false;
                     }
+                    await OnOutputValueAppliedAsync(channel, v, token);
                 }
                 else
                 {
-                    _lastOutputValues[channel] = v;
+                    OnOutputValueApplied(channel, v);
                 }
 
                 return true;
@@ -592,11 +594,11 @@ namespace BrickController2.DeviceManagement
                 result = result && await ResetAsync(channel, 0, token);
                 result = result && await StopAsync(channel, token);
                 result = result && await TurnAsync(channel, 0, 40, token);
-                await Task.Delay(50);
+                await Task.Delay(50, token);
                 result = result && await StopAsync(channel, token);
                 result = result && await ResetAsync(channel, resetToAngle, token);
                 result = result && await TurnAsync(channel, 0, 40, token);
-                await Task.Delay(500);
+                await Task.Delay(500, token);
                 result = result && await StopAsync(channel, token);
 
                 var diff = Math.Abs(NormalizeAngle(_absolutePositions[channel] - baseAngle));
@@ -606,7 +608,7 @@ namespace BrickController2.DeviceManagement
                     result = result && await ResetAsync(channel, 0, token);
                     result = result && await StopAsync(channel, token);
                     result = result && await TurnAsync(channel, 0, 40, token);
-                    await Task.Delay(50);
+                    await Task.Delay(50, token);
                     result = result && await StopAsync(channel, token);
                 }
 
@@ -627,19 +629,19 @@ namespace BrickController2.DeviceManagement
                 result = result && await ResetAsync(channel, 0, token);
                 result = result && await StopAsync(channel, token);
                 result = result && await TurnAsync(channel, 0, 50, token);
-                await Task.Delay(600);
+                await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
-                await Task.Delay(500);
+                await Task.Delay(500, token);
                 var absPositionAt0 = _absolutePositions[channel];
                 result = result && await TurnAsync(channel, -160, 60, token);
-                await Task.Delay(600);
+                await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
-                await Task.Delay(500);
+                await Task.Delay(500, token);
                 var absPositionAtMin160 = _absolutePositions[channel];
                 result = result && await TurnAsync(channel, 160, 60, token);
-                await Task.Delay(600);
+                await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
-                await Task.Delay(500);
+                await Task.Delay(500, token);
                 var absPositionAt160 = _absolutePositions[channel];
 
                 var midPoint1 = NormalizeAngle((absPositionAtMin160 + absPositionAt160) / 2);
@@ -653,11 +655,11 @@ namespace BrickController2.DeviceManagement
                 result = result && await ResetAsync(channel, 0, token);
                 result = result && await StopAsync(channel, token);
                 result = result && await TurnAsync(channel, 0, 40, token);
-                await Task.Delay(50);
+                await Task.Delay(50, token);
                 result = result && await StopAsync(channel, token);
                 result = result && await ResetAsync(channel, resetToAngle, token);
                 result = result && await TurnAsync(channel, 0, 40, token);
-                await Task.Delay(600);
+                await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
 
                 return (result, baseAngle / 180F);
@@ -750,19 +752,19 @@ namespace BrickController2.DeviceManagement
             try
             {
                 // Request firmware version
-                await Task.Delay(TimeSpan.FromMilliseconds(300));
+                await Task.Delay(TimeSpan.FromMilliseconds(300), token);
                 await _bleDevice!.WriteAsync(_characteristic!, new byte[] { 0x05, 0x00, 0x01, 0x03, 0x05 }, token);
                 var data = await _bleDevice!.ReadAsync(_characteristic!, token);
                 ProcessHubPropertyData(data);
 
                 // Request hardware version
-                await Task.Delay(TimeSpan.FromMilliseconds(300));
+                await Task.Delay(TimeSpan.FromMilliseconds(300), token);
                 await _bleDevice!.WriteAsync(_characteristic!, new byte[] { 0x05, 0x00, 0x01, 0x04, 0x05 }, token);
                 data = await _bleDevice!.ReadAsync(_characteristic!, token);
                 ProcessHubPropertyData(data);
 
                 // Request battery voltage
-                await Task.Delay(TimeSpan.FromMilliseconds(300));
+                await Task.Delay(TimeSpan.FromMilliseconds(300), token);
                 await _bleDevice!.WriteAsync(_characteristic!, new byte[] { 0x05, 0x00, 0x01, 0x06, 0x05 }, token);
                 data = await _bleDevice!.ReadAsync(_characteristic!, token);
                 ProcessHubPropertyData(data);

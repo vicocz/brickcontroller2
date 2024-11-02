@@ -9,7 +9,11 @@ namespace BrickController2.Protocols;
 /// </summary>
 internal static class LegoWirelessProtocol
 {
-
+    // TechnicMove hub ports
+    public const byte PORT_DRIVE_MOTOR_1 = 0x32;
+    public const byte PORT_DRIVE_MOTOR_2 = 0x33;
+    public const byte PORT_STEERING_MOTOR = 0x34;
+    public const byte PORT_6LEDS = 0x35;
 
     // port modes
     public const byte PORT_MODE_0 = 0x00;
@@ -22,6 +26,13 @@ internal static class LegoWirelessProtocol
     public const byte PORT_OUTPUT_COMMAND = 0x81;
 
     public const byte PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT = 0x51;
+
+    // - output / playvm command
+    public const byte PORT_PLAYVM = 0x36;
+
+    public const byte PLAYVM_LIGHTS_OFF_OFF = 0x04;
+    public const byte PLAYVM_CALIBRATE_STEERING = 0x08;
+    public const byte PLAYVM_COMMAND = 0x10;
 
     // input command (single)
     public const byte PORT_INPUT_COMMAND = 0x41;
@@ -51,11 +62,24 @@ internal static class LegoWirelessProtocol
     public static short ToInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt16LittleEndian(value);
     public static int ToInt32(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt32LittleEndian(value);
 
-    // message builder
+    // message builders
     public static byte[] BuildPortInputFormatSetup(byte portId, byte portMode, int interval = 2, byte notification = PORT_VALUE_NOTIFICATION_ENABLED)
     {
         // Message Type - Port Input Format Setup (Single) [0x41]
         ToBytes(interval, out var i0, out var i1, out var i2, out var i3);
         return [0x0a, 0x00, PORT_INPUT_COMMAND, portId, portMode, i0, i1, i2, i3, notification];
+    }
+
+    public static byte[] BuildPortOutput_LedMask(byte portId, byte portMode, byte ledMask, byte value)
+        // Message Type - Port Output Command [0x81] | Write Direct
+        => [9, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
+            PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, portMode, ledMask, value];
+
+    public static byte[] BuildPortOutput_PlayVm(int speedValue = 0, int servoValue = 0, byte vmCmd = PLAYVM_LIGHTS_OFF_OFF)
+    {
+        var speedRaw = ToByte(speedValue);
+        var steeringRaw = ToByte(servoValue);
+        return [13, 0x00, PORT_OUTPUT_COMMAND, PORT_PLAYVM, FEEDBACK_ACTION_BOTH,
+                PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, PORT_MODE_0, 0x03, 0x00, speedRaw, steeringRaw, vmCmd, 0x00];
     }
 }

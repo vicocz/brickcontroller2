@@ -61,6 +61,9 @@ namespace BrickController2.UI.ViewModels
         public Device Device { get; }
         public ControllerAction Action { get; }
 
+        public bool IsServoChannelOutputType => Action.ChannelOutputType == ChannelOutputType.ServoMotor;
+        public bool IsStepperChannelOutputType => Action.ChannelOutputType == ChannelOutputType.StepperMotor;
+
         public int ServoBaseAngle
         {
             get { return _servoBaseAngle; }

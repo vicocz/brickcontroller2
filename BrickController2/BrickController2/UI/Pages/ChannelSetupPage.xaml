@@ -71,7 +71,7 @@
                         </Grid>
 
                         <!-- Auto servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10">
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
 
                             <Button Text="{extensions:Translate AutoCalibrate}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
@@ -80,7 +80,7 @@
                         </StackLayout>
 
                         <!-- Manual servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10">
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
                             <Label Grid.Column="0" Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Grid.Column="1" Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5" HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
@@ -93,12 +93,12 @@
                         </StackLayout>
 
                         <!-- Stepper test controls -->
-                        <StackLayout Orientation="Vertical" Padding="10">
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
-
-                            <Button Text="{extensions:Translate NextStep}" Command="{Binding StepperNextStepCommand}" Margin="0, 30, 0, 30"/>
-                            <Button Text="{extensions:Translate StepBack}" Command="{Binding StepperStepBackCommand}" Margin="0, 30, 0, 30"/>
-
+                            <HorizontalStackLayout>
+                                <Button Text="{extensions:Translate NextStep}" Command="{Binding StepperNextStepCommand}" Margin="0, 30, 0, 30"/>
+                                <Button Text="{extensions:Translate StepBack}" Command="{Binding StepperStepBackCommand}" Margin="0, 30, 0, 30"/>
+                            </HorizontalStackLayout>
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                         </StackLayout>
 

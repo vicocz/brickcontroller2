@@ -54,10 +54,16 @@ namespace BrickController2.DeviceManagement
                 var deviceDTOs = await _deviceRepository.GetDevicesAsync();
                 foreach (var deviceDTO in deviceDTOs)
                 {
-                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData);
-                    if (device != null)
+                    try
                     {
-                        Devices.Add(device);
+                        var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData);
+                        if (device != null)
+                        {
+                            Devices.Add(device);
+                        }
+                    }
+                    catch
+                    {
                     }
                 }
             }
@@ -110,15 +116,22 @@ namespace BrickController2.DeviceManagement
 
         public Device? GetDeviceById(string? Id)
         {
-            if (string.IsNullOrEmpty(Id))
+            try
+            {
+                if (string.IsNullOrEmpty(Id))
+                {
+                    return null;
+                }
+
+                var deviceTypeAndAddress = Id.Split('#');
+                var deviceType = (DeviceType)Enum.Parse(typeof(DeviceType), deviceTypeAndAddress[0]);
+                var deviceAddress = deviceTypeAndAddress[1];
+                return Devices.FirstOrDefault(d => d.DeviceType == deviceType && d.Address == deviceAddress);
+            }
+            catch
             {
                 return null;
             }
-
-            var deviceTypeAndAddress = Id.Split('#');
-            var deviceType = (DeviceType)Enum.Parse(typeof(DeviceType), deviceTypeAndAddress[0]);
-            var deviceAddress = deviceTypeAndAddress[1];
-            return Devices.FirstOrDefault(d => d.DeviceType == deviceType && d.Address == deviceAddress);
         }
 
         public async Task DeleteDeviceAsync(Device device)

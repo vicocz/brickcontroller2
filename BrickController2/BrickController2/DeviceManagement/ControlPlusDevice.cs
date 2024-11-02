@@ -289,8 +289,8 @@ namespace BrickController2.DeviceManagement
 
         private void DumpData(string header, byte[] data)
         {
-            var s = BitConverter.ToString(data);
-            Console.WriteLine(header + " - " + s);
+            //var s = BitConverter.ToString(data);
+            //Console.WriteLine(header + " - " + s);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -349,13 +349,6 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
-        }
-
-        protected virtual async Task SetupServoAsync(int channel, int baseAngle, CancellationToken token = default)
-        {
-            await SetupChannelForPortInformationAsync(channel, token);
-            await Task.Delay(300, token);
-            await ResetServoAsync(channel, baseAngle, token);
         }
 
         private void GetOutputValue(int channel, out int value, out int sendAttemptsLeft)

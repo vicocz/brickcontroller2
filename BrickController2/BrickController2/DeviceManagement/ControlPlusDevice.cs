@@ -358,32 +358,27 @@ namespace BrickController2.DeviceManagement
             await ResetServoAsync(channel, baseAngle, token);
         }
 
-        private void GetOutputValue(int channel, out int value, out bool sendAttemptsLeft)
+        private void GetOutputValue(int channel, out int value, out int sendAttemptsLeft)
         {
             lock (_outputLock)
             {
                 value = _outputValues[channel];
-                var attemptsLeft = _sendAttemptsLeft[channel];
-                sendAttemptsLeft = attemptsLeft > 0;
-                _sendAttemptsLeft[channel] = sendAttemptsLeft ? attemptsLeft - 1 : 0;
+                sendAttemptsLeft = --_sendAttemptsLeft[channel];
+                _sendAttemptsLeft[channel] = Math.Max(sendAttemptsLeft, 0);
             }
         }
 
-        private void OnOutputValueApplied(int channel, int value)
+        private void SetLastOutputValue(int channel, int value, int sendAttemptsLeft)
         {
             _lastOutputValues[channel] = value;
-            // reset send attemps due to success
             lock (_outputLock)
             {
-                _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                // conditionally reset send attemps due to success
+                if (_sendAttemptsLeft[channel] == sendAttemptsLeft)
+                {
+                    _sendAttemptsLeft[channel] = 0;
+                }
             }
-        }
-
-        private Task OnOutputValueAppliedAsync(int channel, int value, CancellationToken token)
-        {
-            OnOutputValueApplied(channel, value);
-
-            return Task.Delay(SEND_DELAY, token);
         }
 
         private async Task<bool> SendOutputValuesAsync(CancellationToken token)
@@ -426,7 +421,7 @@ namespace BrickController2.DeviceManagement
                 // get output value (under lock)
                 GetOutputValue(channel, out var v, out var sendAttemptsLeft);
 
-                if (v != _lastOutputValues[channel] || sendAttemptsLeft)
+                if (v != _lastOutputValues[channel] || sendAttemptsLeft >= 0)
                 {
                     _sendBuffer[3] = (byte)channel;
                     _sendBuffer[7] = (byte)(v < 0 ? (255 + v) : v);
@@ -434,7 +429,8 @@ namespace BrickController2.DeviceManagement
                     {
                         return false;
                     }
-                    await OnOutputValueAppliedAsync(channel, v, token);
+                    SetLastOutputValue(channel, v, sendAttemptsLeft);
+                    await Task.Delay(SEND_DELAY, token);
                 }
 
                 return true;
@@ -455,18 +451,14 @@ namespace BrickController2.DeviceManagement
                     _virtualPortSendBuffer[6] = (byte)(value1 < 0 ? (255 + value1) : value1);
                     _virtualPortSendBuffer[7] = (byte)(value2 < 0 ? (255 + value2) : value2);
 
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _virtualPortSendBuffer, token))
-                    {
-                        _lastOutputValues[channel1] = value1;
-                        _lastOutputValues[channel2] = value2;
-
-                        await Task.Delay(SEND_DELAY, token);
-                        return true;
-                    }
-                    else
+                    if (!await _bleDevice!.WriteNoResponseAsync(_characteristic!, _virtualPortSendBuffer, token))
                     {
                         return false;
                     }
+                    _lastOutputValues[channel1] = value1;
+                    _lastOutputValues[channel2] = value2;
+
+                    await Task.Delay(SEND_DELAY, token);
                 }
 
                 return true;
@@ -484,7 +476,7 @@ namespace BrickController2.DeviceManagement
                 // get output value (under lock)
                 GetOutputValue(channel, out var v, out var sendAttemptsLeft);
 
-                if (v != _lastOutputValues[channel] || sendAttemptsLeft)
+                if (v != _lastOutputValues[channel] || sendAttemptsLeft >= 0)
                 {
                     var servoValue = _maxServoAngles[channel] * v / 100;
                     var servoSpeed = CalculateServoSpeed(channel, servoValue);
@@ -505,7 +497,8 @@ namespace BrickController2.DeviceManagement
                     {
                         return false;
                     }
-                    await OnOutputValueAppliedAsync(channel, v, token);
+                    SetLastOutputValue(channel, v, sendAttemptsLeft);
+                    await Task.Delay(SEND_DELAY, token);
                 }
 
                 return true;
@@ -537,11 +530,12 @@ namespace BrickController2.DeviceManagement
                     {
                         return false;
                     }
-                    await OnOutputValueAppliedAsync(channel, v, token);
+                    SetLastOutputValue(channel, v, sendAttemptsLeft);
+                    await Task.Delay(SEND_DELAY, token);
                 }
                 else
                 {
-                    OnOutputValueApplied(channel, v);
+                    SetLastOutputValue(channel, v, sendAttemptsLeft);
                 }
 
                 return true;

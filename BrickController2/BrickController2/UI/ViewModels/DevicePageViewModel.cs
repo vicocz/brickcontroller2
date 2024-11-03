@@ -228,7 +228,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("BluetoothIsTurnedOff"),
                     Translate("Ok"),
-                    _disappearingTokenSource.Token);
+                    _disappearingTokenSource?.Token ?? default);
             }
 
             var percent = 0;
@@ -240,9 +240,9 @@ namespace BrickController2.UI.ViewModels
                     if (!_isDisappearing)
                     {
                         using (var cts = new CancellationTokenSource())
-                        using (_disappearingTokenSource.Token.Register(() => cts.Cancel()))
+                        using (_disappearingTokenSource?.Token.Register(() => cts.Cancel()))
                         {
-                            Task<bool> scanTask = null;
+                            Task<bool>? scanTask = null;
                             try
                             {
                                 scanTask = _deviceManager.ScanAsync(cts.Token);

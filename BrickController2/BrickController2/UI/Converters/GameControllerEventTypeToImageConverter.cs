@@ -2,7 +2,6 @@
 using System.Globalization;
 using Microsoft.Maui.Controls;
 using BrickController2.PlatformServices.GameController;
-using System.Globalization;
 
 namespace BrickController2.UI.Converters
 {
@@ -14,7 +13,7 @@ namespace BrickController2.UI.Converters
             return Convert(eventType);
         }
 
-        public string Convert(GameControllerEventType eventType)
+        public string? Convert(GameControllerEventType eventType)
         {
             return eventType switch
             {
@@ -24,7 +23,7 @@ namespace BrickController2.UI.Converters
             };
         }
 
-        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

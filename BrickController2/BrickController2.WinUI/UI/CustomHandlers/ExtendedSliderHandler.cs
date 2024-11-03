@@ -15,7 +15,7 @@ public class ExtendedSliderHandler : SliderHandler
     public ExtendedSliderHandler() : base(PropertyMapper)
     {
     }
-    private ExtendedSlider Slider => VirtualView as ExtendedSlider;
+    private ExtendedSlider Slider => (ExtendedSlider)VirtualView;
 
     protected override void ConnectHandler(Microsoft.UI.Xaml.Controls.Slider platformView)
     {

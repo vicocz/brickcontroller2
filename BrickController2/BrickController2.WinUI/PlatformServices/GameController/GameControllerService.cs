@@ -12,12 +12,12 @@ namespace BrickController2.Windows.PlatformServices.GameController;
 public class GameControllerService : IGameControllerService
 {
 
-    private readonly Dictionary<string, GamepadController> _availableControllers = new();
+    private readonly Dictionary<string, GamepadController> _availableControllers = [];
     private readonly object _lockObject = new();
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
 
-    private event EventHandler<GameControllerEventArgs> GameControllerEventInternal;
+    private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
 
     public GameControllerService(IMainThreadService mainThreadService, IDispatcherProvider dispatcherProvider)
     {
@@ -93,7 +93,7 @@ public class GameControllerService : IGameControllerService
         _availableControllers.Clear();
     }
 
-    private void Gamepad_GamepadRemoved(object sender, Gamepad e)
+    private void Gamepad_GamepadRemoved(object? sender, Gamepad e)
     {
         lock (_lockObject)
         {
@@ -109,10 +109,10 @@ public class GameControllerService : IGameControllerService
         }
     }
 
-    private void Gamepad_GamepadAdded(object sender, Gamepad e)
+    private void Gamepad_GamepadAdded(object? sender, Gamepad e)
     {
         // ensure created in UI thread
-        _ = _mainThreadService.RunOnMainThread(() => AddDevices(new[] { e }));
+        _ = _mainThreadService.RunOnMainThread(() => AddDevices([e]));
     }
 
     private void AddDevices(IEnumerable<Gamepad> gamepads)
@@ -124,7 +124,7 @@ public class GameControllerService : IGameControllerService
             {
                 var deviceId = gamepad.GetDeviceId();
 
-                var newController = new GamepadController(this, gamepad, dispatcher.CreateTimer());
+                var newController = new GamepadController(this, gamepad, dispatcher!.CreateTimer());
                 _availableControllers[deviceId] = newController;
 
                 newController.Start();

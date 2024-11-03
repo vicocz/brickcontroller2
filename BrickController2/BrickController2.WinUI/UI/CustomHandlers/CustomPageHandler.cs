@@ -27,7 +27,7 @@ internal class CustomPageHandler : PageHandler
         }
     }
 
-    private void Window_SizeChanged(object sender, EventArgs e)
+    private void Window_SizeChanged(object? sender, EventArgs e)
     {
         ApplyTitleViewWidth(VirtualView as PageBase);
     }

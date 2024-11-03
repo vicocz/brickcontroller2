@@ -16,7 +16,7 @@ internal class GamepadController
     private readonly Gamepad _gamepad;
     private readonly IDispatcherTimer _timer;
 
-    private readonly Dictionary<string, float> _lastReadingValues = new();
+    private readonly Dictionary<string, float> _lastReadingValues = [];
 
     public GamepadController(GameControllerService service, Gamepad gamepad, IDispatcherTimer timer)
         : this(service, gamepad, timer, DefaultInterval)
@@ -50,7 +50,7 @@ internal class GamepadController
         _lastReadingValues.Clear();
     }
 
-    private void Timer_Tick(object sender, object e)
+    private void Timer_Tick(object? sender, object e)
     {
         var currentReading = _gamepad.GetCurrentReading();
 
@@ -62,10 +62,7 @@ internal class GamepadController
         _controllerService.RaiseEvent(currentEvents);
     }
 
-    private static bool AreAlmostEqual(float a, float b)
-    {
-        return Math.Abs(a - b) < 0.001;
-    }
+    private static bool AreAlmostEqual(float a, float b) => Math.Abs(a - b) < 0.001;
 
     private bool HasChanged((string AxisName, GameControllerEventType EventType, float Value) readingValue)
     {

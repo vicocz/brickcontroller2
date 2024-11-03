@@ -33,7 +33,7 @@ public class BleService : IBluetoothLEService
         {
             // synchroniously wait
             var adapterTask = GetBluetoothAdapter();
-            adapterTask.Wait();
+            adapterTask.Wait(1000);
 
             BluetoothStatus status = (adapterTask.Result?.IsClassicSupported ?? false) ? BluetoothStatus.ClassicSupported : BluetoothStatus.None;
             status |= (adapterTask.Result?.IsLowEnergySupported ?? false) ? BluetoothStatus.LowEnergySupported : BluetoothStatus.None;
@@ -56,7 +56,7 @@ public class BleService : IBluetoothLEService
         try
         {
             _isScanning = true;
-            return await NewScanAsync(scanCallback, token);
+            return await ScanAsync(scanCallback, token);
         }
         catch (Exception)
         {
@@ -68,7 +68,7 @@ public class BleService : IBluetoothLEService
         }
     }
 
-    public IBluetoothLEDevice GetKnownDevice(string address)
+    public IBluetoothLEDevice? GetKnownDevice(string address)
     {
         if (!IsBluetoothLESupported)
         {
@@ -78,7 +78,7 @@ public class BleService : IBluetoothLEService
         return new BleDevice(address);
     }
 
-    private async Task<bool> NewScanAsync(Action<ScanResult> scanCallback, CancellationToken token)
+    private async Task<bool> ScanAsync(Action<ScanResult> scanCallback, CancellationToken token)
     {
         try
         {

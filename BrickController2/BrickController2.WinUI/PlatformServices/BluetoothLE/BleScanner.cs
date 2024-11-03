@@ -17,12 +17,12 @@ public class BleScanner
     private readonly BluetoothLEAdvertisementWatcher _passiveWatcher;
     private readonly BluetoothLEAdvertisementWatcher _activeWatcher;
 
-    private static readonly IReadOnlySet<byte> AdvertismentDataTypes = new HashSet<byte>(new[]
-    {
+    private static readonly IReadOnlySet<byte> AdvertismentDataTypes = new HashSet<byte>(
+    [
         BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData,
         BluetoothLEAdvertisementDataTypes.IncompleteService128BitUuids,
         BluetoothLEAdvertisementDataTypes.CompleteLocalName
-    });
+    ]);
 
     public BleScanner(Action<ScanResult> scanCallback)
     {
@@ -70,7 +70,7 @@ public class BleScanner
         }
         // prefer local name if set, otherwise use cache (where only valid names can be)
         string deviceName = args.GetLocalName();
-        if (!deviceName.IsValidDeviceName() && !_deviceNameCache.TryGetValue(args.BluetoothAddress, out deviceName))
+        if (!deviceName.IsValidDeviceName() && !_deviceNameCache.TryGetValue(args.BluetoothAddress, out deviceName!))
         {
             return;
         }

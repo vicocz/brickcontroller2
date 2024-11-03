@@ -10,7 +10,6 @@
 		
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<RootNamespace>BrickController2.Windows</RootNamespace>
-		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
 		<UseWinUI>true</UseWinUI>
 		<EnableMsixTooling>true</EnableMsixTooling>

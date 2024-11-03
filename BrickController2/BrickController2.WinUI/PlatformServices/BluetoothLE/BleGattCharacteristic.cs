@@ -12,7 +12,7 @@ internal class BleGattCharacteristic : IGattCharacteristic
     private readonly GattCharacteristic _gattCharacteristic;
 
     private bool isNotifySet;
-    private Action<Guid, byte[]> _valueChangedCallback;
+    private Action<Guid, byte[]>? _valueChangedCallback;
 
     public BleGattCharacteristic(GattCharacteristic bluetoothGattCharacteristic)
     {
@@ -89,7 +89,7 @@ internal class BleGattCharacteristic : IGattCharacteristic
     /// <returns>If application was successfull (or has been already applied)</returns>
     private async Task<bool> ApplyClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue value, bool currentFlagValue)
     {
-        bool targetFlagValue = value == GattClientCharacteristicConfigurationDescriptorValue.None ? false : true;
+        bool targetFlagValue = value != GattClientCharacteristicConfigurationDescriptorValue.None;
 
         if (currentFlagValue == targetFlagValue)
         {

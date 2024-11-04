@@ -11,7 +11,9 @@ internal sealed class ShareablePayload<TModel> where TModel : class, IShareable
 
     [JsonConstructor]
     private ShareablePayload()
-    { 
+    {
+        PayloadType = default!;
+        Payload = default!;
     }
 
     internal ShareablePayload(TModel payload)

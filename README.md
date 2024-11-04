@@ -30,6 +30,7 @@ or Visual Studio for Mac.
 
 - Autofac IOC container
 - [SQLite-Net-Extensions Async](https://bitbucket.org/twincoders/sqlite-net-extensions)
+- [ZXing.Net.Maui](https://github.com/Redth/ZXing.Net.Maui)
 
 ## Additional resources used
 - [Material Icons](https://github.com/google/material-design-icons/blob/master/font/MaterialIconsOutlined-Regular.otf) - [Apache-2.0 license](https://github.com/google/material-design-icons?tab=Apache-2.0-1-ov-file)

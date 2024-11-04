@@ -10,7 +10,7 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
     where TModel : class, IShareable
 {
     // reasonable value to optimize both json text readibility and pixel size of rendered QR
-    private const int MaxSize = 1600;
+    private const int MaxSize = 1024;
     private readonly JsonSerializerSettings _settings;
 
     public ShareablePayloadConverter(JsonSerializerSettings settings)

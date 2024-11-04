@@ -57,7 +57,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     /// <inheritdoc/>
     public TModel Import(string json) => Import(json, CompactJsonOptions);
 
-    internal static TModel Import(string json, JsonSerializerSettings options)
+    internal static TModel Import(string? json, JsonSerializerSettings options)
     {
         if (json is null)
             throw new InvalidOperationException("No json data.");

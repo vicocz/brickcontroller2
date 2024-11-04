@@ -49,7 +49,7 @@ namespace BrickController2.CreationManagement
             var creationJson = await File.ReadAllTextAsync(creationFilename);
             var creation = JsonConvert.DeserializeObject<Creation>(creationJson);
 
-            await ImportCreationAsync(creation);
+            await ImportCreationAsync(creation!);
         }
 
 
@@ -146,7 +146,7 @@ namespace BrickController2.CreationManagement
             var controllerProfileJson = await File.ReadAllTextAsync(controllerProfileFilename);
             var controllerProfile = JsonConvert.DeserializeObject<ControllerProfile>(controllerProfileJson);
 
-            await ImportControllerProfileAsync(creation, controllerProfile);
+            await ImportControllerProfileAsync(creation, controllerProfile!);
         }
 
         public async Task ImportControllerProfileAsync(Creation creation, ControllerProfile controllerProfile)
@@ -360,7 +360,7 @@ namespace BrickController2.CreationManagement
             var sequenceJson = await File.ReadAllTextAsync(sequenceFilename);
             var sequence = JsonConvert.DeserializeObject<Sequence>(sequenceJson);
 
-            await ImportSequenceAsync(sequence);
+            await ImportSequenceAsync(sequence!);
         }
 
         public async Task ImportSequenceAsync(Sequence sequence)

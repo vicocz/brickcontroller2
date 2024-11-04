@@ -99,7 +99,7 @@ public class CreationSharePageViewModel : PageViewModelBase
                 }
 
                 filename = result.Result;
-                var filePath = Path.Combine(_sharedFileStorageService.SharedStorageDirectory, $"{filename}.{FileHelper.CreationFileExtension}");
+                var filePath = Path.Combine(_sharedFileStorageService.SharedStorageDirectory!, $"{filename}.{FileHelper.CreationFileExtension}");
 
                 if (!File.Exists(filePath) ||
                     await _dialogService.ShowQuestionDialogAsync(

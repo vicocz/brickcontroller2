@@ -19,7 +19,7 @@ namespace BrickController2.UI.ViewModels
         private readonly ICreationManager _creationManager;
         private readonly ISharingManager<Creation> _sharingManager;
         private readonly IDialogService _dialogService;
-        private string _currentValue;
+        private string? _currentValue;
         private bool _currentValueValidity;
         private CancellationTokenSource? _disappearingTokenSource;
 
@@ -39,7 +39,7 @@ namespace BrickController2.UI.ViewModels
             ImportCommand = new SafeCommand(ImportAsync, () => IsCurrentValueValid);
         }
 
-        public string CurrentValue
+        public string? CurrentValue
         {
             get { return _currentValue; }
             set
@@ -110,7 +110,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                var creation = _sharingManager.Import(CurrentValue);
+                var creation = _sharingManager.Import(CurrentValue!);
                 await _creationManager.ImportCreationAsync(creation);
 
                 await _dialogService.ShowMessageBoxAsync(

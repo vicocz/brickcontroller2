@@ -18,7 +18,7 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
         _settings = settings;
     }
 
-    public override ShareablePayload<TModel> ReadJson(JsonReader reader, Type objectType, ShareablePayload<TModel> existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override ShareablePayload<TModel> ReadJson(JsonReader reader, Type objectType, ShareablePayload<TModel>? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
         if (reader.TokenType != JsonToken.StartObject)
             throw new JsonException($"Incorrect payload format. TokenType:{reader.TokenType}");
@@ -33,7 +33,7 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
             if (reader.TokenType != JsonToken.PropertyName)
                 throw new JsonException($"Incorrect payload format. TokenType:{reader.TokenType}");
 
-            var propertyName = reader.Value.ToString();
+            var propertyName = reader.Value?.ToString();
             switch (propertyName)
             {
                 case ShareablePayload<TModel>.ContentTypeProperty:
@@ -65,15 +65,15 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
         {
             case JsonToken.StartObject:
                 // directly deserialize payload
-                return serializer.Deserialize<TModel>(reader);
+                return serializer.Deserialize<TModel>(reader)!;
 
             case JsonToken.String:
                 // unzip Base64 payload string
                 {
-                    using var input = new MemoryStream(Convert.FromBase64String((string)reader.Value));
+                    using var input = new MemoryStream(Convert.FromBase64String((string)reader.Value!));
                     using var unzip = new GZipStream(input, CompressionMode.Decompress);
                     using var json = new StreamReader(unzip);
-                    return (TModel)serializer.Deserialize(json, typeof(TModel));
+                    return (TModel)serializer.Deserialize(json, typeof(TModel))!;
                 }
 
             default:
@@ -81,14 +81,14 @@ internal class ShareablePayloadConverter<TModel> : JsonConverter<ShareablePayloa
         }
     }
 
-    public override void WriteJson(JsonWriter writer, ShareablePayload<TModel> value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, ShareablePayload<TModel>? value, JsonSerializer serializer)
     {
         writer.WriteStartObject();
         // write content type of the model
         writer.WritePropertyName(ShareablePayload<TModel>.ContentTypeProperty);
         writer.WriteValue(TModel.Type);
         // write payload based on size autodetection
-        var payload = JsonConvert.SerializeObject(value.Payload, _settings);
+        var payload = JsonConvert.SerializeObject(value!.Payload, _settings);
 
         writer.WritePropertyName(ShareablePayload<TModel>.PayloadProperty);
 

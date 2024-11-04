@@ -243,6 +243,15 @@
   <data name="ControlPoint" xml:space="preserve">
     <value>ControllPunkt</value>
   </data>
+  <data name="CopyControllerProfile" xml:space="preserve">
+    <value>Das Controller-Profil in die Zwischenablage kopieren </value>
+  </data>
+  <data name="CopyCreation" xml:space="preserve">
+    <value>Die Kreation in die Zwischenablage kopieren </value>
+  </data>
+  <data name="CopySequence" xml:space="preserve">
+    <value>Die Sequenz in die Zwischenablage kopieren </value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>Erstellen</value>
   </data>
@@ -428,6 +437,15 @@
   </data>
   <data name="OutputLevel" xml:space="preserve">
     <value>Ausgabestufe</value>
+  </data>
+  <data name="PasteControllerProfile" xml:space="preserve">
+    <value>Ein Controller-Profil aus der Zwischenablage importieren</value>
+  </data>
+  <data name="PasteCreation" xml:space="preserve">
+    <value>Eine Kreation aus der Zwischenablage importieren</value>
+  </data>
+  <data name="PasteSequence" xml:space="preserve">
+    <value>Eine Sequenz aus der Zwischenablage importieren</value>
   </data>
   <data name="PermissionRequest" xml:space="preserve">
     <value>Erlaubnisanfrage</value>

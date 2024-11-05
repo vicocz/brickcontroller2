@@ -393,7 +393,9 @@ namespace BrickController2.DeviceManagement
                 {
                     if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
                     {
-                        await SetupServoAsync(channel, _servoBaseAngles[channel], token);
+                        await SetupChannelForPortInformationAsync(channel, token);
+                        await Task.Delay(300, token);
+                        await ResetServoAsync(channel, _servoBaseAngles[channel], token);
                     }
                 }
 
@@ -403,13 +405,6 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
-        }
-
-        protected virtual async Task SetupServoAsync(int channel, int baseAngle, CancellationToken token = default)
-        {
-            await SetupChannelForPortInformationAsync(channel, token);
-            await Task.Delay(300, token);
-            await ResetServoAsync(channel, baseAngle, token);
         }
 
         private async Task<bool> SendOutputValuesAsync(CancellationToken token)
@@ -461,12 +456,16 @@ namespace BrickController2.DeviceManagement
                 if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
                 {
                     var outputCmd = GetOutputCommand(channel, v);
-                    if (!await WriteNoResponseAsync(outputCmd, token))
+                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, outputCmd, token))
+                    {
+                        _lastOutputValues[channel] = v;
+                        await Task.Delay(SEND_DELAY, token);
+                        return true;
+                    }
+                    else
                     {
                         return false;
                     }
-                    _lastOutputValues[channel] = v;
-                    await Task.Delay(SEND_DELAY, token);
                 }
 
                 return true;
@@ -533,12 +532,16 @@ namespace BrickController2.DeviceManagement
                     }
 
                     var servoCmd = GetServoCommand(channel, servoValue, servoSpeed);
-                    if (!await WriteNoResponseAsync(servoCmd, token))
+                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, servoCmd, token))
+                    {
+                        _lastOutputValues[channel] = v;
+                        await Task.Delay(SEND_DELAY, token);
+                        return true;
+                    }
+                    else
                     {
                         return false;
                     }
-                    _lastOutputValues[channel] = v;
-                    await Task.Delay(SEND_DELAY, token);
                 }
 
                 return true;
@@ -572,12 +575,16 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] && Math.Abs(v) == 100)
                 {
-                    if (!await WriteNoResponseAsync(_stepperSendBuffer, token))
+                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _stepperSendBuffer, token))
+                    {
+                        _lastOutputValues[channel] = v;
+                        await Task.Delay(SEND_DELAY, token);
+                        return true;
+                    }
+                    else
                     {
                         return false;
                     }
-                    _lastOutputValues[channel] = v;
-                    await Task.Delay(SEND_DELAY, token);
                 }
                 else
                 {
@@ -791,7 +798,7 @@ namespace BrickController2.DeviceManagement
             return _bleDevice!.WriteAsync(_characteristic!, new byte[] { 0x0b, 0x00, 0x81, portId, 0x11, 0x51, 0x02, a0, a1, a2, a3 }, token);
         }
 
-        private async Task RequestHubPropertiesAsync(CancellationToken token)
+        protected async Task RequestHubPropertiesAsync(CancellationToken token)
         {
             try
             {

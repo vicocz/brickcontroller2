@@ -60,34 +60,43 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
+                // Wait until ports finish communicating with the hub
+                await Task.Delay(1000, token);
+
                 // switch lights off
                 var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
                 await WriteNoResponseAsync(lightsOffCmd, token);
+                await SendDelayAsync(token);
+
+                if (requestDeviceInformation)
+                {
+                    await RequestHubPropertiesAsync(token);
+                }
+
+                // TODO conditionally apply PLAYVM
+
+                // setup channel to report ABS position
+                var inputFormatForAbsAngle = BuildPortInputFormatSetup(PORT_STEERING_MOTOR, PORT_MODE_3);
+                await WriteAsync(inputFormatForAbsAngle, token);
+                await SendDelayAsync(token);
+
+                // reset servo via PLAYVM
+                // PLAYVM cmd supports only servo on C channel
+                var servoCmd = BuildPortOutput_PlayVm(servoValue: 0, vmCmd: PLAYVM_COMMAND);
+                await WriteNoResponseAsync(servoCmd, token);
+                await SendDelayAsync(token);
+
+                // do calibration
+                var calibrateCmd = BuildPortOutput_PlayVm(vmCmd: PLAYVM_CALIBRATE_STEERING);
+                await WriteNoResponseAsync(calibrateCmd, token);
+                await Task.Delay(1500, token);
+
+                return true;
             }
             catch
-            { }
-
-            return await base.AfterConnectSetupAsync(requestDeviceInformation, token);
-        }
-
-        protected override async Task SetupServoAsync(int channel, int baseAngle, CancellationToken token = default)
-        {
-            // setup channel to report ABS position
-            var portId = GetPortId(channel);
-            var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
-            await WriteAsync(inputFormatForAbsAngle, token);
-            await SendDelayAsync(token);
-
-            // reset servo via PLAYVM
-            // PLAYVM cmd supports only servo on C channel
-            var servoCmd = BuildPortOutput_PlayVm(servoValue: 0, vmCmd: PLAYVM_COMMAND);
-            await WriteNoResponseAsync(servoCmd, token);
-            await SendDelayAsync(token);
-
-            // do calibration
-            var calibrateCmd = BuildPortOutput_PlayVm(vmCmd: PLAYVM_CALIBRATE_STEERING);
-            await WriteNoResponseAsync(calibrateCmd, token);
-            await Task.Delay(1500, token);
+            {
+                return false;
+            }
         }
     }
 }

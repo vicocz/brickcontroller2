@@ -121,14 +121,15 @@ namespace BrickController2.DeviceManagement
         {
             if (string.IsNullOrEmpty(id))
             {
-                _logger.LogWarning("Device with Id:{id} was not found.", id);
+                _logger.LogWarning("Empty device ID was provided.");
                 return null;
             }
 
             var deviceTypeAndAddress = id.Split('#');
             if (!Enum.TryParse<DeviceType>(deviceTypeAndAddress[0], out var deviceType))
             {
-                _logger.LogWarning("Device ID contains unsupported DeviceType:{deviceType}.", deviceTypeAndAddress[0]);
+                _logger.LogWarning("Device ID [{id}] contains unsupported DeviceType:{deviceType}.",
+                    id, deviceTypeAndAddress[0]);
                 return null;
             }
 

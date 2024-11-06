@@ -47,7 +47,8 @@ namespace BrickController2.UI.ViewModels
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
-            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new NavigationParameters(("device", Device))), () => !_dialogService.IsDialogOpen);
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new NavigationParameters(("device", Device))),
+                () => CanOpenSettings);
         }
 
         public Device Device { get; }
@@ -55,6 +56,10 @@ namespace BrickController2.UI.ViewModels
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
         public bool CanBePowerSource => Device.CanBePowerSource;
         public bool CanExecuteScan => Device.CanBePowerSource &&
+            Device.DeviceState == DeviceState.Connected &&
+            !_deviceManager.IsScanning;
+
+        public bool CanOpenSettings => HasSettings &&
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
@@ -216,6 +221,7 @@ namespace BrickController2.UI.ViewModels
                             }
                             // update command enablement
                             ScanCommand.RaiseCanExecuteChanged();
+                            OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
                         }
                     }
                 }

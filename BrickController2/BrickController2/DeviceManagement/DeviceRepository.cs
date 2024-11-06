@@ -1,5 +1,6 @@
 ﻿using BrickController2.Database;
 using BrickController2.Helpers;
+using Newtonsoft.Json;
 using SQLite;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -38,11 +39,18 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task InsertDeviceAsync(DeviceType type, string name, string address, byte[] devicedata)
+        public async Task InsertDeviceAsync(DeviceType type, string name, string address, byte[] devicedata, IEnumerable<DeviceSetting> settings)
         {
             using (await _lock.LockAsync())
             {
-                var device = new DeviceDTO { DeviceType = type, Address = address, Name = name, DeviceData = devicedata };
+                var device = new DeviceDTO
+                {
+                    DeviceType = type,
+                    Address = address,
+                    Name = name,
+                    DeviceData = devicedata,
+                    Settings = JsonConvert.SerializeObject(settings)
+                };
                 await InitAsync();
                 await _databaseConnection.InsertAsync(device);
             }
@@ -52,7 +60,7 @@ namespace BrickController2.DeviceManagement
         {
             using (await _lock.LockAsync())
             {
-                var device = await _databaseConnection.Table<DeviceDTO>().Where(d => d.DeviceType == type && d.Address == address).FirstOrDefaultAsync();
+                DeviceDTO? device = await GetDevice(type, address);
                 if (device != null)
                 {
                     await _databaseConnection.DeleteAsync(device);
@@ -72,7 +80,7 @@ namespace BrickController2.DeviceManagement
         {
             using (await _lock.LockAsync())
             {
-                var device = await _databaseConnection.Table<DeviceDTO>().Where(d => d.DeviceType == type && d.Address == address).FirstOrDefaultAsync();
+                DeviceDTO? device = await GetDevice(type, address);
                 if (device != null)
                 {
                     device.Name = newName;
@@ -85,13 +93,16 @@ namespace BrickController2.DeviceManagement
         {
             using (await _lock.LockAsync())
             {
-                var device = await _databaseConnection.Table<DeviceDTO>().Where(d => d.DeviceType == type && d.Address == address).FirstOrDefaultAsync();
+                DeviceDTO? device = await GetDevice(type, address);
                 if (device != null)
                 {
-                    //TODO device.Name = newName;
+                    device.Settings = JsonConvert.SerializeObject(settings);
                     await _databaseConnection.UpdateAsync(device);
                 }
             }
         }
+
+        private async Task<DeviceDTO?> GetDevice(DeviceType type, string address) => await _databaseConnection.Table<DeviceDTO>()
+                .FirstOrDefaultAsync(d => d.DeviceType == type && d.Address == address);
     }
 }

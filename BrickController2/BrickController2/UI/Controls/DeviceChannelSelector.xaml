@@ -229,6 +229,7 @@
 
                 <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="TechnicMoveChannelA" DeviceType="TechnicMove" Channel="0" HorizontalOptions="Center" VerticalOptions="Center"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="TechnicMoveChannelB" DeviceType="TechnicMove" Channel="1" HorizontalOptions="End" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="TechnicMoveChannelAB" DeviceType="TechnicMove" Channel="12" HorizontalOptions="End" VerticalOptions="End"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="TechnicMoveChannelC" DeviceType="TechnicMove" Channel="2" HorizontalOptions="Start" VerticalOptions="End"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="TechnicMoveChannel1" DeviceType="TechnicMove" Channel="3" HorizontalOptions="Start" VerticalOptions="Start" Margin="5,0,0,0"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="1" x:Name="TechnicMoveChannel2" DeviceType="TechnicMove" Channel="4" HorizontalOptions="End" VerticalOptions="Start"/>

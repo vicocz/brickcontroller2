@@ -116,7 +116,7 @@ namespace BrickController2.DeviceManagement
             return Name;
         }
 
-        protected void CheckChannel(int channel)
+        protected virtual void CheckChannel(int channel)
         {
             if (channel < 0 || channel >= NumberOfChannels)
             {

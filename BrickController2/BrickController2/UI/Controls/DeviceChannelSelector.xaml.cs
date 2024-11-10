@@ -2,6 +2,7 @@
 using BrickController2.UI.Commands;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
+using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.Controls
 {
@@ -46,6 +47,7 @@ namespace BrickController2.UI.Controls
             WedoChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             TechnicMoveChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
             TechnicMoveChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
+            TechnicMoveChannelAB.Command = new SafeCommand(() => SelectedChannel = 12);
             TechnicMoveChannelC.Command = new SafeCommand(() => SelectedChannel = 2);
             TechnicMoveChannel1.Command = new SafeCommand(() => SelectedChannel = 3);
             TechnicMoveChannel2.Command = new SafeCommand(() => SelectedChannel = 4);
@@ -55,13 +57,13 @@ namespace BrickController2.UI.Controls
             TechnicMoveChannel6.Command = new SafeCommand(() => SelectedChannel = 8);
         }
 
-        public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelSelector), default(DeviceType), BindingMode.OneWay, null, OnDeviceTypeChanged);
-        public static BindableProperty SelectedChannelProperty = BindableProperty.Create(nameof(SelectedChannel), typeof(int), typeof(DeviceChannelSelector), 0, BindingMode.TwoWay, null, OnSelectedChannelChanged);
+        public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);
+        public static readonly BindableProperty SelectedChannelProperty = BindableProperty.Create(nameof(SelectedChannel), typeof(int), typeof(DeviceChannelSelector), 0, BindingMode.TwoWay, null, OnSelectedChannelChanged);
 
-        public DeviceType DeviceType
+        public Device Device
         {
-            get => (DeviceType)GetValue(DeviceTypeProperty);
-            set => SetValue(DeviceTypeProperty, value);
+            get => (Device)GetValue(DeviceProperty);
+            set => SetValue(DeviceProperty, value);
         }
 
         public int SelectedChannel
@@ -70,11 +72,11 @@ namespace BrickController2.UI.Controls
             set => SetValue(SelectedChannelProperty, value);
         }
 
-        private static void OnDeviceTypeChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void OnDeviceChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DeviceChannelSelector dcs)
+            if (bindable is DeviceChannelSelector dcs && newValue is Device device)
             {
-                var deviceType = (DeviceType)newValue;
+                var deviceType = device.DeviceType;
                 dcs.SbrickSection.IsVisible = deviceType == DeviceType.SBrick;
                 dcs.BuWizzSection.IsVisible = deviceType == DeviceType.BuWizz || deviceType == DeviceType.BuWizz2;
                 dcs.BuWizz3Section.IsVisible = deviceType == DeviceType.BuWizz3;
@@ -85,7 +87,12 @@ namespace BrickController2.UI.Controls
                 dcs.DuploTrainHubSection.IsVisible = deviceType == DeviceType.DuploTrainHub;
                 dcs.CircuitCubes.IsVisible = deviceType == DeviceType.CircuitCubes;
                 dcs.Wedo2Section.IsVisible = deviceType == DeviceType.WeDo2;
+                // Technic Move enablement
+                var isPlayVm = device is TechnicMoveDevice moveDevice && moveDevice.EnablePlayVmMode;
                 dcs.TechnicMoveSection.IsVisible = deviceType == DeviceType.TechnicMove;
+                dcs.TechnicMoveChannelA.IsVisible = !isPlayVm;
+                dcs.TechnicMoveChannelB.IsVisible = !isPlayVm;
+                dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
             }
         }
 
@@ -128,6 +135,7 @@ namespace BrickController2.UI.Controls
                 dcs.WedoChannel1.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannelA.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannelB.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannelAB.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannelC.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannel1.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannel2.SelectedChannel = selectedChannel;

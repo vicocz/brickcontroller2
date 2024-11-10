@@ -127,11 +127,7 @@ namespace BrickController2.DeviceManagement
 
             lock (_outputLock)
             {
-                if (_outputValues[channel] != intValue)
-                {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
-                }
+                SetChannelOutput(channel, intValue);
             }
         }
 
@@ -187,6 +183,23 @@ namespace BrickController2.DeviceManagement
         protected virtual byte GetChannelValue(int value)
             // calculate raw motor value
             => (byte)(value < 0 ? (255 + value) : value);
+
+        protected virtual void SetChannelOutput(int channel, int value)
+        {
+            if (_outputValues[channel] != value)
+            {
+                _outputValues[channel] = value;
+                _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+            }
+        }
+        /// <summary>
+        /// Reset send attemps counter for given <paramref name="channel"/>
+        /// </summary>
+        /// <remarks>Expected to be called under the lock</remarks>
+        protected void ResetSendAttemps(int channel)
+        {
+            _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+        }
 
         protected virtual byte[] GetOutputCommand(int channel, int value)
         {
@@ -358,11 +371,7 @@ namespace BrickController2.DeviceManagement
                 {
                     for (int channel = 0; channel < NumberOfChannels; channel++)
                     {
-                        _outputValues[channel] = 0;
-                        _lastOutputValues[channel] = 1;
-                        _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
-                        _positionsUpdated[channel] = false;
-                        _positionUpdateTimes[channel] = DateTime.MinValue;
+                        InitializeChannelInfo(channel);
                     }
                 }
 
@@ -375,6 +384,20 @@ namespace BrickController2.DeviceManagement
                 }
             }
             catch { }
+        }
+
+        /// <summary>
+        /// Initialize channel data when output processing is going to be started
+        /// </summary>
+        protected virtual void InitializeChannelInfo(int channel,
+            int lastOutputValue = 1,
+            int sendAttempsLeft = MAX_SEND_ATTEMPTS)
+        {
+            _outputValues[channel] = 0;
+            _lastOutputValues[channel] = lastOutputValue;
+            _sendAttemptsLeft[channel] = sendAttempsLeft;
+            _positionsUpdated[channel] = false;
+            _positionUpdateTimes[channel] = DateTime.MinValue;
         }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)

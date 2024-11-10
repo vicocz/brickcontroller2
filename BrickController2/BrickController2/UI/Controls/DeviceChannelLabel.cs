@@ -55,7 +55,10 @@ namespace BrickController2.UI.Controls
                     SetChannelText(_controlPlusChannelLetters);
                     break;
                 case DeviceType.TechnicMove:
-                    SetChannelText(_technicMove);
+                    if (Channel == 12)
+                        Text = "AB";
+                    else
+                        SetChannelText(_technicMove);
                     break;
 
                 case DeviceType.CircuitCubes:

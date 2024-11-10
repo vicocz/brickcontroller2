@@ -9,12 +9,21 @@ namespace BrickController2.DeviceManagement
 {
     internal class BuWizzDevice : BluetoothDevice
     {
+        public enum OutputLevels
+        {
+            Low,
+            Normal,
+            High
+        }
+
         private const int MAX_SEND_ATTEMPTS = 10;
 
         private static readonly Guid SERVICE_UUID = new Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("0000ffe1-0000-1000-8000-00805f9b34fb");
 
         private static readonly TimeSpan LastOutputTimeout = TimeSpan.FromMilliseconds(1500);
+
+        private const string DefaultOutputLevelName = "BuWizzDefaultOutputLevel";
 
         private readonly int[] _outputValues = new int[4];
         private readonly object _outputLock = new object();
@@ -24,9 +33,11 @@ namespace BrickController2.DeviceManagement
 
         private IGattCharacteristic? _characteristic;
 
-        public BuWizzDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizzDevice(string name, string address, byte[] deviceData, IEnumerable<DeviceSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            // apply values (if any) or default
+            SetSettingValue(DefaultOutputLevelName, settings, (OutputLevels)DefaultOutputLevel);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz;

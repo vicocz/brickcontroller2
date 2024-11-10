@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement
 {
+    public enum Output2Levels
+    {
+        Low,
+        Normal,
+        High,
+        S,
+    }
+
     internal class BuWizz2Device : BluetoothDevice
     {
         private const int MAX_SEND_ATTEMPTS = 10;
@@ -22,6 +30,7 @@ namespace BrickController2.DeviceManagement
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
         private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
+        private const string DefaultOutputLevelName = "BuWizz2DefaultOutputLevel";
 
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _lastOutputValues = new int[4];
@@ -47,7 +56,7 @@ namespace BrickController2.DeviceManagement
 
             // apply values (if any) or default
             SetSettingValue(SwapChannelsSettingName, settings, swapChannels);
-            SetSettingValue("test another", settings, false);
+            SetSettingValue(DefaultOutputLevelName, settings, (Output2Levels)DefaultOutputLevel);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz2;

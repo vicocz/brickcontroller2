@@ -120,7 +120,7 @@ namespace BrickController2.DeviceManagement
                 // update provided settings
                 foreach (var s in settings ?? [])
                 {
-                    SetSettingValue(s.Name, s.Value);
+                    //TODO SetSettingValue(s.Name, s.Value);
                 }
 
                 await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, CurrentSettings);
@@ -138,15 +138,18 @@ namespace BrickController2.DeviceManagement
             return defaultValue;
         }
 
-        protected void SetSettingValue<TValue>(string settingName, TValue value) => SetSettingValue(settingName, null, value);
+        protected void SetSettingValue<TValue>(string settingName, TValue value)
+            where TValue : struct
+            => SetSettingValue(settingName, null, value);
 
         protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)
+            where TValue: struct
         {
             var foundSetting = settings?.FirstOrDefault(s => s.Name == settingName);
             _settings[settingName] = new DeviceSetting
             {
                 Name = settingName,
-                Value = foundSetting?.Value ?? defaultValue!
+                Value = foundSetting?.Value ?? defaultValue
             };
         }
 

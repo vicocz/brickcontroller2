@@ -60,7 +60,7 @@ namespace BrickController2.UI.ViewModels
             !_deviceManager.IsScanning;
 
         public bool CanOpenSettings => HasSettings &&
-            Device.DeviceState == DeviceState.Connected &&
+            //Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
         public bool HasSettings => Device.CurrentSettings.Any();

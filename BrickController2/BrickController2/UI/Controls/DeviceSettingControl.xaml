@@ -19,6 +19,8 @@
             <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
             <!-- BOOL settings - Checkbox -->
             <controls:CheckBox Grid.Column="1" Checked="{Binding Value}" HorizontalOptions="Center" IsVisible="{Binding IsBoolType}" />
+            <!-- ENUM settings - Picker -->
+            <Picker Grid.Column="1" ItemsSource="{Binding Items}" SelectedItem="{Binding Value}" HorizontalOptions="Center" IsVisible="{Binding IsEnumType}" />
         </Grid>
     </ContentView.Content>
 </ContentView>

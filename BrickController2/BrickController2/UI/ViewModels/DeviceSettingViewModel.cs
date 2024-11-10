@@ -1,6 +1,9 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
 using BrickController2.UI.Services.Translation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -17,10 +20,23 @@ namespace BrickController2.UI.ViewModels
         public string DisplayName => _translationService.Translate(Setting.Name);
 
         public bool IsBoolType => Setting.Type == typeof(bool);
+        public bool IsEnumType => Setting.Type.IsEnum;
 
         public bool HasChanged { get; private set; }
 
         public DeviceSetting Setting { get; }
+
+        public IEnumerable<object> Items
+        {
+            get
+            {
+                if (IsEnumType)
+                {
+                    return Enum.GetValues(Setting.Type).Cast<Enum>();
+                }
+                return [];
+            }
+        }
 
         public object Value
         {

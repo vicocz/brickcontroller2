@@ -10,6 +10,9 @@ namespace BrickController2.DeviceManagement
 {
     internal class TechnicMoveDevice : ControlPlusDevice
     {
+        private const int CHANNEL_VM = 12; // artificial channel to mimic combined AB ports in PLAYVM
+        private const int CHANNEL_C = 2;
+
         private bool _applyPlayVmMode;
         private byte _virtualMotorValue;
 
@@ -28,21 +31,37 @@ namespace BrickController2.DeviceManagement
         // This is now mandatory as the hub does not support generic servo / stepper commands (yet)
         public bool EnablePlayVmMode => true;
 
-        public override bool CanAutoCalibrateOutput(int channel) => channel == 2;
-        public override bool CanResetOutput(int channel) => channel == 2;
-        public override bool CanChangeOutputType(int channel) => channel == 2;
+        public override bool CanAutoCalibrateOutput(int channel) => channel == CHANNEL_C;
+        public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
+        public override bool CanChangeOutputType(int channel) => channel == CHANNEL_C;
 
         public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)
         {
             // autodetect PLAYVM mode for A / B channels (as testing page should not be affected)
             _applyPlayVmMode = startOutputProcessing &&
-                channelConfigurations.Any(c => c.Channel == 12);
+                channelConfigurations.Any(c => c.Channel == CHANNEL_VM);
 
             // filter out non standard channels
             var filteredConfigurtions = channelConfigurations
-                    .Where(c => c.Channel != 12);
+                .Where(c => c.Channel != CHANNEL_VM);
 
             return base.ConnectAsync(reconnect, onDeviceDisconnected, filteredConfigurtions, startOutputProcessing, requestDeviceInformation, token);
+        }
+
+        public override void SetOutput(int channel, float value)
+        {
+            if (channel == CHANNEL_VM)
+            {
+                // reset servo writes
+                ResetSendAttemps(CHANNEL_C);
+                // store virtual motor value to be later send with PLAYVM
+                var intValue = (int)(100 * CutOutputValue(value));
+                _virtualMotorValue = GetChannelValue(intValue);
+            }
+            else
+            {
+                base.SetOutput(channel, value);
+            }
         }
 
         protected override byte GetPortId(int channelIndex) => channelIndex switch
@@ -63,35 +82,12 @@ namespace BrickController2.DeviceManagement
             _ => throw new ArgumentException($"Value of port ID '{portId}' is out of supported ranges.", nameof(portId))
         };
 
-        protected override void CheckChannel(int channel)
-        {
-            if (_applyPlayVmMode && channel == 12)
-                return;
-
-            base.CheckChannel(channel);
-        }
-
-        protected override void SetChannelOutput(int channel, int intValue)
-        {
-            if (_applyPlayVmMode && channel == 12)
-            {
-                // reset servo writes
-                ResetSendAttemps(2);
-                // store virtual motor value
-                _virtualMotorValue = GetChannelValue(channel);
-            }
-            else
-            {
-                base.SetChannelOutput(channel, intValue);
-            }
-        }
-
         protected override byte GetChannelValue(int value) => ToByte(value);
 
         protected override void InitializeChannelInfo(int channel, int lastOutputValue = 1, int sendAttempsLeft = 10)
         {
-            // if PLAYVM enabled, reset A / B channels diffrently in order to avoid output write
-            if (_applyPlayVmMode && (channel == 0 || channel == 1))
+            // if PLAYVM enabled, reset A / B channels diffrently in order to avoid output writes
+            if (_applyPlayVmMode && channel < CHANNEL_C)
             {
                 lastOutputValue = 0;
                 sendAttempsLeft = 0;
@@ -125,8 +121,7 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                // Wait until ports finish communicating with the hub
-                await Task.Delay(1000, token);
+                await WaitForPortSetupCompletedAsync(token);
 
                 // switch lights off
                 var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
@@ -154,7 +149,7 @@ namespace BrickController2.DeviceManagement
                     // do calibration
                     var calibrateCmd = BuildPortOutput_PlayVm(vmCmd: PLAYVM_CALIBRATE_STEERING);
                     await WriteNoResponseAsync(calibrateCmd, token);
-                    await Task.Delay(1500, token);
+                    await Task.Delay(1200, token);
                 }
                 return true;
             }

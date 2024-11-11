@@ -127,7 +127,11 @@ namespace BrickController2.DeviceManagement
 
             lock (_outputLock)
             {
-                SetChannelOutput(channel, intValue);
+                if (_outputValues[channel] != intValue)
+                {
+                    _outputValues[channel] = intValue;
+                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                }
             }
         }
 
@@ -184,21 +188,12 @@ namespace BrickController2.DeviceManagement
             // calculate raw motor value
             => (byte)(value < 0 ? (255 + value) : value);
 
-        protected virtual void SetChannelOutput(int channel, int value)
-        {
-            if (_outputValues[channel] != value)
-            {
-                _outputValues[channel] = value;
-                _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
-            }
-        }
-        /// <summary>
-        /// Reset send attemps counter for given <paramref name="channel"/>
-        /// </summary>
-        /// <remarks>Expected to be called under the lock</remarks>
         protected void ResetSendAttemps(int channel)
         {
-            _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+            lock (_outputLock)
+            {
+                _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+            }
         }
 
         protected virtual byte[] GetOutputCommand(int channel, int value)
@@ -404,8 +399,7 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                // Wait until ports finish communicating with the hub
-                await Task.Delay(1000, token);
+                await WaitForPortSetupCompletedAsync(token);
 
                 if (requestDeviceInformation)
                 {
@@ -428,6 +422,12 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
+        }
+
+        protected async Task WaitForPortSetupCompletedAsync(CancellationToken token)
+        {
+            // Wait until ports finish communicating with the hub
+            await Task.Delay(1000, token);
         }
 
         private async Task<bool> SendOutputValuesAsync(CancellationToken token)

@@ -35,6 +35,21 @@ namespace BrickController2.DeviceManagement
         public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
         public override bool CanChangeOutputType(int channel) => channel == CHANNEL_C;
 
+        public override async Task ResetOutputAsync(int channel, float value, CancellationToken token)
+        {
+            var baseAngle = Convert.ToInt32(value * 180);
+
+            // reset servo via PLAYVM
+            var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
+            await WriteNoResponseAsync(servoCmd, token);
+            await SendDelayAsync(token);
+
+            // do calibration
+            var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
+            await WriteNoResponseAsync(calibrateCmd, token);
+            await Task.Delay(1200, token);
+        }
+
         public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)
         {
             // autodetect PLAYVM mode for A / B channels (as testing page should not be affected)

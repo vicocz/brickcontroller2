@@ -188,11 +188,15 @@ namespace BrickController2.DeviceManagement
             // calculate raw motor value
             => (byte)(value < 0 ? (255 + value) : value);
 
-        protected void ResetSendAttemps(int channel)
+        protected void ResetSendAttemps(int channel, int attemps = MAX_SEND_ATTEMPTS)
         {
             lock (_outputLock)
             {
-                _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                // do it conditionally
+                if (_sendAttemptsLeft[channel] != MAX_SEND_ATTEMPTS)
+                {
+                    _sendAttemptsLeft[channel] = attemps;
+                }
             }
         }
 
@@ -269,12 +273,14 @@ namespace BrickController2.DeviceManagement
                     {
                         if (data.Length == 6)
                         {
+                            // assume 16bit data is ABS
                             var channel = GetChannelIndex(data[3]);
                             var absPosition = ToInt16(data, 4);
                             _absolutePositions[channel] = absPosition;
                         }
                         else if (data.Length == 8)
                         {
+                            // assume 32 bit data is REL
                             var channel = GetChannelIndex(data[3]);
                             var relPosition = ToInt32(data, 4);
                             _relativePositions[channel] = relPosition;
@@ -353,8 +359,8 @@ namespace BrickController2.DeviceManagement
 
         private void DumpData(string header, byte[] data)
         {
-            var s = BitConverter.ToString(data);
-            Console.WriteLine(header + " - " + s);
+            //var s = BitConverter.ToString(data);
+            //Console.WriteLine(header + " - " + s);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -482,6 +488,7 @@ namespace BrickController2.DeviceManagement
                     if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, outputCmd, token))
                     {
                         _lastOutputValues[channel] = v;
+                        ResetSendAttemps(channel, 0);
                         await Task.Delay(SEND_DELAY, token);
                         return true;
                     }
@@ -558,6 +565,7 @@ namespace BrickController2.DeviceManagement
                     if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, servoCmd, token))
                     {
                         _lastOutputValues[channel] = v;
+                        ResetSendAttemps(channel, 0);
                         await Task.Delay(SEND_DELAY, token);
                         return true;
                     }
@@ -601,6 +609,7 @@ namespace BrickController2.DeviceManagement
                     if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _stepperSendBuffer, token))
                     {
                         _lastOutputValues[channel] = v;
+                        ResetSendAttemps(channel, 0);
                         await Task.Delay(SEND_DELAY, token);
                         return true;
                     }

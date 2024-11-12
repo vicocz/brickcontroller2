@@ -52,7 +52,7 @@ namespace BrickController2.DeviceManagement
         {
             if (channel == CHANNEL_VM)
             {
-                // reset servo writes
+                // reset servo writes to enforce update
                 ResetSendAttemps(CHANNEL_C);
                 // store virtual motor value to be later send with PLAYVM
                 var intValue = (int)(100 * CutOutputValue(value));

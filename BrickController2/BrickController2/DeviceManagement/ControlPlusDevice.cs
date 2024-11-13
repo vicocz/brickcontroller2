@@ -172,14 +172,19 @@ namespace BrickController2.DeviceManagement
             return false;
         }
 
-        protected Task<bool> WriteNoResponseAsync(byte[] data, CancellationToken token = default)
-            => _bleDevice!.WriteNoResponseAsync(_characteristic!, data, token);
+        protected async Task<bool> WriteNoResponseAsync(byte[] data, bool withSendDelay = false, CancellationToken token = default)
+        {
+            var result = await _bleDevice!.WriteNoResponseAsync(_characteristic!, data, token);
+
+            if (withSendDelay)
+            {
+                await Task.Delay(SEND_DELAY, token);
+            }
+            return result;
+        }
 
         protected Task<bool> WriteAsync(byte[] data, CancellationToken token = default)
             => _bleDevice!.WriteAsync(_characteristic!, data, token);
-
-        protected Task SendDelayAsync(CancellationToken token = default)
-            => Task.Delay(SEND_DELAY, token);
 
         protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
         protected virtual int GetChannelIndex(byte portId) => portId;
@@ -405,7 +410,8 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                await WaitForPortSetupCompletedAsync(token);
+                // Wait until ports finish communicating with the hub
+                await Task.Delay(1000, token);
 
                 if (requestDeviceInformation)
                 {
@@ -428,12 +434,6 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
-        }
-
-        protected async Task WaitForPortSetupCompletedAsync(CancellationToken token)
-        {
-            // Wait until ports finish communicating with the hub
-            await Task.Delay(1000, token);
         }
 
         private async Task<bool> SendOutputValuesAsync(CancellationToken token)
@@ -631,7 +631,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
+        protected virtual async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
         {
             try
             {
@@ -661,7 +661,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
+        protected virtual async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
         {
             try
             {
@@ -830,7 +830,7 @@ namespace BrickController2.DeviceManagement
             return _bleDevice!.WriteAsync(_characteristic!, new byte[] { 0x0b, 0x00, 0x81, portId, 0x11, 0x51, 0x02, a0, a1, a2, a3 }, token);
         }
 
-        protected async Task RequestHubPropertiesAsync(CancellationToken token)
+        private async Task RequestHubPropertiesAsync(CancellationToken token)
         {
             try
             {

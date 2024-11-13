@@ -10,7 +10,8 @@ namespace BrickController2.DeviceManagement
 {
     internal class TechnicMoveDevice : ControlPlusDevice
     {
-        private const int CHANNEL_VM = 12; // artificial channel to mimic combined AB ports in PLAYVM
+        public const int CHANNEL_VM = 12; // artificial channel to mimic combined AB ports in PLAYVM
+
         private const int CHANNEL_C = 2;
 
         private bool _applyPlayVmMode;
@@ -35,20 +36,6 @@ namespace BrickController2.DeviceManagement
         public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
         public override bool CanChangeOutputType(int channel) => channel == CHANNEL_C;
 
-        public override async Task ResetOutputAsync(int channel, float value, CancellationToken token)
-        {
-            var baseAngle = Convert.ToInt32(value * 180);
-
-            // reset servo via PLAYVM
-            var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
-            await WriteNoResponseAsync(servoCmd, token);
-            await SendDelayAsync(token);
-
-            // do calibration
-            var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
-            await WriteNoResponseAsync(calibrateCmd, token);
-            await Task.Delay(1200, token);
-        }
 
         public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)
         {
@@ -134,38 +121,67 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
+            if (await base.AfterConnectSetupAsync(requestDeviceInformation, token))
+            {
+                try
+                {
+                    // hub LED
+                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_NONE;
+                    var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
+                    await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
+
+                    // switch lights off
+                    var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
+                    return await WriteNoResponseAsync(lightsOffCmd, withSendDelay: true, token: token);
+                }
+                catch
+                {
+                }
+            }
+
+            return false;
+        }
+
+        protected override async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
+        {
+            if (!EnablePlayVmMode)
+            {
+                return await base.SetupChannelForPortInformationAsync(channel, token);
+            }
+
             try
             {
-                await WaitForPortSetupCompletedAsync(token);
+                // setup channel to report ABS position
+                var portId = GetPortId(channel);
+                var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
+                return await WriteAsync(inputFormatForAbsAngle, token);
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
-                // switch lights off
-                var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
-                await WriteNoResponseAsync(lightsOffCmd, token);
-                await SendDelayAsync(token);
+        protected override async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
+        {
+            if (!EnablePlayVmMode)
+            {
+                return await base.ResetServoAsync(channel, baseAngle, token);
+            }
 
-                if (requestDeviceInformation)
-                {
-                    await RequestHubPropertiesAsync(token);
-                }
+            try
+            {
+                // reset servo via PLAYVM
+                // PLAYVM cmd supports only servo on C channel
+                var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
+                await WriteNoResponseAsync(servoCmd, token: token);
+                await Task.Delay(100, token);
 
-                if (_applyPlayVmMode)
-                {
-                    // setup channel to report ABS position
-                    var inputFormatForAbsAngle = BuildPortInputFormatSetup(PORT_STEERING_MOTOR, PORT_MODE_3);
-                    await WriteAsync(inputFormatForAbsAngle, token);
-                    await SendDelayAsync(token);
+                // do calibration
+                var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
+                await WriteNoResponseAsync(calibrateCmd, token: token);
+                await Task.Delay(750, token);
 
-                    // reset servo via PLAYVM
-                    // PLAYVM cmd supports only servo on C channel
-                    var servoCmd = BuildPortOutput_PlayVm(servoValue: 0, vmCmd: PLAYVM_COMMAND);
-                    await WriteNoResponseAsync(servoCmd, token);
-                    await SendDelayAsync(token);
-
-                    // do calibration
-                    var calibrateCmd = BuildPortOutput_PlayVm(vmCmd: PLAYVM_CALIBRATE_STEERING);
-                    await WriteNoResponseAsync(calibrateCmd, token);
-                    await Task.Delay(1200, token);
-                }
                 return true;
             }
             catch

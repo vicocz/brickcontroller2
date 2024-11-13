@@ -47,7 +47,7 @@ namespace BrickController2.UI.Controls
             WedoChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             TechnicMoveChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
             TechnicMoveChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
-            TechnicMoveChannelAB.Command = new SafeCommand(() => SelectedChannel = 12);
+            TechnicMoveChannelAB.Command = new SafeCommand(() => SelectedChannel = TechnicMoveDevice.CHANNEL_VM);
             TechnicMoveChannelC.Command = new SafeCommand(() => SelectedChannel = 2);
             TechnicMoveChannel1.Command = new SafeCommand(() => SelectedChannel = 3);
             TechnicMoveChannel2.Command = new SafeCommand(() => SelectedChannel = 4);

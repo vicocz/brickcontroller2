@@ -14,6 +14,7 @@ internal static class LegoWirelessProtocol
     public const byte PORT_DRIVE_MOTOR_2 = 0x33;
     public const byte PORT_STEERING_MOTOR = 0x34;
     public const byte PORT_6LEDS = 0x35;
+    public const byte PORT_HUB_LED = 0x3F;
 
     // port modes
     public const byte PORT_MODE_0 = 0x00;
@@ -33,6 +34,18 @@ internal static class LegoWirelessProtocol
     public const byte PLAYVM_LIGHTS_OFF_OFF = 0x04;
     public const byte PLAYVM_CALIBRATE_STEERING = 0x08;
     public const byte PLAYVM_COMMAND = 0x10;
+
+    // - output / HUB LED colors
+    public const byte HUB_LED_MODE_COLOR = 0x00;
+    public const byte HUB_LED_MODE_RGB = 0x01;
+
+    public const byte HUB_LED_COLOR_NONE = 0x00;
+    public const byte HUB_LED_COLOR_MAGENTA = 0x02;
+    public const byte HUB_LED_COLOR_BLUE = 0x03;
+    public const byte HUB_LED_COLOR_GREEN = 0x06;
+    public const byte HUB_LED_COLOR_YELLOW = 0x07;
+    public const byte HUB_LED_COLOR_ORANGE = 0x08;
+    public const byte HUB_LED_COLOR_RED = 0x09;
 
     // input command (single)
     public const byte PORT_INPUT_COMMAND = 0x41;
@@ -74,6 +87,11 @@ internal static class LegoWirelessProtocol
         // Message Type - Port Output Command [0x81] | Write Direct
         => [9, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
             PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, portMode, ledMask, value];
+
+    public static byte[] BuildPortOutput_HubLed(byte portId, byte mode, byte color)
+    // Message Type - Port Output Command [0x81] | Write Direct
+    => [8, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
+            PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, mode, color];
 
     public static byte[] BuildPortOutput_PlayVm(int speedValue = 0, int servoValue = 0, byte vmCmd = PLAYVM_LIGHTS_OFF_OFF)
     {

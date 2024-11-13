@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-    <TargetFrameworks>net8.0-ios</TargetFrameworks>
+    <TargetFrameworks>net9.0-ios</TargetFrameworks>
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
 		<LangVersion>latest</LangVersion>
 		<SupportedOSPlatformVersion>11.0</SupportedOSPlatformVersion>

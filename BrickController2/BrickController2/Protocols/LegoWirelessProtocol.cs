@@ -40,12 +40,16 @@ internal static class LegoWirelessProtocol
     public const byte HUB_LED_MODE_RGB = 0x01;
 
     public const byte HUB_LED_COLOR_NONE = 0x00;
+    public const byte HUB_LED_COLOR_PINK = 0x01;
     public const byte HUB_LED_COLOR_MAGENTA = 0x02;
     public const byte HUB_LED_COLOR_BLUE = 0x03;
+    public const byte HUB_LED_COLOR_LIGHT_BLUE = 0x04;
+    public const byte HUB_LED_COLOR_CYAN = 0x05;
     public const byte HUB_LED_COLOR_GREEN = 0x06;
     public const byte HUB_LED_COLOR_YELLOW = 0x07;
     public const byte HUB_LED_COLOR_ORANGE = 0x08;
     public const byte HUB_LED_COLOR_RED = 0x09;
+    public const byte HUB_LED_COLOR_WHITE = 0xA;
 
     // input command (single)
     public const byte PORT_INPUT_COMMAND = 0x41;

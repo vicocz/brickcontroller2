@@ -32,7 +32,7 @@ namespace BrickController2.DeviceManagement
         // This is now mandatory as the hub does not support generic servo / stepper commands (yet)
         public bool EnablePlayVmMode => true;
 
-        public override bool CanAutoCalibrateOutput(int channel) => channel == CHANNEL_C;
+        public override bool CanAutoCalibrateOutput(int channel) => false;
         public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
         public override bool CanChangeOutputType(int channel) => channel == CHANNEL_C;
 
@@ -126,7 +126,7 @@ namespace BrickController2.DeviceManagement
                 try
                 {
                     // hub LED
-                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_NONE;
+                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
                     var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
                     await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
 

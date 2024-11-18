@@ -61,19 +61,19 @@
 
             <!-- Selection dialog -->
             <ContentView x:Name="SelectionDialog" IsVisible="false" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
-                <Frame x:Name="SelectionDialogFrame" Style="{StaticResource DialogFrameStyle}" HorizontalOptions="Center" VerticalOptions="Start" WidthRequest="280" Margin="0,50,0,50" Padding="20">
+                <Frame x:Name="SelectionDialogFrame" Style="{StaticResource DialogFrameStyle}" HorizontalOptions="Center" VerticalOptions="Start" WidthRequest="{OnIdiom 280, Desktop=360}" Margin="0,50,0,50" Padding="20">
                     <StackLayout Orientation="Vertical">
                         <Label x:Name="SelectionDialogTitle" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Large"/>
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,8"/>
                         <CollectionView x:Name="SelectionDialogItems" SelectionMode="Single" VerticalOptions="FillAndExpand">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Label Text="{Binding}" FontSize="Large" FontAttributes="Bold" Margin="0,4"/>
+                                    <Label Text="{Binding}" FontSize="{OnIdiom Large, Desktop=Medium}" FontAttributes="Bold" Margin="0,4"/>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,16,0,16"/>
-                        <Button x:Name="SelectionDialogCancelButton" BackgroundColor="{DynamicResource NegativeColor}"/>
+                        <Button x:Name="SelectionDialogCancelButton" BackgroundColor="{DynamicResource NegativeColor}" Margin="{OnIdiom '16,0,16,0', Desktop='96,0,96,0'}"/>
                     </StackLayout>
                 </Frame>
             </ContentView>

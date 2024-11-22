@@ -65,7 +65,7 @@
                     <StackLayout Orientation="Vertical">
                         <Label x:Name="SelectionDialogTitle" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Large"/>
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,8"/>
-                        <CollectionView x:Name="SelectionDialogItems" SelectionMode="Single">
+                        <CollectionView x:Name="SelectionDialogItems" SelectionMode="Single" VerticalOptions="FillAndExpand">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Label Text="{Binding}" FontSize="Large" FontAttributes="Bold" Margin="0,4"/>

@@ -609,4 +609,10 @@
   <data name="OpenChannelSetup" xml:space="preserve">
     <value>Setup the channel</value>
   </data>
+  <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
+    <value>Default output level</value>
+  </data>
+  <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
+    <value>Default output level</value>
+  </data>
 </root>

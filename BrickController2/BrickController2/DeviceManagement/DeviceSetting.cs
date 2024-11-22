@@ -9,13 +9,19 @@ public record DeviceSetting
     [JsonProperty]
     public string Name { get; init; } = default!;
 
+    /// <summary>Current setting value</summary>
+    [JsonProperty]
+    public object Value { get; set; } = default!;
+
     /// <summary>Type of setting value</summary>
     [JsonIgnore]
     public Type Type => Value?.GetType() ?? typeof(void);
 
-    /// <summary>Current setting value</summary>
-    [JsonProperty]
-    public object Value { get; set; } = default!;
+    [JsonIgnore]
+    public bool IsBoolType => Type == typeof(bool);
+
+    [JsonIgnore]
+    public bool IsEnumType => Type.IsEnum;
 
     public TValue GetValue<TValue>(TValue defaultValue)
     {

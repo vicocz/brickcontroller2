@@ -204,6 +204,9 @@
   <data name="BuWizz2OutputLevel" xml:space="preserve">
     <value>BuWizz 2 Ausgabelautstärke</value>
   </data>
+  <data name="BuWizz2SwapChannels" xml:space="preserve">
+    <value>Kanäle tauschen</value>
+  </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz Ausgabelautstärke</value>
   </data>
@@ -602,5 +605,11 @@
   </data>
   <data name="OpenChannelSetup" xml:space="preserve">
     <value>Einrichtung des Kanals</value>
+  </data>
+  <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
+    <value>Standardausgangspegel</value>
+  </data>
+  <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
+    <value>Standardausgangspegel</value>
   </data>
 </root>

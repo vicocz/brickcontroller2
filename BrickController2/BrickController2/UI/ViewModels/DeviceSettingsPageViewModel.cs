@@ -1,28 +1,46 @@
 ﻿using BrickController2.DeviceManagement;
+using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 
 namespace BrickController2.UI.ViewModels;
 
 public class DeviceSettingsPageViewModel : PageViewModelBase
 {
+    private CancellationTokenSource? _disappearingTokenSource;
+
     public DeviceSettingsPageViewModel(
         INavigationService navigationService,
         ITranslationService translationService,
+        IDialogService dialogService,
         NavigationParameters parameters) : base(navigationService, translationService)
     {
         Device = parameters.Get<Device>("device");
-        Settings = new ObservableCollection<DeviceSettingViewModel>(Device.CurrentSettings.Select(setting => new DeviceSettingViewModel(setting, translationService)));
+        Settings = new ObservableCollection<DeviceSettingViewModelBase>(Device.CurrentSettings.Select(ToViewModel));
+        DialogService = dialogService;
     }
 
     public Device Device { get; }
+    public IDialogService DialogService { get; }
 
-    public ObservableCollection<DeviceSettingViewModel> Settings { get; }
+    public ObservableCollection<DeviceSettingViewModelBase> Settings { get; }
+
+    public CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
+
+    public override void OnAppearing()
+    {
+        _disappearingTokenSource?.Cancel();
+        _disappearingTokenSource = new CancellationTokenSource();
+    }
 
     public override async void OnDisappearing()
     {
+        _disappearingTokenSource?.Cancel();
+
         // update changed settings on exit
         var changedSettings = Settings
             .Where(s => s.HasChanged)
@@ -31,5 +49,20 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
 
         if (changedSettings.Any())
             await Device.UpdateDeviceSettingsAsync(changedSettings);
+    }
+
+    internal string Translate2(string text) => Translate(text);
+
+    private DeviceSettingViewModelBase ToViewModel(DeviceSetting setting)
+    {
+        if (setting.IsBoolType)
+        {
+            return new DeviceBoolSettingViewModel(this, setting, TranslationService);
+        }
+        if (setting.IsEnumType)
+        {
+            return new DeviceEnumSettingViewModel(this, setting, TranslationService);
+        }
+        throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");
     }
 }

@@ -45,6 +45,12 @@
                                         <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.ShareCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Play}" Icon="play_arrow" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.PlayCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="0,0">
                                         <Grid.GestureRecognizers>

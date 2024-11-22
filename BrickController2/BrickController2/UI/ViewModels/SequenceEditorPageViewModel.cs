@@ -50,6 +50,7 @@ namespace BrickController2.UI.ViewModels
 
             ExportSequenceCommand = new SafeCommand(async () => await ExportSequenceAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             CopySequenceCommand = new SafeCommand(CopySequenceAsync);
+            ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", Sequence))));
             RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
             AddControlPointCommand = new SafeCommand(() => AddControlPoint());
             DeleteControlPointCommand = new SafeCommand<SequenceControlPoint>(async (controlPoint) => await DeleteControlPointAsync(controlPoint));
@@ -64,6 +65,7 @@ namespace BrickController2.UI.ViewModels
 
         public ICommand ExportSequenceCommand { get; }
         public ICommand CopySequenceCommand { get; }
+        public ICommand ShareSequenceCommand { get; }
         public ICommand RenameSequenceCommand { get; }
         public ICommand AddControlPointCommand { get; }
         public ICommand DeleteControlPointCommand { get; }

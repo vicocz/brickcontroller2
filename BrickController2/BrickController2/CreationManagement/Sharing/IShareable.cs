@@ -6,4 +6,6 @@ public interface IShareable
     /// Defines the unique identifier of shareable model
     /// </summary>
     static abstract string Type { get; }
+
+    string Name { get; }
 }

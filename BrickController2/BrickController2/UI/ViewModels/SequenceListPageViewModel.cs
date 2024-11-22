@@ -38,8 +38,10 @@ namespace BrickController2.UI.ViewModels
             SharedFileStorageService = sharedFileStorageService;
 
             ImportSequenceCommand = new SafeCommand(async () => await ImportSequenceAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            ScanSequenceCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters()));
             PasteSequenceCommand = new SafeCommand(PasteSequenceAsync);
             AddSequenceCommand = new SafeCommand(async () => await AddSequenceAsync());
+            ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", sequence))));
             SequenceTappedCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceEditorPageViewModel>(new NavigationParameters(("sequence", sequence))));
             DeleteSequenceCommand = new SafeCommand<Sequence>(async (sequence) => await DeleteSequenceAsync(sequence));
         }
@@ -49,8 +51,10 @@ namespace BrickController2.UI.ViewModels
         public ISharedFileStorageService SharedFileStorageService { get; }
 
         public ICommand ImportSequenceCommand { get; }
+        public ICommand ScanSequenceCommand { get; }
         public ICommand PasteSequenceCommand { get; }
         public ICommand AddSequenceCommand { get; }
+        public ICommand ShareSequenceCommand { get; }
         public ICommand SequenceTappedCommand { get; }
         public ICommand DeleteSequenceCommand { get; }
 

@@ -38,6 +38,8 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             Device = parameters.Get<Device>("device");
+            BuWizzOutputLevel = Device.DefaultOutputLevel;
+            BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs =  Enumerable
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(Device, channel))
@@ -59,11 +61,9 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
-        public bool CanOpenSettings => HasSettings &&
-            //Device.DeviceState == DeviceState.Connected &&
+        public bool CanOpenSettings => Device.HasSettings &&
+            Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
-
-        public bool HasSettings => Device.CurrentSettings.Any();
 
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
@@ -71,8 +71,8 @@ namespace BrickController2.UI.ViewModels
         public ICommand ScanCommand { get; }
         public ICommand OpenDeviceSettingsPageCommand { get; }
 
-        public int BuWizzOutputLevel { get; set; } = 1;
-        public int BuWizz2OutputLevel { get; set; } = 1;
+        public int BuWizzOutputLevel { get; set; }
+        public int BuWizz2OutputLevel { get; set; }
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 

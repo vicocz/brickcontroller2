@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.DeviceManagement.BuWizz;
+using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,6 @@ namespace BrickController2.DeviceManagement
 {
     internal class BuWizzDevice : BluetoothDevice
     {
-        public enum OutputLevels
-        {
-            Low,
-            Normal,
-            High
-        }
-
         private const int MAX_SEND_ATTEMPTS = 10;
 
         private static readonly Guid SERVICE_UUID = new Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
@@ -24,6 +18,7 @@ namespace BrickController2.DeviceManagement
         private static readonly TimeSpan LastOutputTimeout = TimeSpan.FromMilliseconds(1500);
 
         private const string DefaultOutputLevelName = "BuWizzDefaultOutputLevel";
+        private const BuWizzOutputLevels DefaultLevel = BuWizzOutputLevels.Normal;
 
         private readonly int[] _outputValues = new int[4];
         private readonly object _outputLock = new object();
@@ -37,13 +32,13 @@ namespace BrickController2.DeviceManagement
             : base(name, address, deviceRepository, bleService)
         {
             // apply values (if any) or default
-            SetSettingValue(DefaultOutputLevelName, settings, (OutputLevels)DefaultOutputLevel);
+            SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz;
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 3;
-        public override int DefaultOutputLevel => 1;
+        public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override void SetOutput(int channel, float value)

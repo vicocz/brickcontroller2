@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.DeviceManagement.BuWizz;
+using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,6 @@ using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement
 {
-    public enum Output2Levels
-    {
-        Low,
-        Normal,
-        High,
-        S,
-    }
-
     internal class BuWizz2Device : BluetoothDevice
     {
         private const int MAX_SEND_ATTEMPTS = 10;
@@ -31,6 +24,7 @@ namespace BrickController2.DeviceManagement
 
         private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
         private const string DefaultOutputLevelName = "BuWizz2DefaultOutputLevel";
+        private const BuWizz2OutputLevels DefaultLevel = BuWizz2OutputLevels.Normal;
 
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _lastOutputValues = new int[4];
@@ -56,13 +50,13 @@ namespace BrickController2.DeviceManagement
 
             // apply values (if any) or default
             SetSettingValue(SwapChannelsSettingName, settings, swapChannels);
-            SetSettingValue(DefaultOutputLevelName, settings, (Output2Levels)DefaultOutputLevel);
+            SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz2;
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 4;
-        public override int DefaultOutputLevel => 1;
+        public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override string BatteryVoltageSign => "V";

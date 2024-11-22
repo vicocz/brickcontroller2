@@ -19,12 +19,11 @@ namespace BrickController2.UI.ViewModels
         }
 
         public IEnumerable<string> Items => Enum.GetNames(Setting.Type);
-
         public ICommand SelectItemCommand { get; }
 
         public string CurrentItem
         {
-            get => Setting.Value!.ToString();
+            get => Enum.GetName(Setting.Type, Setting.Value)!;
             set
             {
                 var enumValue = Enum.Parse(Setting.Type, value);

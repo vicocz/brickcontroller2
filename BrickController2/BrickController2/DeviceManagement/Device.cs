@@ -117,10 +117,9 @@ namespace BrickController2.DeviceManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                // update provided settings, but existing only
+                // update provided settings, but existing with matching type only
                 foreach (var setting in settings ?? [])
                 {
-                    // update only existing
                     if (_settings.TryGetValue(setting.Name, out var storedSetting) && setting.Type == storedSetting.Type)
                     {
                         storedSetting.Value = setting.Value;
@@ -130,6 +129,7 @@ namespace BrickController2.DeviceManagement
                 await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, CurrentSettings);
             }
         }
+        public bool HasSettings => _settings.Values.Any();
         public IReadOnlyCollection<DeviceSetting> CurrentSettings => _settings.Values;
 
         protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default!)
@@ -140,15 +140,6 @@ namespace BrickController2.DeviceManagement
             }
 
             return defaultValue;
-        }
-
-        protected void SetSettingValue<TValue>(string settingName, object value)
-        {
-            // update only existing
-            if (_settings.TryGetValue(settingName, out var setting) && setting.Type == value.GetType())
-            {
-                setting.Value = value;
-            }
         }
 
         protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)

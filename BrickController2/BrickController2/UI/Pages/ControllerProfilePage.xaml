@@ -55,6 +55,11 @@
                                         <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerEventCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerEvent}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate Add}" Icon="add" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.AddAnotherActionCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerEvent}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
                                 <Grid Style="{StaticResource CollectionViewHeaderGridStyle}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>

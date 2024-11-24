@@ -59,6 +59,7 @@ namespace BrickController2.UI.ViewModels
             PlayCommand = new SafeCommand(async () => await PlayAsync());
             ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(async controllerActionViewModel => await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction))));
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
+            AddAnotherActionCommand = new SafeCommand<ControllerEvent>(AddAnotherActionAsync);
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
 
             PopulateControllerEvents();
@@ -94,6 +95,8 @@ namespace BrickController2.UI.ViewModels
         public ICommand PlayCommand { get; }
         public ICommand ControllerActionTappedCommand { get; }
         public ICommand DeleteControllerEventCommand { get; }
+        public ICommand AddAnotherActionCommand { get; }
+        
         public ICommand DeleteControllerActionCommand { get; }
 
         private void PopulateControllerEvents()
@@ -272,6 +275,33 @@ namespace BrickController2.UI.ViewModels
                     warning,
                     Translate("Ok"),
                     _disappearingTokenSource?.Token ?? default);
+            }
+        }
+        private async Task AddAnotherActionAsync(ControllerEvent controllerEvent)
+        {
+            try
+            {
+                if (_deviceManager.Devices?.Count == 0)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("ScanForDevicesFirst"),
+                        Translate("Ok"),
+                        _disappearingTokenSource?.Token ?? default);
+                    return;
+                }
+
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) => await _creationManager.AddOrGetControllerEventAsync(ControllerProfile, controllerEvent.EventType, controllerEvent.EventCode),
+                    Translate("Creating"),
+                    token: _disappearingTokenSource?.Token ?? default);
+
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent!)));
+                
+            }
+            catch (OperationCanceledException)
+            {
             }
         }
 

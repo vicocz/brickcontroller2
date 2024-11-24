@@ -263,7 +263,9 @@ namespace BrickController2.UI.ViewModels
 
             if (validationResult == CreationValidationResult.Ok)
             {
-                await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(("creation", ControllerProfile.Creation!)));
+                await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(
+                  ("creation", ControllerProfile.Creation!),
+                  ("profile", ControllerProfile)));
             }
             else
             {

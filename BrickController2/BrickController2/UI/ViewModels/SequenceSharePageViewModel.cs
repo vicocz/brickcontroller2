@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 
 namespace BrickController2.UI.ViewModels;
 
-public class CreationSharePageViewModel : SharePageViewModeBase<Creation>
+public class SequenceSharePageViewModel : SharePageViewModeBase<Sequence>
 {
     private readonly ICreationManager _creationManager;
 
-    public CreationSharePageViewModel(
+    public SequenceSharePageViewModel(
         INavigationService navigationService,
         ITranslationService translationService,
         ICreationManager creationManager,
-        ISharingManager<Creation> sharingManager,
+        ISharingManager<Sequence> sharingManager,
         IDialogService dialogService,
         ISharedFileStorageService sharedFileStorageService,
         NavigationParameters parameters)
@@ -26,10 +26,10 @@ public class CreationSharePageViewModel : SharePageViewModeBase<Creation>
         _creationManager = creationManager;
     }
 
-    protected override Task ExportItemAsync(Creation model, string fileName)
-        => _creationManager.ExportCreationAsync(model, fileName);
+    protected override Task ExportItemAsync(Sequence model, string fileName)
+        => _creationManager.ExportSequenceAsync(model, fileName);
 
-    protected override string DescribeItem(Creation item) => Translate("CreationName");
+    protected override string DescribeItem(Sequence item) => Translate("SequenceName");
 
-    protected override string DescribeFailure(Exception ex) => Translate("FailedToExportCreation", ex);
+    protected override string DescribeFailure(Exception ex) => Translate("FailedToExportSequence", ex);
 }

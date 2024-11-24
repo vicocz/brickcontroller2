@@ -7,14 +7,14 @@
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
 	xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
-    x:Class="BrickController2.UI.Pages.CreationSharePage"
+    x:Class="BrickController2.UI.Pages.SequenceSharePage"
     Title="{extensions:Translate Share}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportCreation}" Command="{Binding ExportItemCommand}" />
-        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopyCreation}" Command="{Binding CopyItemCommand}" />
+        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportSequence}" Command="{Binding ExportItemCommand}" />
+        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopySequence}" Command="{Binding CopyItemCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

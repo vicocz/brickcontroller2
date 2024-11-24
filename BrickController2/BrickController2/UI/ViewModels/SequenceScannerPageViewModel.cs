@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace BrickController2.UI.ViewModels;
 
-public class CreationScannerPageViewModel : ScannerPageViewModelBase
+public class SequenceScannerPageViewModel : ScannerPageViewModelBase
 {
-    private readonly ISharingManager<Creation> _sharingManager;
+    private readonly ISharingManager<Sequence> _sharingManager;
     private readonly ICreationManager _creationManager;
 
-    public CreationScannerPageViewModel(
-        ISharingManager<Creation> sharingManager,
+    public SequenceScannerPageViewModel(
+        ISharingManager<Sequence> sharingManager,
         INavigationService navigationService,
         ITranslationService translationService,
         ICreationManager creationManager,
@@ -32,10 +32,11 @@ public class CreationScannerPageViewModel : ScannerPageViewModelBase
 
     protected override async Task<IShareable> ImportQrCodeAsync(string qr)
     {
-        var creation = _sharingManager.Import(qr);
-        await _creationManager.ImportCreationAsync(creation);
+        var sequence = _sharingManager.Import(qr);
+        await _creationManager.ImportSequenceAsync(sequence);
 
-        return creation;
+        return sequence;
     }
-    protected override string DescribeFailure(Exception ex) => Translate("FailedToImportCreation", ex);
+
+    protected override string DescribeFailure(Exception ex) => Translate("FailedToImportSequence", ex);
 }

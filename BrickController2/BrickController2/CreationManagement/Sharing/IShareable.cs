@@ -9,5 +9,6 @@ public interface IShareable
     /// </summary>
     static virtual string Type => throw new InvalidOperationException();
 
+    /// <summary>Name associated with the item</summary>
     string Name { get; }
 }

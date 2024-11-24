@@ -31,7 +31,7 @@ namespace BrickController2.UI.DI
             // Register Dialogs
             builder.RegisterType<DialogService>().As<IDialogService>().As<IDialogServerHost>().SingleInstance();
 
-            // Register viewmodels
+            // Register viewmodels, but exclude abstract ones
             foreach (var vmType in GetSubClassesOf<PageViewModelBase>().Where(t => !t.IsAbstract))
             {
                 builder.RegisterType(vmType).Keyed<PageViewModelBase>(vmType);

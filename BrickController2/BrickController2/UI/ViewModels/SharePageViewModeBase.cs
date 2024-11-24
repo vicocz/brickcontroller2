@@ -74,10 +74,11 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
 
     protected CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
 
-    protected abstract string ItemNameTitle { get; }
-    protected abstract string ExportFailureWarning { get; }
-
     protected abstract Task ExportItemAsync(TModel model, string fileName);
+
+    protected abstract string DescribeItem(TModel item);
+
+    protected abstract string DescribeFailure(Exception ex);
 
     private async Task ExportAsync()
     {
@@ -90,7 +91,7 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
             {
                 var result = await _dialogService.ShowInputDialogAsync(
                     filename,
-                    Translate(ItemNameTitle),
+                    DescribeItem(Item),
                     Translate("Ok"),
                     Translate("Cancel"),
                     KeyboardType.Text,
@@ -128,7 +129,7 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
                     {
                         await _dialogService.ShowMessageBoxAsync(
                             Translate("Error"),
-                            Translate(ExportFailureWarning, ex),
+                            DescribeFailure(ex),
                             Translate("Ok"),
                             DisappearingToken);
 

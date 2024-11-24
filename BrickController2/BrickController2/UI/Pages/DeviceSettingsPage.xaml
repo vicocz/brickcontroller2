@@ -16,7 +16,7 @@
 
     <local:PageBase.Resources>
         <ResourceDictionary>
-            <converters:ThemeStyleToBoolConverter x:Key="ThemeTypeToBool"/>
+            <converters:InverseBoolConverter x:Key="InverseBool"/>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
                     <DataTemplate>
@@ -30,7 +30,11 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
-                            <Switch IsToggled="{Binding Value}" Grid.Column="1" HorizontalOptions="Center"/>
+                            <HorizontalStackLayout Grid.Column="1" Spacing="20">
+                                <Switch IsToggled="{Binding Value}" HorizontalOptions="Center" />
+                                <Label Text="{extensions:Translate On}" FontSize="Medium" VerticalOptions="Center" IsVisible="{Binding Value}"/>
+                                <Label Text="{extensions:Translate Off}" FontSize="Medium" VerticalOptions="Center" IsVisible="{Binding Value, Converter={StaticResource InverseBool}}"/>
+                            </HorizontalStackLayout>
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.BoolDataTemplate>

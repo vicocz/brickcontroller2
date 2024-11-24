@@ -30,6 +30,7 @@
     <Color x:Key="CollectionViewSelectedItemBackgroundColor">#404040</Color>
     <Color x:Key="SwitchOnColor">Green</Color>
     <Color x:Key="SwitchThumbColor">LightGreen</Color>
+    <Color x:Key="SwitchThumbColorOff">#606060</Color>
     <Color x:Key="SliderMinimumTrackColor">#606060</Color>
     <Color x:Key="SliderMaximumTrackColor">#606060</Color>
     <Color x:Key="SliderThumbColor">LightGray</Color>

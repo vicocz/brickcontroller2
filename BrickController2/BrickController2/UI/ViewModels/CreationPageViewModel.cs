@@ -46,6 +46,7 @@ namespace BrickController2.UI.ViewModels
             Creation = parameters.Get<Creation>("creation");
 
             ImportControllerProfileCommand = new SafeCommand(async () => await ImportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            CopyControllerProfileCommand = new SafeCommand<ControllerProfile>(profile => _sharingManagerProfile.ShareToClipboardAsync(profile));
             PasteControllerProfileCommand = new SafeCommand(PasteControllerProfileAsync);
             ExportCreationCommand = new SafeCommand(async () => await ExportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             CopyCreationCommand = new SafeCommand(CopyCreationAsync);
@@ -55,12 +56,16 @@ namespace BrickController2.UI.ViewModels
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));
             DeleteControllerProfileCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await DeleteControllerProfileAsync(controllerProfile));
+            PlayControllerProfileCommand = new SafeCommand<ControllerProfile>(PlayAsync);
         }
 
         public Creation Creation { get; }
 
+        public bool HasMultipleControllerProfiles => Creation.ControllerProfiles.Count > 1;
+
         public ISharedFileStorageService SharedFileStorageService { get; }
         public ICommand ImportControllerProfileCommand { get; }
+        public ICommand CopyControllerProfileCommand { get; }
         public ICommand PasteControllerProfileCommand { get; }
         public ICommand ExportCreationCommand { get; }
         public ICommand CopyCreationCommand { get; }
@@ -70,6 +75,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand AddControllerProfileCommand { get; }
         public ICommand ControllerProfileTappedCommand { get; }
         public ICommand DeleteControllerProfileCommand { get; }
+        public ICommand PlayControllerProfileCommand { get; }
 
         public override void OnAppearing()
         {
@@ -118,7 +124,7 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task PlayAsync()
+        private async Task PlayAsync(ControllerProfile? controllerProfile = default!)
         {
             try
             {
@@ -142,7 +148,9 @@ namespace BrickController2.UI.ViewModels
 
                 if (validationResult == CreationValidationResult.Ok)
                 {
-                    await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(("creation", Creation)));
+                    await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(
+                        ("creation", Creation),
+                        ("profile", controllerProfile!)));
                 }
                 else
                 {
@@ -190,6 +198,8 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => controllerProfile = await _creationManager.AddControllerProfileAsync(Creation, result.Result),
                         Translate("Creating"),
                         token: _disappearingTokenSource?.Token ?? default);
+                    // notify profile count change
+                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
 
                     await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile!)));
                 }
@@ -215,6 +225,8 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteControllerProfileAsync(controllerProfile),
                         Translate("Deleting"),
                         token: _disappearingTokenSource?.Token ?? default);
+                    // notify profile count change
+                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
                 }
             }
             catch (OperationCanceledException)

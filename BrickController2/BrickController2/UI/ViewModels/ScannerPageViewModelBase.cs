@@ -11,129 +11,124 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ZXing.Net.Maui;
 
-namespace BrickController2.UI.ViewModels
+namespace BrickController2.UI.ViewModels;
+
+public abstract class ScannerPageViewModelBase : PageViewModelBase
 {
-    public abstract class ScannerPageViewModelBase<TModel> : PageViewModelBase where TModel : class, IShareable
+    private readonly IDialogService _dialogService;
+    private string? _currentValue;
+    private bool _currentValueValidity;
+    private CancellationTokenSource? _disappearingTokenSource;
+
+    public ScannerPageViewModelBase(
+        INavigationService navigationService,
+        ITranslationService translationService,
+        IDialogService dialogService,
+        NavigationParameters parameters)
+        : base(navigationService, translationService)
     {
-        private readonly IDialogService _dialogService;
-        private string? _currentValue;
-        private bool _currentValueValidity;
-        private CancellationTokenSource? _disappearingTokenSource;
+        _dialogService = dialogService;
 
-        protected readonly ISharingManager<TModel> SharingManager;
+        ImportCommand = new SafeCommand(ImportAsync, () => IsCurrentValueValid);
+    }
 
-        public ScannerPageViewModelBase(
-            INavigationService navigationService,
-            ITranslationService translationService,
-            ISharingManager<TModel> sharingManager,
-            IDialogService dialogService,
-            NavigationParameters parameters)
-            : base(navigationService, translationService)
+    public string? CurrentValue
+    {
+        get { return _currentValue; }
+        set
         {
-            SharingManager = sharingManager;
-            _dialogService = dialogService;
-
-            ImportCommand = new SafeCommand(ImportAsync, () => IsCurrentValueValid);
-        }
-
-        public string? CurrentValue
-        {
-            get { return _currentValue; }
-            set
+            if (_currentValue != value)
             {
-                if (_currentValue != value)
-                {
-                    _currentValue = value;
-                    RaisePropertyChanged();
-                }
-            }
-        }
-
-        public bool IsCurrentValueValid
-        {
-            get { return _currentValueValidity; }
-            set
-            {
-                _currentValueValidity = value;
+                _currentValue = value;
                 RaisePropertyChanged();
             }
         }
+    }
 
-        public BarcodeReaderOptions Options { get; } = new BarcodeReaderOptions
+    public bool IsCurrentValueValid
+    {
+        get { return _currentValueValidity; }
+        set
         {
-            AutoRotate = false,
-            Formats = BarcodeFormat.QrCode,
-            Multiple = false,
-            TryHarder = false
-        };
-
-        public BarcodeFormat Format => BarcodeFormat.QrCode;
-
-        public ICommand ImportCommand { get; }
-
-        public override void OnAppearing()
-        {
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            _currentValueValidity = value;
+            RaisePropertyChanged();
         }
+    }
 
-        public override void OnDisappearing()
+    public BarcodeReaderOptions Options { get; } = new BarcodeReaderOptions
+    {
+        AutoRotate = false,
+        Formats = BarcodeFormat.QrCode,
+        Multiple = false,
+        TryHarder = false
+    };
+
+    public BarcodeFormat Format => BarcodeFormat.QrCode;
+
+    public ICommand ImportCommand { get; }
+
+    public override void OnAppearing()
+    {
+        _disappearingTokenSource?.Cancel();
+        _disappearingTokenSource = new CancellationTokenSource();
+    }
+
+    public override void OnDisappearing()
+    {
+        // disable scanning
+        IsCurrentValueValid = false;
+
+        _disappearingTokenSource?.Cancel();
+    }
+
+    internal void OnBarcodeDetected(BarcodeResult[] results)
+    {
+        // update preview
+        CurrentValue = results.First().Value;
+        // update validity
+        try
         {
-            // disable scanning
-            IsCurrentValueValid = false;
-
-            _disappearingTokenSource?.Cancel();
+            ValidateQrCode(CurrentValue);
+            IsCurrentValueValid = true;
         }
-
-        internal void OnBarcodeDetected(BarcodeResult[] results)
+        catch
         {
-            // update preview
-            CurrentValue = results.First().Value;
-            // update validity
-            try
-            {
-                SharingManager.Import(CurrentValue);
-                IsCurrentValueValid = true;
-            }
-            catch
-            {
-                IsCurrentValueValid = false;
-            }
-            // update button availability
-            MainThread.BeginInvokeOnMainThread(() => ImportCommand.RaiseCanExecuteChanged());
-        }
-
-        protected CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
-
-        protected abstract string ImportFailureWarning { get; }
-
-        protected abstract Task ImportItemAsync(TModel model);
-
-        private async Task ImportAsync()
-        {
-            try
-            {
-                var item = SharingManager.Import(CurrentValue!);
-                await ImportItemAsync(item);
-
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Import"),
-                    Translate("ImportSuccessful", item.Name),
-                    Translate("Ok"),
-                    DisappearingToken);
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Error"),
-                    Translate("ImportFailureWarning", ex),
-                    Translate("Ok"),
-                    DisappearingToken);
-            }
-
-            // clear imported code
-            CurrentValue = default!;
             IsCurrentValueValid = false;
         }
+        // update button availability
+        MainThread.BeginInvokeOnMainThread(() => ImportCommand.RaiseCanExecuteChanged());
+    }
+
+    protected CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
+
+    protected abstract IShareable ValidateQrCode(string qr);
+    protected abstract Task<IShareable> ImportQrCodeAsync(string qr);
+
+    protected abstract string DescribeFailure(Exception ex);
+
+    private async Task ImportAsync()
+    {
+        try
+        {
+            var item = await ImportQrCodeAsync(CurrentValue!);
+
+            await _dialogService.ShowMessageBoxAsync(
+                Translate("Import"),
+                Translate("ImportSuccessful", item.Name),
+                Translate("Ok"),
+                DisappearingToken);
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowMessageBoxAsync(
+                Translate("Error"),
+                DescribeFailure(ex),
+                Translate("Ok"),
+                DisappearingToken);
+        }
+
+        // clear imported code
+        CurrentValue = default!;
+        IsCurrentValueValid = false;
     }
 }

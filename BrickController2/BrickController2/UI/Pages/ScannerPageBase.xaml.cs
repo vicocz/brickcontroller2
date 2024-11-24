@@ -7,9 +7,9 @@ using ZXing.Net.Maui;
 namespace BrickController2.UI.Pages;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class SequenceScannerPage
+public partial class ScannerPageBase
 {
-    public SequenceScannerPage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
+    public ScannerPageBase(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
         : base(backgroundService, dialogServerHost)
     {
         InitializeComponent();
@@ -18,7 +18,7 @@ public partial class SequenceScannerPage
 
     private void BarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
-        if (BindingContext is SequenceScannerPageViewModel viewModel)
+        if (BindingContext is ScannerPageViewModelBase viewModel)
         {
             viewModel.OnBarcodeDetected(e.Results);
         }

@@ -61,6 +61,8 @@ namespace BrickController2.UI.ViewModels
 
         public Creation Creation { get; }
 
+        public bool HasMultipleControllerProfiles => Creation.ControllerProfiles.Count > 1;
+
         public ISharedFileStorageService SharedFileStorageService { get; }
         public ICommand ImportControllerProfileCommand { get; }
         public ICommand CopyControllerProfileCommand { get; }
@@ -196,6 +198,8 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => controllerProfile = await _creationManager.AddControllerProfileAsync(Creation, result.Result),
                         Translate("Creating"),
                         token: _disappearingTokenSource?.Token ?? default);
+                    // notify profile count change
+                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
 
                     await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile!)));
                 }
@@ -221,6 +225,8 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteControllerProfileAsync(controllerProfile),
                         Translate("Deleting"),
                         token: _disappearingTokenSource?.Token ?? default);
+                    // notify profile count change
+                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
                 }
             }
             catch (OperationCanceledException)

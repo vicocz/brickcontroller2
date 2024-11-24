@@ -250,7 +250,7 @@
     <value>Die Kreation in die Zwischenablage kopieren </value>
   </data>
   <data name="CopySequence" xml:space="preserve">
-    <value>Die Sequenz in die Zwischenablage kopieren </value>
+    <value>Die Sequenz in die Zwischenablage kopieren</value>
   </data>
   <data name="Create" xml:space="preserve">
     <value>Erstellen</value>
@@ -602,5 +602,8 @@
   </data>
   <data name="OpenChannelSetup" xml:space="preserve">
     <value>Einrichtung des Kanals</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Kopieren</value>
   </data>
 </root>

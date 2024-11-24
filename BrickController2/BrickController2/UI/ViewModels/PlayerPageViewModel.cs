@@ -46,7 +46,8 @@ namespace BrickController2.UI.ViewModels
             _playLogic = playLogic;
 
             Creation = parameters.Get<Creation>("creation");
-            ActiveProfile = Creation.ControllerProfiles.First();
+            // apply choosen profile (if present) or the first one 
+            ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
 
             CollectDevices();
 

@@ -603,4 +603,7 @@
   <data name="OpenChannelSetup" xml:space="preserve">
     <value>Setup the channel</value>
   </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
 </root>

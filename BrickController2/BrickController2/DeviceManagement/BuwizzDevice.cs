@@ -33,6 +33,8 @@ namespace BrickController2.DeviceManagement
         {
             // apply values (if any) or default
             SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
+            // update ooutput value again to apply settings
+            _outputLevel = DefaultOutputLevel;
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz;

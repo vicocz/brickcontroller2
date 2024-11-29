@@ -143,7 +143,10 @@
             <Setter Property="BackgroundColor" Value="{DynamicResource DialogBackgroundColor}"/>
             <Setter Property="BorderColor" Value="{DynamicResource DialogBorderColor}"/>
             <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="HasShadow" Value="True"/>
+            <Setter Property="HorizontalOptions" Value="Center"/>
+            <Setter Property="VerticalOptions" Value="Center"/>
+            <Setter Property="WidthRequest" Value="{OnIdiom 280, Desktop=360}"/>
+            <Setter Property="Padding" Value="20"/>
         </Style>
         
         <!-- Picker button -->

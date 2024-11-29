@@ -21,6 +21,7 @@
     </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="qr_code_scanner" Text="{extensions:Translate ScanQr}" Command="{Binding ScanSequenceCommand}" />
         <controls:ToolbarIcon Icon="file_download" Text="{extensions:Translate ImportSequence}" Command="{Binding ImportSequenceCommand}" />
         <controls:ToolbarIcon Icon="paste" Text="{extensions:Translate PasteSequence}" Command="{Binding PasteSequenceCommand}" />
     </ContentPage.ToolbarItems>
@@ -39,6 +40,12 @@
                                         <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteSequenceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding BindingContext.ShareSequenceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>

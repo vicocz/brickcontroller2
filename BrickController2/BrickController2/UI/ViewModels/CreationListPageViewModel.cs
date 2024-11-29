@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.ApplicationModel;
+using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
@@ -23,6 +24,7 @@ namespace BrickController2.UI.ViewModels
         private readonly ICreationManager _creationManager;
         private readonly IDeviceManager _deviceManager;
         private readonly ISharingManager<Creation> _sharingManager;
+        private readonly IPlayLogic _playLogic;
         private readonly IDialogService _dialogService;
         private readonly IBluetoothPermission _bluetoothPermission;
         private readonly IReadWriteExternalStoragePermission _readWriteExternalStoragePermission;
@@ -42,6 +44,7 @@ namespace BrickController2.UI.ViewModels
             ICreationManager creationManager,
             IDeviceManager deviceManager,
             ISharingManager<Creation> sharingManager,
+            IPlayLogic playLogic,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IBluetoothPermission bluetoothPermission,
@@ -51,6 +54,7 @@ namespace BrickController2.UI.ViewModels
             _creationManager = creationManager;
             _deviceManager = deviceManager;
             _sharingManager = sharingManager;
+            _playLogic = playLogic;
             _dialogService = dialogService;
             _bluetoothPermission = bluetoothPermission;
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
@@ -63,6 +67,8 @@ namespace BrickController2.UI.ViewModels
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
+            PlayCreationCommand = new SafeCommand<Creation>(PlayAsync);
+            ShareCreationCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", creation))));
             NavigateToDevicesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<DeviceListPageViewModel>());
             NavigateToControllerTesterCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<ControllerTesterPageViewModel>());
             NavigateToSequencesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceListPageViewModel>());
@@ -77,6 +83,8 @@ namespace BrickController2.UI.ViewModels
         public ICommand AddCreationCommand { get; }
         public ICommand CreationTappedCommand { get; }
         public ICommand DeleteCreationCommand { get; }
+        public ICommand PlayCreationCommand { get; }
+        public ICommand ShareCreationCommand { get; }
         public ICommand ImportCreationCommand { get; }
         public ICommand PasteCreationCommand { get; }
         public ICommand ScanCreationCommand { get; }
@@ -312,6 +320,46 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteCreationAsync(creation),
                         Translate("Deleting"),
                         token: _disappearingTokenSource?.Token ?? default);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task PlayAsync(Creation creation)
+        {
+            try
+            {
+                var validationResult = _playLogic.ValidateCreation(creation);
+
+                string warning = string.Empty;
+                switch (validationResult)
+                {
+                    case CreationValidationResult.MissingControllerAction:
+                        warning = Translate("NoControllerActions");
+                        break;
+
+                    case CreationValidationResult.MissingDevice:
+                        warning = Translate("MissingDevices");
+                        break;
+
+                    case CreationValidationResult.MissingSequence:
+                        warning = Translate("MissingSequence");
+                        break;
+                }
+
+                if (validationResult == CreationValidationResult.Ok)
+                {
+                    await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(("creation", creation)));
+                }
+                else
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("Play") + $" '{creation.Name}': {warning}",
+                        Translate("Ok"),
+                        _disappearingTokenSource?.Token ?? default);
                 }
             }
             catch (OperationCanceledException)

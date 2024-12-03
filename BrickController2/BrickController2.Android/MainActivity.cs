@@ -1,6 +1,5 @@
 ﻿using Android.App;
 using Android.Content.PM;
-using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,18 +22,11 @@ namespace BrickController2.Droid
             ConfigChanges.SmallestScreenSize)]
     public class MainActivity : MauiAppCompatActivity
     {
-        private GameControllerService _gameControllerService;
+        private readonly GameControllerService _gameControllerService;
 
         public MainActivity()
         {
             _gameControllerService = IPlatformApplication.Current!.Services.GetRequiredService<GameControllerService>()!;
-        }
-
-        protected override void OnCreate(Bundle? bundle)
-        {
-            base.OnCreate(bundle);
-
-            Window!.AddFlags(WindowManagerFlags.KeepScreenOn);
         }
 
         public override bool OnKeyDown([GeneratedEnum] global::Android.Views.Keycode keyCode, KeyEvent? e)

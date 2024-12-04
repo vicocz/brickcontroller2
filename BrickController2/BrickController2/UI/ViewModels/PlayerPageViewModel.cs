@@ -232,7 +232,7 @@ namespace BrickController2.UI.ViewModels
         }
         private void StartPlay()
         {
-            // prevent the app from locking/ turningoff the screen
+            // prevent the app from locking/turning off the screen
             Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = true;
             _playLogic.StartPlay();
         }
@@ -240,7 +240,7 @@ namespace BrickController2.UI.ViewModels
         private void StopPlay()
         {
             _playLogic.StopPlay();
-            // reenable screen locking 
+            // reenable screen locking/turning off 
             Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = false;
         }
 

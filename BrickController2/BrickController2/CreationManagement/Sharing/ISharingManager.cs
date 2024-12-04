@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.IO;
+using System.Threading.Tasks;
 
 namespace BrickController2.CreationManagement.Sharing;
 
@@ -15,9 +16,19 @@ public interface ISharingManager<TModel> where TModel : class, IShareable
     Task<string> ShareAsync(TModel model);
 
     /// <summary>
+    /// Export the specified <paramref name="model"/> as JSON file.
+    /// </summary>
+    Task<string> ShareAsJsonFileAsync(TModel model, string folder);
+
+    /// <summary>
     /// Imports the content of clipboard as json model of <typeparamref name="TModel"/>
     /// </summary>
     Task<TModel> ImportFromClipboardAsync();
+
+    /// <summary>
+    /// Imports the content of the file as json model of <typeparamref name="TModel"/>
+    /// </summary>
+    Task<TModel> ImportFromJsonFileAsync(Stream stream);
 
     /// <summary>
     /// Imports the content of json model of <typeparamref name="TModel"/>

@@ -6,6 +6,7 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
+using Microsoft.Maui.Storage;
 using System;
 using System.IO;
 using System.Threading;
@@ -40,6 +41,7 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
         Item = parameters.Get<TModel>("item");
 
         ShareItemCommand = new SafeCommand(ShareAsync);
+        ShareItemAsFileCommand = new SafeCommand(ShareAsFileAsync);
         ExportItemCommand = new SafeCommand(ExportAsync, () => _sharedFileStorageService.IsSharedStorageAvailable);
         CopyItemCommand = new SafeCommand(CopyAsync);
     }
@@ -47,6 +49,7 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
     public TModel Item { get; }
 
     public ICommand ShareItemCommand { get; }
+    public ICommand ShareItemAsFileCommand { get; }
     public ICommand ExportItemCommand { get; }
     public ICommand CopyItemCommand { get; }
 
@@ -161,6 +164,15 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
             Subject = Item.Name,
             Text = json,
             Title = Item.Name
+        });
+    }
+    private async Task ShareAsFileAsync()
+    {
+        var jsonFile = await SharingManager.ShareAsJsonFileAsync(Item, FileSystem.CacheDirectory);
+        await Share.RequestAsync(new ShareFileRequest
+        {
+            Title = Item.Name,
+            File = new ShareFile(jsonFile)
         });
     }
 }

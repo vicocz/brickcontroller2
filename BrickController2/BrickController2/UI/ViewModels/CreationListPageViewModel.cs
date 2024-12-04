@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Storage;
 using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
@@ -61,6 +65,7 @@ namespace BrickController2.UI.ViewModels
             SharedFileStorageService = sharedFileStorageService;
 
             ImportCreationCommand = new SafeCommand(async () => await ImportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            ImportCreationFromFileCommand = new SafeCommand(ImportCreationFromFileAsync);
             ScanCreationCommand = new SafeCommand(ScanCreationAsync);
             PasteCreationCommand = new SafeCommand(PasteCreationAsync);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
@@ -86,6 +91,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand PlayCreationCommand { get; }
         public ICommand ShareCreationCommand { get; }
         public ICommand ImportCreationCommand { get; }
+        public ICommand ImportCreationFromFileCommand { get; }
         public ICommand PasteCreationCommand { get; }
         public ICommand ScanCreationCommand { get; }
         public ICommand NavigateToDevicesCommand { get; }
@@ -199,6 +205,46 @@ namespace BrickController2.UI.ViewModels
                         Translate("NoCreationsToImport"),
                         Translate("Ok"),
                         _disappearingTokenSource?.Token ?? default);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task ImportCreationFromFileAsync()
+        {
+            try
+            {
+                PickOptions options = new()
+                {
+                    PickerTitle = "Please select a JSON file",
+                    FileTypes = new FilePickerFileType(
+                        new Dictionary<DevicePlatform, IEnumerable<string>>
+                        {
+                            { DevicePlatform.iOS, ["public.json"] },
+                            { DevicePlatform.Android, ["application/json"] },
+                            { DevicePlatform.WinUI, [".json"] },
+                        })
+                };
+
+                var result = await FilePicker.PickAsync(options);
+                if (result != null)
+                {
+                    try
+                    {
+                        using var stream = await result.OpenReadAsync();
+                        var creation = await _sharingManager.ImportFromJsonFileAsync(stream);
+                        await _creationManager.ImportCreationAsync(creation);
+                    }
+                    catch (Exception ex)
+                    {
+                        await _dialogService.ShowMessageBoxAsync(
+                            Translate("Error"),
+                            Translate("FailedToImportCreation", ex),
+                            Translate("Ok"),
+                            _disappearingTokenSource?.Token ?? default);
+                    }
                 }
             }
             catch (OperationCanceledException)

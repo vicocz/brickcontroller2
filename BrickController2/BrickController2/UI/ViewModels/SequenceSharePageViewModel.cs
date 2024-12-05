@@ -1,6 +1,7 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
 using BrickController2.PlatformServices.SharedFileStorage;
+using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
@@ -20,8 +21,9 @@ public class SequenceSharePageViewModel : SharePageViewModeBase<Sequence>
         ISharingManager<Sequence> sharingManager,
         IDialogService dialogService,
         ISharedFileStorageService sharedFileStorageService,
+        ICommandFactory<Sequence> commandFactory,
         NavigationParameters parameters)
-        : base(navigationService, translationService, sharingManager, dialogService, sharedFileStorageService, parameters)
+        : base(navigationService, translationService, sharingManager, dialogService, sharedFileStorageService, commandFactory, parameters)
     {
         _creationManager = creationManager;
     }

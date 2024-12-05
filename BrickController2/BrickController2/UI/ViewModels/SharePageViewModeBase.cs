@@ -5,8 +5,6 @@ using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
-using Microsoft.Maui.ApplicationModel.DataTransfer;
-using Microsoft.Maui.Storage;
 using System;
 using System.IO;
 using System.Threading;
@@ -31,19 +29,19 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
         ISharingManager<TModel> sharingManager,
         IDialogService dialogService,
         ISharedFileStorageService sharedFileStorageService,
+        ICommandFactory<TModel> commandFactory,
         NavigationParameters parameters)
         : base(navigationService, translationService)
     {
         SharingManager = sharingManager;
         _dialogService = dialogService;
         _sharedFileStorageService = sharedFileStorageService;
-
         Item = parameters.Get<TModel>("item");
 
-        ShareItemCommand = new SafeCommand(ShareAsync);
-        ShareItemAsFileCommand = new SafeCommand(ShareAsFileAsync);
+        ShareItemCommand = commandFactory.CreateShareAsTextCommand(Item);
+        ShareItemAsFileCommand = commandFactory.CreateShareAsJsonFileCommand(Item);
         ExportItemCommand = new SafeCommand(ExportAsync, () => _sharedFileStorageService.IsSharedStorageAvailable);
-        CopyItemCommand = new SafeCommand(CopyAsync);
+        CopyItemCommand = commandFactory.CreateShareToClipboardCommand(Item);
     }
 
     public TModel Item { get; }
@@ -148,31 +146,5 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
         catch (OperationCanceledException)
         {
         }
-    }
-
-    private async Task CopyAsync()
-    {
-        await SharingManager.ShareToClipboardAsync(Item);
-    }
-
-    private async Task ShareAsync()
-    {
-        var json = await SharingManager.ShareAsync(Item);
-
-        await Share.RequestAsync(new ShareTextRequest
-        {
-            Subject = Item.Name,
-            Text = json,
-            Title = Item.Name
-        });
-    }
-    private async Task ShareAsFileAsync()
-    {
-        var jsonFile = await SharingManager.ShareAsJsonFileAsync(Item, FileSystem.CacheDirectory);
-        await Share.RequestAsync(new ShareFileRequest
-        {
-            Title = Item.Name,
-            File = new ShareFile(jsonFile)
-        });
     }
 }

@@ -34,6 +34,7 @@ namespace BrickController2.UI.ViewModels
             IPlayLogic playLogic,
             ISharingManager<Creation> sharingManager,
             ISharingManager<ControllerProfile> sharingManagerProfile,
+            ICommandFactory<Creation> commandFactory,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -49,9 +50,10 @@ namespace BrickController2.UI.ViewModels
             CopyControllerProfileCommand = new SafeCommand<ControllerProfile>(profile => _sharingManagerProfile.ShareToClipboardAsync(profile));
             PasteControllerProfileCommand = new SafeCommand(PasteControllerProfileAsync);
             ExportCreationCommand = new SafeCommand(async () => await ExportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
-            CopyCreationCommand = new SafeCommand(CopyCreationAsync);
+            CopyCreationCommand = commandFactory.CreateShareToClipboardCommand(Creation);
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
-            ShareCreationCommand = new SafeCommand(ShareCreationAsync);
+            ShareCreationCommand = commandFactory.CreateNavigateToSharePageCommand(Creation);
+            ShareCreationAsFileCommand = commandFactory.CreateShareAsJsonFileCommand(Creation);
             PlayCommand = new SafeCommand(async () => await PlayAsync());
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));
@@ -70,6 +72,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand ExportCreationCommand { get; }
         public ICommand CopyCreationCommand { get; }
         public ICommand ShareCreationCommand { get; }
+        public ICommand ShareCreationAsFileCommand { get; }
         public ICommand RenameCreationCommand { get; }
         public ICommand PlayCommand { get; }
         public ICommand AddControllerProfileCommand { get; }
@@ -351,20 +354,6 @@ namespace BrickController2.UI.ViewModels
                     }
                 }
                 while (!done);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private Task CopyCreationAsync()
-            => _sharingManager.ShareToClipboardAsync(Creation);
-
-        private async Task ShareCreationAsync()
-        {
-            try
-            {
-                await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", Creation)));
             }
             catch (OperationCanceledException)
             {

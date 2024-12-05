@@ -13,9 +13,9 @@
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="share" Text="{extensions:Translate Share}" Command="{Binding ShareItemCommand}" />
-        <controls:ToolbarIcon Icon="publish" Text="{extensions:Translate ShareAsFile}" Command="{Binding ShareItemAsFileCommand}" />
-        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportCreation}" Command="{Binding ExportItemCommand}" />
+        <controls:ToolbarIcon Icon="upload_file" Text="{extensions:Translate ShareAsFile}" Command="{Binding ShareItemAsFileCommand}" />
+        <controls:ToolbarIcon Icon="ios_share" Text="{extensions:Translate Share}" Command="{Binding ShareItemCommand}" />
+        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportCreation}" Command="{Binding ExportItemCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopyCreation}" Command="{Binding CopyItemCommand}" />
     </ContentPage.ToolbarItems>
 

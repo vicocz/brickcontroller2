@@ -12,15 +12,15 @@ using System.Windows.Input;
 
 namespace BrickController2.UI.Commands;
 
-internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, ICommandFactory<Creation>
+internal class SequenceCommandFactory : ItemCommandFactoryBase<Sequence>, ICommandFactory<Sequence>
 {
     private readonly ICreationManager _creationManager;
 
-    public CreationCommandFactory
+    public SequenceCommandFactory
     (
         IDialogService dialogService,
         ITranslationService translationService,
-        ISharingManager<Creation> sharingManager,
+        ISharingManager<Sequence> sharingManager,
         ISharedFileStorageService sharedFileStorageService,
         INavigationService navigationService,
         ICreationManager creationManager
@@ -29,21 +29,21 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
         _creationManager = creationManager;
     }
 
-    public ICommand CreateShareToClipboardCommand(Creation item)
+    public ICommand CreateShareToClipboardCommand(Sequence item)
         => new SafeCommand(() => ShareToClipboardAsync(item));
-    public ICommand CreateShareAsJsonFileCommand(Creation item)
+    public ICommand CreateShareAsJsonFileCommand(Sequence item)
         => new SafeCommand(() => ShareAsJsonFileAsync(item));
-    public ICommand CreateShareAsTextCommand(Creation item)
+    public ICommand CreateShareAsTextCommand(Sequence item)
         => new SafeCommand(() => ShareAsTextAsync(item));
-    public ICommand CreateExportItemAsFileCommand(Creation item, CancellationToken token)
+    public ICommand CreateExportItemAsFileCommand(Sequence item, CancellationToken token)
         => new SafeCommand(() => ExportItemAsync(item, token), () => SharedFileStorageService.IsSharedStorageAvailable);
-    public ICommand CreateNavigateToSharePageCommand(Creation creation)
-        => new SafeCommand(() => NavigateToItemSharePageAsync<CreationSharePageViewModel>(creation));
+    public ICommand CreateNavigateToSharePageCommand(Sequence creation)
+        => new SafeCommand(() => NavigateToItemSharePageAsync<SequenceSharePageViewModel>(creation));
 
-    protected override Task ExportItemAsync(Creation model, string fileName)
-        => _creationManager.ExportCreationAsync(model, fileName);
+    protected override Task ExportItemAsync(Sequence model, string fileName)
+        => _creationManager.ExportSequenceAsync(model, fileName);
 
-    protected override string GetItemDescription(Creation item) => Translate("CreationName");
+    protected override string GetItemDescription(Sequence item) => Translate("SequenceName");
 
-    protected override string GetFailureDescription(Exception ex) => Translate("FailedToExportCreation", ex);
+    protected override string GetFailureDescription(Exception ex) => Translate("FailedToExportSequence", ex);
 }

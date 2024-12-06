@@ -49,7 +49,7 @@ namespace BrickController2.UI.ViewModels
             ImportControllerProfileCommand = new SafeCommand(async () => await ImportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             CopyControllerProfileCommand = new SafeCommand<ControllerProfile>(profile => _sharingManagerProfile.ShareToClipboardAsync(profile));
             PasteControllerProfileCommand = new SafeCommand(PasteControllerProfileAsync);
-            ExportCreationCommand = new SafeCommand(async () => await ExportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            ExportCreationCommand = commandFactory.CreateExportItemAsFileCommand(Creation, _disappearingTokenSource?.Token ?? default);
             CopyCreationCommand = commandFactory.CreateShareToClipboardCommand(Creation);
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
             ShareCreationCommand = commandFactory.CreateNavigateToSharePageCommand(Creation);
@@ -293,70 +293,6 @@ namespace BrickController2.UI.ViewModels
                     Translate("FailedToImportControllerProfile", ex),
                     Translate("Ok"),
                     _disappearingTokenSource?.Token ?? default);
-            }
-        }
-
-        private async Task ExportCreationAsync()
-        {
-            try
-            {
-                var filename = Creation.Name;
-                var done = false;
-
-                do
-                {
-                    var result = await _dialogService.ShowInputDialogAsync(
-                        filename,
-                        Translate("CreationName"),
-                        Translate("Ok"),
-                        Translate("Cancel"),
-                        KeyboardType.Text,
-                        fn => FileHelper.FilenameValidator(fn),
-                        _disappearingTokenSource?.Token ?? default);
-
-                    if (!result.IsOk)
-                    {
-                        return;
-                    }
-
-                    filename = result.Result;
-                    var filePath = Path.Combine(SharedFileStorageService.SharedStorageDirectory!, $"{filename}.{FileHelper.CreationFileExtension}");
-
-                    if (!File.Exists(filePath) || 
-                        await _dialogService.ShowQuestionDialogAsync(
-                            Translate("FileAlreadyExists"),
-                            Translate("DoYouWantToOverWrite"),
-                            Translate("Yes"),
-                            Translate("No"),
-                            _disappearingTokenSource?.Token ?? default))
-                    {
-                        try
-                        {
-                            await _creationManager.ExportCreationAsync(Creation, filePath);
-                            done = true;
-
-                            await _dialogService.ShowMessageBoxAsync(
-                                Translate("ExportSuccessful"),
-                                filePath,
-                                Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
-                        }
-                        catch (Exception)
-                        {
-                            await _dialogService.ShowMessageBoxAsync(
-                                Translate("Error"),
-                                Translate("FailedToExportCreation"),
-                                Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
-                            
-                            return;
-                        }
-                    }
-                }
-                while (!done);
-            }
-            catch (OperationCanceledException)
-            {
             }
         }
     }

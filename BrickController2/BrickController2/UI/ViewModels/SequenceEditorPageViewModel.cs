@@ -1,6 +1,5 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
-using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -8,7 +7,6 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +18,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly ICreationManager _creationManager;
+        private readonly ICommandFactory<Sequence> _commandFactory;
         private readonly ISharingManager<Sequence> _sharingManager;
         private CancellationTokenSource? _disappearingTokenSource;
 
@@ -28,6 +27,7 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDialogService dialogService,
             ICreationManager creationManager,
+            ICommandFactory<Sequence> commandFactory,
             ISharingManager<Sequence> sharingManager,
             ISharedFileStorageService sharedFileStorageService,
             NavigationParameters parameters) :
@@ -35,6 +35,7 @@ namespace BrickController2.UI.ViewModels
         {
             _dialogService = dialogService;
             _creationManager = creationManager;
+            _commandFactory = commandFactory;
             _sharingManager = sharingManager;
             SharedFileStorageService = sharedFileStorageService;
 
@@ -48,9 +49,9 @@ namespace BrickController2.UI.ViewModels
                 ControlPoints = new ObservableCollection<SequenceControlPoint>(OriginalSequence.ControlPoints.Select(cp => new SequenceControlPoint { Value = cp.Value, DurationMs = cp.DurationMs }).ToArray())
             };
 
-            ExportSequenceCommand = new SafeCommand(async () => await ExportSequenceAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
-            CopySequenceCommand = new SafeCommand(CopySequenceAsync);
-            ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", Sequence))));
+            ExportSequenceCommand = _commandFactory.CreateExportItemAsFileCommand(Sequence, _disappearingTokenSource?.Token ?? default);
+            CopySequenceCommand = _commandFactory.CreateShareToClipboardCommand(Sequence);
+            ShareSequenceCommand = _commandFactory.CreateNavigateToSharePageCommand(Sequence);
             RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
             AddControlPointCommand = new SafeCommand(() => AddControlPoint());
             DeleteControlPointCommand = new SafeCommand<SequenceControlPoint>(async (controlPoint) => await DeleteControlPointAsync(controlPoint));
@@ -82,73 +83,6 @@ namespace BrickController2.UI.ViewModels
         {
             _disappearingTokenSource?.Cancel();
         }
-
-        private async Task ExportSequenceAsync()
-        {
-            try
-            {
-                var filename = Sequence.Name;
-                var done = false;
-
-                do
-                {
-                    var result = await _dialogService.ShowInputDialogAsync(
-                        filename,
-                        Translate("SequenceName"),
-                        Translate("Ok"),
-                        Translate("Cancel"),
-                        KeyboardType.Text,
-                        fn => FileHelper.FilenameValidator(fn),
-                        _disappearingTokenSource?.Token ?? default);
-
-                    if (!result.IsOk)
-                    {
-                        return;
-                    }
-
-                    filename = result.Result;
-                    var filePath = Path.Combine(SharedFileStorageService.SharedStorageDirectory!, $"{filename}.{FileHelper.SequenceFileExtension}");
-
-                    if (!File.Exists(filePath) ||
-                        await _dialogService.ShowQuestionDialogAsync(
-                            Translate("FileAlreadyExists"),
-                            Translate("DoYouWantToOverWrite"),
-                            Translate("Yes"),
-                            Translate("No"),
-                            _disappearingTokenSource?.Token ?? default))
-                    {
-                        try
-                        {
-                            await _creationManager.ExportSequenceAsync(Sequence, filePath);
-                            done = true;
-
-                            await _dialogService.ShowMessageBoxAsync(
-                                Translate("ExportSuccessful"),
-                                filePath,
-                                Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
-                        }
-                        catch (Exception)
-                        {
-                            await _dialogService.ShowMessageBoxAsync(
-                                Translate("Error"),
-                                Translate("FailedToExportSequence"),
-                                Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
-
-                            return;
-                        }
-                    }
-                }
-                while (!done);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private Task CopySequenceAsync()
-            => _sharingManager.ShareToClipboardAsync(Sequence);
 
         private async Task RenameSequenceAsync()
         {

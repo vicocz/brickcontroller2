@@ -20,6 +20,10 @@
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
+    
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" />
+    </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">

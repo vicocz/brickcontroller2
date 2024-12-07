@@ -151,6 +151,14 @@ namespace BrickController2.DeviceManagement
             return await AutoCalibrateServoAsync(channel, token).ConfigureAwait(false);
         }
 
+        public async Task ActiveShelfModeAsync(CancellationToken token = default)
+        {
+            var activateShelfModeCmd = new byte[] { 0xA1 };
+
+            await _bleDevice!.WriteAsync(_characteristic!, activateShelfModeCmd, token);
+            await Task.Delay(50, token);
+        }
+
         protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
         {
             var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);

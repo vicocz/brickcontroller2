@@ -609,4 +609,13 @@
   <data name="Add" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="ActivateShelfMode" xml:space="preserve">
+    <value>Activate shelf mode</value>
+  </data>
+  <data name="ActivateShelfModeFailed" xml:space="preserve">
+    <value>Activation of the shelf mode has failed:</value>
+  </data>
+  <data name="ActivateShelfModeConfirm" xml:space="preserve">
+    <value>Are you sure you want to active the shelf mode for this BuWizz3 device?</value>
+  </data>
 </root>

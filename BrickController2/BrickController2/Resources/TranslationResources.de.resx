@@ -609,4 +609,13 @@
   <data name="Add" xml:space="preserve">
     <value>Hinzufügen</value>
   </data>
+  <data name="ActivateShelfMode" xml:space="preserve">
+    <value>Den Regalmodus aktivieren</value>
+  </data>
+  <data name="ActivateShelfModeFailed" xml:space="preserve">
+    <value>Die Aktivierung des Regalmodus ist fehlgeschlagen:</value>
+  </data>
+  <data name="ActivateShelfModeConfirm" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie den Regalmodus für dieses BuWizz3-Gerät aktivieren möchten?</value>
+  </data>
 </root>

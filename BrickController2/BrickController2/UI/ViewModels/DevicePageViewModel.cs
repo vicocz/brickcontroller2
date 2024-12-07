@@ -46,6 +46,8 @@ namespace BrickController2.UI.ViewModels
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
+            ActivateShelfModeCommand = new SafeCommand(ActivateBuWizz3ShelfModeCommand,
+                () => Device.DeviceState == DeviceState.Connected && Device.DeviceType == DeviceType.BuWizz3);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
         }
 
@@ -60,6 +62,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
+        public ICommand ActivateShelfModeCommand { get; }
         public ICommand ScanCommand { get; }
 
         public int BuWizzOutputLevel { get; set; } = 1;
@@ -212,12 +215,38 @@ namespace BrickController2.UI.ViewModels
                             }
                             // update command enablement
                             ScanCommand.RaiseCanExecuteChanged();
+                            ActivateShelfModeCommand.RaiseCanExecuteChanged();
                         }
                     }
                 }
                 else
                 {
                     await Task.Delay(50);
+                }
+            }
+        }
+
+        private async Task ActivateBuWizz3ShelfModeCommand()
+        {
+            if (await _dialogService.ShowQuestionDialogAsync(
+                Translate("ActivateShelfMode"),
+                Translate("ActivateShelfModeConfirm"),
+                Translate("Yes"),
+                Translate("No"),
+                _disappearingTokenSource?.Token ?? default))
+            {
+                try
+                {
+                    var buwizz = (BuWizz3Device)Device;
+                    await buwizz.ActiveShelfModeAsync();
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("ActivateShelfModeFailed", ex),
+                        Translate("Ok"),
+                        CancellationToken.None);
                 }
             }
         }
@@ -284,6 +313,9 @@ namespace BrickController2.UI.ViewModels
 
         private void OnDeviceDisconnected(Device device)
         {
+            // update command enablement
+            ScanCommand.RaiseCanExecuteChanged();
+            ActivateShelfModeCommand.RaiseCanExecuteChanged();
         }
 
         private void SetBuWizzOutputLevel(int level)

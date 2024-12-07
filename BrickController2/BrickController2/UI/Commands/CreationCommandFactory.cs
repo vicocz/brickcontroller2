@@ -6,7 +6,6 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -29,21 +28,17 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
         _creationManager = creationManager;
     }
 
-    public ICommand CreateShareToClipboardCommand(Creation item)
-        => new SafeCommand(() => ShareToClipboardAsync(item));
-    public ICommand CreateShareAsJsonFileCommand(Creation item)
-        => new SafeCommand(() => ShareAsJsonFileAsync(item));
-    public ICommand CreateShareAsTextCommand(Creation item)
-        => new SafeCommand(() => ShareAsTextAsync(item));
-    public ICommand CreateExportItemAsFileCommand(Creation item, CancellationToken token)
-        => new SafeCommand(() => ExportItemAsync(item, token), () => SharedFileStorageService.IsSharedStorageAvailable);
-    public ICommand CreateNavigateToSharePageCommand(Creation creation)
+    public override ICommand CreateNavigateToSharePageCommand(Creation creation)
         => new SafeCommand(() => NavigateToItemSharePageAsync<CreationSharePageViewModel>(creation));
+
+    protected override string ItemsTitle => Translate("Creations");
+    protected override string ItemNameHint => Translate("CreationName");
+    protected override string GetExportFailureDescription(Exception ex) => Translate("FailedToExportCreation", ex);
+    protected override string GetImportFailureDescription(Exception ex) => Translate("FailedToImportCreation", ex);
 
     protected override Task ExportItemAsync(Creation model, string fileName)
         => _creationManager.ExportCreationAsync(model, fileName);
 
-    protected override string GetItemDescription(Creation item) => Translate("CreationName");
-
-    protected override string GetFailureDescription(Exception ex) => Translate("FailedToExportCreation", ex);
+    protected override Task ImportItemAsync(Creation model)
+        => _creationManager.ImportCreationAsync(model);
 }

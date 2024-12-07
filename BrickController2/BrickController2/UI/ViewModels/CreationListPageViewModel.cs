@@ -1,25 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Storage;
 using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
-using BrickController2.Helpers;
+using BrickController2.PlatformServices.Permission;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
-using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
-using BrickController2.PlatformServices.Permission;
-using BrickController2.CreationManagement.Sharing;
+
 
 namespace BrickController2.UI.ViewModels
 {
@@ -27,7 +21,6 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly ICreationManager _creationManager;
         private readonly IDeviceManager _deviceManager;
-        private readonly ISharingManager<Creation> _sharingManager;
         private readonly IPlayLogic _playLogic;
         private readonly IDialogService _dialogService;
         private readonly IBluetoothPermission _bluetoothPermission;
@@ -47,27 +40,26 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             ICreationManager creationManager,
             IDeviceManager deviceManager,
-            ISharingManager<Creation> sharingManager,
             IPlayLogic playLogic,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
+            ICommandFactory<Creation> commandFactory,
             IBluetoothPermission bluetoothPermission,
             IReadWriteExternalStoragePermission readWriteExternalStoragePermission)
             : base(navigationService, translationService)
         {
             _creationManager = creationManager;
             _deviceManager = deviceManager;
-            _sharingManager = sharingManager;
             _playLogic = playLogic;
             _dialogService = dialogService;
             _bluetoothPermission = bluetoothPermission;
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
             SharedFileStorageService = sharedFileStorageService;
 
-            ImportCreationCommand = new SafeCommand(async () => await ImportCreationAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
-            ImportCreationFromFileCommand = new SafeCommand(ImportCreationFromFileAsync);
+            ImportCreationCommand = commandFactory.CreateImportItemFromFileCommand(_disappearingTokenSource?.Token ?? default);
+            ImportCreationFromFileCommand = commandFactory.CreateImportItemFromJsonFileCommand(_disappearingTokenSource?.Token ?? default);
             ScanCreationCommand = new SafeCommand(ScanCreationAsync);
-            PasteCreationCommand = new SafeCommand(PasteCreationAsync);
+            PasteCreationCommand = commandFactory.CreatePasteItemFromClipboardCommand(_disappearingTokenSource?.Token ?? default);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
@@ -166,106 +158,6 @@ namespace BrickController2.UI.ViewModels
             }
             catch (OperationCanceledException)
             {
-            }
-        }
-
-        private async Task ImportCreationAsync()
-        {
-            try
-            {
-                var creationFilesMap = FileHelper.EnumerateDirectoryFilesToFilenameMap(SharedFileStorageService.SharedStorageDirectory!, $"*.{FileHelper.CreationFileExtension}");
-                if (creationFilesMap?.Any() ?? false)
-                {
-                    var result = await _dialogService.ShowSelectionDialogAsync(
-                        creationFilesMap.Keys,
-                        Translate("Creations"),
-                        Translate("Cancel"),
-                        _disappearingTokenSource?.Token ?? default);
-
-                    if (result.IsOk)
-                    {
-                        try
-                        {
-                            await _creationManager.ImportCreationAsync(creationFilesMap[result.SelectedItem]);
-                        }
-                        catch (Exception)
-                        {
-                            await _dialogService.ShowMessageBoxAsync(
-                                Translate("Error"),
-                                Translate("FailedToImportCreation"),
-                                Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
-                        }
-                    }
-                }
-                else
-                {
-                    await _dialogService.ShowMessageBoxAsync(
-                        Translate("Information"),
-                        Translate("NoCreationsToImport"),
-                        Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task ImportCreationFromFileAsync()
-        {
-            try
-            {
-                PickOptions options = new()
-                {
-                    PickerTitle = "Please select a JSON file",
-                    FileTypes = new FilePickerFileType(
-                        new Dictionary<DevicePlatform, IEnumerable<string>>
-                        {
-                            { DevicePlatform.iOS, ["public.json"] },
-                            { DevicePlatform.Android, ["application/json"] },
-                            { DevicePlatform.WinUI, [".json"] },
-                        })
-                };
-
-                var result = await FilePicker.PickAsync(options);
-                if (result != null)
-                {
-                    try
-                    {
-                        using var stream = await result.OpenReadAsync();
-                        var creation = await _sharingManager.ImportFromJsonFileAsync(stream);
-                        await _creationManager.ImportCreationAsync(creation);
-                    }
-                    catch (Exception ex)
-                    {
-                        await _dialogService.ShowMessageBoxAsync(
-                            Translate("Error"),
-                            Translate("FailedToImportCreation", ex),
-                            Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task PasteCreationAsync()
-        {
-            try
-            {
-                var creation = await _sharingManager.ImportFromClipboardAsync();
-                await _creationManager.ImportCreationAsync(creation);
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Error"),
-                    Translate("FailedToImportCreation", ex),
-                    Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
             }
         }
 

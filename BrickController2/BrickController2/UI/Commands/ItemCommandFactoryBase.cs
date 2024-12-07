@@ -1,4 +1,5 @@
-﻿using BrickController2.CreationManagement.Sharing;
+﻿using BrickController2.CreationManagement;
+using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Services.Dialog;
@@ -6,15 +7,20 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
 using Microsoft.Maui.ApplicationModel.DataTransfer;
+using Microsoft.Maui.Devices;
 using Microsoft.Maui.Storage;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace BrickController2.UI.Commands;
 
-internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, IShareable
+internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
+    where TModel : class, IShareable
 {
     protected ItemCommandFactoryBase
     (
@@ -32,11 +38,31 @@ internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, ISh
         NavigationService = navigationService;
     }
 
+    public ICommand CreateShareToClipboardCommand(TModel item)
+        => new SafeCommand(() => ShareToClipboardAsync(item));
+    public ICommand CreateShareAsJsonFileCommand(TModel item)
+        => new SafeCommand(() => ShareAsJsonFileAsync(item));
+    public ICommand CreateShareAsTextCommand(TModel item)
+        => new SafeCommand(() => ShareAsTextAsync(item));
+    public ICommand CreateExportItemAsFileCommand(TModel item, CancellationToken token)
+        => new SafeCommand(() => ExportItemAsync(item, token), () => SharedFileStorageService.IsSharedStorageAvailable);
+    public ICommand CreateImportItemFromJsonFileCommand(CancellationToken token)
+        => new SafeCommand(() => ImportItemFromJsonFileAsync(token));
+    public ICommand CreateImportItemFromFileCommand(CancellationToken token)
+        => new SafeCommand(() => ImportItemFromFileAsync(token));
+    public ICommand CreatePasteItemFromClipboardCommand(CancellationToken token)
+        => new SafeCommand(() => PasteItemFromClipboardAsync(token));
+
+    public abstract ICommand CreateNavigateToSharePageCommand(TModel item);
+
     protected IDialogService DialogService { get; }
     protected ITranslationService TranslationService { get; }
     protected ISharingManager<TModel> SharingManager { get; }
     protected ISharedFileStorageService SharedFileStorageService { get; }
     protected INavigationService NavigationService { get; }
+
+    protected abstract string ItemNameHint { get; }
+    protected abstract string ItemsTitle { get; }
 
     protected string Translate(string key) => TranslationService.Translate(key);
     protected string Translate(string key, string extra) => Translate(key) + " " + extra;
@@ -44,9 +70,10 @@ internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, ISh
 
     protected abstract Task ExportItemAsync(TModel model, string fileName);
 
-    protected abstract string GetItemDescription(TModel item);
+    protected abstract Task ImportItemAsync(TModel model);
 
-    protected abstract string GetFailureDescription(Exception ex);
+    protected abstract string GetExportFailureDescription(Exception ex);
+    protected abstract string GetImportFailureDescription(Exception ex);
 
     protected async Task ShareToClipboardAsync(TModel item)
         => await SharingManager.ShareToClipboardAsync(item);
@@ -84,7 +111,7 @@ internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, ISh
             {
                 var result = await DialogService.ShowInputDialogAsync(
                     filename,
-                    GetItemDescription(item),
+                    ItemNameHint,
                     Translate("Ok"),
                     Translate("Cancel"),
                     KeyboardType.Text,
@@ -97,7 +124,7 @@ internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, ISh
                 }
 
                 filename = result.Result;
-                var filePath = Path.Combine(SharedFileStorageService.SharedStorageDirectory!, $"{filename}.{FileHelper.CreationFileExtension}");
+                var filePath = Path.Combine(SharedFileStorageService.SharedStorageDirectory!, $"{filename}.{TModel.Type}");
 
                 if (!File.Exists(filePath) ||
                     await DialogService.ShowQuestionDialogAsync(
@@ -122,7 +149,7 @@ internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, ISh
                     {
                         await DialogService.ShowMessageBoxAsync(
                             Translate("Error"),
-                            GetFailureDescription(ex),
+                            GetExportFailureDescription(ex),
                             Translate("Ok"),
                             token);
 
@@ -134,6 +161,97 @@ internal abstract class ItemCommandFactoryBase<TModel> where TModel : class, ISh
         }
         catch (OperationCanceledException)
         {
+        }
+    }
+
+    protected async Task ImportItemFromJsonFileAsync(CancellationToken token)
+    {
+        try
+        {
+            PickOptions options = new()
+            {
+                PickerTitle = "Please select a JSON file",
+                FileTypes = new FilePickerFileType(
+                    new Dictionary<DevicePlatform, IEnumerable<string>>
+                    {
+                        { DevicePlatform.iOS, ["public.json"] },
+                        { DevicePlatform.Android, ["application/json"] },
+                        { DevicePlatform.WinUI, [".json"] },
+                    })
+            };
+
+            var result = await FilePicker.PickAsync(options);
+            if (result != null)
+            {
+                try
+                {
+                    using var stream = await result.OpenReadAsync();
+                    var item = await SharingManager.ImportFromJsonFileAsync(stream);
+                    await ImportItemAsync(item);
+                }
+                catch (Exception ex)
+                {
+                    await DialogService.ShowMessageBoxAsync(
+                        Translate("Error"),
+                        GetImportFailureDescription(ex),
+                        Translate("Ok"),
+                        token);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task ImportItemFromFileAsync(CancellationToken token)
+    {
+        try
+        {
+            var itemFilesMap = FileHelper.EnumerateDirectoryFilesToFilenameMap(SharedFileStorageService.SharedStorageDirectory!, $"*.{TModel.Type}");
+            var result = await DialogService.ShowSelectionDialogAsync(
+                itemFilesMap.Keys,
+                ItemsTitle,
+                Translate("Cancel"),
+                token);
+
+            if (result.IsOk)
+            {
+                try
+                {
+                    var json = await File.ReadAllTextAsync(itemFilesMap[result.SelectedItem], token);
+                    var item = SharingManager.LegacyImport(json);
+                    await ImportItemAsync(item);
+                }
+                catch (Exception ex)
+                {
+                    await DialogService.ShowMessageBoxAsync(
+                        Translate("Error"),
+                        GetImportFailureDescription(ex),
+                        Translate("Ok"),
+                        token);
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    protected async Task PasteItemFromClipboardAsync(CancellationToken token)
+    {
+        try
+        {
+            var item = await SharingManager.ImportFromClipboardAsync();
+            await ImportItemAsync(item);
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowMessageBoxAsync(
+                Translate("Error"),
+                GetImportFailureDescription(ex),
+                Translate("Ok"),
+                token);
         }
     }
 

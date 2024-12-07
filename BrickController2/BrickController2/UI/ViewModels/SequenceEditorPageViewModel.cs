@@ -19,7 +19,6 @@ namespace BrickController2.UI.ViewModels
         private readonly IDialogService _dialogService;
         private readonly ICreationManager _creationManager;
         private readonly ICommandFactory<Sequence> _commandFactory;
-        private readonly ISharingManager<Sequence> _sharingManager;
         private CancellationTokenSource? _disappearingTokenSource;
 
         public SequenceEditorPageViewModel(
@@ -28,7 +27,6 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             ICreationManager creationManager,
             ICommandFactory<Sequence> commandFactory,
-            ISharingManager<Sequence> sharingManager,
             ISharedFileStorageService sharedFileStorageService,
             NavigationParameters parameters) :
             base(navigationService, translationService)
@@ -36,7 +34,6 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
             _creationManager = creationManager;
             _commandFactory = commandFactory;
-            _sharingManager = sharingManager;
             SharedFileStorageService = sharedFileStorageService;
 
             OriginalSequence = parameters.Get<Sequence>("sequence");

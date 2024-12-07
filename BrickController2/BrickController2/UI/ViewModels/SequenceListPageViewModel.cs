@@ -1,6 +1,5 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
-using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -8,7 +7,6 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -18,7 +16,6 @@ namespace BrickController2.UI.ViewModels
     public class SequenceListPageViewModel : PageViewModelBase
     {
         private readonly ICreationManager _creationManager;
-        private readonly ISharingManager<Sequence> _sharingManager;
         private readonly IDialogService _dialogService;
 
         private CancellationTokenSource? _disappearingTokenSource;
@@ -27,19 +24,16 @@ namespace BrickController2.UI.ViewModels
             INavigationService navigationService,
             ITranslationService translationService,
             ICreationManager creationManager,
-            ISharingManager<Sequence> sharingManager,
             IDialogService dialogService,
-            ISharedFileStorageService sharedFileStorageService)
+            ICommandFactory<Sequence> commandFactory)
             : base(navigationService, translationService)
         {
             _creationManager = creationManager;
-            _sharingManager = sharingManager;
             _dialogService = dialogService;
-            SharedFileStorageService = sharedFileStorageService;
 
-            ImportSequenceCommand = new SafeCommand(async () => await ImportSequenceAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
+            ImportSequenceCommand = commandFactory.CreateImportItemFromFileCommand(_disappearingTokenSource?.Token ?? default);
             ScanSequenceCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters()));
-            PasteSequenceCommand = new SafeCommand(PasteSequenceAsync);
+            PasteSequenceCommand = commandFactory.CreatePasteItemFromClipboardCommand(_disappearingTokenSource?.Token ?? default);
             AddSequenceCommand = new SafeCommand(async () => await AddSequenceAsync());
             ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", sequence))));
             SequenceTappedCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceEditorPageViewModel>(new NavigationParameters(("sequence", sequence))));
@@ -47,8 +41,6 @@ namespace BrickController2.UI.ViewModels
         }
 
         public ObservableCollection<Sequence> Sequences => _creationManager.Sequences;
-
-        public ISharedFileStorageService SharedFileStorageService { get; }
 
         public ICommand ImportSequenceCommand { get; }
         public ICommand ScanSequenceCommand { get; }
@@ -67,66 +59,6 @@ namespace BrickController2.UI.ViewModels
         public override void OnDisappearing()
         {
             _disappearingTokenSource?.Cancel();
-        }
-
-        private async Task ImportSequenceAsync()
-        {
-            try
-            {
-                var sequenceFilesMap = FileHelper.EnumerateDirectoryFilesToFilenameMap(SharedFileStorageService.SharedStorageDirectory!, $"*.{FileHelper.SequenceFileExtension}");
-                if (sequenceFilesMap?.Any() ?? false)
-                {
-                    var result = await _dialogService.ShowSelectionDialogAsync(
-                        sequenceFilesMap.Keys,
-                        Translate("Sequences"),
-                        Translate("Cancel"),
-                        _disappearingTokenSource?.Token ?? default);
-
-                    if (result.IsOk)
-                    {
-                        try
-                        {
-                            await _creationManager.ImportSequenceAsync(sequenceFilesMap[result.SelectedItem]);
-                        }
-                        catch (Exception)
-                        {
-                            await _dialogService.ShowMessageBoxAsync(
-                                Translate("Error"),
-                                Translate("FailedToImportSequence"),
-                                Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
-                        }
-                    }
-                }
-                else
-                {
-                    await _dialogService.ShowMessageBoxAsync(
-                        Translate("Information"),
-                        Translate("NoSequencesToImport"),
-                        Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task PasteSequenceAsync()
-        {
-            try
-            {
-                var sequence = await _sharingManager.ImportFromClipboardAsync();
-                await _creationManager.ImportSequenceAsync(sequence);
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Error"),
-                    Translate("FailedToImportSequence", ex),
-                    Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
-            }
         }
 
         private async Task AddSequenceAsync()

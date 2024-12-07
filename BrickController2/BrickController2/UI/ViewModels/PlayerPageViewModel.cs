@@ -101,7 +101,7 @@ namespace BrickController2.UI.ViewModels
 
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
 
-            _playLogic.StopPlay();
+            StopPlay();
 
             if (_connectionTokenSource != null && _connectionTask != null)
             {
@@ -142,7 +142,7 @@ namespace BrickController2.UI.ViewModels
                 var deviceToConnectTo = GetNextDeviceToConnectTo();
                 if (deviceToConnectTo != null)
                 {
-                    _playLogic.StopPlay();
+                    StopPlay();
 
                     var connectionResult = DeviceConnectionResult.Ok;
 
@@ -220,7 +220,7 @@ namespace BrickController2.UI.ViewModels
                             ChangeOutputLevel(BuWizzOutputLevel, _buwizzDevices);
                             ChangeOutputLevel(BuWizz2OutputLevel, _buwizz2Devices);
 
-                            _playLogic.StartPlay();
+                            StartPlay();
                         }
                     }
                 }
@@ -229,6 +229,19 @@ namespace BrickController2.UI.ViewModels
                     await Task.Delay(50);
                 }
             }
+        }
+        private void StartPlay()
+        {
+            // prevent the app from locking/turning off the screen
+            Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = true;
+            _playLogic.StartPlay();
+        }
+
+        private void StopPlay()
+        {
+            _playLogic.StopPlay();
+            // reenable screen locking/turning off 
+            Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = false;
         }
 
         private Device? GetNextDeviceToConnectTo()

@@ -28,7 +28,6 @@ namespace BrickController2.UI.ViewModels
         private Task? _connectionTask;
         private CancellationTokenSource? _connectionTokenSource;
         private bool _isDisappearing = false;
-        private CancellationTokenSource? _disappearingTokenSource;
 
         public PlayerPageViewModel(
             INavigationService navigationService,
@@ -74,8 +73,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
 
             if (_devices.Any(d => d.DeviceType != DeviceType.Infrared) && !_deviceManager.IsBluetoothOn)
             {
@@ -83,7 +81,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("TurnOnBluetoothToConnectBluetoothDevices"),
                     Translate("Ok"),
-                    _disappearingTokenSource.Token);
+                    DisappearingToken);
 
                 await NavigationService.NavigateBackAsync();
                 return;
@@ -98,6 +96,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnDisappearing()
         {
             _isDisappearing = true;
+            base.OnDisappearing();
 
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
 
@@ -206,7 +205,7 @@ namespace BrickController2.UI.ViewModels
                                 Translate("Warning"),
                                 Translate("FailedToConnect"),
                                 Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
+                                DisappearingToken);
 
                             if (!_isDisappearing)
                             {

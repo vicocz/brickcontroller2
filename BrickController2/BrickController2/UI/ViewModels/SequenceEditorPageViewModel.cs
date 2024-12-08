@@ -1,5 +1,4 @@
 ﻿using BrickController2.CreationManagement;
-using BrickController2.CreationManagement.Sharing;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -18,8 +17,6 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDialogService _dialogService;
         private readonly ICreationManager _creationManager;
-        private readonly ICommandFactory<Sequence> _commandFactory;
-        private CancellationTokenSource? _disappearingTokenSource;
 
         public SequenceEditorPageViewModel(
             INavigationService navigationService,
@@ -33,7 +30,6 @@ namespace BrickController2.UI.ViewModels
         {
             _dialogService = dialogService;
             _creationManager = creationManager;
-            _commandFactory = commandFactory;
             SharedFileStorageService = sharedFileStorageService;
 
             OriginalSequence = parameters.Get<Sequence>("sequence");
@@ -46,10 +42,9 @@ namespace BrickController2.UI.ViewModels
                 ControlPoints = new ObservableCollection<SequenceControlPoint>(OriginalSequence.ControlPoints.Select(cp => new SequenceControlPoint { Value = cp.Value, DurationMs = cp.DurationMs }).ToArray())
             };
 
-            ExportSequenceCommand = _commandFactory.CreateExportItemAsFileCommand(Sequence, _disappearingTokenSource?.Token ?? default);
-            CopySequenceCommand = _commandFactory.CreateShareToClipboardCommand(Sequence);
-            ShareSequenceCommand = _commandFactory.CreateNavigateToSharePageCommand(Sequence);
-            RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
+            ExportSequenceCommand = commandFactory.CreateExportItemAsFileCommand(Sequence, DisappearingToken);
+            CopySequenceCommand = commandFactory.CreateShareToClipboardCommand(Sequence);
+            ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", Sequence)))); RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
             AddControlPointCommand = new SafeCommand(() => AddControlPoint());
             DeleteControlPointCommand = new SafeCommand<SequenceControlPoint>(async (controlPoint) => await DeleteControlPointAsync(controlPoint));
             SaveSequenceCommand = new SafeCommand(async () => await SaveSequenceAsync(), () => !_dialogService.IsDialogOpen);
@@ -70,17 +65,6 @@ namespace BrickController2.UI.ViewModels
         public ICommand SaveSequenceCommand { get; }
         public ICommand ChangeControlPointDurationCommand { get; }
 
-        public override void OnAppearing()
-        {
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
-        }
-
-        public override void OnDisappearing()
-        {
-            _disappearingTokenSource?.Cancel();
-        }
-
         private async Task RenameSequenceAsync()
         {
             try
@@ -92,7 +76,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     KeyboardType.Text,
                     (value) => !string.IsNullOrEmpty(value),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
 
                 if (result.IsOk)
                 {
@@ -102,7 +86,7 @@ namespace BrickController2.UI.ViewModels
                             Translate("Warning"),
                             Translate("SequenceNameCanNotBeEmpty"),
                             Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
+                            DisappearingToken);
 
                         return;
                     }
@@ -112,7 +96,7 @@ namespace BrickController2.UI.ViewModels
                             Translate("Warning"),
                             Translate("SequenceNameIsUsed"),
                             Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
+                            DisappearingToken);
 
                         return;
                     }
@@ -140,7 +124,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("AreYouSureToDeleteControlPoint"),
                     Translate("Yes"),
                     Translate("No"),
-                    _disappearingTokenSource?.Token ?? default))
+                    DisappearingToken))
                 {
                     Sequence.ControlPoints.Remove(controlPoint);
 
@@ -164,7 +148,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     KeyboardType.Numeric,
                     (durationText) => !string.IsNullOrEmpty(durationText) && int.TryParse(durationText, out int durationMs) && durationMs >= 300 && durationMs <= 10000,
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
 
                 if (!result.IsOk)
                 {
@@ -179,7 +163,7 @@ namespace BrickController2.UI.ViewModels
                             Translate("Warining"),
                             Translate("ValueOutOfRange"),
                             Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
+                            DisappearingToken);
 
                         return;
                     }
@@ -192,7 +176,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("ValueMustBeNumeric"),
                         Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
+                        DisappearingToken);
 
                     return;
                 }
@@ -218,7 +202,7 @@ namespace BrickController2.UI.ViewModels
                             Sequence.ControlPoints);
                     },
                     Translate("Saving"),
-                    token: _disappearingTokenSource?.Token ?? default);
+                    token: DisappearingToken);
 
                 await NavigationService.NavigateBackAsync();
             }

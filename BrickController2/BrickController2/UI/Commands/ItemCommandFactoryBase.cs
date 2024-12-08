@@ -53,8 +53,6 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
     public ICommand CreatePasteItemFromClipboardCommand(CancellationToken token)
         => new SafeCommand(() => PasteItemFromClipboardAsync(token));
 
-    public abstract ICommand CreateNavigateToSharePageCommand(TModel item);
-
     protected IDialogService DialogService { get; }
     protected ITranslationService TranslationService { get; }
     protected ISharingManager<TModel> SharingManager { get; }
@@ -220,7 +218,7 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
                 try
                 {
                     var json = await File.ReadAllTextAsync(itemFilesMap[result.SelectedItem], token);
-                    var item = SharingManager.LegacyImport(json);
+                    var item = SharingManager.ImportWithoutValidation(json);
                     await ImportItemAsync(item);
                 }
                 catch (Exception ex)

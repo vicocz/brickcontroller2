@@ -80,7 +80,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     public TModel Import(string json) => Import(json, CompactJsonOptions);
 
     /// <inheritdoc/>
-    public TModel LegacyImport(string json) => JsonConvert.DeserializeObject<TModel>(json)!;
+    public TModel ImportWithoutValidation(string json) => JsonConvert.DeserializeObject<TModel>(json)!;
 
     internal static TModel Import(string? json, JsonSerializerSettings options)
     {

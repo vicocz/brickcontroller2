@@ -23,7 +23,6 @@ namespace BrickController2.UI.ViewModels
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
         private bool _reconnect = false;
-        private CancellationTokenSource? _disappearingTokenSource;
         private bool _isDisappearing = false;
 
         public DevicePageViewModel(
@@ -70,8 +69,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
 
             if (Device.DeviceType != DeviceType.Infrared)
             {
@@ -81,7 +79,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("TurnOnBluetoothToConnect"),
                         Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
+                        DisappearingToken);
 
                     await NavigationService.NavigateBackAsync();
                     return;
@@ -94,8 +92,7 @@ namespace BrickController2.UI.ViewModels
 
         public override async void OnDisappearing()
         {
-            _isDisappearing = true;
-            _disappearingTokenSource?.Cancel();
+            base.OnDisappearing();
 
             if (_connectionTokenSource is not null && _connectionTask is not null)
             {
@@ -117,7 +114,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     KeyboardType.Text,
                     (deviceName) => !string.IsNullOrEmpty(deviceName),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
 
                 if (result.IsOk)
                 {
@@ -127,7 +124,7 @@ namespace BrickController2.UI.ViewModels
                             Translate("Warning"),
                             Translate("DeviceNameCanNotBeEmpty"),
                             Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
+                            DisappearingToken);
 
                         return;
                     }
@@ -136,7 +133,7 @@ namespace BrickController2.UI.ViewModels
                         false,
                         async (progressDialog, token) => await Device.RenameDeviceAsync(Device, result.Result),
                         Translate("Renaming"),
-                        token: _disappearingTokenSource?.Token ?? default);
+                        token: DisappearingToken);
                 }
             }
             catch (OperationCanceledException)
@@ -191,7 +188,7 @@ namespace BrickController2.UI.ViewModels
                                 Translate("Warning"),
                                 Translate("FailedToConnect"),
                                 Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
+                                DisappearingToken);
 
                             if (!_isDisappearing)
                             {
@@ -230,7 +227,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("BluetoothIsTurnedOff"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
             }
 
             var percent = 0;
@@ -242,7 +239,7 @@ namespace BrickController2.UI.ViewModels
                     if (!_isDisappearing)
                     {
                         using (var cts = new CancellationTokenSource())
-                        using (_disappearingTokenSource?.Token.Register(() => cts.Cancel()))
+                        using (DisappearingToken.Register(() => cts.Cancel()))
                         {
                             Task<bool>? scanTask = null;
                             try

@@ -38,5 +38,5 @@ public interface ISharingManager<TModel> where TModel : class, IShareable
     /// <summary>
     /// Imports the content of json model of <typeparamref name="TModel"/> but without model validation
     /// </summary>
-    TModel LegacyImport(string json);
+    TModel ImportWithoutValidation(string json);
 }

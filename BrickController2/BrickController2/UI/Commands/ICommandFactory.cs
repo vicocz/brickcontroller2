@@ -9,7 +9,6 @@ public interface ICommandFactory<TModel> where TModel : IShareable
     ICommand CreateExportItemAsFileCommand(TModel item, CancellationToken token);
     ICommand CreateImportItemFromFileCommand(CancellationToken token);
     ICommand CreateImportItemFromJsonFileCommand(CancellationToken token);
-    ICommand CreateNavigateToSharePageCommand(TModel creation);
     ICommand CreatePasteItemFromClipboardCommand(CancellationToken token);
     ICommand CreateShareToClipboardCommand(TModel model);
     ICommand CreateShareAsJsonFileCommand(TModel model);

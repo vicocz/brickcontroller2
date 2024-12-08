@@ -18,7 +18,6 @@ namespace BrickController2.UI.ViewModels
 
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
-        private CancellationTokenSource? _disappearingTokenSource;
         private bool _isDisappearing = false;
 
         private int _servoBaseAngle;
@@ -59,8 +58,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
 
             if (Device.DeviceType != DeviceType.Infrared)
             {
@@ -70,7 +68,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("TurnOnBluetoothToConnect"),
                         Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
+                        DisappearingToken);
 
                     if (!_isDisappearing)
                     {
@@ -87,7 +85,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnDisappearing()
         {
             _isDisappearing = true;
-            _disappearingTokenSource?.Cancel();
+            base.OnDisappearing();
 
             if (_connectionTokenSource is not null && _connectionTask is not null)
             {
@@ -145,7 +143,7 @@ namespace BrickController2.UI.ViewModels
                                 Translate("Warning"),
                                 Translate("FailedToConnect"),
                                 Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
+                                DisappearingToken);
 
                             if (!_isDisappearing)
                             {
@@ -188,7 +186,7 @@ namespace BrickController2.UI.ViewModels
                 Translate("Calibrating"),
                 null,
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
         }
 
         private async Task ResetServoBaseAngleAsync()
@@ -202,7 +200,7 @@ namespace BrickController2.UI.ViewModels
                 Translate("Reseting"),
                 null,
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
         }
     }
 }

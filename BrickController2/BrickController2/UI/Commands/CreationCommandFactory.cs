@@ -28,9 +28,6 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
         _creationManager = creationManager;
     }
 
-    public override ICommand CreateNavigateToSharePageCommand(Creation creation)
-        => new SafeCommand(() => NavigateToItemSharePageAsync<CreationSharePageViewModel>(creation));
-
     protected override string ItemsTitle => Translate("Creations");
     protected override string ItemNameHint => Translate("CreationName");
     protected override string GetExportFailureDescription(Exception ex) => Translate("FailedToExportCreation", ex);

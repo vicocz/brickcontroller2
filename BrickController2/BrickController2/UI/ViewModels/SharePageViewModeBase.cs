@@ -2,7 +2,6 @@
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
-using System.Threading;
 using System.Windows.Input;
 using ZXing.Net.Maui;
 
@@ -11,7 +10,6 @@ namespace BrickController2.UI.ViewModels;
 public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TModel : class, IShareable
 {
     private string? _barcodeValue;
-    private CancellationTokenSource? _disappearingTokenSource;
 
     private readonly ISharingManager<TModel> _sharingManager;
 
@@ -53,16 +51,8 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
 
     public override async void OnAppearing()
     {
-        _disappearingTokenSource?.Cancel();
-        _disappearingTokenSource = new CancellationTokenSource();
+        base.OnAppearing();
         // build JSON payload
         BarcodeValue = await _sharingManager.ShareAsync(Item);
     }
-
-    public override void OnDisappearing()
-    {
-        _disappearingTokenSource?.Cancel();
-    }
-
-    protected CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
 }

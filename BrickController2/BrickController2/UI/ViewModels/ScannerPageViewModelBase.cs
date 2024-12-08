@@ -6,7 +6,6 @@ using BrickController2.UI.Services.Translation;
 using Microsoft.Maui.ApplicationModel;
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ZXing.Net.Maui;
@@ -18,7 +17,6 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
     private readonly IDialogService _dialogService;
     private string? _currentValue;
     private bool _currentValueValidity;
-    private CancellationTokenSource? _disappearingTokenSource;
 
     public ScannerPageViewModelBase(
         INavigationService navigationService,
@@ -67,18 +65,12 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
 
     public ICommand ImportCommand { get; }
 
-    public override void OnAppearing()
-    {
-        _disappearingTokenSource?.Cancel();
-        _disappearingTokenSource = new CancellationTokenSource();
-    }
-
     public override void OnDisappearing()
     {
         // disable scanning
         IsCurrentValueValid = false;
 
-        _disappearingTokenSource?.Cancel();
+        base.OnDisappearing();
     }
 
     internal void OnBarcodeDetected(BarcodeResult[] results)
@@ -98,8 +90,6 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
         // update button availability
         MainThread.BeginInvokeOnMainThread(() => ImportCommand.RaiseCanExecuteChanged());
     }
-
-    protected CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
 
     protected abstract IShareable ValidateQrCode(string qr);
     protected abstract Task<IShareable> ImportQrCodeAsync(string qr);

@@ -26,7 +26,6 @@ namespace BrickController2.UI.ViewModels
         private readonly IBluetoothPermission _bluetoothPermission;
         private readonly IReadWriteExternalStoragePermission _readWriteExternalStoragePermission;
 
-        private CancellationTokenSource? _disappearingTokenSource;
         private bool _isLoaded;
 
         // Permission request fires OnDisappearing somehow (WTF???)
@@ -56,10 +55,10 @@ namespace BrickController2.UI.ViewModels
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
             SharedFileStorageService = sharedFileStorageService;
 
-            ImportCreationCommand = commandFactory.CreateImportItemFromFileCommand(_disappearingTokenSource?.Token ?? default);
-            ImportCreationFromFileCommand = commandFactory.CreateImportItemFromJsonFileCommand(_disappearingTokenSource?.Token ?? default);
+            ImportCreationCommand = commandFactory.CreateImportItemFromFileCommand(DisappearingToken);
+            ImportCreationFromFileCommand = commandFactory.CreateImportItemFromJsonFileCommand(DisappearingToken);
             ScanCreationCommand = new SafeCommand(ScanCreationAsync);
-            PasteCreationCommand = commandFactory.CreatePasteItemFromClipboardCommand(_disappearingTokenSource?.Token ?? default);
+            PasteCreationCommand = commandFactory.CreatePasteItemFromClipboardCommand(DisappearingToken);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
@@ -95,8 +94,7 @@ namespace BrickController2.UI.ViewModels
         {
             if (!_isRequestingPermission)
             {
-                _disappearingTokenSource?.Cancel();
-                _disappearingTokenSource = new CancellationTokenSource();
+                base.OnAppearing();
 
                 await LoadCreationsAndDevicesAsync();
                 await RequestPermissionsAsync();
@@ -107,8 +105,7 @@ namespace BrickController2.UI.ViewModels
         {
             if (!_isRequestingPermission)
             {
-                _disappearingTokenSource?.Cancel();
-                _disappearingTokenSource = null;
+                base.OnDisappearing();
             }
         }
 
@@ -124,7 +121,7 @@ namespace BrickController2.UI.ViewModels
                     _isBluetoothPermissionRequested = true;
                     _isRequestingPermission = false;
 
-                    _disappearingTokenSource?.Token.ThrowIfCancellationRequested();
+                    DisappearingToken.ThrowIfCancellationRequested();
                 }
 
                 if (bluetoothPermissionStatus != PermissionStatus.Granted)
@@ -133,9 +130,9 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("BluetoothDevicesWillNOTBeAvailable"),
                         Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
+                        DisappearingToken);
 
-                    _disappearingTokenSource?.Token.ThrowIfCancellationRequested();
+                    DisappearingToken.ThrowIfCancellationRequested();
                 }
 
                 if (SharedFileStorageService.SharedStorageDirectory != null)
@@ -148,7 +145,7 @@ namespace BrickController2.UI.ViewModels
                         _isStoragePermissionRequested = true;
                         _isRequestingPermission = false;
 
-                        _disappearingTokenSource?.Token.ThrowIfCancellationRequested();
+                        DisappearingToken.ThrowIfCancellationRequested();
                     }
 
                     SharedFileStorageService.IsPermissionGranted = storagePermissionStatus == PermissionStatus.Granted;
@@ -190,7 +187,7 @@ namespace BrickController2.UI.ViewModels
                         _isLoaded = true;
                     },
                     Translate("Loading"),
-                    token: _disappearingTokenSource?.Token ?? default);
+                    token: DisappearingToken);
             }
             catch (OperationCanceledException)
             {
@@ -208,7 +205,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     KeyboardType.Text,
                     (creationName) => !string.IsNullOrEmpty(creationName),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
 
                 if (result.IsOk)
                 {
@@ -218,7 +215,7 @@ namespace BrickController2.UI.ViewModels
                             Translate("Warning"),
                             Translate("CreationNameCanNotBeEmpty"),
                             Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
+                            DisappearingToken);
 
                         return;
                     }
@@ -232,7 +229,7 @@ namespace BrickController2.UI.ViewModels
                             await _creationManager.AddControllerProfileAsync(creation, Translate("DefaultProfile"));
                         },
                         Translate("Creating"),
-                        token: _disappearingTokenSource?.Token ?? default);
+                        token: DisappearingToken);
 
                     await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation!)));
                 }
@@ -251,13 +248,13 @@ namespace BrickController2.UI.ViewModels
                     $"{Translate("AreYouSureToDeleteCreation")} '{creation.Name}'?",
                     Translate("Yes"),
                     Translate("No"),
-                    _disappearingTokenSource?.Token ?? default))
+                    DisappearingToken))
                 {
                     await _dialogService.ShowProgressDialogAsync(
                         false,
                         async (progressDialog, token) => await _creationManager.DeleteCreationAsync(creation),
                         Translate("Deleting"),
-                        token: _disappearingTokenSource?.Token ?? default);
+                        token: DisappearingToken);
                 }
             }
             catch (OperationCanceledException)
@@ -297,7 +294,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("Play") + $" '{creation.Name}': {warning}",
                         Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
+                        DisappearingToken);
                 }
             }
             catch (OperationCanceledException)

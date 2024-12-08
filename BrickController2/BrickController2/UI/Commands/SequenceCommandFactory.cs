@@ -4,10 +4,8 @@ using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
-using BrickController2.UI.ViewModels;
 using System;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace BrickController2.UI.Commands;
 
@@ -27,9 +25,6 @@ internal class SequenceCommandFactory : ItemCommandFactoryBase<Sequence>
     {
         _creationManager = creationManager;
     }
-
-    public override ICommand CreateNavigateToSharePageCommand(Sequence creation)
-        => new SafeCommand(() => NavigateToItemSharePageAsync<SequenceSharePageViewModel>(creation));
 
     protected override string ItemsTitle => Translate("Sequences");
     protected override string ItemNameHint => Translate("SequenceName");

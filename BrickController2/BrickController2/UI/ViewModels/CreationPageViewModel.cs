@@ -43,11 +43,11 @@ namespace BrickController2.UI.ViewModels
             ImportControllerProfileCommand = new SafeCommand(async () => await ImportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             CopyControllerProfileCommand = new SafeCommand<ControllerProfile>(profile => _sharingManagerProfile.ShareToClipboardAsync(profile));
             PasteControllerProfileCommand = new SafeCommand(PasteControllerProfileAsync);
-            ExportCreationCommand = commandFactory.CreateExportItemAsFileCommand(Creation, DisappearingToken);
-            CopyCreationCommand = commandFactory.CreateShareToClipboardCommand(Creation);
+            ExportCreationCommand = commandFactory.ExportItemAsFileCommand(this, Creation);
+            CopyCreationCommand = commandFactory.ShareToClipboardCommand(this, Creation);
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
             ShareCreationCommand = new SafeCommand(ShareCreationAsync);
-            ShareCreationAsFileCommand = commandFactory.CreateShareAsJsonFileCommand(Creation);
+            ShareCreationAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Creation);
             PlayCommand = new SafeCommand(async () => await PlayAsync());
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));

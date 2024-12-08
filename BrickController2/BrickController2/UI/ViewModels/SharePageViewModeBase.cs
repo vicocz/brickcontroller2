@@ -24,10 +24,10 @@ public abstract class SharePageViewModeBase<TModel> : PageViewModelBase where TM
         _sharingManager = sharingManager;
         Item = parameters.Get<TModel>("item");
 
-        ShareItemCommand = commandFactory.CreateShareAsTextCommand(Item);
-        ShareItemAsFileCommand = commandFactory.CreateShareAsJsonFileCommand(Item);
-        ExportItemCommand = commandFactory.CreateExportItemAsFileCommand(Item, DisappearingToken);
-        CopyItemCommand = commandFactory.CreateShareToClipboardCommand(Item);
+        ShareItemCommand = commandFactory.ShareAsTextCommand(this, Item);
+        ShareItemAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Item);
+        ExportItemCommand = commandFactory.ExportItemAsFileCommand(this, Item);
+        CopyItemCommand = commandFactory.ShareToClipboardCommand(this, Item);
     }
 
     public TModel Item { get; }

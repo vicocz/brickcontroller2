@@ -609,4 +609,22 @@
   <data name="Add" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="ShareCreationAsFile" xml:space="preserve">
+    <value>Share the creation as file</value>
+  </data>
+  <data name="ShareCreationAsText" xml:space="preserve">
+    <value>Share the creation as text</value>
+  </data>
+  <data name="ShareSequenceAsFile" xml:space="preserve">
+    <value>Share the sequence as file</value>
+  </data>
+  <data name="ShareSequenceAsText" xml:space="preserve">
+    <value>Share the sequence as text</value>
+  </data>
+  <data name="ImportCreationFromFile" xml:space="preserve">
+    <value>Import a creation from file</value>
+  </data>
+  <data name="ImportSequenceFromFile" xml:space="preserve">
+    <value>Import a sequence from file</value>
+  </data>
 </root>

@@ -1,16 +1,16 @@
 ﻿using BrickController2.CreationManagement.Sharing;
-using System.Threading;
+using BrickController2.UI.ViewModels;
 using System.Windows.Input;
 
 namespace BrickController2.UI.Commands;
 
 public interface ICommandFactory<TModel> where TModel : IShareable
 {
-    ICommand CreateExportItemAsFileCommand(TModel item, CancellationToken token);
-    ICommand CreateImportItemFromFileCommand(CancellationToken token);
-    ICommand CreateImportItemFromJsonFileCommand(CancellationToken token);
-    ICommand CreatePasteItemFromClipboardCommand(CancellationToken token);
-    ICommand CreateShareToClipboardCommand(TModel model);
-    ICommand CreateShareAsJsonFileCommand(TModel model);
-    ICommand CreateShareAsTextCommand(TModel model);
+    ICommand ExportItemAsFileCommand(PageViewModelBase viewModel, TModel item);
+    ICommand ImportItemFromFileCommand(PageViewModelBase viewModel);
+    ICommand ImportItemFromJsonFileCommand(PageViewModelBase viewModel);
+    ICommand PasteItemFromClipboardCommand(PageViewModelBase viewModel);
+    ICommand ShareToClipboardCommand(PageViewModelBase viewModel, TModel model);
+    ICommand ShareAsJsonFileCommand(PageViewModelBase viewModel, TModel model);
+    ICommand ShareAsTextCommand(PageViewModelBase viewModel, TModel model);
 }

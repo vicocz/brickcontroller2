@@ -38,20 +38,20 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
         NavigationService = navigationService;
     }
 
-    public ICommand CreateShareToClipboardCommand(TModel item)
+    public ICommand ShareToClipboardCommand(PageViewModelBase viewModel, TModel item)
         => new SafeCommand(() => ShareToClipboardAsync(item));
-    public ICommand CreateShareAsJsonFileCommand(TModel item)
+    public ICommand ShareAsJsonFileCommand(PageViewModelBase viewModel, TModel item)
         => new SafeCommand(() => ShareAsJsonFileAsync(item));
-    public ICommand CreateShareAsTextCommand(TModel item)
+    public ICommand ShareAsTextCommand(PageViewModelBase viewModel, TModel item)
         => new SafeCommand(() => ShareAsTextAsync(item));
-    public ICommand CreateExportItemAsFileCommand(TModel item, CancellationToken token)
-        => new SafeCommand(() => ExportItemAsync(item, token), () => SharedFileStorageService.IsSharedStorageAvailable);
-    public ICommand CreateImportItemFromJsonFileCommand(CancellationToken token)
-        => new SafeCommand(() => ImportItemFromJsonFileAsync(token));
-    public ICommand CreateImportItemFromFileCommand(CancellationToken token)
-        => new SafeCommand(() => ImportItemFromFileAsync(token));
-    public ICommand CreatePasteItemFromClipboardCommand(CancellationToken token)
-        => new SafeCommand(() => PasteItemFromClipboardAsync(token));
+    public ICommand ExportItemAsFileCommand(PageViewModelBase viewModel, TModel item)
+        => new SafeCommand(() => ExportItemAsync(item, viewModel.DisappearingToken), () => SharedFileStorageService.IsSharedStorageAvailable);
+    public ICommand ImportItemFromJsonFileCommand(PageViewModelBase viewModel)
+        => new SafeCommand(() => ImportItemFromJsonFileAsync(viewModel.DisappearingToken));
+    public ICommand ImportItemFromFileCommand(PageViewModelBase viewModel)
+        => new SafeCommand(() => ImportItemFromFileAsync(viewModel.DisappearingToken), () => SharedFileStorageService.IsSharedStorageAvailable);
+    public ICommand PasteItemFromClipboardCommand(PageViewModelBase viewModel)
+        => new SafeCommand(() => PasteItemFromClipboardAsync(viewModel.DisappearingToken));
 
     protected IDialogService DialogService { get; }
     protected ITranslationService TranslationService { get; }
@@ -113,7 +113,7 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
                     Translate("Ok"),
                     Translate("Cancel"),
                     KeyboardType.Text,
-                    fn => FileHelper.FilenameValidator(fn),
+                    FileHelper.FilenameValidator,
                     token);
 
                 if (!result.IsOk)
@@ -250,18 +250,6 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
                 GetImportFailureDescription(ex),
                 Translate("Ok"),
                 token);
-        }
-    }
-
-    protected async Task NavigateToItemSharePageAsync<TViewModel>(TModel item)
-        where TViewModel : SharePageViewModeBase<TModel>
-    {
-        try
-        {
-            await NavigationService.NavigateToAsync<TViewModel>(new((nameof(item), item)));
-        }
-        catch (OperationCanceledException)
-        {
         }
     }
 }

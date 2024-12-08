@@ -21,8 +21,9 @@
 
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="share" Text="{extensions:Translate Share}" Command="{Binding ShareSequenceCommand}" />
-        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopySequence}" Command="{Binding CopySequenceCommand}" />
-        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportSequence}" Command="{Binding ExportSequenceCommand}" />
+        <controls:ToolbarIcon Icon="upload_file" Text="{extensions:Translate ShareSequenceAsFile}" Command="{Binding ShareSequenceAsFileCommand}" />
+        <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopySequence}" Command="{Binding CopySequenceCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportSequence}" Command="{Binding ExportSequenceCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSequenceCommand}" />
     </ContentPage.ToolbarItems>
     

@@ -26,9 +26,10 @@ namespace BrickController2.UI.ViewModels
             _creationManager = creationManager;
             _dialogService = dialogService;
 
-            ImportSequenceCommand = commandFactory.CreateImportItemFromFileCommand(DisappearingToken);
+            ImportSequenceCommand = commandFactory.ImportItemFromFileCommand(this);
+            ImportSequenceFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
             ScanSequenceCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters()));
-            PasteSequenceCommand = commandFactory.CreatePasteItemFromClipboardCommand(DisappearingToken);
+            PasteSequenceCommand = commandFactory.PasteItemFromClipboardCommand(this);
             AddSequenceCommand = new SafeCommand(async () => await AddSequenceAsync());
             ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", sequence))));
             SequenceTappedCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceEditorPageViewModel>(new NavigationParameters(("sequence", sequence))));
@@ -38,6 +39,7 @@ namespace BrickController2.UI.ViewModels
         public ObservableCollection<Sequence> Sequences => _creationManager.Sequences;
 
         public ICommand ImportSequenceCommand { get; }
+        public ICommand ImportSequenceFromFileCommand { get; }
         public ICommand ScanSequenceCommand { get; }
         public ICommand PasteSequenceCommand { get; }
         public ICommand AddSequenceCommand { get; }

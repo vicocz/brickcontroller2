@@ -55,10 +55,10 @@ namespace BrickController2.UI.ViewModels
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
             SharedFileStorageService = sharedFileStorageService;
 
-            ImportCreationCommand = commandFactory.CreateImportItemFromFileCommand(DisappearingToken);
-            ImportCreationFromFileCommand = commandFactory.CreateImportItemFromJsonFileCommand(DisappearingToken);
+            ImportCreationCommand = commandFactory.ImportItemFromFileCommand(this);
+            ImportCreationFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
             ScanCreationCommand = new SafeCommand(ScanCreationAsync);
-            PasteCreationCommand = commandFactory.CreatePasteItemFromClipboardCommand(DisappearingToken);
+            PasteCreationCommand = commandFactory.PasteItemFromClipboardCommand(this);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));

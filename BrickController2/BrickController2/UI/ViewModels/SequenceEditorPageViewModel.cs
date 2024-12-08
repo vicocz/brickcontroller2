@@ -42,8 +42,9 @@ namespace BrickController2.UI.ViewModels
                 ControlPoints = new ObservableCollection<SequenceControlPoint>(OriginalSequence.ControlPoints.Select(cp => new SequenceControlPoint { Value = cp.Value, DurationMs = cp.DurationMs }).ToArray())
             };
 
-            ExportSequenceCommand = commandFactory.CreateExportItemAsFileCommand(Sequence, DisappearingToken);
-            CopySequenceCommand = commandFactory.CreateShareToClipboardCommand(Sequence);
+            ExportSequenceCommand = commandFactory.ExportItemAsFileCommand(this, Sequence);
+            CopySequenceCommand = commandFactory.ShareToClipboardCommand(this, Sequence);
+            ShareSequenceAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Sequence);
             ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", Sequence)))); RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
             AddControlPointCommand = new SafeCommand(() => AddControlPoint());
             DeleteControlPointCommand = new SafeCommand<SequenceControlPoint>(async (controlPoint) => await DeleteControlPointAsync(controlPoint));
@@ -55,10 +56,11 @@ namespace BrickController2.UI.ViewModels
         public Sequence Sequence { get; }
 
         public ISharedFileStorageService SharedFileStorageService { get; }
-
+        
         public ICommand ExportSequenceCommand { get; }
         public ICommand CopySequenceCommand { get; }
         public ICommand ShareSequenceCommand { get; }
+        public ICommand ShareSequenceAsFileCommand { get; }
         public ICommand RenameSequenceCommand { get; }
         public ICommand AddControlPointCommand { get; }
         public ICommand DeleteControlPointCommand { get; }

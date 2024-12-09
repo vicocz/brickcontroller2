@@ -28,7 +28,6 @@ namespace BrickController2.UI.ViewModels
         private Task? _connectionTask;
         private CancellationTokenSource? _connectionTokenSource;
         private bool _isDisappearing = false;
-        private CancellationTokenSource? _disappearingTokenSource;
 
         public PlayerPageViewModel(
             INavigationService navigationService,
@@ -46,7 +45,8 @@ namespace BrickController2.UI.ViewModels
             _playLogic = playLogic;
 
             Creation = parameters.Get<Creation>("creation");
-            ActiveProfile = Creation.ControllerProfiles.First();
+            // apply choosen profile (if present) or the first one 
+            ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
 
             CollectDevices();
 
@@ -73,8 +73,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
 
             if (_devices.Any(d => d.DeviceType != DeviceType.Infrared) && !_deviceManager.IsBluetoothOn)
             {
@@ -82,7 +81,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("TurnOnBluetoothToConnectBluetoothDevices"),
                     Translate("Ok"),
-                    _disappearingTokenSource.Token);
+                    DisappearingToken);
 
                 await NavigationService.NavigateBackAsync();
                 return;
@@ -97,10 +96,11 @@ namespace BrickController2.UI.ViewModels
         public override async void OnDisappearing()
         {
             _isDisappearing = true;
+            base.OnDisappearing();
 
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
 
-            _playLogic.StopPlay();
+            StopPlay();
 
             if (_connectionTokenSource != null && _connectionTask != null)
             {
@@ -141,7 +141,7 @@ namespace BrickController2.UI.ViewModels
                 var deviceToConnectTo = GetNextDeviceToConnectTo();
                 if (deviceToConnectTo != null)
                 {
-                    _playLogic.StopPlay();
+                    StopPlay();
 
                     var connectionResult = DeviceConnectionResult.Ok;
 
@@ -205,7 +205,7 @@ namespace BrickController2.UI.ViewModels
                                 Translate("Warning"),
                                 Translate("FailedToConnect"),
                                 Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
+                                DisappearingToken);
 
                             if (!_isDisappearing)
                             {
@@ -219,7 +219,7 @@ namespace BrickController2.UI.ViewModels
                             ChangeOutputLevel(BuWizzOutputLevel, _buwizzDevices);
                             ChangeOutputLevel(BuWizz2OutputLevel, _buwizz2Devices);
 
-                            _playLogic.StartPlay();
+                            StartPlay();
                         }
                     }
                 }
@@ -228,6 +228,19 @@ namespace BrickController2.UI.ViewModels
                     await Task.Delay(50);
                 }
             }
+        }
+        private void StartPlay()
+        {
+            // prevent the app from locking/turning off the screen
+            Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = true;
+            _playLogic.StartPlay();
+        }
+
+        private void StopPlay()
+        {
+            _playLogic.StopPlay();
+            // reenable screen locking/turning off 
+            Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = false;
         }
 
         private Device? GetNextDeviceToConnectTo()

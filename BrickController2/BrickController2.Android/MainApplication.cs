@@ -12,10 +12,12 @@ using BrickController2.BusinessLogic.DI;
 using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
 using BrickController2.DeviceManagement.DI;
+using BrickController2.Extensions;
 using BrickController2.Droid.PlatformServices.DI;
 using BrickController2.Droid.UI.Services.DI;
 using BrickController2.UI.Controls;
 using BrickController2.UI.DI;
+using ZXing.Net.Maui.Controls;
 
 namespace BrickController2.Droid
 {
@@ -37,11 +39,12 @@ namespace BrickController2.Droid
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .ConfigureSymbolFonts()
                 .ConfigureMauiHandlers(handlers =>
                 {
-                    handlers.AddHandler<ColorImage, ColorImageHandler>();
                     handlers.AddHandler<ExtendedSlider, ExtendedSliderHandler>();
                 })
+                .UseBarcodeReader()
                 .ConfigureContainer(new AutofacServiceProviderFactory(), autofacBuilder =>
                 {
                     autofacBuilder.RegisterInstance(this).As<Context>();

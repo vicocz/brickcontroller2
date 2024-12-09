@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.UI.Services.MainThread;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace BrickController2.DeviceManagement
         private readonly IDeviceRepository _deviceRepository;
         private readonly DeviceFactory _deviceFactory;
         private readonly IMainThreadService _uiThreadService;
+        private readonly ILogger _logger;
 
         private readonly AsyncLock _asyncLock = new AsyncLock();
         private readonly AsyncLock _foundDeviceLock = new AsyncLock();
@@ -26,13 +28,15 @@ namespace BrickController2.DeviceManagement
             IInfraredDeviceManager infraredDeviceManager,
             IDeviceRepository deviceRepository,
             DeviceFactory deviceFactory,
-            IMainThreadService uiThreadService)
+            IMainThreadService uiThreadService,
+            ILogger<DeviceManager> logger)
         {
             _bluetoothDeviceManager = bluetoothDeviceManager;
             _infraredDeviceManager = infraredDeviceManager;
             _deviceRepository = deviceRepository;
             _deviceFactory = deviceFactory;
             _uiThreadService = uiThreadService;
+            _logger = logger;
         }
 
         public ObservableCollection<Device> Devices { get; } = new ObservableCollection<Device>();
@@ -58,6 +62,11 @@ namespace BrickController2.DeviceManagement
                     if (device != null)
                     {
                         Devices.Add(device);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
+                            deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);
                     }
                 }
             }
@@ -108,15 +117,22 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public Device? GetDeviceById(string? Id)
+        public Device? GetDeviceById(string? id)
         {
-            if (string.IsNullOrEmpty(Id))
+            if (string.IsNullOrEmpty(id))
             {
+                _logger.LogWarning("Empty device ID was provided.");
                 return null;
             }
 
-            var deviceTypeAndAddress = Id.Split('#');
-            var deviceType = (DeviceType)Enum.Parse(typeof(DeviceType), deviceTypeAndAddress[0]);
+            var deviceTypeAndAddress = id.Split('#');
+            if (!Enum.TryParse<DeviceType>(deviceTypeAndAddress[0], out var deviceType))
+            {
+                _logger.LogWarning("Device ID [{id}] contains unsupported DeviceType:{deviceType}.",
+                    id, deviceTypeAndAddress[0]);
+                return null;
+            }
+
             var deviceAddress = deviceTypeAndAddress[1];
             return Devices.FirstOrDefault(d => d.DeviceType == deviceType && d.Address == deviceAddress);
         }

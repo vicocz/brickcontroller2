@@ -15,7 +15,6 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDialogService _dialogService;
 
-        private CancellationTokenSource? _disappearingTokenSource;
         private bool _isDisappearing = false;
 
         public DeviceListPageViewModel(
@@ -42,14 +41,13 @@ namespace BrickController2.UI.ViewModels
         public override void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
         }
 
         public override void OnDisappearing()
         {
             _isDisappearing = true;
-            _disappearingTokenSource?.Cancel();
+            base.OnDisappearing();
         }
 
         private async Task DeleteDeviceAsync(Device device)
@@ -61,7 +59,7 @@ namespace BrickController2.UI.ViewModels
                     $"{Translate("AreYouSureToDeleteDevice")} '{device.Name}'?",
                     Translate("Yes"),
                     Translate("No"),
-                    _disappearingTokenSource?.Token ?? default))
+                    DisappearingToken))
                 {
                     await _dialogService.ShowProgressDialogAsync(
                         false,
@@ -82,7 +80,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("BluetoothIsTurnedOff"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
             }
 
             var percent = 0;
@@ -94,7 +92,7 @@ namespace BrickController2.UI.ViewModels
                     if (!_isDisappearing)
                     {
                         using (var cts = new CancellationTokenSource())
-                        using (_disappearingTokenSource?.Token.Register(() => cts.Cancel()))
+                        using (DisappearingToken.Register(() => cts.Cancel()))
                         {
                             Task<bool>? scanTask = null;
                             try

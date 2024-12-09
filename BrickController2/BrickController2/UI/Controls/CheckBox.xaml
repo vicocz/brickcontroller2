@@ -16,8 +16,13 @@
                 <Border BackgroundColor="{DynamicResource PageBackgroundColor}" WidthRequest="20" HeightRequest="20" StrokeShape="RoundRectangle 10" Padding="0" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Grid>
             <Grid x:Name="CheckedShape" WidthRequest="25" HeightRequest="25" VerticalOptions="Center">
-                <Border BackgroundColor="{DynamicResource CheckBoxCheckedColor}" WidthRequest="22" HeightRequest="22" StrokeShape="RoundRectangle 11" Padding="0" HorizontalOptions="Center" VerticalOptions="Center"/>
-                <controls:ColorImage Source="{extensions:ImageResource Source=ic_checkmark.png}" Color="{DynamicResource PageBackgroundColor}" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center"/>
+                <Border BackgroundColor="{DynamicResource CheckBoxCheckedColor}" WidthRequest="22" HeightRequest="22" StrokeShape="RoundRectangle 11" Padding="0" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image>
+                        <Image.Source>
+                            <FontImageSource Color="{DynamicResource PageBackgroundColor}" FontFamily="Icons" Glyph="check"/>
+                        </Image.Source>
+                    </Image>                
+                </Border>
             </Grid>
         </Grid>
     </ContentView.Content>

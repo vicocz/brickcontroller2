@@ -8,6 +8,7 @@ using Foundation;
 using BrickController2.BusinessLogic.DI;
 using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
+using BrickController2.Extensions;
 using BrickController2.DeviceManagement.DI;
 using BrickController2.iOS.PlatformServices.DI;
 using BrickController2.iOS.UI.Services.DI;
@@ -15,6 +16,7 @@ using BrickController2.UI.DI;
 using BrickController2.iOS.UI.CustomHandlers;
 using BrickController2.UI.Controls;
 using BrickController2.iOS.UI.CustomRenderers;
+using ZXing.Net.Maui.Controls;
 
 namespace BrickController2.iOS
 {
@@ -27,12 +29,13 @@ namespace BrickController2.iOS
 
             builder
                 .UseMauiApp<App>()
+                .ConfigureSymbolFonts()
                 .ConfigureMauiHandlers(handlers =>
                 {
-                    handlers.AddHandler<ColorImage, ColorImageHandler>();
                     handlers.AddHandler<ExtendedSlider, ExtendedSliderHandler>();
                     handlers.AddHandler(typeof(ListView), typeof(NoAnimListViewRenderer));
                 })
+                .UseBarcodeReader()
                 .ConfigureContainer(new AutofacServiceProviderFactory(), autofacBuilder =>
                 {
                     autofacBuilder.RegisterModule(new PlatformServicesModule());

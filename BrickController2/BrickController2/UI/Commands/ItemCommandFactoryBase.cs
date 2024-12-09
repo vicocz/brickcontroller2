@@ -1,5 +1,4 @@
-﻿using BrickController2.CreationManagement;
-using BrickController2.CreationManagement.Sharing;
+﻿using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Services.Dialog;
@@ -12,7 +11,6 @@ using Microsoft.Maui.Storage;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -78,17 +76,21 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
 
     protected async Task ShareAsJsonFileAsync(TModel item)
     {
-        var jsonFile = await SharingManager.ShareAsJsonFileAsync(item, FileSystem.CacheDirectory);
+        var json = await SharingManager.ShareAsync(item, compact: false);
+
+        string filePath = Path.Combine(FileSystem.CacheDirectory, $"{item.Name}.json");
+        await File.WriteAllTextAsync(filePath, json);
+
         await Share.RequestAsync(new ShareFileRequest
         {
             Title = item.Name,
-            File = new ShareFile(jsonFile)
+            File = new ShareFile(filePath)
         });
     }
 
     protected async Task ShareAsTextAsync(TModel item)
     {
-        var json = await SharingManager.ShareAsync(item);
+        var json = await SharingManager.ShareAsync(item, compact:false);
 
         await Share.RequestAsync(new ShareTextRequest
         {
@@ -168,7 +170,7 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
         {
             PickOptions options = new()
             {
-                PickerTitle = "Please select a JSON file",
+                PickerTitle = Translate("ChooseJsonFileToImport"),
                 FileTypes = new FilePickerFileType(
                     new Dictionary<DevicePlatform, IEnumerable<string>>
                     {
@@ -184,7 +186,9 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
                 try
                 {
                     using var stream = await result.OpenReadAsync();
-                    var item = await SharingManager.ImportFromJsonFileAsync(stream);
+                    using StreamReader sr = new(stream);
+                    var json = await sr.ReadToEndAsync();
+                    var item = SharingManager.Import(json);
                     await ImportItemAsync(item);
                 }
                 catch (Exception ex)

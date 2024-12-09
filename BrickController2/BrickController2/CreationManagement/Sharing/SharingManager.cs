@@ -2,7 +2,6 @@
 using Microsoft.Maui.ApplicationModel.DataTransfer;
 using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace BrickController2.CreationManagement.Sharing;
@@ -26,20 +25,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     internal JsonSerializerSettings CompactJsonOptions { get; }
 
     /// <inheritdoc/>
-    public Task<string> ShareAsync(TModel model) => ShareAsync(model, CompactJsonOptions);
-
-    /// <summary>
-    /// Export the specified <paramref name="model"/> as JSON file.
-    /// </summary>
-    public async Task<string> ShareAsJsonFileAsync(TModel model, string folder)
-    {
-        var json = await ShareAsync(model, JsonOptions);
-
-        string filePath = Path.Combine(folder, $"{model.Name}.json");
-        File.WriteAllText(filePath, json);
-
-        return filePath;
-    }
+    public Task<string> ShareAsync(TModel model, bool compact = true) => ShareAsync(model, compact ? CompactJsonOptions : JsonOptions);
 
     /// <summary>
     /// Export the specified <paramref name="item"/> as serialized JSON model
@@ -66,14 +52,6 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     {
         var json = await MainThread.InvokeOnMainThreadAsync(Clipboard.GetTextAsync);
         return Import(json, JsonOptions);
-    }
-
-    /// <inheritdoc/>
-    public async Task<TModel> ImportFromJsonFileAsync(Stream stream)
-    {
-        using StreamReader sr = new(stream);
-        var json = await sr.ReadToEndAsync();
-        return Import(json, CompactJsonOptions);
     }
 
     /// <inheritdoc/>

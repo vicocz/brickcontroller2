@@ -627,4 +627,7 @@
   <data name="ImportSequenceFromFile" xml:space="preserve">
     <value>Eine Sequenz aus einer Datei importieren</value>
   </data>
+  <data name="ChooseJsonFileToImport" xml:space="preserve">
+    <value>Wählen Sie eine JSON-Datei zum Importieren aus</value>
+  </data>
 </root>

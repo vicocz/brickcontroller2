@@ -45,7 +45,8 @@ namespace BrickController2.UI.ViewModels
             ExportSequenceCommand = commandFactory.ExportItemAsFileCommand(this, Sequence);
             CopySequenceCommand = commandFactory.ShareToClipboardCommand(this, Sequence);
             ShareSequenceAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Sequence);
-            ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", Sequence)))); RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
+            ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", Sequence))));
+            RenameSequenceCommand = new SafeCommand(async () => await RenameSequenceAsync());
             AddControlPointCommand = new SafeCommand(() => AddControlPoint());
             DeleteControlPointCommand = new SafeCommand<SequenceControlPoint>(async (controlPoint) => await DeleteControlPointAsync(controlPoint));
             SaveSequenceCommand = new SafeCommand(async () => await SaveSequenceAsync(), () => !_dialogService.IsDialogOpen);
@@ -56,7 +57,7 @@ namespace BrickController2.UI.ViewModels
         public Sequence Sequence { get; }
 
         public ISharedFileStorageService SharedFileStorageService { get; }
-        
+
         public ICommand ExportSequenceCommand { get; }
         public ICommand CopySequenceCommand { get; }
         public ICommand ShareSequenceCommand { get; }

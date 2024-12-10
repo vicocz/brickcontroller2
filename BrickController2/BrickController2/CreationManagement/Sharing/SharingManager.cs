@@ -25,7 +25,7 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
     internal JsonSerializerSettings CompactJsonOptions { get; }
 
     /// <inheritdoc/>
-    public Task<string> ShareAsync(TModel model) => ShareAsync(model, CompactJsonOptions);
+    public Task<string> ShareAsync(TModel model, bool compact = true) => ShareAsync(model, compact ? CompactJsonOptions : JsonOptions);
 
     /// <summary>
     /// Export the specified <paramref name="item"/> as serialized JSON model
@@ -56,6 +56,9 @@ public class SharingManager<TModel> : ISharingManager<TModel> where TModel : cla
 
     /// <inheritdoc/>
     public TModel Import(string json) => Import(json, CompactJsonOptions);
+
+    /// <inheritdoc/>
+    public TModel ImportWithoutValidation(string json) => JsonConvert.DeserializeObject<TModel>(json)!;
 
     internal static TModel Import(string? json, JsonSerializerSettings options)
     {

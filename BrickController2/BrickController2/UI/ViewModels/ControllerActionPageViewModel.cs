@@ -8,7 +8,6 @@ using BrickController2.UI.Services.Translation;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -20,8 +19,6 @@ namespace BrickController2.UI.ViewModels
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
         private readonly IPreferencesService _preferences;
-
-        private CancellationTokenSource? _disappearingTokenSource;
 
         private Device? _selectedDevice;
 
@@ -128,17 +125,11 @@ namespace BrickController2.UI.ViewModels
         public ICommand SelectAxisTypeCommand { get; }
         public ICommand SelectAxisCharacteristicCommand { get; }
 
-        public override void OnAppearing()
-        {
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
-        }
-
         public override void OnDisappearing()
         {
             _preferences.Set<string>("LastSelectedDeviceId", _selectedDevice!.Id, "com.scn.BrickController2.ControllerActionPage");
 
-            _disappearingTokenSource?.Cancel();
+            base.OnDisappearing();
         }
 
         private async Task SaveControllerActionAsync()
@@ -149,7 +140,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("SelectDeviceBeforeSaving"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
                 return;
             }
 
@@ -197,7 +188,7 @@ namespace BrickController2.UI.ViewModels
                     }
                 },
                 Translate("Saving"),
-                token: _disappearingTokenSource?.Token ?? default);
+                token: DisappearingToken);
 
             await NavigationService.NavigateBackAsync();
         }
@@ -208,7 +199,7 @@ namespace BrickController2.UI.ViewModels
                 Devices,
                 Translate("SelectDevice"),
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
 
             if (result.IsOk)
             {
@@ -232,7 +223,7 @@ namespace BrickController2.UI.ViewModels
                 Enum.GetNames(typeof(ChannelOutputType)),
                 Translate("ChannelType"),
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
 
             if (result.IsOk)
             {
@@ -256,7 +247,7 @@ namespace BrickController2.UI.ViewModels
                 Enum.GetNames(typeof(ControllerButtonType)),
                 Translate("ButtonType"),
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
 
             if (result.IsOk)
             {
@@ -272,7 +263,7 @@ namespace BrickController2.UI.ViewModels
                     Sequences,
                     Translate("SelectSequence"),
                     Translate("Cancel"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
 
                 if (result.IsOk)
                 {
@@ -285,7 +276,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("NoSequences"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
             }
         }
 
@@ -303,7 +294,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("MissingSequence"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
             }
         }
 
@@ -313,7 +304,7 @@ namespace BrickController2.UI.ViewModels
                 Enum.GetNames(typeof(ControllerAxisType)),
                 Translate("AxisType"),
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
 
             if (result.IsOk)
             {
@@ -327,7 +318,7 @@ namespace BrickController2.UI.ViewModels
                 Enum.GetNames(typeof(ControllerAxisCharacteristic)),
                 Translate("AxisCharacteristic"),
                 Translate("Cancel"),
-                _disappearingTokenSource?.Token ?? default);
+                DisappearingToken);
 
             if (result.IsOk)
             {

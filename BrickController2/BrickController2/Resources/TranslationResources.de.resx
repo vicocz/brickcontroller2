@@ -637,6 +637,6 @@
     <value>Die Aktivierung des Regalmodus ist fehlgeschlagen:</value>
   </data>
   <data name="ActivateShelfModeConfirm" xml:space="preserve">
-    <value>Sind Sie sicher, dass Sie den Regalmodus für dieses BuWizz3-Gerät aktivieren möchten?</value>
+    <value>Sind Sie sicher, dass Sie den Regalmodus für dieses BuWizz3-Gerät aktivieren möchten? Dadurch wird der Akku vom Gerät getrennt und der Benutzer muss das Ladegerät anschließen, um das Gerät aufzuwecken.</value>
   </data>
 </root>

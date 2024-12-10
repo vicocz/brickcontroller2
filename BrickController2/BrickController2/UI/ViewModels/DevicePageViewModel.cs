@@ -236,6 +236,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     var buwizz = (BuWizz3Device)Device;
                     await buwizz.ActiveShelfModeAsync();
+                    await buwizz.DisconnectAsync();
                 }
                 catch (Exception ex)
                 {

@@ -637,6 +637,9 @@
     <value>Activation of the shelf mode has failed:</value>
   </data>
   <data name="ActivateShelfModeConfirm" xml:space="preserve">
-    <value>Are you sure you want to active the shelf mode for this BuWizz device? This will disconnect the battery from the device and will require the user to connect the charger in order to wake-up the device.</value>
+    <value>Are you sure you want to active the shelf mode for this BuWizz device? This will disconnect the battery from the device and typically requires the user to connect the charger in order to wake-up the device.</value>
+  </data>
+  <data name="Applying" xml:space="preserve">
+    <value>Applying...</value>
   </data>
 </root>

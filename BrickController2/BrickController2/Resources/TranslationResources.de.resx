@@ -639,4 +639,7 @@
   <data name="ActivateShelfModeConfirm" xml:space="preserve">
     <value>Sind Sie sicher, dass Sie den Regalmodus für dieses BuWizz3-Gerät aktivieren möchten? Dadurch wird der Akku vom Gerät getrennt und der Benutzer muss das Ladegerät anschließen, um das Gerät aufzuwecken.</value>
   </data>
+  <data name="Applying" xml:space="preserve">
+    <value>Bewerben...</value>
+  </data>
 </root>

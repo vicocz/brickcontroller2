@@ -234,13 +234,19 @@ namespace BrickController2.UI.ViewModels
             {
                 try
                 {
-                    // send command
-                    await Device.ActiveShelfModeAsync();
-                    // cancel connection
-                    _connectionTokenSource?.Cancel();
-                    // perform disconnection
-                    await Task.Delay(100);
-                    await Device.DisconnectAsync();
+                    await _dialogService.ShowProgressDialogAsync(
+                        false,
+                        async (progressDialog, token) =>
+                        {
+                            // send command and later cancel connection
+                            await Device.ActiveShelfModeAsync();
+                            _connectionTokenSource?.Cancel();
+                            // disconnection is expected to be triggered by Back
+                            await Task.Delay(500, DisappearingToken);
+                            await NavigationService.NavigateBackAsync();
+                        },
+                        Translate("Applying"),
+                        token: DisappearingToken);
                 }
                 catch (Exception ex)
                 {
@@ -248,7 +254,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("ActivateShelfModeFailed", ex),
                         Translate("Ok"),
-                        CancellationToken.None);
+                        DisappearingToken);
                 }
             }
         }

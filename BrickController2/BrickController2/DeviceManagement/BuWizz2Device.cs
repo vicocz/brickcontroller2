@@ -81,14 +81,6 @@ namespace BrickController2.DeviceManagement
 
         public override bool CanBePowerSource => true;
 
-        public override bool CanActivateShelfMode => true;
-
-        public override async Task ActiveShelfModeAsync(CancellationToken token = default)
-        {
-            var activateShelfModeCmd = ActivteShelfMode();
-            await _bleDevice!.WriteAsync(_characteristic!, activateShelfModeCmd, token);
-        }
-
         protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
         {
             var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);

@@ -102,6 +102,11 @@ namespace BrickController2.DeviceManagement
 
         public virtual bool CanBePowerSource => false;
 
+        public virtual bool CanActivateShelfMode => false;
+
+        public virtual Task ActiveShelfModeAsync(CancellationToken token = default)
+            => throw new InvalidOperationException("Shelf mode is not supported for this type of device.");
+
         public async Task RenameDeviceAsync(Device device, string newName)
         {
             using (await _asyncLock.LockAsync())

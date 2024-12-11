@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.Protocols.BuWizzProtocol;
+
 namespace BrickController2.DeviceManagement
 {
     internal class BuWizz2Device : BluetoothDevice
@@ -78,6 +80,14 @@ namespace BrickController2.DeviceManagement
         }
 
         public override bool CanBePowerSource => true;
+
+        public override bool CanActivateShelfMode => true;
+
+        public override async Task ActiveShelfModeAsync(CancellationToken token = default)
+        {
+            var activateShelfModeCmd = ActivteShelfMode();
+            await _bleDevice!.WriteAsync(_characteristic!, activateShelfModeCmd, token);
+        }
 
         protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
         {

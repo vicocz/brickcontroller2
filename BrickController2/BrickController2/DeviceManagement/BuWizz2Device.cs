@@ -6,8 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using static BrickController2.Protocols.BuWizzProtocol;
-
 namespace BrickController2.DeviceManagement
 {
     internal class BuWizz2Device : BluetoothDevice

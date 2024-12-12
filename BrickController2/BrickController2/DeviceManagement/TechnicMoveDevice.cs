@@ -12,6 +12,8 @@ namespace BrickController2.DeviceManagement
     {
         public const int CHANNEL_VM = 12; // artificial channel to mimic combined AB ports in PLAYVM
 
+        private const int CHANNEL_A = 0;
+        private const int CHANNEL_B = 1;
         private const int CHANNEL_C = 2;
 
         private bool _applyPlayVmMode;
@@ -41,7 +43,8 @@ namespace BrickController2.DeviceManagement
         {
             // autodetect PLAYVM mode for A / B channels (as testing page should not be affected)
             _applyPlayVmMode = startOutputProcessing &&
-                channelConfigurations.Any(c => c.Channel == CHANNEL_VM);
+                channelConfigurations.Any(c => c.Channel == CHANNEL_VM) &&
+                channelConfigurations.Any(c => c.Channel == CHANNEL_C && c.ChannelOutputType == CreationManagement.ChannelOutputType.ServoMotor);
 
             // filter out non standard channels
             var filteredConfigurtions = channelConfigurations
@@ -54,11 +57,21 @@ namespace BrickController2.DeviceManagement
         {
             if (channel == CHANNEL_VM)
             {
-                // reset servo writes to enforce update
-                ResetSendAttemps(CHANNEL_C);
-                // store virtual motor value to be later send with PLAYVM
-                var intValue = (int)(100 * CutOutputValue(value));
-                _virtualMotorValue = GetChannelValue(intValue);
+                // for PLAYVM mode 
+                if (_applyPlayVmMode)
+                {
+                    // reset servo writes to enforce update
+                    ResetSendAttemps(CHANNEL_C);
+                    // store virtual motor value to be later send with PLAYVM
+                    var intValue = (int)(100 * CutOutputValue(value));
+                    _virtualMotorValue = GetChannelValue(intValue);
+                }
+                else
+                {
+                    // user somehow defined this VM channel without servo setup for C channel
+                    base.SetOutput(CHANNEL_A, -value);
+                    base.SetOutput(CHANNEL_B, value);
+                }
             }
             else
             {

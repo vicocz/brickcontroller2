@@ -28,6 +28,7 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
 
     protected override string ItemsTitle => Translate("Creations");
     protected override string ItemNameHint => Translate("CreationName");
+    protected override string NoItemToImportMessage => Translate("NoCreationsToImport");
     protected override string GetExportFailureDescription(Exception ex) => Translate("FailedToExportCreation", ex);
     protected override string GetImportFailureDescription(Exception ex) => Translate("FailedToImportCreation", ex);
 

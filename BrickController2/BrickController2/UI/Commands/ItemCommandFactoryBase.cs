@@ -59,6 +59,7 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
 
     protected abstract string ItemNameHint { get; }
     protected abstract string ItemsTitle { get; }
+    protected abstract string NoItemToImportMessage { get; }
 
     protected string Translate(string key) => TranslationService.Translate(key);
     protected string Translate(string key, string extra) => Translate(key) + " " + extra;
@@ -211,6 +212,17 @@ internal abstract class ItemCommandFactoryBase<TModel> : ICommandFactory<TModel>
         try
         {
             var itemFilesMap = FileHelper.EnumerateDirectoryFilesToFilenameMap(SharedFileStorageService.SharedStorageDirectory!, $"*.{TModel.Type}");
+
+            if (itemFilesMap.Count == 0)
+            {
+                await DialogService.ShowMessageBoxAsync(
+                    Translate("Information"),
+                    NoItemToImportMessage,
+                    Translate("Ok"),
+                    token);
+                return;
+            }
+
             var result = await DialogService.ShowSelectionDialogAsync(
                 itemFilesMap.Keys,
                 ItemsTitle,

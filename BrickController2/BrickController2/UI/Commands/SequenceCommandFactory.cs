@@ -28,6 +28,7 @@ internal class SequenceCommandFactory : ItemCommandFactoryBase<Sequence>
 
     protected override string ItemsTitle => Translate("Sequences");
     protected override string ItemNameHint => Translate("SequenceName");
+    protected override string NoItemToImportMessage => Translate("NoSequencesToImport");
     protected override string GetExportFailureDescription(Exception ex) => Translate("FailedToExportSequence", ex);
     protected override string GetImportFailureDescription(Exception ex) => Translate("FailedToImportSequence", ex);
 

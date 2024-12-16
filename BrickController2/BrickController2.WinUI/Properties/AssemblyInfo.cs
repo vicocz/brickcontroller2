@@ -18,3 +18,5 @@
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("1.0.0.0")]
+
+[assembly: System.Runtime.Versioning.SupportedOSPlatform("Windows10.0.17763.0")]

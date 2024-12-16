@@ -64,11 +64,6 @@ public class GameControllerService : IGameControllerService
         GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(events));
     }
 
-    internal void RaiseEvent(string deviceId, string key, GameControllerEventType eventType, float value = 0.0f)
-    {
-        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(eventType, key, value));
-    }
-
     private void InitializeControllers()
     {
         // get all available gamepads

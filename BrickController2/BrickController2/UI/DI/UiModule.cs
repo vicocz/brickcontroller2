@@ -60,7 +60,7 @@ namespace BrickController2.UI.DI
             });
 
             // command related registration
-            builder.RegisterType<CreationCommandFactory>().As<ICommandFactory<Creation>>().SingleInstance();
+            builder.RegisterType<CreationCommandFactory>().As<ICommandFactory<Creation>>().As<ICreationCommandFactory>().SingleInstance();
             builder.RegisterType<SequenceCommandFactory>().As<ICommandFactory<Sequence>>().SingleInstance();
 
             // Xamarin forms related

@@ -42,7 +42,7 @@ namespace BrickController2.UI.ViewModels
             IPlayLogic playLogic,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
-            ICommandFactory<Creation> commandFactory,
+            ICreationCommandFactory commandFactory,
             IBluetoothPermission bluetoothPermission,
             IReadWriteExternalStoragePermission readWriteExternalStoragePermission)
             : base(navigationService, translationService)
@@ -63,7 +63,7 @@ namespace BrickController2.UI.ViewModels
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
-            PlayCreationCommand = new SafeCommand<Creation>(PlayAsync);
+            PlayCreationCommand = commandFactory.PlayCommand(this);
             ShareCreationCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", creation))));
             NavigateToDevicesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<DeviceListPageViewModel>());
             NavigateToControllerTesterCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<ControllerTesterPageViewModel>());

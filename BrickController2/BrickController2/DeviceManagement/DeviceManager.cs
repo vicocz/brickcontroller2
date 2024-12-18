@@ -61,7 +61,7 @@ namespace BrickController2.DeviceManagement
                 foreach (var deviceDTO in deviceDTOs)
                 {
                     var settings = JsonConvert.DeserializeObject<IEnumerable<DeviceSetting>>(deviceDTO.Settings);
-                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, settings);
+                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, settings!);
                     if (device != null)
                     {
                         Devices.Add(device);

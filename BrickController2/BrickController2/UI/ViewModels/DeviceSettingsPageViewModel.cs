@@ -5,14 +5,11 @@ using BrickController2.UI.Services.Translation;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 
 namespace BrickController2.UI.ViewModels;
 
 public class DeviceSettingsPageViewModel : PageViewModelBase
 {
-    private CancellationTokenSource? _disappearingTokenSource;
-
     public DeviceSettingsPageViewModel(
         INavigationService navigationService,
         ITranslationService translationService,
@@ -29,17 +26,9 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
 
     public ObservableCollection<DeviceSettingViewModelBase> Settings { get; }
 
-    public CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
-
-    public override void OnAppearing()
-    {
-        _disappearingTokenSource?.Cancel();
-        _disappearingTokenSource = new CancellationTokenSource();
-    }
-
     public override async void OnDisappearing()
     {
-        _disappearingTokenSource?.Cancel();
+        base.OnDisappearing();
 
         // update changed settings on exit
         var changedSettings = Settings
@@ -50,8 +39,6 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         if (changedSettings.Any())
             await Device.UpdateDeviceSettingsAsync(changedSettings);
     }
-
-    internal string Translate2(string text) => Translate(text);
 
     private DeviceSettingViewModelBase ToViewModel(DeviceSetting setting)
     {

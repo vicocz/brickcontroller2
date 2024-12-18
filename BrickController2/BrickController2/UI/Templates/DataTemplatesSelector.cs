@@ -1,17 +1,13 @@
 ﻿using BrickController2.UI.ViewModels;
 using Microsoft.Maui.Controls;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace BrickController2.UI.Templates;
 
 public class DataTemplatesSelector : DataTemplateSelector
 {
-    public DataTemplate BoolDataTemplate { get; set; }
+    public DataTemplate BoolDataTemplate { get; set; } = default!;
 
-    public DataTemplate EnumDataTemplate { get; set; }
+    public DataTemplate EnumDataTemplate { get; set; } = default!;
 
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {

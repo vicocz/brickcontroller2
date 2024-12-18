@@ -51,7 +51,7 @@ namespace BrickController2.DeviceManagement
             // apply values (if any) or default
             SetSettingValue(SwapChannelsSettingName, settings, swapChannels);
             SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
-            // update ooutput value again to apply settings
+            // update output value again to apply settings
             _outputLevel = DefaultOutputLevel;
         }
 

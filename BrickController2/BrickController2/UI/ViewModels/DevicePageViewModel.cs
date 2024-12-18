@@ -50,7 +50,7 @@ namespace BrickController2.UI.ViewModels
             ActivateShelfModeCommand = new SafeCommand(ActivateShelfModeCommandAsync,
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
-            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new NavigationParameters(("device", Device))),
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (Device)),
                 () => CanOpenSettings);
         }
 
@@ -220,9 +220,7 @@ namespace BrickController2.UI.ViewModels
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
                             // update command enablement
-                            ScanCommand.RaiseCanExecuteChanged();
-                            ActivateShelfModeCommand.RaiseCanExecuteChanged();
-                            OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
+                            UpdateCommandsAvailability();
                         }
                     }
                 }
@@ -332,8 +330,14 @@ namespace BrickController2.UI.ViewModels
         private void OnDeviceDisconnected(Device device)
         {
             // update command enablement
+            UpdateCommandsAvailability();
+        }
+
+        private void UpdateCommandsAvailability()
+        {
             ScanCommand.RaiseCanExecuteChanged();
             ActivateShelfModeCommand.RaiseCanExecuteChanged();
+            OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
         }
 
         private void SetBuWizzOutputLevel(int level)

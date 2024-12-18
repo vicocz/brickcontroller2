@@ -612,6 +612,39 @@
   <data name="Add" xml:space="preserve">
     <value>Hinzufügen</value>
   </data>
+  <data name="ShareCreationAsFile" xml:space="preserve">
+    <value>Die Kreation als Datei teilen</value>
+  </data>
+  <data name="ShareCreationAsText" xml:space="preserve">
+    <value>Die Kreation als Text teilen</value>
+  </data>
+  <data name="ShareSequenceAsFile" xml:space="preserve">
+    <value>Die Sequenze als Datei teilen</value>
+  </data>
+  <data name="ShareSequenceAsText" xml:space="preserve">
+    <value>Die Sequenze als Text teilen</value>
+  </data>
+  <data name="ImportCreationFromFile" xml:space="preserve">
+    <value>Eine Kreation aus einer Datei importieren</value>
+  </data>
+  <data name="ImportSequenceFromFile" xml:space="preserve">
+    <value>Eine Sequenz aus einer Datei importieren</value>
+  </data>
+  <data name="ChooseJsonFileToImport" xml:space="preserve">
+    <value>Wählen Sie eine JSON-Datei zum Importieren aus</value>
+  </data>
+  <data name="ActivateShelfMode" xml:space="preserve">
+    <value>Den Regalmodus aktivieren</value>
+  </data>
+  <data name="ActivateShelfModeFailed" xml:space="preserve">
+    <value>Die Aktivierung des Regalmodus ist fehlgeschlagen:</value>
+  </data>
+  <data name="ActivateShelfModeConfirm" xml:space="preserve">
+    <value>Sind Sie sicher, dass Sie den Regalmodus für dieses BuWizz3-Gerät aktivieren möchten? Dadurch wird der Akku vom Gerät getrennt und der Benutzer muss das Ladegerät anschließen, um das Gerät aufzuwecken.</value>
+  </data>
+  <data name="Applying" xml:space="preserve">
+    <value>Bewerben...</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Standardausgangspegel</value>
   </data>

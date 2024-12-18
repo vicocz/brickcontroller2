@@ -23,7 +23,6 @@ namespace BrickController2.UI.ViewModels
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
         private bool _reconnect = false;
-        private CancellationTokenSource? _disappearingTokenSource;
         private bool _isDisappearing = false;
 
         public DevicePageViewModel(
@@ -48,6 +47,8 @@ namespace BrickController2.UI.ViewModels
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
+            ActivateShelfModeCommand = new SafeCommand(ActivateShelfModeCommandAsync,
+                () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new NavigationParameters(("device", Device))),
                 () => CanOpenSettings);
@@ -68,6 +69,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
+        public ICommand ActivateShelfModeCommand { get; }
         public ICommand ScanCommand { get; }
         public ICommand OpenDeviceSettingsPageCommand { get; }
 
@@ -79,8 +81,7 @@ namespace BrickController2.UI.ViewModels
         public override async void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
 
             if (Device.DeviceType != DeviceType.Infrared)
             {
@@ -90,7 +91,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Warning"),
                         Translate("TurnOnBluetoothToConnect"),
                         Translate("Ok"),
-                        _disappearingTokenSource?.Token ?? default);
+                        DisappearingToken);
 
                     await NavigationService.NavigateBackAsync();
                     return;
@@ -103,8 +104,7 @@ namespace BrickController2.UI.ViewModels
 
         public override async void OnDisappearing()
         {
-            _isDisappearing = true;
-            _disappearingTokenSource?.Cancel();
+            base.OnDisappearing();
 
             if (_connectionTokenSource is not null && _connectionTask is not null)
             {
@@ -126,7 +126,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     KeyboardType.Text,
                     (deviceName) => !string.IsNullOrEmpty(deviceName),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
 
                 if (result.IsOk)
                 {
@@ -136,7 +136,7 @@ namespace BrickController2.UI.ViewModels
                             Translate("Warning"),
                             Translate("DeviceNameCanNotBeEmpty"),
                             Translate("Ok"),
-                            _disappearingTokenSource?.Token ?? default);
+                            DisappearingToken);
 
                         return;
                     }
@@ -145,7 +145,7 @@ namespace BrickController2.UI.ViewModels
                         false,
                         async (progressDialog, token) => await Device.RenameDeviceAsync(Device, result.Result),
                         Translate("Renaming"),
-                        token: _disappearingTokenSource?.Token ?? default);
+                        token: DisappearingToken);
                 }
             }
             catch (OperationCanceledException)
@@ -200,7 +200,7 @@ namespace BrickController2.UI.ViewModels
                                 Translate("Warning"),
                                 Translate("FailedToConnect"),
                                 Translate("Ok"),
-                                _disappearingTokenSource?.Token ?? default);
+                                DisappearingToken);
 
                             if (!_isDisappearing)
                             {
@@ -221,6 +221,7 @@ namespace BrickController2.UI.ViewModels
                             }
                             // update command enablement
                             ScanCommand.RaiseCanExecuteChanged();
+                            ActivateShelfModeCommand.RaiseCanExecuteChanged();
                             OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
                         }
                     }
@@ -228,6 +229,42 @@ namespace BrickController2.UI.ViewModels
                 else
                 {
                     await Task.Delay(50);
+                }
+            }
+        }
+
+        private async Task ActivateShelfModeCommandAsync()
+        {
+            if (await _dialogService.ShowQuestionDialogAsync(
+                Translate("ActivateShelfMode"),
+                Translate("ActivateShelfModeConfirm"),
+                Translate("Yes"),
+                Translate("No"),
+                DisappearingToken))
+            {
+                try
+                {
+                    await _dialogService.ShowProgressDialogAsync(
+                        false,
+                        async (progressDialog, token) =>
+                        {
+                            // send command and later cancel connection
+                            await Device.ActiveShelfModeAsync();
+                            _connectionTokenSource?.Cancel();
+                            // disconnection is expected to be triggered by Back
+                            await Task.Delay(500, DisappearingToken);
+                            await NavigationService.NavigateBackAsync();
+                        },
+                        Translate("Applying"),
+                        token: DisappearingToken);
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("ActivateShelfModeFailed", ex),
+                        Translate("Ok"),
+                        DisappearingToken);
                 }
             }
         }
@@ -240,7 +277,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("BluetoothIsTurnedOff"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
             }
 
             var percent = 0;
@@ -252,7 +289,7 @@ namespace BrickController2.UI.ViewModels
                     if (!_isDisappearing)
                     {
                         using (var cts = new CancellationTokenSource())
-                        using (_disappearingTokenSource?.Token.Register(() => cts.Cancel()))
+                        using (DisappearingToken.Register(() => cts.Cancel()))
                         {
                             Task<bool>? scanTask = null;
                             try
@@ -294,6 +331,9 @@ namespace BrickController2.UI.ViewModels
 
         private void OnDeviceDisconnected(Device device)
         {
+            // update command enablement
+            ScanCommand.RaiseCanExecuteChanged();
+            ActivateShelfModeCommand.RaiseCanExecuteChanged();
         }
 
         private void SetBuWizzOutputLevel(int level)

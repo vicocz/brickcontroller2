@@ -615,6 +615,39 @@
   <data name="Add" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="ShareCreationAsFile" xml:space="preserve">
+    <value>Share the creation as file</value>
+  </data>
+  <data name="ShareCreationAsText" xml:space="preserve">
+    <value>Share the creation as text</value>
+  </data>
+  <data name="ShareSequenceAsFile" xml:space="preserve">
+    <value>Share the sequence as file</value>
+  </data>
+  <data name="ShareSequenceAsText" xml:space="preserve">
+    <value>Share the sequence as text</value>
+  </data>
+  <data name="ImportCreationFromFile" xml:space="preserve">
+    <value>Import a creation from file</value>
+  </data>
+  <data name="ImportSequenceFromFile" xml:space="preserve">
+    <value>Import a sequence from file</value>
+  </data>
+  <data name="ChooseJsonFileToImport" xml:space="preserve">
+    <value>Choose a JSON file to import</value>
+  </data>
+  <data name="ActivateShelfMode" xml:space="preserve">
+    <value>Activate shelf mode</value>
+  </data>
+  <data name="ActivateShelfModeFailed" xml:space="preserve">
+    <value>Activation of the shelf mode has failed:</value>
+  </data>
+  <data name="ActivateShelfModeConfirm" xml:space="preserve">
+    <value>Are you sure you want to active the shelf mode for this BuWizz device? This will disconnect the battery from the device and typically requires the user to connect the charger in order to wake-up the device.</value>
+  </data>
+  <data name="Applying" xml:space="preserve">
+    <value>Applying...</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
   </data>

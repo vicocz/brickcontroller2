@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.Protocols.BuWizzProtocol;
+
 namespace BrickController2.DeviceManagement
 {
     internal class BuWizz3Device : BluetoothDevice
@@ -122,6 +124,14 @@ namespace BrickController2.DeviceManagement
         }
 
         public override bool CanBePowerSource => false;
+
+        public override bool CanActivateShelfMode => true;
+
+        public override async Task ActiveShelfModeAsync(CancellationToken token = default)
+        {
+            var activateShelfModeCmd = ActivteShelfMode();
+            await _bleDevice!.WriteNoResponseAsync(_characteristic!, activateShelfModeCmd, token);
+        }
 
         public override bool CanResetOutput(int channel) => channel < NUMBER_OF_PU_PORTS;
 

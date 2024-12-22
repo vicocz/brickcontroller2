@@ -5,7 +5,7 @@ using Windows.Gaming.Input;
 
 namespace BrickController2.Windows.Extensions;
 
-internal static class GamepadReadingExtenions
+internal static class GamepadReadingExtensions
 {
     public const float Zero = 0.0f;
     public const float Positive = 1.0f;

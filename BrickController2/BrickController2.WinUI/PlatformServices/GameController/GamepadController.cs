@@ -16,7 +16,7 @@ internal class GamepadController
     private readonly Gamepad _gamepad;
     private readonly IDispatcherTimer _timer;
 
-    private readonly Dictionary<string, float> _lastReadingValues = [];
+    private readonly Dictionary<(GameControllerEventType, string), float> _lastReadingValues = [];
 
     public GamepadController(GameControllerService service, Gamepad gamepad, IDispatcherTimer timer)
         : this(service, gamepad, timer, DefaultInterval)
@@ -43,9 +43,18 @@ internal class GamepadController
         _timer.Start();
     }
 
-    public void Stop()
+    public void Stop(bool sendResetEvent = false)
     {
         _timer.Stop();
+
+        if (sendResetEvent)
+        {
+            var currentEvents = _lastReadingValues
+                .Where(x => x.Value != 0)
+                .ToDictionary(x => x.Key, x => GamepadReadingExtensions.Zero);
+
+            _controllerService.RaiseEvent(currentEvents);
+        }
 
         _lastReadingValues.Clear();
     }
@@ -66,15 +75,16 @@ internal class GamepadController
 
     private bool HasChanged((string AxisName, GameControllerEventType EventType, float Value) readingValue)
     {
+        var eventKey = (readingValue.EventType, readingValue.AxisName); 
         // get last reported value of the default one
-        _lastReadingValues.TryGetValue(readingValue.AxisName, out float lastValue);
+        _lastReadingValues.TryGetValue(eventKey, out float lastValue);
         // skip value if there is no change
         if (AreAlmostEqual(readingValue.Value, lastValue))
         {
             return false;
         }
 
-        _lastReadingValues[readingValue.AxisName] = readingValue.Value;
+        _lastReadingValues[eventKey] = readingValue.Value;
         return true;
     }
 }

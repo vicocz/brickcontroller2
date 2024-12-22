@@ -103,8 +103,8 @@ public class GameControllerService : IGameControllerService
             {
                 _availableControllers.Remove(deviceId);
 
-                // ensure stopped in UI thread
-                _ = _mainThreadService.RunOnMainThread(() => controller.Stop());
+                // ensure stopped in UI thread and reset is send
+                _ = _mainThreadService.RunOnMainThread(() => controller.Stop(true));
             }
         }
     }

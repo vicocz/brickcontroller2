@@ -61,7 +61,7 @@ namespace BrickController2.DeviceManagement
         {
             using (await _lock.LockAsync())
             {
-                DeviceDTO? device = await GetDevice(type, address);
+                var device = await GetDevice(type, address);
                 if (device != null)
                 {
                     await _databaseConnection.DeleteAsync(device);
@@ -81,7 +81,7 @@ namespace BrickController2.DeviceManagement
         {
             using (await _lock.LockAsync())
             {
-                DeviceDTO? device = await GetDevice(type, address);
+                var device = await GetDevice(type, address);
                 if (device != null)
                 {
                     device.Name = newName;
@@ -94,7 +94,7 @@ namespace BrickController2.DeviceManagement
         {
             using (await _lock.LockAsync())
             {
-                DeviceDTO? device = await GetDevice(type, address);
+                var device = await GetDevice(type, address);
                 if (device != null)
                 {
                     device.Settings = new(settings);

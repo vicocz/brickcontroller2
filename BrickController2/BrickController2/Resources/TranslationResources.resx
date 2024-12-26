@@ -654,4 +654,10 @@
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
   </data>
+  <data name="On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
 </root>

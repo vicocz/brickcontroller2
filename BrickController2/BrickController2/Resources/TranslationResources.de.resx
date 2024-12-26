@@ -651,4 +651,10 @@
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Standardausgangspegel</value>
   </data>
+  <data name="On" xml:space="preserve">
+    <value>Ein</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Aus</value>
+  </data>
 </root>

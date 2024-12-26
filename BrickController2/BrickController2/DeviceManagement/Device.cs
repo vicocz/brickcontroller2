@@ -1,6 +1,8 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.Extensions;
+using BrickController2.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +11,7 @@ namespace BrickController2.DeviceManagement
     public abstract class Device : NotifyPropertyChangedSource
     {
         private readonly IDeviceRepository _deviceRepository;
+        private readonly Dictionary<string, DeviceSetting> _settings = [];
         protected readonly AsyncLock _asyncLock = new AsyncLock();
 
         private string _name;
@@ -109,6 +112,46 @@ namespace BrickController2.DeviceManagement
                 await _deviceRepository.UpdateDeviceAsync(device.DeviceType, device.Address, newName);
                 device.Name = newName;
             }
+        }
+
+        public async Task UpdateDeviceSettingsAsync(IEnumerable<DeviceSetting> settings)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                // update provided settings, but existing with matching type only
+                foreach (var setting in settings ?? [])
+                {
+                    if (_settings.TryGetValue(setting.Name, out var storedSetting) && setting.Type == storedSetting.Type)
+                    {
+                        storedSetting.Value = setting.Value;
+                    }
+                }
+
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, CurrentSettings);
+            }
+        }
+        public bool HasSettings => _settings.Values.Any();
+        public IReadOnlyCollection<DeviceSetting> CurrentSettings => _settings.Values;
+
+        protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default!)
+        {
+            if (_settings.TryGetValue(settingName, out var setting) && setting.Value is TValue value)
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)
+            where TValue: struct
+        {
+            var foundSetting = settings?.FirstOrDefault(s => s.Name == settingName);
+            _settings[settingName] = new DeviceSetting
+            {
+                Name = settingName,
+                Value = foundSetting.GetValue(defaultValue)
+            };
         }
 
         public override string ToString()

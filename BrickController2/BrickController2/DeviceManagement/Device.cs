@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.Extensions;
+using BrickController2.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,7 +155,7 @@ namespace BrickController2.DeviceManagement
             _settings[settingName] = new DeviceSetting
             {
                 Name = settingName,
-                Value = foundSetting?.Value is null ? defaultValue : foundSetting.GetValue(defaultValue)
+                Value = foundSetting.GetValue(defaultValue)
             };
         }
 

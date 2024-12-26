@@ -1,8 +1,9 @@
 ﻿using BrickController2.Database;
 using BrickController2.Helpers;
-using Newtonsoft.Json;
 using SQLite;
+using SQLiteNetExtensionsAsync.Extensions;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement
@@ -35,7 +36,7 @@ namespace BrickController2.DeviceManagement
             using (await _lock.LockAsync())
             {
                 await InitAsync();
-                return await _databaseConnection.Table<DeviceDTO>().ToListAsync();
+                return await _databaseConnection.GetAllWithChildrenAsync<DeviceDTO>();
             }
         }
 
@@ -49,10 +50,10 @@ namespace BrickController2.DeviceManagement
                     Address = address,
                     Name = name,
                     DeviceData = devicedata,
-                    Settings = JsonConvert.SerializeObject(settings)
+                    Settings = new(settings)
                 };
                 await InitAsync();
-                await _databaseConnection.InsertAsync(device);
+                await _databaseConnection.InsertWithChildrenAsync(device);
             }
         }
 
@@ -84,7 +85,7 @@ namespace BrickController2.DeviceManagement
                 if (device != null)
                 {
                     device.Name = newName;
-                    await _databaseConnection.UpdateAsync(device);
+                    await _databaseConnection.UpdateWithChildrenAsync(device);
                 }
             }
         }
@@ -96,13 +97,14 @@ namespace BrickController2.DeviceManagement
                 DeviceDTO? device = await GetDevice(type, address);
                 if (device != null)
                 {
-                    device.Settings = JsonConvert.SerializeObject(settings);
-                    await _databaseConnection.UpdateAsync(device);
+                    device.Settings = new(settings);
+                    await _databaseConnection.UpdateWithChildrenAsync(device);
                 }
             }
         }
 
-        private async Task<DeviceDTO?> GetDevice(DeviceType type, string address) => await _databaseConnection.Table<DeviceDTO>()
-                .FirstOrDefaultAsync(d => d.DeviceType == type && d.Address == address);
+        private async Task<DeviceDTO?> GetDevice(DeviceType type, string address)
+            => (await _databaseConnection.GetAllWithChildrenAsync<DeviceDTO>(d => d.DeviceType == type && d.Address == address))
+                .FirstOrDefault();
     }
 }

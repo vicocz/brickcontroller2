@@ -1,9 +1,7 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.UI.Services.MainThread;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
@@ -60,8 +58,7 @@ namespace BrickController2.DeviceManagement
                 var deviceDTOs = await _deviceRepository.GetDevicesAsync();
                 foreach (var deviceDTO in deviceDTOs)
                 {
-                    var settings = JsonConvert.DeserializeObject<IEnumerable<DeviceSetting>>(deviceDTO.Settings);
-                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, settings!);
+                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, deviceDTO.Settings);
                     if (device != null)
                     {
                         Devices.Add(device);

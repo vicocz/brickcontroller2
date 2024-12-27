@@ -21,6 +21,9 @@ public static class DeviceSettingExtensions
             return defaultValue;
         }
 
-        return (TValue)setting.Value;
+        if (setting.Value is TValue typedValue)
+            return typedValue;
+
+        return (TValue)Convert.ChangeType(setting.Value, typeof(TValue));
     }
 }

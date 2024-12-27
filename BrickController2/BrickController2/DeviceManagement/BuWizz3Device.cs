@@ -7,7 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using static BrickController2.Protocols.BuWizzProtocol;
+using static BrickController2.Protocols.BuWizz3Protocol;
 
 namespace BrickController2.DeviceManagement
 {
@@ -15,6 +15,17 @@ namespace BrickController2.DeviceManagement
     {
         private const int MAX_SEND_ATTEMPTS = 10;
         private const int NUMBER_OF_PU_PORTS = 4;
+
+        private const string PoweredUpGroupName = "CurentLimitPoweredUp";
+        private const string PoweredFunctionsGroupName = "CurentLimitPoweredFunctions";
+        private const string Channel0SettingName = "BuWizz3Channel0";
+        private const string Channel1SettingName = "BuWizz3Channel1";
+        private const string Channel2SettingName = "BuWizz3Channel2";
+        private const string Channel3SettingName = "BuWizz3Channel3";
+        private const string ChannelASettingName = "BuWizz3ChannelA";
+        private const string ChannelBSettingName = "BuWizz3ChannelB";
+        private const float DefaultPowerUpCurrentLimit = 1050f;
+        private const float DefaultPowerFunctionsCurrentLimit = 2100f;
 
         private static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("50052901-74fb-4481-88b3-9919b1676e93");
@@ -53,9 +64,17 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _modelNumberCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
 
-        public BuWizz3Device(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizz3Device(string name, string address, byte[] deviceData, IEnumerable<DeviceSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            // apply current limit for PU ports
+            SetSettingValue(Channel0SettingName, settings, PoweredUpGroupName, DefaultPowerUpCurrentLimit);
+            SetSettingValue(Channel1SettingName, settings, PoweredUpGroupName, DefaultPowerUpCurrentLimit);
+            SetSettingValue(Channel2SettingName, settings, PoweredUpGroupName, DefaultPowerUpCurrentLimit);
+            SetSettingValue(Channel3SettingName, settings, PoweredUpGroupName, DefaultPowerUpCurrentLimit);
+            // apply current limit for PF ports
+            SetSettingValue(ChannelASettingName, settings, PoweredFunctionsGroupName, DefaultPowerFunctionsCurrentLimit);
+            SetSettingValue(ChannelBSettingName, settings, PoweredFunctionsGroupName, DefaultPowerFunctionsCurrentLimit);
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz3;
@@ -221,6 +240,8 @@ namespace BrickController2.DeviceManagement
 
                 result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
+
+                await ApplyCurrentLimitsAsync(token);
 
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
                 result = result && await SetServoReferencesAsync(new[] { 0, 0, 0, 0 }, token).ConfigureAwait(false);
@@ -563,6 +584,23 @@ namespace BrickController2.DeviceManagement
         {
             var buffer = new byte[] { 0x33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            await Task.Delay(50, token).ConfigureAwait(false);
+            return result;
+        }
+
+        private async Task<bool> ApplyCurrentLimitsAsync(CancellationToken token)
+        {
+            var currentLimit = SetCurrentLimits(
+                // PU ports
+                GetSettingValue(Channel0SettingName, DefaultPowerUpCurrentLimit),
+                GetSettingValue(Channel1SettingName, DefaultPowerUpCurrentLimit),
+                GetSettingValue(Channel2SettingName, DefaultPowerUpCurrentLimit),
+                GetSettingValue(Channel3SettingName, DefaultPowerUpCurrentLimit),
+                // PF ports
+                GetSettingValue(ChannelASettingName, DefaultPowerFunctionsCurrentLimit),
+                GetSettingValue(ChannelBSettingName, DefaultPowerFunctionsCurrentLimit));
+
+            var result = await _bleDevice!.WriteAsync(_characteristic!, currentLimit, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }

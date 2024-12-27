@@ -55,6 +55,25 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.EnumDataTemplate>
+                
+                <t:DataTemplatesSelector.FloatDataTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
+                            <controls:ExtendedSlider Grid.Column="1" Value="{Binding Value}" Minimum="{Binding MinValue}" Maximum="{Binding MaxValue}" Step="{Binding Step}" HorizontalOptions="FillAndExpand" MinimumTrackColor="Yellow"/>
+                            <Label Grid.Column="2" Text="{Binding Value}" WidthRequest="64" FontSize="Medium" HorizontalOptions="End" VerticalOptions="Center" HorizontalTextAlignment="End"/>
+                        </Grid>
+                    </DataTemplate>
+                </t:DataTemplatesSelector.FloatDataTemplate>
             </t:DataTemplatesSelector>
         </ResourceDictionary>
     </local:PageBase.Resources>
@@ -77,7 +96,7 @@
                 <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,20,10,10"
                                 ItemTemplate="{StaticResource TemplatesSelector}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="30" />
+                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="10" />
                     </CollectionView.ItemsLayout>
                 </CollectionView>
 

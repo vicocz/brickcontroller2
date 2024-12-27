@@ -17,9 +17,16 @@ public record DeviceSetting
     [JsonIgnore]
     public Type Type => Value?.GetType() ?? typeof(void);
 
+    /// <summary>Optional group name</summary>
+    [JsonIgnore]
+    public string Group { get; set; } = default!;
+
     [JsonIgnore]
     public bool IsBoolType => Type == typeof(bool);
 
     [JsonIgnore]
     public bool IsEnumType => Type.IsEnum;
+
+    [JsonIgnore]
+    public bool IsFloatType => Type == typeof(float);
 }

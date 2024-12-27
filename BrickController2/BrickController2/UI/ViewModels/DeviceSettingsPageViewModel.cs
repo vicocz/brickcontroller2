@@ -17,6 +17,8 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         NavigationParameters parameters) : base(navigationService, translationService)
     {
         Device = parameters.Get<Device>("device");
+        // detect grouping
+        IsGrouped = Device.CurrentSettings.DistinctBy(x => x.Group).Count() > 1;
         Settings = new ObservableCollection<DeviceSettingViewModelBase>(Device.CurrentSettings.Select(ToViewModel));
         DialogService = dialogService;
     }
@@ -24,6 +26,7 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
     public Device Device { get; }
     public IDialogService DialogService { get; }
 
+    public bool IsGrouped { get; }
     public ObservableCollection<DeviceSettingViewModelBase> Settings { get; }
 
     public override async void OnDisappearing()
@@ -50,6 +53,11 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         {
             return new DeviceEnumSettingViewModel(this, setting, TranslationService);
         }
+        if (setting.IsFloatType)
+        {
+            return new DeviceFloatSettingViewModel(this, setting, TranslationService);
+        }        
+
         throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");
     }
 }

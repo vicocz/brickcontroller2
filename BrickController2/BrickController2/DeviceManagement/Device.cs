@@ -148,7 +148,7 @@ namespace BrickController2.DeviceManagement
             return defaultValue;
         }
 
-        protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, string group, TValue defaultValue)
             where TValue: struct
         {
             var foundSetting = settings?.FirstOrDefault(s => s.Name == settingName);
@@ -158,6 +158,9 @@ namespace BrickController2.DeviceManagement
                 Value = foundSetting.GetValue(defaultValue)
             };
         }
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)
+            where TValue : struct
+            => SetSettingValue(settingName, settings, string.Empty, defaultValue);
 
         public override string ToString()
         {

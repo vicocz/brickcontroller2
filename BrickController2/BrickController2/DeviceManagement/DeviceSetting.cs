@@ -28,5 +28,5 @@ public record DeviceSetting
     public bool IsEnumType => Type.IsEnum;
 
     [JsonIgnore]
-    public bool IsFloatType => Type == typeof(float);
+    public bool IsDoubleType => Type == typeof(double);
 }

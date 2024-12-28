@@ -597,9 +597,6 @@
   <data name="AddControllerEvent" xml:space="preserve">
     <value>Add a new controller event</value>
   </data>
-  <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
-    <value>Add a new controller event for specific game controller</value>
-  </data>
   <data name="OpenDeviceDetails" xml:space="preserve">
     <value>Show the device details</value>
   </data>
@@ -618,7 +615,7 @@
   <data name="Add" xml:space="preserve">
     <value>Add</value>
   </data>
- <data name="ShareCreationAsFile" xml:space="preserve">
+  <data name="ShareCreationAsFile" xml:space="preserve">
     <value>Share the creation as file</value>
   </data>
   <data name="ShareCreationAsText" xml:space="preserve">
@@ -662,5 +659,29 @@
   </data>
   <data name="Off" xml:space="preserve">
     <value>Off</value>
+  </data>
+  <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
+    <value>Current limits for PU channels (mA)</value>
+  </data>
+  <data name="BuWizz3CurentLimitPoweredFunctions" xml:space="preserve">
+    <value>Current limits for PF channels (mA)</value>
+  </data>
+  <data name="BuWizz3Channel0" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="BuWizz3Channel1" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="BuWizz3Channel2" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="BuWizz3Channel3" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="BuWizz3ChannelA" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="BuWizz3ChannelB" xml:space="preserve">
+    <value>B</value>
   </data>
 </root>

@@ -3,13 +3,18 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 
 namespace BrickController2.UI.ViewModels;
 
 public class DeviceSettingsPageViewModel : PageViewModelBase
 {
+    private readonly ObservableCollection<DeviceSettingViewModelBase> _settings;
+    private readonly ObservableCollection<DeviceSettingGroupViewModel> _groupedSettings;
+
     public DeviceSettingsPageViewModel(
         INavigationService navigationService,
         ITranslationService translationService,
@@ -17,9 +22,14 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         NavigationParameters parameters) : base(navigationService, translationService)
     {
         Device = parameters.Get<Device>("device");
+        // compose both grouped and ungrouped collections
+        _settings = new(Device.CurrentSettings.Select(ToViewModel));
+        _groupedSettings = new(_settings
+            .OrderBy(x => x.Setting.Name)
+            .GroupBy(x => x.Setting.Group)
+            .Select(x => new DeviceSettingGroupViewModel(x.Key, x, translationService)));
         // detect grouping
-        IsGrouped = Device.CurrentSettings.DistinctBy(x => x.Group).Count() > 1;
-        Settings = new ObservableCollection<DeviceSettingViewModelBase>(Device.CurrentSettings.Select(ToViewModel));
+        IsGrouped = _groupedSettings.Any(x => !string.IsNullOrEmpty(x.GroupName));
         DialogService = dialogService;
     }
 
@@ -27,14 +37,14 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
     public IDialogService DialogService { get; }
 
     public bool IsGrouped { get; }
-    public ObservableCollection<DeviceSettingViewModelBase> Settings { get; }
+    public IEnumerable<INotifyPropertyChanged> Settings => IsGrouped ? _groupedSettings : _settings;
 
     public override async void OnDisappearing()
     {
         base.OnDisappearing();
 
         // update changed settings on exit
-        var changedSettings = Settings
+        var changedSettings = _settings
             .Where(s => s.HasChanged)
             .Select(s => s.Setting)
             .ToArray();
@@ -53,9 +63,9 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         {
             return new DeviceEnumSettingViewModel(this, setting, TranslationService);
         }
-        if (setting.IsFloatType)
+        if (setting.IsDoubleType)
         {
-            return new DeviceFloatSettingViewModel(this, setting, TranslationService);
+            return new DeviceDoubleSettingViewModel(this, setting, TranslationService);
         }        
 
         throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");

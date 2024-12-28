@@ -16,16 +16,17 @@ namespace BrickController2.DeviceManagement
         private const int MAX_SEND_ATTEMPTS = 10;
         private const int NUMBER_OF_PU_PORTS = 4;
 
-        private const string PoweredUpGroupName = "CurentLimitPoweredUp";
-        private const string PoweredFunctionsGroupName = "CurentLimitPoweredFunctions";
+        private const string PoweredUpGroupName = "BuWizz3CurentLimitPoweredUp";
+        private const string PoweredFunctionsGroupName = "BuWizz3CurentLimitPoweredFunctions";
         private const string Channel0SettingName = "BuWizz3Channel0";
         private const string Channel1SettingName = "BuWizz3Channel1";
         private const string Channel2SettingName = "BuWizz3Channel2";
         private const string Channel3SettingName = "BuWizz3Channel3";
         private const string ChannelASettingName = "BuWizz3ChannelA";
         private const string ChannelBSettingName = "BuWizz3ChannelB";
-        private const float DefaultPowerUpCurrentLimit = 1050f;
-        private const float DefaultPowerFunctionsCurrentLimit = 2100f;
+        // defaults applied by BuWizz app
+        private const double DefaultPowerUpCurrentLimit = 1050;
+        private const double DefaultPowerFunctionsCurrentLimit = 2100;
 
         private static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("50052901-74fb-4481-88b3-9919b1676e93");
@@ -241,7 +242,7 @@ namespace BrickController2.DeviceManagement
                 result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
 
-                await ApplyCurrentLimitsAsync(token);
+                result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
 
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
                 result = result && await SetServoReferencesAsync(new[] { 0, 0, 0, 0 }, token).ConfigureAwait(false);

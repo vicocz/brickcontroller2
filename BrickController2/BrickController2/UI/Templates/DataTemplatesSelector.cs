@@ -9,7 +9,7 @@ public class DataTemplatesSelector : DataTemplateSelector
 
     public DataTemplate EnumDataTemplate { get; set; } = default!;
 
-    public DataTemplate FloatDataTemplate { get; set; } = default!;
+    public DataTemplate DoubleDataTemplate { get; set; } = default!;
 
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {
@@ -19,8 +19,8 @@ public class DataTemplatesSelector : DataTemplateSelector
             return BoolDataTemplate;
         if (itemType == typeof(DeviceEnumSettingViewModel))
             return EnumDataTemplate;
-        if (itemType == typeof(DeviceFloatSettingViewModel))
-            return FloatDataTemplate;
+        if (itemType == typeof(DeviceDoubleSettingViewModel))
+            return DoubleDataTemplate;
 
         return default!;
     }

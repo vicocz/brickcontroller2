@@ -592,10 +592,7 @@
     <value>Ein neues Controllerprofil erstellen</value>
   </data>
   <data name="AddControllerEvent" xml:space="preserve">
-    <value>Ein neues Controller-Event erstellen</value>
-  </data>
-  <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
-    <value>Ein neues Controller-Event für einen bestimmten Controller erstellen</value>
+    <value>Ein neues Controller-event erstellen</value>
   </data>
   <data name="OpenDeviceDetails" xml:space="preserve">
     <value>Die Gerätedetails anzeigen</value>
@@ -659,5 +656,29 @@
   </data>
   <data name="Off" xml:space="preserve">
     <value>Aus</value>
+  </data>
+  <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
+    <value>Stromgrenzen für PF-Kanäle (mA)</value>
+  </data>
+  <data name="BuWizz3CurentLimitPoweredFunctions" xml:space="preserve">
+    <value>Stromgrenzen für PU-Kanäle (mA)</value>
+  </data>
+  <data name="BuWizz3Channel0" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="BuWizz3Channel1" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="BuWizz3Channel2" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="BuWizz3Channel3" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="BuWizz3ChannelA" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="BuWizz3ChannelB" xml:space="preserve">
+    <value>B</value>
   </data>
 </root>

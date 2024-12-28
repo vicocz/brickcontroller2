@@ -29,11 +29,17 @@ namespace BrickController2.UI.ViewModels
                 var enumValue = Enum.Parse(Setting.Type, value);
                 if (!enumValue.Equals(Setting.Value))
                 {
-                    HasChanged |= true;
                     Setting.Value = enumValue;
+                    HasChanged |= true;
                     RaisePropertyChanged();
+                    Parent.OnSettingChanged();
                 }
             }
+        }
+
+        internal override void ResetToDefault()
+        {
+            CurrentItem = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
         }
 
         private async Task SelectItemAsync()

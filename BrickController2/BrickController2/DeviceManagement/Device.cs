@@ -155,7 +155,8 @@ namespace BrickController2.DeviceManagement
             _settings[settingName] = new DeviceSetting
             {
                 Name = settingName,
-                Value = foundSetting.GetValue(defaultValue)
+                Value = foundSetting.GetValue(defaultValue),
+                DefaultValue = defaultValue
             };
         }
 

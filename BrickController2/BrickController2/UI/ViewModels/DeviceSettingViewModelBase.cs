@@ -24,8 +24,12 @@ namespace BrickController2.UI.ViewModels
 
         public bool HasChanged { get; protected set; }
 
+        public bool IsDefaultValue => Setting.Value.Equals(Setting.DefaultValue);
+
         public DeviceSetting Setting { get; }
         public DeviceSettingsPageViewModel Parent { get; }
+
+        internal abstract void ResetToDefault();
 
         protected Task<SelectionDialogResult<T>> ShowSelectionDialogAsync<T>(IEnumerable<T> items) where T : notnull
             => Parent.DialogService.ShowSelectionDialogAsync(

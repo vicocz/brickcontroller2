@@ -56,16 +56,27 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
 
     private async Task ApplyChanges()
     {
-        // update changed settings on exit
-        var changedSettings = Settings
-            .Where(s => s.HasChanged)
-            .Select(s => s.Setting)
-            .ToArray();
+        try
+        {
+            await DialogService.ShowProgressDialogAsync(
+                false,
+                async (progressDialog, token) =>
+                {
+                    var changedSettings = Settings
+                        .Where(s => s.HasChanged)
+                        .Select(s => s.Setting)
+                        .ToArray();
 
-        if (changedSettings.Any())
-            await Device.UpdateDeviceSettingsAsync(changedSettings);
+                    await Device.UpdateDeviceSettingsAsync(changedSettings);
+                },
+                Translate("Saving"),
+                token: DisappearingToken);
 
-        await NavigationService.NavigateBackAsync();
+            await NavigationService.NavigateBackAsync();
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 
     private void ResetToDefaults()

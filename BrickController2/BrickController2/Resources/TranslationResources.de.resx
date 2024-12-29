@@ -660,4 +660,7 @@
   <data name="Off" xml:space="preserve">
     <value>Aus</value>
   </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Die Einstellungen zurücksetzen</value>
+  </data>
 </root>

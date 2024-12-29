@@ -618,7 +618,7 @@
   <data name="Add" xml:space="preserve">
     <value>Add</value>
   </data>
- <data name="ShareCreationAsFile" xml:space="preserve">
+  <data name="ShareCreationAsFile" xml:space="preserve">
     <value>Share the creation as file</value>
   </data>
   <data name="ShareCreationAsText" xml:space="preserve">
@@ -662,5 +662,8 @@
   </data>
   <data name="Off" xml:space="preserve">
     <value>Off</value>
+  </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Reset settings to default</value>
   </data>
 </root>

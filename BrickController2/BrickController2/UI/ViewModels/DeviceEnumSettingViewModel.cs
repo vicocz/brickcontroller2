@@ -30,7 +30,6 @@ namespace BrickController2.UI.ViewModels
                 if (!enumValue.Equals(Setting.Value))
                 {
                     Setting.Value = enumValue;
-                    HasChanged |= true;
                     RaisePropertyChanged();
                     Parent.OnSettingChanged();
                 }

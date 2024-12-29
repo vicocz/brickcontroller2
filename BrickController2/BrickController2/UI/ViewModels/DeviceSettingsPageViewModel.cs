@@ -24,7 +24,7 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         DialogService = dialogService;
 
         SaveSettingsCommand = new SafeCommand(ApplyChanges, () => Settings.Any(x => x.HasChanged));
-        ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => Settings.Any(x => !x.IsDefaultValue));
+        ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => Settings.Any(x => x.HasNonDefaultValue));
     }
 
     public ICommand SaveSettingsCommand { get; }
@@ -70,7 +70,7 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
 
     private void ResetToDefaults()
     {
-        foreach (var setting in Settings.Where(s => !s.IsDefaultValue))
+        foreach (var setting in Settings.Where(s => s.HasNonDefaultValue))
         {
             setting.ResetToDefault();
         }

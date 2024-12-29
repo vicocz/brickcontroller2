@@ -18,7 +18,6 @@ namespace BrickController2.UI.ViewModels
                 if (Setting.Value != value)
                 {
                     Setting.Value = value;
-                    HasChanged |= true;
                     RaisePropertyChanged();
                     Parent.OnSettingChanged();
                 }

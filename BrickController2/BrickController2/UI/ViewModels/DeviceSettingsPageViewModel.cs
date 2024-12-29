@@ -1,4 +1,5 @@
 ﻿using BrickController2.DeviceManagement;
+using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
@@ -7,6 +8,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels;
 
@@ -31,7 +34,13 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         // detect grouping
         IsGrouped = _groupedSettings.Any(x => !string.IsNullOrEmpty(x.GroupName));
         DialogService = dialogService;
+
+        SaveSettingsCommand = new SafeCommand(ApplyChanges, () => Settings.Any(x => x.HasChanged));
+        ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => Settings.Any(x => x.HasNonDefaultValue));
     }
+
+    public ICommand SaveSettingsCommand { get; }
+    public ICommand ResetToDefaultsCommand { get; }
 
     public Device Device { get; }
     public IDialogService DialogService { get; }
@@ -39,18 +48,10 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
     public bool IsGrouped { get; }
     public IEnumerable<INotifyPropertyChanged> Settings => IsGrouped ? _groupedSettings : _settings;
 
-    public override async void OnDisappearing()
+    internal void OnSettingChanged()
     {
-        base.OnDisappearing();
-
-        // update changed settings on exit
-        var changedSettings = _settings
-            .Where(s => s.HasChanged)
-            .Select(s => s.Setting)
-            .ToArray();
-
-        if (changedSettings.Any())
-            await Device.UpdateDeviceSettingsAsync(changedSettings);
+        SaveSettingsCommand.RaiseCanExecuteChanged();
+        ResetToDefaultsCommand.RaiseCanExecuteChanged();
     }
 
     private DeviceSettingViewModelBase ToViewModel(DeviceSetting setting)
@@ -69,5 +70,38 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         }        
 
         throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");
+    }
+
+    private async Task ApplyChanges()
+    {
+        try
+        {
+            await DialogService.ShowProgressDialogAsync(
+                false,
+                async (progressDialog, token) =>
+                {
+                    var changedSettings = Settings
+                        .Where(s => s.HasChanged)
+                        .Select(s => s.Setting)
+                        .ToArray();
+
+                    await Device.UpdateDeviceSettingsAsync(changedSettings);
+                },
+                Translate("Saving"),
+                token: DisappearingToken);
+
+            await NavigationService.NavigateBackAsync();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void ResetToDefaults()
+    {
+        foreach (var setting in Settings.Where(s => s.HasNonDefaultValue))
+        {
+            setting.ResetToDefault();
+        }
     }
 }

@@ -157,6 +157,7 @@ namespace BrickController2.DeviceManagement
                 Name = settingName,
                 Value = foundSetting.GetValue(defaultValue),
                 Group = group,
+                DefaultValue = defaultValue
             };
         }
         protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)

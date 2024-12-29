@@ -660,6 +660,9 @@
   <data name="Off" xml:space="preserve">
     <value>Off</value>
   </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Reset settings to default</value>
+  </data>
   <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
     <value>Current limits for PU channels (mA)</value>
   </data>

@@ -657,6 +657,9 @@
   <data name="Off" xml:space="preserve">
     <value>Aus</value>
   </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Die Einstellungen zurücksetzen</value>
+  </data>
   <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
     <value>Stromgrenzen für PF-Kanäle (mA)</value>
   </data>

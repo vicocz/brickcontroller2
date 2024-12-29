@@ -17,11 +17,16 @@ namespace BrickController2.UI.ViewModels
             {
                 if (Setting.Value != value)
                 {
-                    HasChanged |= true;
                     Setting.Value = value;
                     RaisePropertyChanged();
+                    Parent.OnSettingChanged();
                 }
             }
+        }
+
+        internal override void ResetToDefault()
+        {
+            Value = Setting.DefaultValue;
         }
     }
 }

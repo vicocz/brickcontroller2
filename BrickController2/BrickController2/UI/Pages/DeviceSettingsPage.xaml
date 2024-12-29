@@ -17,6 +17,11 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <Style x:Key="settingLabel" TargetType="Label">
+                <Setter Property="HorizontalOptions" Value="Start" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="FontSize" Value="Medium" />
+            </Style>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
                     <DataTemplate>
@@ -29,11 +34,11 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
+                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}"/>
                             <HorizontalStackLayout Grid.Column="1" Spacing="20">
                                 <Switch IsToggled="{Binding Value}" HorizontalOptions="Center" />
-                                <Label Text="{extensions:Translate On}" FontSize="Medium" VerticalOptions="Center" IsVisible="{Binding Value}"/>
-                                <Label Text="{extensions:Translate Off}" FontSize="Medium" VerticalOptions="Center" IsVisible="{Binding Value, Converter={StaticResource InverseBool}}"/>
+                                <Label Text="{extensions:Translate On}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding Value}"/>
+                                <Label Text="{extensions:Translate Off}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding Value, Converter={StaticResource InverseBool}}"/>
                             </HorizontalStackLayout>
                         </Grid>
                     </DataTemplate>
@@ -50,7 +55,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
+                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}"/>
                             <Button Grid.Column="1" Text="{Binding CurrentItem}" Command="{Binding SelectItemCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
                         </Grid>
                     </DataTemplate>
@@ -59,6 +64,16 @@
         </ResourceDictionary>
     </local:PageBase.Resources>
 
+    <NavigationPage.TitleView>
+        <Grid HorizontalOptions="FillAndExpand">
+            <Label Text="{extensions:Translate DeviceSettings}" TextColor="{DynamicResource NavigationBarItemColor}" FontSize="Medium" FontAttributes="Bold" VerticalOptions="Center"/>
+            <HorizontalStackLayout HorizontalOptions="End" Margin="12,0" Spacing="12">
+                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_delete.png}" Command="{Binding ResetToDefaultsCommand}" Style="{StaticResource NavigationBarImageButtonStyle}"/>
+                <controls:ImageButton ImageSource="{extensions:ImageResource Source=ic_checkmark.png}" Command="{Binding SaveSettingsCommand}" Style="{StaticResource NavigationBarImageButtonStyle}"/>
+            </HorizontalStackLayout>
+        </Grid>
+    </NavigationPage.TitleView>
+    
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
@@ -70,14 +85,14 @@
 
                 <!-- Header -->
                 <Grid Grid.Row="0" Style="{StaticResource HeaderGridStyle}">
-                    <Label Text="{Binding Device.Name}" TextColor="{DynamicResource EditableTextColor}" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center" />
+                    <Label Text="{Binding Device.Name}" TextColor="{DynamicResource PrimaryTextColor}" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center" />
                 </Grid>
 
                 <!-- Setting list -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,20,10,10"
+                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,10,10,10"
                                 ItemTemplate="{StaticResource TemplatesSelector}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="30" />
+                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="10" />
                     </CollectionView.ItemsLayout>
                 </CollectionView>
 

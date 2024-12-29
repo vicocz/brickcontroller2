@@ -80,7 +80,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (device));
+                await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (("device", device)));
             }
             catch (OperationCanceledException)
             {

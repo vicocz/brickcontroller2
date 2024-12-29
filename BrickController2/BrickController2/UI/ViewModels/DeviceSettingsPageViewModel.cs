@@ -35,8 +35,8 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         IsGrouped = _groupedSettings.Any(x => !string.IsNullOrEmpty(x.GroupName));
         DialogService = dialogService;
 
-        SaveSettingsCommand = new SafeCommand(ApplyChanges, () => Settings.Any(x => x.HasChanged));
-        ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => Settings.Any(x => x.HasNonDefaultValue));
+        SaveSettingsCommand = new SafeCommand(ApplyChanges, () => _settings.Any(x => x.HasChanged));
+        ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => _settings.Any(x => x.HasNonDefaultValue));
     }
 
     public ICommand SaveSettingsCommand { get; }
@@ -80,7 +80,7 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
                 false,
                 async (progressDialog, token) =>
                 {
-                    var changedSettings = Settings
+                    var changedSettings = _settings
                         .Where(s => s.HasChanged)
                         .Select(s => s.Setting)
                         .ToArray();
@@ -99,7 +99,7 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
 
     private void ResetToDefaults()
     {
-        foreach (var setting in Settings.Where(s => s.HasNonDefaultValue))
+        foreach (var setting in _settings.Where(s => s.HasNonDefaultValue))
         {
             setting.ResetToDefault();
         }

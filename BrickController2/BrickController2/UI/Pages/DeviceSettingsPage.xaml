@@ -22,6 +22,12 @@
                 <Setter Property="VerticalOptions" Value="Center" />
                 <Setter Property="FontSize" Value="Medium" />
             </Style>
+            <Style x:Key="settingsSlider" TargetType="controls:ExtendedSlider">
+                <Setter Property="MinimumTrackColor" Value="{DynamicResource PositiveColor}"/>
+                <Setter Property="Minimum" Value="35"/>
+                <Setter Property="Maximum" Value="3500"/>
+                <Setter Property="Step" Value="35"/>
+            </Style>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
                     <DataTemplate>
@@ -74,16 +80,17 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}" Margin="10,0,0,0"/>
-                            <controls:ExtendedSlider Grid.Column="1" Minimum="35" Maximum="3500" Step="35" Value="{Binding Value}" 
-                                                     HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
-                            <Label Grid.Column="2" Text="{Binding Value}" WidthRequest="64" Style="{StaticResource Key=settingLabel}" HorizontalOptions="End" HorizontalTextAlignment="End"/>
+                            <!--Apply static style for now, this should be done base on e.g. group-->
+                            <controls:ExtendedSlider Grid.Column="1" Value="{Binding Value}" Style="{StaticResource Key=settingsSlider}" HorizontalOptions="FillAndExpand" />
+                            <Label Grid.Column="2" Text="{Binding Value}" WidthRequest="64" Style="{StaticResource Key=settingLabel}"
+                                   HorizontalOptions="End" HorizontalTextAlignment="End" Margin="0,0,20,0"/>
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.DoubleDataTemplate>
             </t:DataTemplatesSelector>
         </ResourceDictionary>
     </local:PageBase.Resources>
-
+    
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="settings_backup_restore" Text="{extensions:Translate ResetToDefaults}" Command="{Binding ResetToDefaultsCommand}" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSettingsCommand}" />

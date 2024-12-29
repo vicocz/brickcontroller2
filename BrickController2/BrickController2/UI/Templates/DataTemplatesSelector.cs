@@ -1,4 +1,4 @@
-﻿using BrickController2.UI.ViewModels;
+﻿using BrickController2.UI.ViewModels.Settings;
 using Microsoft.Maui.Controls;
 
 namespace BrickController2.UI.Templates;

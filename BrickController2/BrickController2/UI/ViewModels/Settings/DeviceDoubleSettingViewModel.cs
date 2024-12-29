@@ -1,7 +1,7 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.UI.Services.Translation;
 
-namespace BrickController2.UI.ViewModels;
+namespace BrickController2.UI.ViewModels.Settings;
 
 public class DeviceDoubleSettingViewModel : DeviceSettingViewModelBase
 {
@@ -11,10 +11,6 @@ public class DeviceDoubleSettingViewModel : DeviceSettingViewModelBase
          : base(parentModel, setting, translationService)
     {
     }
-
-    public object MinValue => 35.0;
-    public object MaxValue => 3500.0;
-    public object Step => 35.0;
 
     public object Value
     {

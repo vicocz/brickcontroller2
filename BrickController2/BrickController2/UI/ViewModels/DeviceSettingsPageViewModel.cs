@@ -3,6 +3,7 @@ using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using BrickController2.UI.ViewModels.Settings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

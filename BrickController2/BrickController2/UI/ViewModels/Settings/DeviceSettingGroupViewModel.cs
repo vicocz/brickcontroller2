@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace BrickController2.UI.ViewModels;
+namespace BrickController2.UI.ViewModels.Settings;
 
 public class DeviceSettingGroupViewModel : ObservableCollection<DeviceSettingViewModelBase>
 {

@@ -11,6 +11,7 @@
     xmlns:t="clr-namespace:BrickController2.UI.Templates"
     x:Class="BrickController2.UI.Pages.DeviceSettingsPage"
     Title="{extensions:Translate DeviceSettings}"
+    x:Name="Page"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
@@ -114,12 +115,21 @@
                 <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,10,10,10"
                                 ItemTemplate="{StaticResource TemplatesSelector}" IsGrouped="{Binding IsGrouped}">
                     <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="10" />
+                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="{OnIdiom Desktop=10, Default=30}" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate>
-                            <Label Text="{Binding GroupName}" BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" TextColor="{DynamicResource PrimaryTextColor}"
-                                   FontSize="Medium" FontAttributes="Bold" />
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate Reset}" Icon="settings_backup_restore" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            IsVisible="{Binding HasNonDefaultValue}"
+                                                            Command="{Binding BindingContext.ResetGroupToDefaultCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+                                <Label Text="{Binding GroupName}" BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" TextColor="{DynamicResource PrimaryTextColor}"
+                                       FontSize="Medium" FontAttributes="Bold" Padding="10" />
+                            </SwipeView>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                 </CollectionView>

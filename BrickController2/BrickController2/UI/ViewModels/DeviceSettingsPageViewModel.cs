@@ -38,10 +38,13 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
 
         SaveSettingsCommand = new SafeCommand(ApplyChanges, () => _settings.Any(x => x.HasChanged));
         ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => _settings.Any(x => x.HasNonDefaultValue));
+        ResetGroupToDefaultCommand = new SafeCommand<DeviceSettingGroupViewModel>(ResetGroupToDefaults,
+            (o) => o is DeviceSettingGroupViewModel group && group.HasNonDefaultValue);
     }
 
     public ICommand SaveSettingsCommand { get; }
     public ICommand ResetToDefaultsCommand { get; }
+    public ICommand ResetGroupToDefaultCommand { get; }
 
     public Device Device { get; }
     public IDialogService DialogService { get; }
@@ -53,6 +56,12 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
     {
         SaveSettingsCommand.RaiseCanExecuteChanged();
         ResetToDefaultsCommand.RaiseCanExecuteChanged();
+        ResetGroupToDefaultCommand.RaiseCanExecuteChanged();
+        // notify group(s) on change
+        foreach (var group in _groupedSettings)
+        {
+            group.OnSettingChanged();
+        }
     }
 
     private DeviceSettingViewModelBase ToViewModel(DeviceSetting setting)
@@ -104,5 +113,11 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         {
             setting.ResetToDefault();
         }
+    }
+
+    private static Task ResetGroupToDefaults(DeviceSettingGroupViewModel group)
+    {
+        group.ResetToDefaults();
+        return Task.CompletedTask;
     }
 }

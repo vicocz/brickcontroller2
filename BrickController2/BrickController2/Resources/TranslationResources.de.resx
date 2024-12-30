@@ -592,7 +592,10 @@
     <value>Ein neues Controllerprofil erstellen</value>
   </data>
   <data name="AddControllerEvent" xml:space="preserve">
-    <value>Ein neues Controller-event erstellen</value>
+    <value>Ein neues Controller-Event erstellen</value>
+  </data>
+  <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
+    <value>Ein neues Controller-Event für einen bestimmten Controller erstellen</value>
   </data>
   <data name="OpenDeviceDetails" xml:space="preserve">
     <value>Die Gerätedetails anzeigen</value>

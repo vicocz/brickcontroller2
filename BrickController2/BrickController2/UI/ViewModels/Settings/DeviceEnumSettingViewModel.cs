@@ -6,47 +6,48 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace BrickController2.UI.ViewModels.Settings;
-
-public class DeviceEnumSettingViewModel : DeviceSettingViewModelBase
+namespace BrickController2.UI.ViewModels.Settings
 {
-    public DeviceEnumSettingViewModel(DeviceSettingsPageViewModel parentModel,
-        DeviceSetting setting,
-        ITranslationService translationService)
-         : base(parentModel, setting, translationService)
+    public class DeviceEnumSettingViewModel : DeviceSettingViewModelBase
     {
-        SelectItemCommand = new SafeCommand(SelectItemAsync);
-    }
-
-    public IEnumerable<string> Items => Enum.GetNames(Setting.Type);
-    public ICommand SelectItemCommand { get; }
-
-    public string CurrentItem
-    {
-        get => Enum.GetName(Setting.Type, Setting.Value)!;
-        set
+        public DeviceEnumSettingViewModel(DeviceSettingsPageViewModel parentModel,
+            DeviceSetting setting,
+            ITranslationService translationService)
+             : base(parentModel, setting, translationService)
         {
-            var enumValue = Enum.Parse(Setting.Type, value);
-            if (!enumValue.Equals(Setting.Value))
+            SelectItemCommand = new SafeCommand(SelectItemAsync);
+        }
+
+        public IEnumerable<string> Items => Enum.GetNames(Setting.Type);
+        public ICommand SelectItemCommand { get; }
+
+        public string CurrentItem
+        {
+            get => Enum.GetName(Setting.Type, Setting.Value)!;
+            set
             {
-                Setting.Value = enumValue;
-                RaisePropertyChanged();
-                Parent.OnSettingChanged();
+                var enumValue = Enum.Parse(Setting.Type, value);
+                if (!enumValue.Equals(Setting.Value))
+                {
+                    Setting.Value = enumValue;
+                    RaisePropertyChanged();
+                    Parent.OnSettingChanged();
+                }
             }
         }
-    }
 
-    internal override void ResetToDefault()
-    {
-        CurrentItem = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
-    }
-
-    private async Task SelectItemAsync()
-    {
-        var result = await ShowSelectionDialogAsync(Items);
-        if (result.IsOk)
+        internal override void ResetToDefault()
         {
-            CurrentItem = result.SelectedItem;
+            CurrentItem = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
+        }
+
+        private async Task SelectItemAsync()
+        {
+            var result = await ShowSelectionDialogAsync(Items);
+            if (result.IsOk)
+            {
+                CurrentItem = result.SelectedItem;
+            }
         }
     }
 }

@@ -1,31 +1,32 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.UI.Services.Translation;
 
-namespace BrickController2.UI.ViewModels.Settings;
-
-public class DeviceBoolSettingViewModel : DeviceSettingViewModelBase
+namespace BrickController2.UI.ViewModels.Settings
 {
-    public DeviceBoolSettingViewModel(DeviceSettingsPageViewModel parent, DeviceSetting setting, ITranslationService translationService)
-        : base(parent, setting, translationService)
+    public class DeviceBoolSettingViewModel : DeviceSettingViewModelBase
     {
-    }
-
-    public object Value
-    {
-        get => Setting.Value;
-        set
+        public DeviceBoolSettingViewModel(DeviceSettingsPageViewModel parent, DeviceSetting setting, ITranslationService translationService)
+            : base(parent, setting, translationService)
         {
-            if (Setting.Value != value)
+        }
+
+        public object Value
+        {
+            get => Setting.Value;
+            set
             {
-                Setting.Value = value;
-                RaisePropertyChanged();
-                Parent.OnSettingChanged();
+                if (Setting.Value != value)
+                {
+                    Setting.Value = value;
+                    RaisePropertyChanged();
+                    Parent.OnSettingChanged();
+                }
             }
         }
-    }
 
-    internal override void ResetToDefault()
-    {
-        Value = Setting.DefaultValue;
+        internal override void ResetToDefault()
+        {
+            Value = Setting.DefaultValue;
+        }
     }
 }

@@ -597,6 +597,9 @@
   <data name="AddControllerEvent" xml:space="preserve">
     <value>Add a new controller event</value>
   </data>
+  <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
+    <value>Add a new controller event for specific game controller</value>
+  </data>
   <data name="OpenDeviceDetails" xml:space="preserve">
     <value>Show the device details</value>
   </data>

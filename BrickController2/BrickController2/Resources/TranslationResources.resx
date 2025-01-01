@@ -669,7 +669,7 @@
   <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
     <value>Current limits for PU channels (mA)</value>
   </data>
-  <data name="BuWizz3CurentLimitPoweredFunctions" xml:space="preserve">
+  <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
     <value>Current limits for PF channels (mA)</value>
   </data>
   <data name="BuWizz3Channel0" xml:space="preserve">
@@ -689,5 +689,8 @@
   </data>
   <data name="BuWizz3ChannelB" xml:space="preserve">
     <value>B</value>
+  </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Reset to default settings</value>
   </data>
 </root>

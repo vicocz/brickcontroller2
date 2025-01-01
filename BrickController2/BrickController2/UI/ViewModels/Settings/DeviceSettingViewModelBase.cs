@@ -5,7 +5,7 @@ using BrickController2.UI.Services.Translation;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace BrickController2.UI.ViewModels
+namespace BrickController2.UI.ViewModels.Settings
 {
     public abstract class DeviceSettingViewModelBase : NotifyPropertyChangedSource
     {

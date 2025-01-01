@@ -267,6 +267,9 @@
   <data name="Devices" xml:space="preserve">
     <value>Geräte</value>
   </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Geräteeinstellungen</value>
+  </data>
   <data name="DeviceType" xml:space="preserve">
     <value>Gerätetyp</value>
   </data>
@@ -471,9 +474,6 @@
   <data name="ShortChannel" xml:space="preserve">
     <value>Ka</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value>Joy Aktive Zone</value>
-  </data>
   <data name="System" xml:space="preserve">
     <value>System</value>
   </data>
@@ -510,16 +510,19 @@
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Standardausgangspegel</value>
   </data>
-	<data name="BuWizzDefaultOutputLevel" xml:space="preserve">
+  <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Standardausgangspegel</value>
   </data>
-	<data name="On" xml:space="preserve">
+  <data name="On" xml:space="preserve">
     <value>Ein</value>
   </data>
-	<data name="Off" xml:space="preserve">
+  <data name="Off" xml:space="preserve">
     <value>Aus</value>
   </data>
   <data name="ResetToDefaults" xml:space="preserve">
     <value>Die Einstellungen zurücksetzen</value>
+  </data>
+  <data name="String1" xml:space="preserve">
+    <value>Joy Aktive Zone</value>
   </data>
 </root>

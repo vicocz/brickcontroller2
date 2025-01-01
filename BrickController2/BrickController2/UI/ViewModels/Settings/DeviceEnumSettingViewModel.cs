@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace BrickController2.UI.ViewModels
+namespace BrickController2.UI.ViewModels.Settings
 {
     public class DeviceEnumSettingViewModel : DeviceSettingViewModelBase
     {
@@ -43,7 +43,7 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectItemAsync()
         {
-            var result = await ShowSelectionDialogAsync<string>(Items);
+            var result = await ShowSelectionDialogAsync(Items);
             if (result.IsOk)
             {
                 CurrentItem = result.SelectedItem;

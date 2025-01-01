@@ -1,11 +1,11 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.UI.Services.Translation;
 
-namespace BrickController2.UI.ViewModels
+namespace BrickController2.UI.ViewModels.Settings
 {
     public class DeviceBoolSettingViewModel : DeviceSettingViewModelBase
     {
-        public DeviceBoolSettingViewModel(DeviceSettingsPageViewModel parent, DeviceSetting setting, ITranslationService translationService) 
+        public DeviceBoolSettingViewModel(DeviceSettingsPageViewModel parent, DeviceSetting setting, ITranslationService translationService)
             : base(parent, setting, translationService)
         {
         }

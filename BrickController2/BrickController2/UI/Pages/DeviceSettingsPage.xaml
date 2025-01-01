@@ -91,7 +91,7 @@
             </t:DataTemplatesSelector>
         </ResourceDictionary>
     </local:PageBase.Resources>
-    
+
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="settings_backup_restore" Text="{extensions:Translate ResetToDefaults}" Command="{Binding ResetToDefaultsCommand}" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSettingsCommand}" />

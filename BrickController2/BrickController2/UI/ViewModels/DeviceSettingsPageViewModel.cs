@@ -26,7 +26,6 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         NavigationParameters parameters) : base(navigationService, translationService)
     {
         Device = parameters.Get<Device>("device");
-        // compose both grouped and ungrouped collections
         _settings = new(Device.CurrentSettings.Select(ToViewModel));
         _groupedSettings = new(_settings
             .OrderBy(x => x.Setting.Name)
@@ -57,11 +56,6 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         SaveSettingsCommand.RaiseCanExecuteChanged();
         ResetToDefaultsCommand.RaiseCanExecuteChanged();
         ResetGroupToDefaultCommand.RaiseCanExecuteChanged();
-        // notify group(s) on change
-        foreach (var group in _groupedSettings)
-        {
-            group.OnSettingChanged();
-        }
     }
 
     private DeviceSettingViewModelBase ToViewModel(DeviceSetting setting)

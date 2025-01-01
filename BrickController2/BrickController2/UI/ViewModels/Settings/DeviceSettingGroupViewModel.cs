@@ -17,6 +17,11 @@ public class DeviceSettingGroupViewModel : ObservableCollection<DeviceSettingVie
     {
         _groupName = groupName;
         _translationService = translationService;
+        // subscribe to changes
+        foreach (var setting in settings)
+        {
+            setting.PropertyChanged += Setting_PropertyChanged;
+        }
     }
 
     public bool HasNonDefaultValue => this.Any(x => x.HasNonDefaultValue);
@@ -31,5 +36,13 @@ public class DeviceSettingGroupViewModel : ObservableCollection<DeviceSettingVie
         }
     }
 
-    internal void OnSettingChanged() => base.OnPropertyChanged(new(nameof(HasNonDefaultValue)));
+    private void Setting_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        // notify group due to possible change 
+        if (e.PropertyName == nameof(DeviceBoolSettingViewModel.Value) ||
+            e.PropertyName == nameof(DeviceEnumSettingViewModel.CurrentItem))
+        {
+            base.OnPropertyChanged(new(nameof(HasNonDefaultValue)));
+        }
+    }
 }

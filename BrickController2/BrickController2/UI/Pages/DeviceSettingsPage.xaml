@@ -14,56 +14,6 @@
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <local:PageBase.Resources>
-        <ResourceDictionary>
-            <converters:InverseBoolConverter x:Key="InverseBool"/>
-            <Style x:Key="settingLabel" TargetType="Label">
-                <Setter Property="HorizontalOptions" Value="Start" />
-                <Setter Property="VerticalOptions" Value="Center" />
-                <Setter Property="FontSize" Value="Medium" />
-            </Style>
-            <t:DataTemplatesSelector x:Key="TemplatesSelector">
-                <t:DataTemplatesSelector.BoolDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}"/>
-                            <HorizontalStackLayout Grid.Column="1" Spacing="20">
-                                <Switch IsToggled="{Binding Value}" HorizontalOptions="Center" />
-                                <Label Text="{extensions:Translate On}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding Value}"/>
-                                <Label Text="{extensions:Translate Off}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding Value, Converter={StaticResource InverseBool}}"/>
-                            </HorizontalStackLayout>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.BoolDataTemplate>
-
-                <t:DataTemplatesSelector.EnumDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}"/>
-                            <Button Grid.Column="1" Text="{Binding CurrentItem}" Command="{Binding SelectItemCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.EnumDataTemplate>
-            </t:DataTemplatesSelector>
-        </ResourceDictionary>
-    </local:PageBase.Resources>
-
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="settings_backup_restore" Text="{extensions:Translate ResetToDefaults}" Command="{Binding ResetToDefaultsCommand}" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSettingsCommand}" />
@@ -84,12 +34,7 @@
                 </Grid>
 
                 <!-- Setting list -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,10,10,10"
-                                ItemTemplate="{StaticResource TemplatesSelector}">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="10" />
-                    </CollectionView.ItemsLayout>
-                </CollectionView>
+                <controls:SettingsControl Grid.Row="1" />
 
             </Grid>
 

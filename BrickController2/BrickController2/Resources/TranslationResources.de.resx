@@ -294,6 +294,9 @@
   <data name="Devices" xml:space="preserve">
     <value>Geräte</value>
   </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Geräteeinstellungen</value>
+  </data>
   <data name="DeviceType" xml:space="preserve">
     <value>Gerätetyp</value>
   </data>
@@ -591,7 +594,7 @@
   <data name="AddControllerProfile" xml:space="preserve">
     <value>Ein neues Controllerprofil erstellen</value>
   </data>
-  <data name="AddControllerEvent" xml:space="preserve">
+ <data name="AddControllerEvent" xml:space="preserve">
     <value>Ein neues Controller-Event erstellen</value>
   </data>
   <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
@@ -662,5 +665,8 @@
   </data>
   <data name="ResetToDefaults" xml:space="preserve">
     <value>Die Einstellungen zurücksetzen</value>
+  </data>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>Allgemeine Einstellungen</value>
   </data>
 </root>

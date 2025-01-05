@@ -1,5 +1,5 @@
-﻿using BrickController2.Extensions;
-using BrickController2.Helpers;
+﻿using BrickController2.Helpers;
+using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace BrickController2.DeviceManagement
     public abstract class Device : NotifyPropertyChangedSource
     {
         private readonly IDeviceRepository _deviceRepository;
-        private readonly Dictionary<string, DeviceSetting> _settings = [];
+        private readonly Dictionary<string, NamedSetting> _settings = [];
         protected readonly AsyncLock _asyncLock = new AsyncLock();
 
         private string _name;
@@ -119,7 +119,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task UpdateDeviceSettingsAsync(IEnumerable<DeviceSetting> settings)
+        public async Task UpdateDeviceSettingsAsync(IEnumerable<NamedSetting> settings)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -136,7 +136,7 @@ namespace BrickController2.DeviceManagement
             }
         }
         public bool HasSettings => _settings.Values.Any();
-        public IReadOnlyCollection<DeviceSetting> CurrentSettings => _settings.Values;
+        public IReadOnlyCollection<NamedSetting> CurrentSettings => _settings.Values;
 
         protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default!)
         {
@@ -148,17 +148,21 @@ namespace BrickController2.DeviceManagement
             return defaultValue;
         }
 
-        protected void SetSettingValue<TValue>(string settingName, IEnumerable<DeviceSetting>? settings, TValue defaultValue)
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<NamedSetting>? settings, string group, TValue defaultValue)
             where TValue: struct
         {
             var foundSetting = settings?.FirstOrDefault(s => s.Name == settingName);
-            _settings[settingName] = new DeviceSetting
+            _settings[settingName] = new NamedSetting
             {
                 Name = settingName,
                 Value = foundSetting.GetValue(defaultValue),
+                Group = group,
                 DefaultValue = defaultValue
             };
         }
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<NamedSetting>? settings, TValue defaultValue)
+            where TValue : struct
+            => SetSettingValue(settingName, settings, string.Empty, defaultValue);
 
         public override string ToString()
         {

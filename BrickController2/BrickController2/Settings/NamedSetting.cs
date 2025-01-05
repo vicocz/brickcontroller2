@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace BrickController2.DeviceManagement;
+namespace BrickController2.Settings;
 
-public record DeviceSetting
+public record NamedSetting
 {
     /// <summary>Unique setting name</summary>
     [JsonProperty]
@@ -22,6 +22,10 @@ public record DeviceSetting
     /// <summary>Type of setting value</summary>
     [JsonIgnore]
     public Type Type => Value?.GetType() ?? typeof(void);
+
+    /// <summary>Optional group name</summary>
+    [JsonIgnore]
+    public string Group { get; set; } = default!;
 
     [JsonIgnore]
     public bool IsBoolType => Type == typeof(bool);

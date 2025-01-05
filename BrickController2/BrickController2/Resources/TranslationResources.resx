@@ -666,4 +666,7 @@
   <data name="ResetToDefaults" xml:space="preserve">
     <value>Reset settings to default</value>
   </data>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>General settings</value>
+  </data>
 </root>

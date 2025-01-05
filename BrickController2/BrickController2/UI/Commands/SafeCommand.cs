@@ -77,6 +77,12 @@ namespace BrickController2.UI.Commands
             _canExecute = _ => canExecute?.Invoke() ?? true;
         }
 
+        public SafeCommand(Action<TExecute> execute, Predicate<object?> canExecute)
+        {
+            _executeAsync = o => { execute?.Invoke(o); return Task.FromResult(true); };
+            _canExecute = o => canExecute.Invoke(o);
+        }
+
         public SafeCommand(Func<TExecute, Task> executeAsync, Predicate<object?>? canExecute = null)
         {
             _executeAsync = async o => await executeAsync.Invoke(o);

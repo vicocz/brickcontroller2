@@ -1,5 +1,6 @@
 ﻿using BrickController2.Database;
 using BrickController2.Helpers;
+using BrickController2.Settings;
 using SQLite;
 using SQLiteNetExtensionsAsync.Extensions;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task InsertDeviceAsync(DeviceType type, string name, string address, byte[] devicedata, IEnumerable<DeviceSetting> settings)
+        public async Task InsertDeviceAsync(DeviceType type, string name, string address, byte[] devicedata, IEnumerable<NamedSetting> settings)
         {
             using (await _lock.LockAsync())
             {
@@ -90,7 +91,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task UpdateDeviceAsync(DeviceType type, string address, IEnumerable<DeviceSetting> settings)
+        public async Task UpdateDeviceAsync(DeviceType type, string address, IEnumerable<NamedSetting> settings)
         {
             using (await _lock.LockAsync())
             {

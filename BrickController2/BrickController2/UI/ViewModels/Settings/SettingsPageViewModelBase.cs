@@ -91,20 +91,15 @@ public abstract class SettingsPageViewModelBase : PageViewModelBase
         throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");
     }
 
-    private void ResetToDefaults()
-    {
-        foreach (var setting in AllSettings.Where(s => s.HasNonDefaultValue))
-        {
-            setting.ResetToDefault();
-        }
-    }
+    private void ResetToDefaults() => ResetToDefaults(AllSettings);
 
-    private static Task ResetGroupToDefaults(SettingGroupViewModel group)
+    private static void ResetGroupToDefaults(SettingGroupViewModel group) => ResetToDefaults(group);
+
+    private static void ResetToDefaults(ICollection<SettingViewModelBase> viewModels)
     {
-        foreach (var setting in group.Where(s => s.HasNonDefaultValue))
+        foreach (var setting in viewModels.Where(s => s.HasNonDefaultValue))
         {
             setting.ResetToDefault();
         }
-        return Task.CompletedTask;
     }
 }

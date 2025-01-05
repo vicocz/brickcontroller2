@@ -83,6 +83,7 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.DoubleDataTemplate>
+                
             </t:DataTemplatesSelector>
         </ResourceDictionary>
     </ContentView.Resources>
@@ -91,7 +92,7 @@
         <CollectionView ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,10,10,10"
                         ItemTemplate="{StaticResource TemplatesSelector}" IsGrouped="{Binding IsGrouped}">
             <CollectionView.ItemsLayout>
-                <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="{OnIdiom Desktop=10, Default=30}" />
+                <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="{OnIdiom Desktop=10, Default=20}" />
             </CollectionView.ItemsLayout>
             <CollectionView.GroupHeaderTemplate>
                 <DataTemplate>

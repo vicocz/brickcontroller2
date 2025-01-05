@@ -6,43 +6,42 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace BrickController2.UI.ViewModels.Settings
+namespace BrickController2.UI.ViewModels.Settings;
+
+public class EnumSettingViewModel : SettingViewModelBase<string>
 {
-    public class EnumSettingViewModel : SettingViewModelBase<string>
+    public EnumSettingViewModel(NamedSetting setting,
+        SettingsPageViewModelBase parent,
+        ITranslationService translationService)
+    : base(setting, parent, translationService)
     {
-        public EnumSettingViewModel(NamedSetting setting,
-            SettingsPageViewModelBase parent,
-            ITranslationService translationService)
-        : base(setting, parent, translationService)
+        SelectItemCommand = new SafeCommand(SelectItemAsync);
+    }
+
+    public IEnumerable<string> Items => Enum.GetNames(Setting.Type);
+    public ICommand SelectItemCommand { get; }
+
+    public override string Value
+    {
+        get => Enum.GetName(Setting.Type, SettingValue)!;
+        set
         {
-            SelectItemCommand = new SafeCommand(SelectItemAsync);
+            var enumValue = Enum.Parse(Setting.Type, value);
+            SettingValue = enumValue;
         }
+    }
 
-        public IEnumerable<string> Items => Enum.GetNames(Setting.Type);
-        public ICommand SelectItemCommand { get; }
+    public override void ResetToDefault()
+    {
+        Value = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
+    }
 
-        public override string Value
+    private async Task SelectItemAsync()
+    {
+        var result = await ShowSelectionDialogAsync(Items);
+        if (result.IsOk)
         {
-            get => Enum.GetName(Setting.Type, SettingValue)!;
-            set
-            {
-                var enumValue = Enum.Parse(Setting.Type, value);
-                SettingValue = enumValue;
-            }
-        }
-
-        public override void ResetToDefault()
-        {
-            Value = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
-        }
-
-        private async Task SelectItemAsync()
-        {
-            var result = await ShowSelectionDialogAsync(Items);
-            if (result.IsOk)
-            {
-                Value = result.SelectedItem;
-            }
+            Value = result.SelectedItem;
         }
     }
 }

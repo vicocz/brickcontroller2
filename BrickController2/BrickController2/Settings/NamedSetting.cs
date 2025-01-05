@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace BrickController2.DeviceManagement;
+namespace BrickController2.Settings;
 
-public record DeviceSetting
+public record NamedSetting
 {
     /// <summary>Unique setting name</summary>
     [JsonProperty]

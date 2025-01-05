@@ -1,4 +1,4 @@
-﻿using BrickController2.DeviceManagement;
+﻿using BrickController2.Settings;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Translation;
 using System;
@@ -8,12 +8,12 @@ using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels.Settings
 {
-    public class DeviceEnumSettingViewModel : DeviceSettingViewModelBase
+    public class EnumSettingViewModel : SettingViewModelBase<string>
     {
-        public DeviceEnumSettingViewModel(DeviceSettingsPageViewModel parentModel,
-            DeviceSetting setting,
+        public EnumSettingViewModel(NamedSetting setting,
+            SettingsPageViewModelBase parent,
             ITranslationService translationService)
-             : base(parentModel, setting, translationService)
+        : base(setting, parent, translationService)
         {
             SelectItemCommand = new SafeCommand(SelectItemAsync);
         }
@@ -21,24 +21,19 @@ namespace BrickController2.UI.ViewModels.Settings
         public IEnumerable<string> Items => Enum.GetNames(Setting.Type);
         public ICommand SelectItemCommand { get; }
 
-        public string CurrentItem
+        public override string Value
         {
-            get => Enum.GetName(Setting.Type, Setting.Value)!;
+            get => Enum.GetName(Setting.Type, SettingValue)!;
             set
             {
                 var enumValue = Enum.Parse(Setting.Type, value);
-                if (!enumValue.Equals(Setting.Value))
-                {
-                    Setting.Value = enumValue;
-                    RaisePropertyChanged();
-                    Parent.OnSettingChanged();
-                }
+                SettingValue = enumValue;
             }
         }
 
-        internal override void ResetToDefault()
+        public override void ResetToDefault()
         {
-            CurrentItem = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
+            Value = Enum.GetName(Setting.Type, Setting.DefaultValue)!;
         }
 
         private async Task SelectItemAsync()
@@ -46,7 +41,7 @@ namespace BrickController2.UI.ViewModels.Settings
             var result = await ShowSelectionDialogAsync(Items);
             if (result.IsOk)
             {
-                CurrentItem = result.SelectedItem;
+                Value = result.SelectedItem;
             }
         }
     }

@@ -5,75 +5,41 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels.Settings;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels;
 
-public class DeviceSettingsPageViewModel : PageViewModelBase
+public class DeviceSettingsPageViewModel : SettingsPageViewModelBase
 {
-    private readonly ObservableCollection<DeviceSettingViewModelBase> _settings;
-    private readonly ObservableCollection<DeviceSettingGroupViewModel> _groupedSettings;
-
     public DeviceSettingsPageViewModel(
         INavigationService navigationService,
         ITranslationService translationService,
         IDialogService dialogService,
-        NavigationParameters parameters) : base(navigationService, translationService)
+        NavigationParameters parameters)
+        : this(navigationService, translationService, dialogService, parameters.Get<Device>("device"))
     {
-        Device = parameters.Get<Device>("device");
-        _settings = new(Device.CurrentSettings.Select(ToViewModel));
-        _groupedSettings = new(_settings
-            .OrderBy(x => x.Setting.Name)
-            .GroupBy(x => x.Setting.Group)
-            .Select(x => new DeviceSettingGroupViewModel(x.Key, x, translationService)));
-        // detect grouping
-        IsGrouped = _groupedSettings.Any(x => !string.IsNullOrEmpty(x.GroupName));
-        DialogService = dialogService;
+    }
 
-        SaveSettingsCommand = new SafeCommand(ApplyChanges, () => _settings.Any(x => x.HasChanged));
-        ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => _settings.Any(x => x.HasNonDefaultValue));
-        ResetGroupToDefaultCommand = new SafeCommand<DeviceSettingGroupViewModel>(ResetGroupToDefaults,
-            (o) => o is DeviceSettingGroupViewModel group && group.HasNonDefaultValue);
+    private DeviceSettingsPageViewModel(
+        INavigationService navigationService,
+        ITranslationService translationService,
+        IDialogService dialogService,
+        Device device) : base(navigationService, translationService, dialogService, device.CurrentSettings)
+    {
+        Device = device;
+        SaveSettingsCommand = new SafeCommand(ApplyChanges, () => AllSettings.Any(x => x.HasChanged));
     }
 
     public ICommand SaveSettingsCommand { get; }
-    public ICommand ResetToDefaultsCommand { get; }
-    public ICommand ResetGroupToDefaultCommand { get; }
 
     public Device Device { get; }
-    public IDialogService DialogService { get; }
 
-    public bool IsGrouped { get; }
-    public IEnumerable<INotifyPropertyChanged> Settings => IsGrouped ? _groupedSettings : _settings;
-
-    internal void OnSettingChanged()
+    protected override void OnSettingChanged()
     {
+        base.OnSettingChanged();
         SaveSettingsCommand.RaiseCanExecuteChanged();
-        ResetToDefaultsCommand.RaiseCanExecuteChanged();
-        ResetGroupToDefaultCommand.RaiseCanExecuteChanged();
-    }
-
-    private DeviceSettingViewModelBase ToViewModel(DeviceSetting setting)
-    {
-        if (setting.IsBoolType)
-        {
-            return new DeviceBoolSettingViewModel(this, setting, TranslationService);
-        }
-        if (setting.IsEnumType)
-        {
-            return new DeviceEnumSettingViewModel(this, setting, TranslationService);
-        }
-        if (setting.IsDoubleType)
-        {
-            return new DeviceDoubleSettingViewModel(this, setting, TranslationService);
-        }        
-
-        throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");
     }
 
     private async Task ApplyChanges()
@@ -84,7 +50,7 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
                 false,
                 async (progressDialog, token) =>
                 {
-                    var changedSettings = _settings
+                    var changedSettings = AllSettings
                         .Where(s => s.HasChanged)
                         .Select(s => s.Setting)
                         .ToArray();
@@ -99,19 +65,5 @@ public class DeviceSettingsPageViewModel : PageViewModelBase
         catch (OperationCanceledException)
         {
         }
-    }
-
-    private void ResetToDefaults()
-    {
-        foreach (var setting in _settings.Where(s => s.HasNonDefaultValue))
-        {
-            setting.ResetToDefault();
-        }
-    }
-
-    private static Task ResetGroupToDefaults(DeviceSettingGroupViewModel group)
-    {
-        group.ResetToDefaults();
-        return Task.CompletedTask;
     }
 }

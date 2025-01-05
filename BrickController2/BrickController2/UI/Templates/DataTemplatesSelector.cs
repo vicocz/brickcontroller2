@@ -15,11 +15,11 @@ public class DataTemplatesSelector : DataTemplateSelector
     {
         var itemType = item.GetType();
 
-        if (itemType == typeof(DeviceBoolSettingViewModel))
+        if (itemType == typeof(BoolSettingViewModel))
             return BoolDataTemplate;
-        if (itemType == typeof(DeviceEnumSettingViewModel))
+        if (itemType == typeof(EnumSettingViewModel))
             return EnumDataTemplate;
-        if (itemType == typeof(DeviceDoubleSettingViewModel))
+        if (itemType == typeof(DoubleSettingViewModel))
             return DoubleDataTemplate;
 
         return default!;

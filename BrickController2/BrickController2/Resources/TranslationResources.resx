@@ -666,6 +666,9 @@
   <data name="ResetToDefaults" xml:space="preserve">
     <value>Reset settings to default</value>
   </data>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>General settings</value>
+  </data>
   <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
     <value>Current limits for PU channels (mA)</value>
   </data>
@@ -689,8 +692,5 @@
   </data>
   <data name="BuWizz3ChannelB" xml:space="preserve">
     <value>B</value>
-  </data>
-  <data name="ResetToDefaults" xml:space="preserve">
-    <value>Reset to default settings</value>
   </data>
 </root>

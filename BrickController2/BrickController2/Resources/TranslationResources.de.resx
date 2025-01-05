@@ -666,6 +666,9 @@
   <data name="ResetToDefaults" xml:space="preserve">
     <value>Die Einstellungen zurücksetzen</value>
   </data>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>Allgemeine Einstellungen</value>
+  </data>
   <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
     <value>Stromgrenzen für PF-Kanäle (mA)</value>
   </data>

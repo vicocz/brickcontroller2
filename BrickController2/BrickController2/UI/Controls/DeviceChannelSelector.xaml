@@ -238,7 +238,7 @@
                 <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="TechnicMoveChannel5" DeviceType="TechnicMove" Channel="7" HorizontalOptions="Start" VerticalOptions="End"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="TechnicMoveChannel6" DeviceType="TechnicMove" Channel="8" HorizontalOptions="End" VerticalOptions="Start"/>
 
-                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=technic_move.png}" WidthRequest="150" HeightRequest="80"/>
+                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=technic_move.png}" WidthRequest="150" HeightRequest="80" ZIndex="-1"/>
             </Grid>
 
         </Grid>

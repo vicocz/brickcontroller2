@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace BrickController2.DeviceManagement
         public const int CHANNEL_VM = 12; // artificial channel to mimic combined AB ports in PLAYVM
 
         private const int CHANNEL_C = 2;
+        private const string EnablePlayVmSettingName = "PlayVmEnabled";
 
         private bool _applyPlayVmMode;
         private byte _virtualMotorValue;
@@ -20,21 +22,23 @@ namespace BrickController2.DeviceManagement
         public TechnicMoveDevice(string name,
             string address,
             byte[] deviceData,
+            IEnumerable<NamedSetting> settings,
             IDeviceRepository deviceRepository,
             IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            // apply value (if any) or TRUE by default
+            SetSettingValue(EnablePlayVmSettingName, settings, true);
         }
 
         public override DeviceType DeviceType => DeviceType.TechnicMove;
         public override int NumberOfChannels => 9;
 
-        // This is now mandatory as the hub does not support generic servo / stepper commands (yet)
-        public bool EnablePlayVmMode => true;
+        public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
-        public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
-        public override bool CanChangeOutputType(int channel) => channel == CHANNEL_C;
+        public override bool CanResetOutput(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
+        public override bool CanChangeOutputType(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
 
 
         public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)

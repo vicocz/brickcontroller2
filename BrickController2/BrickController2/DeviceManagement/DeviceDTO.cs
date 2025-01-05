@@ -1,4 +1,5 @@
-﻿using SQLite;
+﻿using BrickController2.Settings;
+using SQLite;
 using SQLiteNetExtensions.Attributes;
 using System;
 using System.Collections.ObjectModel;
@@ -17,7 +18,7 @@ namespace BrickController2.DeviceManagement
         public byte[] DeviceData { get; set; } = Array.Empty<byte>();
 
         [TextBlob(nameof(SettingsBlobed))]
-        public ObservableCollection<DeviceSetting> Settings { get; set; } = [];
+        public ObservableCollection<NamedSetting> Settings { get; set; } = [];
 
         public string? SettingsBlobed { get; set; }
     }

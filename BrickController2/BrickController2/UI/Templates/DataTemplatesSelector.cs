@@ -13,9 +13,9 @@ public class DataTemplatesSelector : DataTemplateSelector
     {
         var itemType = item.GetType();
 
-        if (itemType == typeof(DeviceBoolSettingViewModel))
+        if (itemType == typeof(BoolSettingViewModel))
             return BoolDataTemplate;
-        if (itemType == typeof(DeviceEnumSettingViewModel))
+        if (itemType == typeof(EnumSettingViewModel))
             return EnumDataTemplate;
 
         return default!;

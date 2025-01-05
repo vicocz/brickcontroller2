@@ -1,11 +1,10 @@
-﻿using BrickController2.DeviceManagement;
-using System;
+﻿using System;
 
-namespace BrickController2.Extensions;
+namespace BrickController2.Settings;
 
-public static class DeviceSettingExtensions
+public static class NamedSettingExtensions
 {
-    public static TValue GetValue<TValue>(this DeviceSetting? setting, TValue defaultValue)
+    public static TValue GetValue<TValue>(this NamedSetting? setting, TValue defaultValue)
     {
         if (setting == null)
             return defaultValue;
@@ -21,6 +20,9 @@ public static class DeviceSettingExtensions
             return defaultValue;
         }
 
-        return (TValue)setting.Value;
+        if (setting.Value is TValue typedValue)
+            return typedValue;
+
+        return (TValue)Convert.ChangeType(setting.Value, typeof(TValue));
     }
 }

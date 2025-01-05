@@ -522,7 +522,7 @@
   <data name="ResetToDefaults" xml:space="preserve">
     <value>Die Einstellungen zurücksetzen</value>
   </data>
-  <data name="String1" xml:space="preserve">
-    <value>Joy Aktive Zone</value>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>Allgemeine Einstellungen</value>
   </data>
 </root>

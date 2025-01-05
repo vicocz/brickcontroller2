@@ -15,83 +15,6 @@
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <local:PageBase.Resources>
-        <ResourceDictionary>
-            <converters:InverseBoolConverter x:Key="InverseBool"/>
-            <Style x:Key="settingLabel" TargetType="Label">
-                <Setter Property="HorizontalOptions" Value="Start" />
-                <Setter Property="VerticalOptions" Value="Center" />
-                <Setter Property="FontSize" Value="Medium" />
-            </Style>
-            <Style x:Key="settingsSlider" TargetType="controls:ExtendedSlider">
-                <Setter Property="MinimumTrackColor" Value="{DynamicResource PositiveColor}"/>
-                <Setter Property="Minimum" Value="35"/>
-                <Setter Property="Maximum" Value="3500"/>
-                <Setter Property="Step" Value="35"/>
-            </Style>
-            <t:DataTemplatesSelector x:Key="TemplatesSelector">
-                <t:DataTemplatesSelector.BoolDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}"/>
-                            <HorizontalStackLayout Grid.Column="1" Spacing="20">
-                                <Switch IsToggled="{Binding Value}" HorizontalOptions="Center" />
-                                <Label Text="{extensions:Translate On}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding Value}"/>
-                                <Label Text="{extensions:Translate Off}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding Value, Converter={StaticResource InverseBool}}"/>
-                            </HorizontalStackLayout>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.BoolDataTemplate>
-
-                <t:DataTemplatesSelector.EnumDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}"/>
-                            <Button Grid.Column="1" Text="{Binding Value}" Command="{Binding SelectItemCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.EnumDataTemplate>
-                
-                <t:DataTemplatesSelector.DoubleDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}" Margin="10,0,0,0"/>
-                            <!--Apply static style for now, this should be done base on e.g. group-->
-                            <controls:ExtendedSlider Grid.Column="1" Value="{Binding Value}" Style="{StaticResource Key=settingsSlider}" HorizontalOptions="FillAndExpand" />
-                            <Label Grid.Column="2" Text="{Binding Value}" WidthRequest="64" Style="{StaticResource Key=settingLabel}"
-                                   HorizontalOptions="End" HorizontalTextAlignment="End" Margin="0,0,20,0"/>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.DoubleDataTemplate>
-            </t:DataTemplatesSelector>
-        </ResourceDictionary>
-    </local:PageBase.Resources>
-
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="settings_backup_restore" Text="{extensions:Translate ResetToDefaults}" Command="{Binding ResetToDefaultsCommand}" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSettingsCommand}" />
@@ -112,27 +35,7 @@
                 </Grid>
 
                 <!-- Setting list -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,10,10,10"
-                                ItemTemplate="{StaticResource TemplatesSelector}" IsGrouped="{Binding IsGrouped}">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="{OnIdiom Desktop=10, Default=30}" />
-                    </CollectionView.ItemsLayout>
-                    <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate>
-                            <SwipeView>
-                                <SwipeView.RightItems>
-                                    <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate Reset}" Icon="settings_backup_restore" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            IsVisible="{Binding HasNonDefaultValue}"
-                                                            Command="{Binding BindingContext.ResetGroupToDefaultCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
-                                    </SwipeItems>
-                                </SwipeView.RightItems>
-                                <Label Text="{Binding GroupName}" BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" TextColor="{DynamicResource PrimaryTextColor}"
-                                       FontSize="Medium" FontAttributes="Bold" Padding="10" />
-                            </SwipeView>
-                        </DataTemplate>
-                    </CollectionView.GroupHeaderTemplate>
-                </CollectionView>
+                <controls:SettingsControl Grid.Row="1" />
 
             </Grid>
 

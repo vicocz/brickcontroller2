@@ -11,7 +11,6 @@
     xmlns:t="clr-namespace:BrickController2.UI.Templates"
     x:Class="BrickController2.UI.Pages.DeviceSettingsPage"
     Title="{extensions:Translate DeviceSettings}"
-    x:Name="Page"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 

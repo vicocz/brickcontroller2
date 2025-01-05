@@ -19,6 +19,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Lego Boost Hub
 - Lego Technic Hub
 - Lego WeDo 2.0 Smart Hub
+- Lego Technic Move Hub (PLAYVM mode)
 - Circuit Cubes
 
 ## Project details

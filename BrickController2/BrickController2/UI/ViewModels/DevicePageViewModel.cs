@@ -37,6 +37,8 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             Device = parameters.Get<Device>("device");
+            BuWizzOutputLevel = Device.DefaultOutputLevel;
+            BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs =  Enumerable
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(Device, channel))
@@ -48,6 +50,8 @@ namespace BrickController2.UI.ViewModels
             ActivateShelfModeCommand = new SafeCommand(ActivateShelfModeCommandAsync,
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (Device)),
+                () => CanOpenSettings);
         }
 
         public Device Device { get; }
@@ -58,14 +62,19 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool CanOpenSettings => Device.HasSettings &&
+            Device.DeviceState == DeviceState.Connected &&
+            !_deviceManager.IsScanning;
+
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
         public ICommand ActivateShelfModeCommand { get; }
         public ICommand ScanCommand { get; }
+        public ICommand OpenDeviceSettingsPageCommand { get; }
 
-        public int BuWizzOutputLevel { get; set; } = 1;
-        public int BuWizz2OutputLevel { get; set; } = 1;
+        public int BuWizzOutputLevel { get; set; }
+        public int BuWizz2OutputLevel { get; set; }
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
@@ -211,8 +220,7 @@ namespace BrickController2.UI.ViewModels
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
                             // update command enablement
-                            ScanCommand.RaiseCanExecuteChanged();
-                            ActivateShelfModeCommand.RaiseCanExecuteChanged();
+                            UpdateCommandsAvailability();
                         }
                     }
                 }
@@ -322,8 +330,14 @@ namespace BrickController2.UI.ViewModels
         private void OnDeviceDisconnected(Device device)
         {
             // update command enablement
+            UpdateCommandsAvailability();
+        }
+
+        private void UpdateCommandsAvailability()
+        {
             ScanCommand.RaiseCanExecuteChanged();
             ActivateShelfModeCommand.RaiseCanExecuteChanged();
+            OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
         }
 
         private void SetBuWizzOutputLevel(int level)

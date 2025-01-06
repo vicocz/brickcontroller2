@@ -30,6 +30,7 @@ namespace BrickController2.UI.ViewModels
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
+            DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
         }
 
         public IDeviceManager DeviceManager { get; }
@@ -37,6 +38,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand ScanCommand { get; }
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
+        public ICommand DeviceSettingsCommand { get; }
 
         public override void OnAppearing()
         {
@@ -66,6 +68,17 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await DeviceManager.DeleteDeviceAsync(device),
                         Translate("Deleting"));
                 }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task OpenDeviceSettingsAsync(Device device)
+        {
+            try
+            {
+                await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (device));
             }
             catch (OperationCanceledException)
             {

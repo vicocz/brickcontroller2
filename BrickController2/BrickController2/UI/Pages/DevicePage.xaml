@@ -23,6 +23,7 @@
     
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" />
+        <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

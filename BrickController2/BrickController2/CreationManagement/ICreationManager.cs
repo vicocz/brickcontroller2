@@ -27,7 +27,7 @@ namespace BrickController2.CreationManagement
         Task DeleteControllerProfileAsync(ControllerProfile controllerProfile);
         Task RenameControllerProfileAsync(ControllerProfile controllerProfile, string newName);
 
-        Task<ControllerEvent> AddOrGetControllerEventAsync(ControllerProfile controllerProfile, GameControllerEventType eventType, string eventCode);
+        Task<ControllerEvent> AddOrGetControllerEventAsync(ControllerProfile controllerProfile, string controllerId, GameControllerEventType eventType, string eventCode);
         Task DeleteControllerEventAsync(ControllerEvent controllerEvent);
 
         Task<ControllerAction> AddOrUpdateControllerActionAsync(

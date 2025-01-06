@@ -282,7 +282,7 @@ namespace BrickController2.UI.Controls
 
                         var gameControllerEventType = controllerEvent.Key.EventType;
                         var gameControllerEventCode = controllerEvent.Key.EventCode;
-                        tcs.TrySetResult(new GameControllerEventDialogResult(true, gameControllerEventType, gameControllerEventCode));
+                        tcs.TrySetResult(new GameControllerEventDialogResult(true, args.ControllerId, gameControllerEventType, gameControllerEventCode));
                         return;
                     }
                 }

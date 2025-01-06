@@ -6,6 +6,7 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:vm="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.ControllerTesterPage"
     Title="{extensions:Translate ControllerTester}"
     ios:Page.UseSafeArea="True"
@@ -27,9 +28,13 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <StackLayout Orientation="Vertical" Padding="10">
+                                <StackLayout Orientation="Horizontal" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ControllerTesterPageViewModel}}, Path=IsControllerIdSupported}">
+                                    <Label Text="ControllerId:" FontSize="Medium" Margin="0,0,5,0"/>
+                                    <Label Text="{Binding ControllerId}" FontSize="Medium"/>
+                                </StackLayout>
                                 <StackLayout Orientation="Horizontal">
                                     <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
-                                    <Label Text=" - " FontSize="Large"/>
+                                    <Label Text="-" FontSize="Large" Margin="5,0,5,0"/>
                                     <Label Text="{Binding Value}" FontSize="Large"/>
                                 </StackLayout>
                                 <Label Text="{Binding EventType}" FontSize="Medium"/>

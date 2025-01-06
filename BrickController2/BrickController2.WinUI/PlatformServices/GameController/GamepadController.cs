@@ -1,10 +1,11 @@
-﻿using BrickController2.PlatformServices.GameController;
-using BrickController2.Windows.Extensions;
-using Microsoft.Maui.Dispatching;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Gaming.Input;
+using Microsoft.Maui.Dispatching;
+using BrickController2.Helpers;
+using BrickController2.PlatformServices.GameController;
+using BrickController2.Windows.Extensions;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
@@ -18,22 +19,57 @@ internal class GamepadController
 
     private readonly Dictionary<string, float> _lastReadingValues = [];
 
-    public GamepadController(GameControllerService service, Gamepad gamepad, IDispatcherTimer timer)
-        : this(service, gamepad, timer, DefaultInterval)
+    /// <summary>
+    /// zero-based Index of this controller inside the controller management
+    /// </summary>
+    private readonly int _controllerIndex;
+
+    /// <summary>
+    /// string to identify the controller like "Controller 1"
+    /// </summary>
+    private readonly string _controllerId;
+
+    /// <summary>
+    /// Unique and persistant identifier of device (for future usage i.e. to save some device specific settings)
+    /// this value won't change even if the input device is disconnected, reconnected, or reconfigured
+    /// </summary>
+    private readonly string _uniquePersistentDeviceId;
+
+    public GamepadController(GameControllerService service, Gamepad gamepad, int controllerIndex, IDispatcherTimer timer)
+        : this(service, gamepad, controllerIndex, timer, DefaultInterval)
     {
     }
 
-    private GamepadController(GameControllerService service, Gamepad gamepad, IDispatcherTimer timer, TimeSpan timerInterval)
+    private GamepadController(GameControllerService service, Gamepad gamepad, int controllerIndex, IDispatcherTimer timer, TimeSpan timerInterval)
     {
         _controllerService = service;
         _gamepad = gamepad;
         _timer = timer;
+        _controllerIndex = controllerIndex;
+        _uniquePersistentDeviceId = _gamepad.GetUniquePersistentDeviceId();
+        _controllerId = GameControllerHelper.GetControllerIdFromIndex(controllerIndex);
 
         _timer.Interval = timerInterval;
         _timer.Tick += Timer_Tick;
     }
 
-    public string DeviceId => _gamepad.GetDeviceId();
+    /// <summary>
+    /// Unique and persistant identifier of device
+    /// </summary>
+    public string UniquePersistentDeviceId => _uniquePersistentDeviceId;
+
+    /// <summary>
+    /// Index of this controller inside the controller management
+    /// </summary>
+    public int ControllerIndex => _controllerIndex;
+
+    /// <summary>
+    /// string to identify the controller like "Controller 1"
+    /// </summary>
+    public string ControllerID => _controllerId;
+
+    public Gamepad Gamepad => _gamepad;
+
 
     public void Start()
     {
@@ -59,7 +95,7 @@ internal class GamepadController
             .Where(HasChanged)
             .ToDictionary(x => (x.EventType, x.Name), x => x.Value);
 
-        _controllerService.RaiseEvent(currentEvents);
+        _controllerService.RaiseEvent(currentEvents, ControllerID);
     }
 
     private static bool AreAlmostEqual(float a, float b) => Math.Abs(a - b) < 0.001;

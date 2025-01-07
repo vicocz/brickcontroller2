@@ -1,4 +1,4 @@
-﻿using BrickController2.UI.ViewModels;
+﻿using BrickController2.UI.ViewModels.Settings;
 using Microsoft.Maui.Controls;
 
 namespace BrickController2.UI.Templates;
@@ -9,14 +9,18 @@ public class DataTemplatesSelector : DataTemplateSelector
 
     public DataTemplate EnumDataTemplate { get; set; } = default!;
 
+    public DataTemplate DoubleDataTemplate { get; set; } = default!;
+
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {
         var itemType = item.GetType();
 
-        if (itemType == typeof(DeviceBoolSettingViewModel))
+        if (itemType == typeof(BoolSettingViewModel))
             return BoolDataTemplate;
-        if (itemType == typeof(DeviceEnumSettingViewModel))
+        if (itemType == typeof(EnumSettingViewModel))
             return EnumDataTemplate;
+        if (itemType == typeof(DoubleSettingViewModel))
+            return DoubleDataTemplate;
 
         return default!;
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BrickController2.Settings;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement
@@ -6,10 +7,10 @@ namespace BrickController2.DeviceManagement
     internal interface IDeviceRepository
     {
         Task<IEnumerable<DeviceDTO>> GetDevicesAsync();
-        Task InsertDeviceAsync(DeviceType type, string name, string address, byte[] manufacturerData, IEnumerable<DeviceSetting> settings);
+        Task InsertDeviceAsync(DeviceType type, string name, string address, byte[] manufacturerData, IEnumerable<NamedSetting> settings);
         Task DeleteDeviceAsync(DeviceType type, string address);
         Task DeleteDevicesAsync();
         Task UpdateDeviceAsync(DeviceType type, string address, string newName);
-        Task UpdateDeviceAsync(DeviceType type, string address, IEnumerable<DeviceSetting> settings);
+        Task UpdateDeviceAsync(DeviceType type, string address, IEnumerable<NamedSetting> settings);
     }
 }

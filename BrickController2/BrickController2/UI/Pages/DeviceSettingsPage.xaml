@@ -14,51 +14,11 @@
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
-    <local:PageBase.Resources>
-        <ResourceDictionary>
-            <converters:InverseBoolConverter x:Key="InverseBool"/>
-            <t:DataTemplatesSelector x:Key="TemplatesSelector">
-                <t:DataTemplatesSelector.BoolDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
-                            <HorizontalStackLayout Grid.Column="1" Spacing="20">
-                                <Switch IsToggled="{Binding Value}" HorizontalOptions="Center" />
-                                <Label Text="{extensions:Translate On}" FontSize="Medium" VerticalOptions="Center" IsVisible="{Binding Value}"/>
-                                <Label Text="{extensions:Translate Off}" FontSize="Medium" VerticalOptions="Center" IsVisible="{Binding Value, Converter={StaticResource InverseBool}}"/>
-                            </HorizontalStackLayout>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.BoolDataTemplate>
-
-                <t:DataTemplatesSelector.EnumDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <Label Grid.Column="0" Text="{Binding DisplayName}" FontSize="Large" VerticalOptions="Center"/>
-                            <Button Grid.Column="1" Text="{Binding CurrentItem}" Command="{Binding SelectItemCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
-                        </Grid>
-                    </DataTemplate>
-                </t:DataTemplatesSelector.EnumDataTemplate>
-            </t:DataTemplatesSelector>
-        </ResourceDictionary>
-    </local:PageBase.Resources>
-
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="settings_backup_restore" Text="{extensions:Translate ResetToDefaults}" Command="{Binding ResetToDefaultsCommand}" />
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSettingsCommand}" />
+    </ContentPage.ToolbarItems>
+    
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
@@ -70,16 +30,11 @@
 
                 <!-- Header -->
                 <Grid Grid.Row="0" Style="{StaticResource HeaderGridStyle}">
-                    <Label Text="{Binding Device.Name}" TextColor="{DynamicResource EditableTextColor}" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center" />
+                    <Label Text="{Binding Device.Name}" TextColor="{DynamicResource PrimaryTextColor}" FontSize="Large" FontAttributes="Bold" HorizontalOptions="Start" VerticalOptions="Center" />
                 </Grid>
 
                 <!-- Setting list -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Settings}" SelectionMode="None" Margin="10,20,10,10"
-                                ItemTemplate="{StaticResource TemplatesSelector}">
-                    <CollectionView.ItemsLayout>
-                        <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="30" />
-                    </CollectionView.ItemsLayout>
-                </CollectionView>
+                <controls:SettingsControl Grid.Row="1" />
 
             </Grid>
 

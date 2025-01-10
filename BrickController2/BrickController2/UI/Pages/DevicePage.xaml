@@ -84,11 +84,11 @@
 
                                     <HorizontalStackLayout Grid.Column="0">
                                         <Label Text="FW:" FontSize="Small" Margin="0,0,5,0"/>
-                                        <Label Text="{Binding Device.FirmwareVersion}" FontSize="Medium" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Device.FirmwareVersion}" FontSize="Small" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout Grid.Column="1">
                                         <Label Text="HW:" FontSize="Small" Margin="0,0,5,0"/>
-                                        <Label Text="{Binding Device.HardwareVersion}" FontSize="Medium" FontAttributes="Bold"/>
+                                        <Label Text="{Binding Device.HardwareVersion}" FontSize="Small" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                 </Grid>
                             </Grid>

@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Handlers;
+﻿using BrickController2.UI.Controls;
+using Microsoft.Maui.Handlers;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System.Linq;
@@ -16,11 +17,29 @@ public class CustomSwipeViewHandler : SwipeViewHandler
 
     private void SwipeControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        // invoke command of the first left item to suppport deletion (workaround for Windouws without touch controls)
-        if (VirtualView.LeftItems.Count == 1)
+        // open context menu instead of swipte items
+        if (VirtualView.LeftItems.Count > 0 ||
+            VirtualView.RightItems.Count > 0)
         {
-            var item = VirtualView.LeftItems.First();
-            item.OnInvoked();
+
+            var contextMenu = new MenuFlyout();
+            foreach (var item in VirtualView.LeftItems
+                .Concat(VirtualView.RightItems)
+                .Cast<SwipeIcon>())
+            {
+                contextMenu.Items.Add(new MenuFlyoutItem
+                {
+                    Icon = new FontIcon
+                    {
+                        Glyph = item.Icon,
+                        FontFamily = item.IconImageSource is Microsoft.Maui.Controls.FontImageSource fontImage ? new(fontImage.FontFamily) : default
+                    },
+                    Text = item.Text,
+                    Command = item.Command,
+                    CommandParameter = item.CommandParameter,
+                });
+            }
+            contextMenu.ShowAt(PlatformView, e.GetPosition(PlatformView));
         }
     }
 

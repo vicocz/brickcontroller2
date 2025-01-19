@@ -1,4 +1,5 @@
 ﻿using BrickController2.UI.Controls;
+using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
 using Microsoft.UI.Xaml.Controls;
@@ -16,6 +17,13 @@ public class CustomSwipeViewHandler : SwipeViewHandler
         platformView.RightTapped += SwipeControl_RightTapped;
     }
 
+    protected override void DisconnectHandler(SwipeControl platformView)
+    {
+        platformView.RightTapped -= SwipeControl_RightTapped;
+
+        base.DisconnectHandler(platformView);
+    }
+
     private void SwipeControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
         // open context menu instead of swipte items
@@ -25,6 +33,7 @@ public class CustomSwipeViewHandler : SwipeViewHandler
         }
 
         var contextMenu = new MenuFlyout();
+
         foreach (var item in VirtualView.LeftItems
             .Concat(VirtualView.RightItems)
             .Cast<SwipeIcon>()
@@ -32,7 +41,7 @@ public class CustomSwipeViewHandler : SwipeViewHandler
         {
             contextMenu.Items.Add(new MenuFlyoutItem
             {
-                Icon = item.IconImageSource.ToIconSource(MauiContext!)?.CreateIconElement(),
+                Icon = GetIconElement(item),
                 Text = item.Text,
                 Command = item.Command,
                 CommandParameter = item.CommandParameter,
@@ -41,10 +50,14 @@ public class CustomSwipeViewHandler : SwipeViewHandler
         contextMenu.ShowAt(PlatformView, e.GetPosition(PlatformView));
     }
 
-    protected override void DisconnectHandler(SwipeControl platformView)
+    private IconElement? GetIconElement(SwipeIcon item)
     {
-        platformView.RightTapped -= SwipeControl_RightTapped;
-
-        base.DisconnectHandler(platformView);
+        var iconSource = item.IconImageSource.ToIconSource(MauiContext!);
+        if (iconSource is FontIconSource fontIconSource)
+        {
+            // hardcode now to override SwipeItem's Icon color which is typically white
+            fontIconSource.Foreground = Colors.Black.ToPlatform();
+        }
+        return iconSource?.CreateIconElement();
     }
 }

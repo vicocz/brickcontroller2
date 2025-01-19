@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +37,8 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _inputCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
 
-        public Wedo2Device(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        public Wedo2Device(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger<Wedo2Device> logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
         }
 

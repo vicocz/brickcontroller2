@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -9,6 +10,7 @@ namespace BrickController2.DeviceManagement
     internal abstract class BluetoothDevice : Device
     {
         protected readonly IBluetoothLEService _bleService;
+        protected readonly ILogger _logger;
 
         protected IBluetoothLEDevice? _bleDevice;
         private Task? _outputTask;
@@ -16,10 +18,11 @@ namespace BrickController2.DeviceManagement
 
         private Action<Device>? _onDeviceDisconnected = null;
 
-        public BluetoothDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BluetoothDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger logger)
             : base(name, address, deviceRepository)
         {
             _bleService = bleService;
+            _logger = logger;
         }
 
         protected abstract bool AutoConnectOnFirstConnect { get; }

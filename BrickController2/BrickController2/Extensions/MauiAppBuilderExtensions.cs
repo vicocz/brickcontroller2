@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.Hosting;
 
 namespace BrickController2.Extensions;
 
@@ -9,4 +10,11 @@ public static class MauiAppBuilderExtensions
         // source: https://github.com/google/material-design-icons/blob/master/font/MaterialIconsOutlined-Regular.otf
         fonts.AddFont("MaterialIconsOutlined-Regular.otf", "Icons");
     });
+
+    public static MauiAppBuilder ConfigureLogging(this MauiAppBuilder builder)
+    {
+        //TODO builder.Logging.AddDebug();
+
+        return builder;
+    }
 }

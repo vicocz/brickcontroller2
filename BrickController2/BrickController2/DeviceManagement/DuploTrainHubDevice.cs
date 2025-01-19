@@ -1,11 +1,12 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 
 namespace BrickController2.DeviceManagement
 {
     internal class DuploTrainHubDevice : ControlPlusDevice
     {
-        public DuploTrainHubDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        public DuploTrainHubDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger<DuploTrainHubDevice> logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
         }
 

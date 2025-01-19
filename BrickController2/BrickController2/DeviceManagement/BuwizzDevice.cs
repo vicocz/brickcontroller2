@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement.BuWizz;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,8 +30,8 @@ namespace BrickController2.DeviceManagement
 
         private IGattCharacteristic? _characteristic;
 
-        public BuWizzDevice(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        public BuWizzDevice(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger<BuWizzDevice> logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
             // apply values (if any) or default
             SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);

@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 
 namespace BrickController2.DeviceManagement
 {
@@ -9,8 +10,9 @@ namespace BrickController2.DeviceManagement
             string address,
             byte[] deviceData,
             IDeviceRepository deviceRepository,
-            IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+            IBluetoothLEService bleService,
+            ILogger<BoostDevice> logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
         }
 

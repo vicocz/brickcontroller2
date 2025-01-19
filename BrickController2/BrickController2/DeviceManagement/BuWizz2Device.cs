@@ -2,6 +2,7 @@
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,8 +43,8 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _modelNumberCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
 
-        public BuWizz2Device(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        public BuWizz2Device(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger<BuWizz2Device> logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
             // On BuWizz2 with manufacturer data 0x4e054257001e the ports are swapped
             // (no normal BuWizz2es manufacturer data is 0x4e054257001b)
@@ -156,7 +157,10 @@ namespace BrickController2.DeviceManagement
                     await ReadDeviceInfo(token);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to read device info.");
+            }
 
             return true;
         }
@@ -221,8 +225,9 @@ namespace BrickController2.DeviceManagement
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Processing of output values has failed.");
             }
         }
 
@@ -251,8 +256,9 @@ namespace BrickController2.DeviceManagement
 
                 return await _bleDevice!.WriteAsync(_characteristic!, sendOutputBuffer, token);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to send output values.");
                 return false;
             }
         }
@@ -265,8 +271,9 @@ namespace BrickController2.DeviceManagement
 
                 return await _bleDevice!.WriteAsync(_characteristic!, sendOutputLevelBuffer, token);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Failed to set output level.");
                 return false;
             }
         }

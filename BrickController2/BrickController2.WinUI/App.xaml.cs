@@ -33,6 +33,7 @@ public partial class App : MauiWinUIApplication
         builder
             .UseMauiApp<BrickController2.App>()
             .ConfigureSymbolFonts()
+            .ConfigureLogging()
             .ConfigureMauiHandlers(handlers =>
             {
                 handlers

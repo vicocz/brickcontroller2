@@ -1,5 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,8 +42,8 @@ namespace BrickController2.DeviceManagement
 
         private IGattCharacteristic? _characteristic;
 
-        public ControlPlusDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        public ControlPlusDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
             _outputValues = new int[NumberOfChannels];
             _lastOutputValues = new int[NumberOfChannels];

@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,8 +32,8 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _remoteControlCharacteristic;
         private IGattCharacteristic? _quickDriveCharacteristic;
 
-        public SBrickDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        public SBrickDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ILogger<SBrickDevice> logger)
+            : base(name, address, deviceRepository, bleService, logger)
         {
         }
 

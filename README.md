@@ -5,7 +5,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 ## Supported platforms
 
 - Android 5.0+
-- iOS 11+
+- iOS 12.2+
 - Windows 10 (experimental)
 
 ## Supported receivers

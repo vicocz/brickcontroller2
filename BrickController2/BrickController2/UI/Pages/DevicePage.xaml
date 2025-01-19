@@ -63,15 +63,16 @@
                                     </Label.GestureRecognizers>
                                 </Label>
 
-                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate  DeviceType}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small"/>
                                 <Label Grid.Column="1" Grid.Row="1" Text="{Binding Device.DeviceType}" FontSize="Medium" FontAttributes="Bold"/>
 
                                 <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Address}" FontSize="Small"/>
-                                <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding Device.Address}" FontSize="Micro" FontAttributes="Bold"/>
+                                <Label Grid.Column="{OnPlatform iOS=0, Default=1}" Grid.Row="{OnPlatform iOS=3, Default=2}" Grid.ColumnSpan="{OnPlatform iOS=2, Default=1}"
+                                       Text="{Binding Device.Address}" FontSize="{OnPlatform iOS=Micro, Default=Medium}" FontAttributes="Bold"/>
 
                                 <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Battery}" FontSize="Small"/>
                                 <HorizontalStackLayout Grid.Column="1" Grid.Row="4">
-                                    <Label Text="{Binding Device.BatteryVoltage}" FontSize="Medium" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Device.BatteryVoltage}" FontSize="Medium" FontAttributes="Bold" Margin="0,0,5,0"/>
                                     <Label Text="{Binding Device.BatteryVoltageSign}" FontSize="Medium"/>
                                 </HorizontalStackLayout>
 
@@ -82,11 +83,11 @@
                                     </Grid.ColumnDefinitions>
 
                                     <HorizontalStackLayout Grid.Column="0">
-                                        <Label Text="FW: " FontSize="Small"/>
+                                        <Label Text="FW:" FontSize="Small" Margin="0,0,5,0"/>
                                         <Label Text="{Binding Device.FirmwareVersion}" FontSize="Small" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                     <HorizontalStackLayout Grid.Column="1">
-                                        <Label Text="HW: " FontSize="Small"/>
+                                        <Label Text="HW:" FontSize="Small" Margin="0,0,5,0"/>
                                         <Label Text="{Binding Device.HardwareVersion}" FontSize="Small" FontAttributes="Bold"/>
                                     </HorizontalStackLayout>
                                 </Grid>

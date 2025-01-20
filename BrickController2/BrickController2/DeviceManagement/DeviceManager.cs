@@ -106,6 +106,9 @@ namespace BrickController2.DeviceManagement
                         return;
                     }
 
+                    _logger.LogInformation("New device found. Name:{name}, Type:{type}, Address:{address}",
+                        deviceName, deviceType, deviceAddress);
+
                     var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData, []);
                     if (device != null)
                     {

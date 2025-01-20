@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Net;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
-
+using Microsoft.Extensions.Logging;
 using static BrickController2.Protocols.BluetoothLowEnergy;
 
 namespace BrickController2.DeviceManagement
@@ -13,11 +14,13 @@ namespace BrickController2.DeviceManagement
     internal class BluetoothDeviceManager : IBluetoothDeviceManager
     {
         private readonly IBluetoothLEService _bleService;
+        private readonly ILogger<BluetoothDeviceManager> _logger;
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        public BluetoothDeviceManager(IBluetoothLEService bleService)
+        public BluetoothDeviceManager(IBluetoothLEService bleService, ILogger<BluetoothDeviceManager> logger)
         {
             _bleService = bleService;
+            _logger = logger;
         }
 
         public bool IsBluetoothLESupported => _bleService.IsBluetoothLESupported;
@@ -37,7 +40,7 @@ namespace BrickController2.DeviceManagement
                     return await _bleService.ScanDevicesAsync(
                         async scanResult =>
                         {
-                            var deviceInfo = GetDeviceIfo(scanResult.AdvertismentData);
+                            var deviceInfo = GetDeviceIfo(scanResult.DeviceAddress, scanResult.AdvertismentData);
                             if (deviceInfo.DeviceType != DeviceType.Unknown)
                             {
                                 await deviceFoundCallback(deviceInfo.DeviceType, scanResult.DeviceName, scanResult.DeviceAddress, deviceInfo.ManufacturerData);
@@ -49,14 +52,16 @@ namespace BrickController2.DeviceManagement
                 {
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Scanning failed due to the exception.");
+
                     return false;
                 }
             }
         }
 
-        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceIfo(IDictionary<byte, byte[]> advertismentData)
+        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceIfo(string address, IDictionary<byte, byte[]> advertismentData)
         {
             if (advertismentData == null)
             {
@@ -65,11 +70,13 @@ namespace BrickController2.DeviceManagement
 
             if (!advertismentData.TryGetValue(ADTYPE_MANUFACTURER_SPECIFIC, out var manufacturerData) || manufacturerData.Length < 2)
             {
-                return GetDeviceInfoByService(advertismentData);
+                return GetDeviceInfoByService(address, advertismentData);
             }
 
             var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
             var manufacturerId = manufacturerDataString.Substring(0, 5);
+
+            _logger.LogDebug("Found advertisment device '{address}' with manufacturer data: {data}", address, manufacturerDataString);
 
             switch (manufacturerId)
             {
@@ -107,7 +114,7 @@ namespace BrickController2.DeviceManagement
             return (DeviceType.Unknown, null);
         }
 
-        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceInfoByService(IDictionary<byte, byte[]> advertismentData)
+        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceInfoByService(string address, IDictionary<byte, byte[]> advertismentData)
         {
             // 0x06: 128 bits Service UUID type
             if (!advertismentData.TryGetValue(ADTYPE_SERVICE_128BIT, out byte[]? serviceData) || serviceData.Length < 16)
@@ -116,6 +123,8 @@ namespace BrickController2.DeviceManagement
             }
 
             var serviceGuid = serviceData.GetGuid();
+
+            _logger.LogDebug("Found advertisment device '{address}' with service: {service}", address, serviceGuid);
 
             switch (serviceGuid)
             {

@@ -594,7 +594,7 @@
   <data name="AddControllerProfile" xml:space="preserve">
     <value>Ein neues Controllerprofil erstellen</value>
   </data>
- <data name="AddControllerEvent" xml:space="preserve">
+  <data name="AddControllerEvent" xml:space="preserve">
     <value>Ein neues Controller-Event erstellen</value>
   </data>
   <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
@@ -669,10 +669,10 @@
   <data name="_defaultGroup" xml:space="preserve">
     <value>Allgemeine Einstellungen</value>
   </data>
-  <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
+	<data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
     <value>Stromgrenzen für PF-Kanäle (mA)</value>
   </data>
-  <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
+	<data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
     <value>Stromgrenzen für PU-Kanäle (mA)</value>
   </data>
   <data name="BuWizz3Channel0" xml:space="preserve">
@@ -692,5 +692,8 @@
   </data>
   <data name="BuWizz3ChannelB" xml:space="preserve">
     <value>B</value>
+  </data>
+  <data name="PlayVmEnabled" xml:space="preserve">
+    <value>Einfacher Fahrmodus (PLAYVM)</value>
   </data>
 </root>

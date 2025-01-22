@@ -17,7 +17,7 @@ namespace BrickController2.DeviceManagement
         private const string EnablePlayVmSettingName = "PlayVmEnabled";
 
         private bool _applyPlayVmMode;
-        private byte _virtualMotorValue;
+        private volatile byte _virtualMotorValue;
 
         public TechnicMoveDevice(string name,
             string address,

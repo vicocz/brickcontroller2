@@ -124,6 +124,16 @@ namespace BrickController2.DeviceManagement
             // 0x06: 128 bits Service UUID type
             if (!advertismentData.TryGetValue(ADTYPE_SERVICE_128BIT, out byte[]? serviceData) || serviceData.Length < 16)
             {
+                // falback to name
+                if (advertismentData.TryGetValue(ADTYPE_LOCAL_NAME_COMPLETE, out byte[]? deviceName))
+                {
+                    var completeLocalNameString = BitConverter.ToString(deviceName).ToLower();
+                    if (completeLocalNameString == "50-46-78-20-42-72-69-63-6b-20-31-36-20-4d-42") //  PFx Brick 16 MB
+                    {
+                        return (DeviceType.PfxBrick, null);
+                    }
+                }
+
                 return (DeviceType.Unknown, null);
             }
 

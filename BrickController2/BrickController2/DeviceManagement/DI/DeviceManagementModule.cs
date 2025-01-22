@@ -30,6 +30,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<MK4>().Keyed<Device>(DeviceType.MK4);
             builder.RegisterType<MK6>().Keyed<Device>(DeviceType.MK6);
             builder.RegisterType<MK_DIY>().Keyed<Device>(DeviceType.MK_DIY);
+            builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 
             builder.Register<DeviceFactory>(c =>
             {

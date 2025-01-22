@@ -204,6 +204,9 @@
   <data name="BuWizz2OutputLevel" xml:space="preserve">
     <value>BuWizz 2 output level</value>
   </data>
+  <data name="BuWizz2SwapChannels" xml:space="preserve">
+    <value>Swap channels</value>
+  </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz output level</value>
   </data>
@@ -290,6 +293,9 @@
   </data>
   <data name="Devices" xml:space="preserve">
     <value>Devices</value>
+  </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Device settings</value>
   </data>
   <data name="DeviceType" xml:space="preserve">
     <value>Device type</value>
@@ -591,6 +597,9 @@
   <data name="AddControllerEvent" xml:space="preserve">
     <value>Add a new controller event</value>
   </data>
+  <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
+    <value>Add a new controller event for specific game controller</value>
+  </data>
   <data name="OpenDeviceDetails" xml:space="preserve">
     <value>Show the device details</value>
   </data>
@@ -608,5 +617,83 @@
   </data>
   <data name="Add" xml:space="preserve">
     <value>Add</value>
+  </data>
+  <data name="ShareCreationAsFile" xml:space="preserve">
+    <value>Share the creation as file</value>
+  </data>
+  <data name="ShareCreationAsText" xml:space="preserve">
+    <value>Share the creation as text</value>
+  </data>
+  <data name="ShareSequenceAsFile" xml:space="preserve">
+    <value>Share the sequence as file</value>
+  </data>
+  <data name="ShareSequenceAsText" xml:space="preserve">
+    <value>Share the sequence as text</value>
+  </data>
+  <data name="ImportCreationFromFile" xml:space="preserve">
+    <value>Import a creation from file</value>
+  </data>
+  <data name="ImportSequenceFromFile" xml:space="preserve">
+    <value>Import a sequence from file</value>
+  </data>
+  <data name="ChooseJsonFileToImport" xml:space="preserve">
+    <value>Choose a JSON file to import</value>
+  </data>
+  <data name="ActivateShelfMode" xml:space="preserve">
+    <value>Activate shelf mode</value>
+  </data>
+  <data name="ActivateShelfModeFailed" xml:space="preserve">
+    <value>Activation of the shelf mode has failed:</value>
+  </data>
+  <data name="ActivateShelfModeConfirm" xml:space="preserve">
+    <value>Are you sure you want to active the shelf mode for this BuWizz device? This will disconnect the battery from the device and typically requires the user to connect the charger in order to wake-up the device.</value>
+  </data>
+  <data name="Applying" xml:space="preserve">
+    <value>Applying...</value>
+  </data>
+  <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
+    <value>Default output level</value>
+  </data>
+  <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
+    <value>Default output level</value>
+  </data>
+  <data name="On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Reset settings to default</value>
+  </data>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>General settings</value>
+  </data>
+  <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
+    <value>Current limits for PU channels (mA)</value>
+  </data>
+  <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
+    <value>Current limits for PF channels (mA)</value>
+  </data>
+  <data name="BuWizz3Channel0" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="BuWizz3Channel1" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="BuWizz3Channel2" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="BuWizz3Channel3" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="BuWizz3ChannelA" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="BuWizz3ChannelB" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="PlayVmEnabled" xml:space="preserve">
+    <value>Easy drive mode (PLAYVM)</value>
   </data>
 </root>

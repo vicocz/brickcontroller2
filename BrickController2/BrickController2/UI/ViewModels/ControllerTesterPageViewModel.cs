@@ -20,6 +20,8 @@ namespace BrickController2.UI.ViewModels
             _gameControllerService = gameControllerService;
         }
 
+        public bool IsControllerIdSupported => _gameControllerService.IsControllerIdSupported;
+
         public override void OnAppearing()
         {
             _gameControllerService.GameControllerEvent += GameControllerEventHandler!;
@@ -36,7 +38,7 @@ namespace BrickController2.UI.ViewModels
         {
             foreach (var controllerEvent in args.ControllerEvents)
             {
-                var controllerEventViewModel = ControllerEventList.FirstOrDefault(ce => ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
+                var controllerEventViewModel = ControllerEventList.FirstOrDefault(ce => ce.ControllerId == args.ControllerId && ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
                 if (0.1F < Math.Abs(controllerEvent.Value))
                 {
                     if (controllerEventViewModel != null)
@@ -45,7 +47,7 @@ namespace BrickController2.UI.ViewModels
                     }
                     else
                     {
-                        ControllerEventList.Add(new GameControllerEventViewModel(controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
+                        ControllerEventList.Add(new GameControllerEventViewModel(args.ControllerId, controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
                     }
                 }
                 else

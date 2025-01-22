@@ -1,17 +1,16 @@
-﻿using BrickController2.PlatformServices.GameController;
-using BrickController2.UI.Services.MainThread;
-using BrickController2.Windows.Extensions;
-using Microsoft.Maui.Dispatching;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Maui.Dispatching;
 using Windows.Gaming.Input;
+using BrickController2.PlatformServices.GameController;
+using BrickController2.UI.Services.MainThread;
+using BrickController2.Windows.Extensions;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
 public class GameControllerService : IGameControllerService
 {
-
     private readonly Dictionary<string, GamepadController> _availableControllers = [];
     private readonly object _lockObject = new();
     private readonly IMainThreadService _mainThreadService;
@@ -54,19 +53,21 @@ public class GameControllerService : IGameControllerService
         }
     }
 
-    internal void RaiseEvent(IDictionary<(GameControllerEventType, string), float> events)
+    public bool IsControllerIdSupported => true;
+
+    internal void RaiseEvent(IDictionary<(GameControllerEventType, string), float> events, string controllerId)
     {
         if (!events.Any())
         {
             return;
         }
 
-        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(events));
+        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, events));
     }
 
-    internal void RaiseEvent(string deviceId, string key, GameControllerEventType eventType, float value = 0.0f)
+    internal void RaiseEvent(string deviceId, string key, GameControllerEventType eventType, string controllerId, float value = 0.0f)
     {
-        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(eventType, key, value));
+        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, eventType, key, value));
     }
 
     private void InitializeControllers()
@@ -97,9 +98,13 @@ public class GameControllerService : IGameControllerService
     {
         lock (_lockObject)
         {
-            var deviceId = e.GetDeviceId();
+            // JK: UniquePersistentDeviceId is not available
+            //var deviceId = e.GetUniquePersistentDeviceId();
 
-            if (_availableControllers.TryGetValue(deviceId, out var controller))
+            string deviceId = FindUniquePersistentDeviceId(e);
+
+            if (deviceId is not null &&
+                _availableControllers.TryGetValue(deviceId, out var controller))
             {
                 _availableControllers.Remove(deviceId);
 
@@ -122,13 +127,48 @@ public class GameControllerService : IGameControllerService
             var dispatcher = _dispatcherProvider.GetForCurrentThread();
             foreach (var gamepad in gamepads)
             {
-                var deviceId = gamepad.GetDeviceId();
+                // deviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"
+                string? uniquePersistentDeviceId = gamepad?.GetUniquePersistentDeviceId();
 
-                var newController = new GamepadController(this, gamepad, dispatcher!.CreateTimer());
-                _availableControllers[deviceId] = newController;
+                if(string.IsNullOrEmpty(uniquePersistentDeviceId))
+                {
+                    continue;
+                }
+
+                int controllerIndex = GetFirstUnusedControllerIndex(); // get first unused index
+
+                var newController = new GamepadController(this, gamepad!, controllerIndex, dispatcher!.CreateTimer());
+                _availableControllers[uniquePersistentDeviceId] = newController;
 
                 newController.Start();
             }
         }
+    }
+
+    /// <summary>
+    /// returns the first unused index of device in controller management
+    /// </summary>
+    /// <returns>first unused index</returns>
+    private int GetFirstUnusedControllerIndex()
+    {
+        lock (_lockObject)
+        {
+            int unusedIndex = 0;
+            while(_availableControllers.Values.Any(gamepadController => gamepadController.ControllerIndex == unusedIndex))
+            {
+                unusedIndex++;
+            }
+            return unusedIndex;
+        }
+    }
+
+    /// <summary>
+    /// Find key for registered gamepad-instance.
+    /// </summary>
+    /// <param name="gamepad">gamepad-instance to find</param>
+    /// <returns>key or null</returns>
+    private string FindUniquePersistentDeviceId(Gamepad gamepad)
+    {
+        return _availableControllers.FirstOrDefault(entry => entry.Value.Gamepad == gamepad).Key;
     }
 }

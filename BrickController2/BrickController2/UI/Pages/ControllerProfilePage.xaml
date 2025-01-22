@@ -17,6 +17,7 @@
         <ResourceDictionary>
             <converters:GameControllerEventTypeToImageConverter x:Key="EventTypeToImage"/>
             <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <converters:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -68,6 +69,8 @@
                                     <controls:ColorImage Grid.Column="0" Icon="{Binding ControllerEvent.EventType, Converter={StaticResource EventTypeToImage}}" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
                                     <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center">
                                         <Label Text="{Binding ControllerEvent.EventCode}" FontSize="Large" FontAttributes="Bold"/>
+                                        <Label Text="-" FontSize="Large" IsVisible="{Binding ControllerEvent.ControllerId, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" Margin="5,0,5,0"/>
+                                        <Label Text="{Binding ControllerEvent.ControllerId}" FontSize="Large" FontAttributes="Bold" IsVisible="{Binding ControllerEvent.ControllerId, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"/>
                                     </StackLayout>
                                 </Grid>
                             </SwipeView>
@@ -112,6 +115,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10" IsVisible="{Binding IsControllerIdSupported}"/>
                 <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEvent}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>

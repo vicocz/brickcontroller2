@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Maui.Controls;
 using Autofac;
+using BrickController2.CreationManagement;
+using BrickController2.UI.Commands;
 using BrickController2.UI.Services.MainThread;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Translation;
@@ -56,6 +58,10 @@ namespace BrickController2.UI.DI
                 var componentContext = c.Resolve<IComponentContext>();
                 return (type, vm) => componentContext.ResolveKeyed<PageBase>(type, new TypedParameter(typeof(PageViewModelBase), vm));
             });
+
+            // command related registration
+            builder.RegisterType<CreationCommandFactory>().As<ICommandFactory<Creation>>().SingleInstance();
+            builder.RegisterType<SequenceCommandFactory>().As<ICommandFactory<Sequence>>().SingleInstance();
 
             // Xamarin forms related
             builder.RegisterType<NavigationPage>();

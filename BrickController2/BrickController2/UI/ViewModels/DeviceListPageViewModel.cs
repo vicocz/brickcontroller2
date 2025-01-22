@@ -15,7 +15,6 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDialogService _dialogService;
 
-        private CancellationTokenSource? _disappearingTokenSource;
         private bool _isDisappearing = false;
 
         public DeviceListPageViewModel(
@@ -31,6 +30,7 @@ namespace BrickController2.UI.ViewModels
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
+            DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
         }
 
         public IDeviceManager DeviceManager { get; }
@@ -38,18 +38,18 @@ namespace BrickController2.UI.ViewModels
         public ICommand ScanCommand { get; }
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
+        public ICommand DeviceSettingsCommand { get; }
 
         public override void OnAppearing()
         {
             _isDisappearing = false;
-            _disappearingTokenSource?.Cancel();
-            _disappearingTokenSource = new CancellationTokenSource();
+            base.OnAppearing();
         }
 
         public override void OnDisappearing()
         {
             _isDisappearing = true;
-            _disappearingTokenSource?.Cancel();
+            base.OnDisappearing();
         }
 
         private async Task DeleteDeviceAsync(Device device)
@@ -61,13 +61,24 @@ namespace BrickController2.UI.ViewModels
                     $"{Translate("AreYouSureToDeleteDevice")} '{device.Name}'?",
                     Translate("Yes"),
                     Translate("No"),
-                    _disappearingTokenSource?.Token ?? default))
+                    DisappearingToken))
                 {
                     await _dialogService.ShowProgressDialogAsync(
                         false,
                         async (progressDialog, token) => await DeviceManager.DeleteDeviceAsync(device),
                         Translate("Deleting"));
                 }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task OpenDeviceSettingsAsync(Device device)
+        {
+            try
+            {
+                await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (device));
             }
             catch (OperationCanceledException)
             {
@@ -82,7 +93,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Warning"),
                     Translate("BluetoothIsTurnedOff"),
                     Translate("Ok"),
-                    _disappearingTokenSource?.Token ?? default);
+                    DisappearingToken);
             }
 
             var percent = 0;
@@ -94,7 +105,7 @@ namespace BrickController2.UI.ViewModels
                     if (!_isDisappearing)
                     {
                         using (var cts = new CancellationTokenSource())
-                        using (_disappearingTokenSource?.Token.Register(() => cts.Cancel()))
+                        using (DisappearingToken.Register(() => cts.Cancel()))
                         {
                             Task<bool>? scanTask = null;
                             try

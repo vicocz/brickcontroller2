@@ -18,6 +18,8 @@ public class GameControllerService : IGameControllerService
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
 
+    public bool IsControllerIdSupported => false;
+
     private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
 
     public GameControllerService(IMainThreadService mainThreadService, IDispatcherProvider dispatcherProvider)

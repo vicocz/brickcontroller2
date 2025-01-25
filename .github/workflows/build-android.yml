@@ -1,4 +1,4 @@
-name: Build 
+name: Build BrickController Android 
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - master
       - 'releases/**'
     paths:
+      - '.github/**/*.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -15,6 +16,7 @@ on:
       - main
       - 'releases/**'
     paths:
+      - '.github/**/*.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'

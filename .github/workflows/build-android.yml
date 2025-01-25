@@ -4,15 +4,21 @@ on:
   push:
     branches:
       - master
-      - '*'      
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.gitignore'
-      - '**/*.gitattributes'
+      - 'releases/**'
+    paths:
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.Android/**'
   pull_request:
     branches:    
       - main
-      - '*'
+      - 'releases/**'
+    paths:
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.Android/**'
   workflow_dispatch:
 
 permissions:
@@ -39,5 +45,5 @@ jobs:
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: mauibeach-android-ci-build
+        name: brickcontroller-android-ci-build
         path: BrickController2/BrickController2.Android/bin/Release/net8.0-android/*Signed.a*

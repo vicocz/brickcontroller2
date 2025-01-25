@@ -3,7 +3,7 @@ name: Build BrickController Android
 on:
   push:
     branches:
-      - master
+      - default
       - 'releases/**'
     paths:
       - '.github/**/*.yml'
@@ -13,7 +13,7 @@ on:
       - 'BrickController2/BrickController2.Android/**'
   pull_request:
     branches:    
-      - main
+      - default
       - 'releases/**'
     paths:
       - '.github/**/*.yml'

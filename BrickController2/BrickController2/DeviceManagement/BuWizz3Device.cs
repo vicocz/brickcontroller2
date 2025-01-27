@@ -151,7 +151,7 @@ namespace BrickController2.DeviceManagement
         public override async Task ActiveShelfModeAsync(CancellationToken token = default)
         {
             var activateShelfModeCmd = ActivteShelfMode();
-            await _bleDevice!.WriteNoResponseAsync(_characteristic!, activateShelfModeCmd, token);
+            await _bleDevice!.WriteAsync(_characteristic!, activateShelfModeCmd, token);
         }
 
         public override bool CanResetOutput(int channel) => channel < NUMBER_OF_PU_PORTS;
@@ -377,7 +377,7 @@ namespace BrickController2.DeviceManagement
                 _sendOutputBuffer[17] = (byte)v4;
                 _sendOutputBuffer[18] = (byte)v5;
 
-                var result = await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false);
+                var result = await _bleDevice!.WriteAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false);
                 await Task.Delay(100, token).ConfigureAwait(false); // this delay is needed not to flood the BW3 internal command queue
                 return result;
             }

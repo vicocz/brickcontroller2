@@ -219,15 +219,20 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectChannelOutputTypeAsync()
         {
+            // do simple filtering of Normal and Stepper for TechnicMove
+            var channelOutputTypes = SelectedDevice?.DeviceType != DeviceType.TechnicMove ?
+                Enum.GetNames<ChannelOutputType>() :
+                [Enum.GetName(ChannelOutputType.ServoMotor)!];
+
             var result = await _dialogService.ShowSelectionDialogAsync(
-                Enum.GetNames(typeof(ChannelOutputType)),
+                channelOutputTypes,
                 Translate("ChannelType"),
                 Translate("Cancel"),
                 DisappearingToken);
 
             if (result.IsOk)
             {
-                Action.ChannelOutputType = (ChannelOutputType)Enum.Parse(typeof(ChannelOutputType), result.SelectedItem);
+                Action.ChannelOutputType = Enum.Parse<ChannelOutputType>(result.SelectedItem);
             }
         }
 

@@ -693,4 +693,7 @@
   <data name="BuWizz3ChannelB" xml:space="preserve">
     <value>B</value>
   </data>
+  <data name="PlayVmEnabled" xml:space="preserve">
+    <value>Easy drive mode (PLAYVM)</value>
+  </data>
 </root>

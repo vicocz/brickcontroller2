@@ -594,7 +594,7 @@
   <data name="AddControllerProfile" xml:space="preserve">
     <value>Ein neues Controllerprofil erstellen</value>
   </data>
- <data name="AddControllerEvent" xml:space="preserve">
+  <data name="AddControllerEvent" xml:space="preserve">
     <value>Ein neues Controller-Event erstellen</value>
   </data>
   <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
@@ -692,5 +692,8 @@
   </data>
   <data name="BuWizz3ChannelB" xml:space="preserve">
     <value>B</value>
+  </data>
+  <data name="PlayVmEnabled" xml:space="preserve">
+    <value>Einfacher Fahrmodus (PLAYVM)</value>
   </data>
 </root>

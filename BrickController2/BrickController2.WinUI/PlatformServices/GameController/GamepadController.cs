@@ -3,75 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using Windows.Gaming.Input;
 using Microsoft.Maui.Dispatching;
-using BrickController2.Helpers;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.Windows.Extensions;
 
+using static BrickController2.PlatformServices.GameController.GameController;
+
 namespace BrickController2.Windows.PlatformServices.GameController;
 
-internal class GamepadController
+internal class GamepadController : GamepadControllerBase<Gamepad>
 {
     private static readonly TimeSpan DefaultInterval = TimeSpan.FromMilliseconds(10);
 
     private readonly GameControllerService _controllerService;
-    private readonly Gamepad _gamepad;
     private readonly IDispatcherTimer _timer;
 
     private readonly Dictionary<string, float> _lastReadingValues = [];
 
     /// <summary>
-    /// zero-based Index of this controller inside the controller management
+    /// Constructor
     /// </summary>
-    private readonly int _controllerIndex;
-
-    /// <summary>
-    /// string to identify the controller like "Controller 1"
-    /// </summary>
-    private readonly string _controllerId;
-
-    /// <summary>
-    /// Unique and persistant identifier of device (for future usage i.e. to save some device specific settings)
-    /// this value won't change even if the input device is disconnected, reconnected, or reconfigured
-    /// </summary>
-    private readonly string _uniquePersistentDeviceId;
-
-    public GamepadController(GameControllerService service, Gamepad gamepad, int controllerIndex, IDispatcherTimer timer)
-        : this(service, gamepad, controllerIndex, timer, DefaultInterval)
-    {
-    }
-
-    private GamepadController(GameControllerService service, Gamepad gamepad, int controllerIndex, IDispatcherTimer timer, TimeSpan timerInterval)
+    /// <param name="service">reference to GameControllerService</param>
+    /// <param name="gamePad"> reference to InputDevice</param>
+    /// <param name="controllerIndex">zero-based Index of device inside the controller management</param>
+    public GamepadController(GameControllerService service, Gamepad gamepad, int controllerIndex, string persistentId, IDispatcherTimer timer)
+        : base(gamepad, controllerIndex, persistentId)
     {
         _controllerService = service;
-        _gamepad = gamepad;
         _timer = timer;
-        _controllerIndex = controllerIndex;
-        _uniquePersistentDeviceId = _gamepad.GetUniquePersistentDeviceId();
-        _controllerId = GameControllerHelper.GetControllerIdFromIndex(controllerIndex);
 
-        _timer.Interval = timerInterval;
+        _timer.Interval = DefaultInterval;
         _timer.Tick += Timer_Tick;
     }
 
-    /// <summary>
-    /// Unique and persistant identifier of device
-    /// </summary>
-    public string UniquePersistentDeviceId => _uniquePersistentDeviceId;
-
-    /// <summary>
-    /// Index of this controller inside the controller management
-    /// </summary>
-    public int ControllerIndex => _controllerIndex;
-
-    /// <summary>
-    /// string to identify the controller like "Controller 1"
-    /// </summary>
-    public string ControllerID => _controllerId;
-
-    public Gamepad Gamepad => _gamepad;
-
-
-    public void Start()
+    public override void Start()
     {
         _lastReadingValues.Clear();
 
@@ -79,7 +43,7 @@ internal class GamepadController
         _timer.Start();
     }
 
-    public void Stop()
+    public override void Stop()
     {
         _timer.Stop();
 
@@ -88,17 +52,15 @@ internal class GamepadController
 
     private void Timer_Tick(object? sender, object e)
     {
-        var currentReading = _gamepad.GetCurrentReading();
+        var currentReading = Gamepad.GetCurrentReading();
 
         var currentEvents = currentReading
             .Enumerate()
             .Where(HasChanged)
             .ToDictionary(x => (x.EventType, x.Name), x => x.Value);
 
-        _controllerService.RaiseEvent(currentEvents, ControllerID);
+        _controllerService.RaiseEvent(currentEvents, ControllerId);
     }
-
-    private static bool AreAlmostEqual(float a, float b) => Math.Abs(a - b) < 0.001;
 
     private bool HasChanged((string AxisName, GameControllerEventType EventType, float Value) readingValue)
     {

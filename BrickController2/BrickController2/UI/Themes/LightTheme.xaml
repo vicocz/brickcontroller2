@@ -16,7 +16,7 @@
     <Color x:Key="NegativeColor">LightPink</Color>
 
     <Color x:Key="PageBackgroundColor">White</Color>
-    <Color x:Key="NavigationBarColor">Red</Color>
+    <Color x:Key="NavigationBarColor">#1976D2</Color>
     <Color x:Key="NavigationBarItemColor">White</Color>
     <Color x:Key="HeaderBackgroundColor">LightGray</Color>
     <Color x:Key="HeaderItemColor">Black</Color>
@@ -24,23 +24,23 @@
     <Color x:Key="FooterBackgroudColor">#e0e0e0</Color>
     <Color x:Key="DialogBackgroundColor">White</Color>
     <Color x:Key="DialogBorderColor">White</Color>
-    <Color x:Key="DeleteSwipeItemBackgroundColor">LightPink</Color>
-    <Color x:Key="SwipeItemBackgroundColor">LightGreen</Color>
+    <Color x:Key="DeleteSwipeItemBackgroundColor">#00BCD4</Color>
+    <Color x:Key="SwipeItemBackgroundColor">#BBDEFB</Color>
     <Color x:Key="CollectionViewHeaderBackgroundColor">#f0f0f0</Color>
     <Color x:Key="CollectionViewSelectedItemBackgroundColor">Gray</Color>
-    <Color x:Key="SwitchOnColor">LightGreen</Color>
-    <Color x:Key="SwitchThumbColor">DarkGreen</Color>
+    <Color x:Key="SwitchOnColor">#BBDEFB</Color>
+    <Color x:Key="SwitchThumbColor">#1976D2</Color>
     <Color x:Key="SwitchThumbColorOff">Gray</Color>
     <Color x:Key="SliderMinimumTrackColor">#c0c0c0</Color>
     <Color x:Key="SliderMaximumTrackColor">#c0c0c0</Color>
     <Color x:Key="SliderThumbColor">#303030</Color>
     <Color x:Key="ButtonBackgroundColor">LightGray</Color>
     <Color x:Key="ButtonTextColor">Black</Color>
-    <Color x:Key="CheckBoxCheckedColor">Green</Color>
-    <Color x:Key="RadioButtonSelectedColor">Red</Color>
-    <Color x:Key="ProgressColor">DarkGreen</Color>
+    <Color x:Key="CheckBoxCheckedColor">#2196F3</Color>
+    <Color x:Key="RadioButtonSelectedColor">#2196F3</Color>
+    <Color x:Key="ProgressColor">#1976D2</Color>
     <Color x:Key="PickerTextColor">DarkBlue</Color>
-    <Color x:Key="FloatingButtonColor">Red</Color>
-    <Color x:Key="InlineButtonColor">Green</Color>
+    <Color x:Key="FloatingButtonColor">#2196F3</Color>
+    <Color x:Key="InlineButtonColor">#2196F3</Color>
 
 </ResourceDictionary>

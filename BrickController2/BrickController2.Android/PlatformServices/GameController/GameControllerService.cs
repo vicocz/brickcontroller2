@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Android.Views;
+﻿using Android.Views;
 using Android.Hardware.Input;
 using Android.Content;
 using BrickController2.PlatformServices.GameController;
@@ -8,8 +7,6 @@ namespace BrickController2.Droid.PlatformServices.GameController
 {
     internal class GameControllerService : GameControllerServiceBase<int, InputDevice, GamepadController>
     {
-        private readonly Dictionary<int, GamepadController> _availableControllers = [];
-        private readonly object _lockObject = new object();
         private readonly InputManager _inputManager;
 
         public GameControllerService(Context context)
@@ -63,8 +60,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 return false;
             }
 
-            RaiseEvent(e.KeyCode.ToString(), GameControllerEventType.Button, buttonValue, gamepadController.ControllerId);
-            return true;
+            return gamepadController.OnButtonEvent(e, buttonValue);
         }
 
         internal bool OnGameControllerAxisEvent(MotionEvent e)
@@ -74,9 +70,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 return false;
             }
 
-            var events = gamepadController.GetAxisEvents(e);
-            RaiseEvent(events, gamepadController.ControllerId);
-            return true;
+            return gamepadController.OnAxisEvent(e);
         }
 
         protected override void InitializeCurrentControllers()
@@ -132,7 +126,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 }
 
                 // skip if device is already present
-                if (_availableControllers.ContainsKey(gamepad.Id))
+                if (TryGetActiveController(gamepad.Id, out var _))
                 {
                     return;
                 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Maui.Dispatching;
 using Windows.Gaming.Input;
@@ -11,7 +10,6 @@ namespace BrickController2.Windows.PlatformServices.GameController;
 
 internal class GameControllerService : GameControllerServiceBase<string, Gamepad, GamepadController>, IGameControllerService
 {
-    private readonly object _lockObject = new();
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
 

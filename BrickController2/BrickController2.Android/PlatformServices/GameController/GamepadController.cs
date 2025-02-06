@@ -13,14 +13,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <summary>
         /// Set of supported axes (might get filtered in future)
         /// </summary>
-        private static IReadOnlyCollection<Axis> SupportedAxes = Enum.GetValues<Axis>();
-
-        /// <summary>
-        /// reference to GameControllerService (for future usage)
-        /// </summary>
-        private readonly GameControllerService _controllerService;
-
-        private readonly Dictionary<Axis, float> _lastAxisValues = [];
+        private static readonly IReadOnlyCollection<Axis> SupportedAxes = Enum.GetValues<Axis>();
 
         /// <summary>
         /// Constructor
@@ -29,16 +22,24 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="gamePad"> reference to InputDevice</param>
         /// <param name="controllerIndex">zero-based Index of device inside the controller management</param>
         public GamepadController(GameControllerService service, InputDevice gamePad, int controllerIndex)
-            : base(gamePad, controllerIndex, gamePad.GetUniquePersistentDeviceId())
+            : base(service, gamePad, controllerIndex, gamePad.GetUniquePersistentDeviceId())
         {
-            _controllerService = service;
         } 
+
+        internal bool OnButtonEvent(KeyEvent e, float buttonValue)
+        {
+            // do simple event name mapping
+            var eventName = e.KeyCode.ToString();
+            RaiseEvent(GameControllerEventType.Button, eventName, buttonValue);
+            return true;
+        }
 
         internal Dictionary<(GameControllerEventType, string), float> GetAxisEvents(MotionEvent e)
         {
             var events = new Dictionary<(GameControllerEventType, string), float>();
             foreach (Axis axisCode in SupportedAxes)
             {
+                var axisName = axisCode.ToString();
                 var axisValue = e.GetAxisValue(axisCode);
 
                 if ((axisCode == Axis.Rx || axisCode == Axis.Ry) &&
@@ -46,7 +47,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
                     (e.Device?.ProductId == 2508 || e.Device?.ProductId == 1476))
                 {
                     // DualShock 4 hack for the triggers ([-1:1] -> [0:1])
-                    if (!_lastAxisValues.ContainsKey(axisCode) && axisValue == 0.0F)
+                    if (!ContainsAxisValue(axisName) && axisValue == 0.0F)
                     {
                         continue;
                     }
@@ -71,31 +72,23 @@ namespace BrickController2.Droid.PlatformServices.GameController
 
                 axisValue = AdjustControllerValue(axisValue);
 
-                if (_lastAxisValues.TryGetValue(axisCode, out float lastValue))
+                // skip axis if values has not changed (or change is less than 0.001
+                if (!HasValueChanged(axisName, axisValue))
                 {
-                    if (AreAlmostEqual(axisValue, lastValue))
-                    {
-                        // axisValue == lastValue
-                        continue;
-                    }
+                    continue;
                 }
-
-                _lastAxisValues[axisCode] = axisValue;
-                events[(GameControllerEventType.Axis, axisCode.ToString())] = axisValue;
+                events[(GameControllerEventType.Axis, axisName)] = axisValue;
             }
             return events;
         }
 
-        public override void Start()
+        internal bool OnAxisEvent(MotionEvent e)
         {
-            // initialize
-            _lastAxisValues.Clear();
-        }
+            // grab all changed axis event
+            var events = GetAxisEvents(e);
+            RaiseEvent(events);
 
-        public override void Stop()
-        {
-            // reset last values
-            _lastAxisValues.Clear();
+            return true;
         }
     }
 }

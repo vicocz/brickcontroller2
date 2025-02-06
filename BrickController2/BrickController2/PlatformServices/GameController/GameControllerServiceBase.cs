@@ -5,19 +5,17 @@ using System.Linq;
 
 namespace BrickController2.PlatformServices.GameController;
 
-public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController> : IGameControllerService
-    where TKey : notnull
-    where TGamepad : class
-    where TGameController : GamepadControllerBase<TGamepad>
+public abstract class GameControllerServiceBase : IGameControllerService
 {
-    private readonly object _lockObject = new();
-    private readonly Dictionary<TKey, TGameController> _availableControllers = [];
+    protected readonly object _lockObject = new();
 
     private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
 
     protected GameControllerServiceBase()
     {
     }
+
+    public abstract bool IsControllerIdSupported { get; }
 
     public event EventHandler<GameControllerEventArgs> GameControllerEvent
     {
@@ -48,7 +46,32 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
         }
     }
 
-    public abstract bool IsControllerIdSupported { get; }
+    internal void RaiseEvent(GameControllerEventArgs eventArgs)
+    {
+        GameControllerEventInternal?.Invoke(this, eventArgs);
+    }
+
+    /// <summary>
+    /// Initialize collection of avilable controllers (including listening of connected/disconnected controller)
+    /// </summary>
+    protected abstract void InitializeCurrentControllers();
+
+    /// <summary>
+    /// Remove and stop all available controllers
+    /// </summary>
+    protected abstract void RemoveAllControllers();
+}
+
+public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController> : GameControllerServiceBase
+    where TKey : notnull
+    where TGamepad : class
+    where TGameController : GamepadControllerBase<TGamepad>
+{
+    private readonly Dictionary<TKey, TGameController> _availableControllers = [];
+
+    protected GameControllerServiceBase()
+    {
+    }
 
     /// <summary>
     /// Get copy of all available keys of registered controllers
@@ -91,6 +114,7 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
         lock (_lockObject)
         {
             _availableControllers[key] = controller;
+            controller.Start();
         }
     }
 
@@ -110,7 +134,7 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
     {
         lock (_lockObject)
         {
-            if (GameControllerEventInternal == null ||
+            if (//TODO GameControllerEventInternal == null ||
                 !_availableControllers.TryGetValue(key, out controller))
             {
                 controller = default;
@@ -121,25 +145,4 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
         }
     }
 
-    protected internal void RaiseEvent(IDictionary<(GameControllerEventType, string), float> events, string controllerId)
-    {
-        if (!events.Any())
-        {
-            return;
-        }
-
-        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, events));
-    }
-
-    protected internal void RaiseEvent(string eventCode, GameControllerEventType eventType, float value, string controllerId)
-    {
-        GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, eventType, eventCode, value));
-    }
-
-    /// <summary>
-    /// Initialize collection of avilable controllers (including listening of connected/disconnected controller)
-    /// </summary>
-    protected abstract void InitializeCurrentControllers();
-
-    protected abstract void RemoveAllControllers();
 }

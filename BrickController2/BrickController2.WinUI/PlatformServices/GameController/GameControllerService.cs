@@ -5,6 +5,7 @@ using Windows.Gaming.Input;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.UI.Services.MainThread;
 using BrickController2.Windows.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
@@ -13,7 +14,9 @@ internal class GameControllerService : GameControllerServiceBase<string, Gamepad
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
 
-    public GameControllerService(IMainThreadService mainThreadService, IDispatcherProvider dispatcherProvider)
+    public GameControllerService(IMainThreadService mainThreadService,
+        IDispatcherProvider dispatcherProvider,
+        ILogger<GameControllerService> logger) : base(logger)
     {
         _mainThreadService = mainThreadService;
         _dispatcherProvider = dispatcherProvider;
@@ -50,7 +53,6 @@ internal class GameControllerService : GameControllerServiceBase<string, Gamepad
         {
             // JK: UniquePersistentDeviceId is not available
             //var deviceId = e.GetUniquePersistentDeviceId();
-
             string deviceId = GetKey(e);
 
             if (deviceId is null || !TryGetActiveController(deviceId, out var _))
@@ -84,8 +86,8 @@ internal class GameControllerService : GameControllerServiceBase<string, Gamepad
                     continue;
                 }
 
-                int controllerIndex = GetFirstUnusedControllerIndex(); // get first unused index
-                var newController = new GamepadController(this, gamepad!, controllerIndex, uniquePersistentDeviceId, dispatcher!.CreateTimer());
+                int controllerNumber = GetFirstUnusedControllerNumber(); // get first unused index
+                var newController = new GamepadController(this, gamepad!, controllerNumber, dispatcher!.CreateTimer());
                 
                 AddController(uniquePersistentDeviceId, newController);
             }

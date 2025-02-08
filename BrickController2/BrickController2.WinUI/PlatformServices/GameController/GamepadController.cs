@@ -5,6 +5,8 @@ using Microsoft.Maui.Dispatching;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.Windows.Extensions;
 
+using static BrickController2.PlatformServices.GameController.GameControllers;
+
 namespace BrickController2.Windows.PlatformServices.GameController;
 
 internal class GamepadController : GamepadControllerBase<Gamepad>
@@ -18,10 +20,17 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
     /// </summary>
     /// <param name="service">reference to GameControllerService</param>
     /// <param name="gamePad"> reference to InputDevice</param>
-    /// <param name="controllerIndex">zero-based Index of device inside the controller management</param>
-    public GamepadController(GameControllerService service, Gamepad gamepad, int controllerIndex, string persistentId, IDispatcherTimer timer)
-        : base(service, gamepad, controllerIndex, persistentId)
+    /// <param name="controllerNumber">zero-based Index of device inside the controller management</param>
+    public GamepadController(GameControllerService service, Gamepad gamepad, int controllerNumber, IDispatcherTimer timer)
+        : base(service, gamepad)
     {
+        ControllerNumber = controllerNumber;
+        ControllerId = GetControllerIdFromNumber(controllerNumber);
+
+        var rawController = RawGameController.FromGameController(gamepad);
+        UniquePersistantDeviceId = rawController.NonRoamableId ?? "unknown";
+        Name = rawController.DisplayName ?? ControllerId;
+
         _timer = timer;
 
         _timer.Interval = DefaultInterval;

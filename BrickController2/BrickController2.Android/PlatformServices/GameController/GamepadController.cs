@@ -4,7 +4,7 @@ using BrickController2.PlatformServices.GameController;
 using System;
 using System.Collections.Generic;
 
-using static BrickController2.PlatformServices.GameController.GameController;
+using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
@@ -20,10 +20,14 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// </summary>
         /// <param name="service">reference to GameControllerService</param>
         /// <param name="gamePad"> reference to InputDevice</param>
-        /// <param name="controllerIndex">zero-based Index of device inside the controller management</param>
-        public GamepadController(GameControllerService service, InputDevice gamePad, int controllerIndex)
-            : base(service, gamePad, controllerIndex, gamePad.GetUniquePersistentDeviceId())
+        public GamepadController(GameControllerService service, InputDevice gamePad)
+            : base(service, gamePad)
         {
+            // initialize properties
+            Name = gamePad.Name!;
+            ControllerNumber = gamePad.ControllerNumber;
+            ControllerId = GetControllerIdFromNumber(gamePad.ControllerNumber);
+            UniquePersistantDeviceId = gamePad.GetUniquePersistentDeviceId();
         } 
 
         internal bool OnButtonEvent(KeyEvent e, float buttonValue)
@@ -72,7 +76,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
 
                 axisValue = AdjustControllerValue(axisValue);
 
-                // skip axis if values has not changed (or change is less than 0.001
+                // skip axis if values has not changed (or change is less than 0.001)
                 if (!HasValueChanged(axisName, axisValue))
                 {
                     continue;

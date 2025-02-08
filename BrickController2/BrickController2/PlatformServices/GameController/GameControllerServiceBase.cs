@@ -1,18 +1,24 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace BrickController2.PlatformServices.GameController;
 
+/// <summary>
+/// Base class for implementation of <see cref="IGameControllerService"/>
+/// </summary>
 public abstract class GameControllerServiceBase : IGameControllerService
 {
     protected readonly object _lockObject = new();
+    protected readonly ILogger _logger;
 
     private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
 
-    protected GameControllerServiceBase()
+    protected GameControllerServiceBase(ILogger logger)
     {
+        _logger = logger;
     }
 
     public abstract bool IsControllerIdSupported { get; }
@@ -69,7 +75,7 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
 {
     private readonly Dictionary<TKey, TGameController> _availableControllers = [];
 
-    protected GameControllerServiceBase()
+    protected GameControllerServiceBase(ILogger logger) : base (logger)
     {
     }
 
@@ -79,19 +85,19 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
     protected IEnumerable<TKey> AllControllerKeys => [.. _availableControllers.Keys];
 
     /// <summary>
-    /// returns the first unused index of device in controller management
+    /// returns the first unused number of device in controller management
     /// </summary>
     /// <returns>first unused index</returns>
-    protected int GetFirstUnusedControllerIndex()
+    protected int GetFirstUnusedControllerNumber()
     {
         lock (_lockObject)
         {
-            int unusedIndex = 0;
-            while (_availableControllers.Values.Any(gamepadController => gamepadController.ControllerIndex == unusedIndex))
+            int unusedNumber = 1;
+            while (_availableControllers.Values.Any(gamepadController => gamepadController.ControllerNumber == unusedNumber))
             {
-                unusedIndex++;
+                unusedNumber++;
             }
-            return unusedIndex;
+            return unusedNumber;
         }
     }
 
@@ -113,6 +119,11 @@ public abstract class GameControllerServiceBase<TKey, TGamepad, TGameController>
     {
         lock (_lockObject)
         {
+            // handle possible situation with duplicated controller
+            if (_availableControllers.Remove(key, out var oldController))
+            {
+                oldController.Stop();
+            }
             _availableControllers[key] = controller;
             controller.Start();
         }

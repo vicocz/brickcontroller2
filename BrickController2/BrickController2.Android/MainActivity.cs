@@ -10,7 +10,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using BrickController2.Droid.PlatformServices.GameController;
 
-using static BrickController2.PlatformServices.GameController.GameController;
+using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.Droid
 {

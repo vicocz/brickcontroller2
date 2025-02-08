@@ -5,7 +5,7 @@ using BrickController2.PlatformServices.GameController;
 using Foundation;
 using GameController;
 
-using static BrickController2.PlatformServices.GameController.GameController;
+using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.iOS.PlatformServices.GameController
 {

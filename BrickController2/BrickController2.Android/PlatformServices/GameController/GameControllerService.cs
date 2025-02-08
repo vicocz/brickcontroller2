@@ -2,6 +2,8 @@
 using Android.Hardware.Input;
 using Android.Content;
 using BrickController2.PlatformServices.GameController;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
@@ -9,7 +11,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
     {
         private readonly InputManager _inputManager;
 
-        public GameControllerService(Context context)
+        public GameControllerService(Context context, ILogger<GameControllerService> logger) :base(logger)
         {
             _inputManager = (InputManager)context.GetSystemService(Context.InputService)!;
         }
@@ -22,8 +24,10 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceAdded(int deviceId)
         {
-            var device = InputDevice.GetDevice(deviceId);
-            AddGameControllerDevice(device);
+            if (TryGetGamepadDevice(deviceId, out var device))
+            {
+                AddGameControllerDevice(device);
+            }
         }
 
         /// <summary>
@@ -41,15 +45,15 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceChanged(int deviceId)
         {
-            var gamepad = InputDevice.GetDevice(deviceId);
-            // if gamepad is not found, remove it
-            if (gamepad is null)
+            if (TryGetGamepadDevice(deviceId, out var device))
             {
-                RemoveController(deviceId);
+                // handle change
+                AddGameControllerDevice(device);
             }
             else
             {
-                AddGameControllerDevice(gamepad);
+                // just for sure, remove it
+                RemoveController(deviceId);
             }
         }
 
@@ -81,8 +85,10 @@ namespace BrickController2.Droid.PlatformServices.GameController
             var deviceIds = _inputManager?.GetInputDeviceIds() ?? [];
             foreach (int deviceId in deviceIds)
             {
-                var device = InputDevice.GetDevice(deviceId);
-                AddGameControllerDevice(device);
+                if (TryGetGamepadDevice(deviceId, out var device))
+                {
+                    AddGameControllerDevice(device);
+                }
             }
         }
 
@@ -105,41 +111,51 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <summary>
         /// Add game controller device represented by native instance of <paramref name="gamepad"/>
         /// </summary>
-        private void AddGameControllerDevice(InputDevice? gamepad)
+        private void AddGameControllerDevice(InputDevice gamepad)
         {
             lock (_lockObject)
             {
-                // skip if device is missing or is strange one present
-                if (gamepad is null || gamepad.Name?.StartsWith("uinput-") == true) // drop all gamepads with name starting with "uinput-"
+                // handle update
+                if (TryGetActiveController(gamepad.Id, out var currentController))
                 {
-                    // JK: Bug - Device 0 already taken by fingerprint reader on Android
-                    // https://github.com/godotengine/godot/issues/47656
-                    //
-                    // Input name       | Company Name
-                    // uinput-fpc       | Fingerprint Cards AB
-                    // uinput-goodix    | Goodix
-                    // uinput-synaptics | Synaptics
-                    // uinput-elan      | ElanTech
-                    // uinput-vfs       | Validity Sensors(acquired by Synaptics)
-                    // uinput-atrus     | Atrua Technologies
+                    if (currentController.ControllerNumber != gamepad.ControllerNumber)
+                    {
+                        _logger.LogDebug("Gampad {deviceId} has changed.", gamepad.Id);
+                    }
+
+                    // ignore it as e.g. ControllerNumber has changed
                     return;
                 }
 
-                // skip if device is already present
-                if (TryGetActiveController(gamepad.Id, out var _))
-                {
-                    return;
-                }
+                var newController = new GamepadController(this, gamepad);
 
-                if (gamepad.Sources.IsButtonEventSource() || gamepad.Sources.IsAxisEventSource())
-                {                    
-                    int controllerIndex = GetFirstUnusedControllerIndex(); // get first unused index
-
-                    var newController = new GamepadController(this, gamepad, controllerIndex);
-
-                    AddController(gamepad.Id, newController);
-                }
+                AddController(gamepad.Id, newController);
             }
+        }
+
+        private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
+        {
+            device = InputDevice.GetDevice(deviceId);
+
+            // skip if device is missing or is strange one present
+            if (device is null || device.Name?.StartsWith("uinput-") == true) // drop all gamepads with name starting with "uinput-"
+            {
+                // JK: Bug - Device 0 already taken by fingerprint reader on Android
+                // https://github.com/godotengine/godot/issues/47656
+                //
+                // Input name       | Company Name
+                // uinput-fpc       | Fingerprint Cards AB
+                // uinput-goodix    | Goodix
+                // uinput-synaptics | Synaptics
+                // uinput-elan      | ElanTech
+                // uinput-vfs       | Validity Sensors(acquired by Synaptics)
+                // uinput-atrus     | Atrua Technologies
+                return false;
+            }
+
+            // All input devices which are not gamepads or joysticks will be assigned a controller number of 0.
+            return device.ControllerNumber > 0 &&
+                (device.Sources.IsButtonEventSource() || device.Sources.IsAxisEventSource());
         }
     }
 }

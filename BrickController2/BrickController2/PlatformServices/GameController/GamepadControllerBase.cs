@@ -1,49 +1,44 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using static BrickController2.PlatformServices.GameController.GameController;
+using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.PlatformServices.GameController;
 
-public abstract class GamepadControllerBase<TGamepad>
+public abstract class GamepadControllerBase<TGamepad> : IGameController
 {
+    // stored last value per axis to detect changes 
     private readonly Dictionary<string, float> _lastAxisValues = [];
 
-    protected GamepadControllerBase(GameControllerServiceBase controllerService,
-        TGamepad gamepad,
-        int controllerIndex,
-        string persistenceId)
+    /// <summary>Controller service that owns/manages the controller</summary>
+    protected readonly GameControllerServiceBase _controllerService;
+
+    protected GamepadControllerBase(GameControllerServiceBase controllerService, TGamepad gamepad)
     {
-        ControllerService = controllerService;
+        _controllerService = controllerService;
         Gamepad = gamepad;
-        ControllerIndex = controllerIndex;
-        ControllerId = GetControllerIdFromIndex(controllerIndex);
-        UniquePersistantDeviceId = persistenceId;
     }
-
-    /// <summary>
-    /// Reference to GameControllerService
-    /// </summary>
-    public GameControllerServiceBase ControllerService { get; }
-
-    /// <summary>
-    /// Unique and persistant identifier of device
-    /// </summary>
-    public TGamepad Gamepad { get; }
 
     /// <summary>
     /// Index of this controller inside the controller management
     /// </summary>
-    public int ControllerIndex { get; }
+    public int ControllerNumber { get; protected init; }
 
     /// <summary>
     /// string to identify the controller like "Controller 1"
     /// </summary>
-    public string ControllerId { get; }
+    public string ControllerId { get; protected init; } = default!;
 
     /// <summary>
     /// Unique and persistant identifier of device
     /// </summary>
-    public string UniquePersistantDeviceId { get; }
+    public string UniquePersistantDeviceId { get; protected init; } = default!;
+
+    public string Name { get; protected init; } = default!;
+
+    /// <summary>
+    /// Native instance of gamepad
+    /// </summary>
+    protected internal TGamepad Gamepad { get; }
 
     public virtual void Start()
     {
@@ -79,11 +74,11 @@ public abstract class GamepadControllerBase<TGamepad>
         {
             return;
         }
-        ControllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, events));
+        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, events));
     }
 
     protected void RaiseEvent(GameControllerEventType eventType, string eventCode, float value)
     {
-        ControllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
+        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
     }
 }

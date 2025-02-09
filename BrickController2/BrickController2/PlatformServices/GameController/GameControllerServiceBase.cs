@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using BrickController2.Extensions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -20,7 +22,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
     /// <summary>
     /// Dictionary of available gamepads having <see cref="IGameController.ControllerId"/>
     /// </summary>
-    private readonly Dictionary<string, TGameController> _availableControllers = [];
+    private readonly ObservableCollection<TGameController> _availableControllers = [];
 
     protected GameControllerServiceBase(ILogger logger)
     {
@@ -29,7 +31,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
 
     public abstract bool IsControllerIdSupported { get; }
 
-    public IReadOnlyCollection<IGameController> AvailableControllers => _availableControllers.Values;
+    public IReadOnlyCollection<IGameController> AvailableControllers => _availableControllers;
 
     public event EventHandler<GameControllerEventArgs> GameControllerEvent
     {
@@ -66,6 +68,20 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         GameControllerEventInternal?.Invoke(this, eventArgs);
     }
 
+    public bool TryGetController(string id, [MaybeNullWhen(false)] out IGameController controller)
+    {
+        lock (_lockObject)
+        {
+            if (TryGetController(x => x.ControllerId == id, out var item))
+            {
+                controller = item;
+                return true;
+            }
+            controller = default;
+            return false;
+        }
+    }
+
     /// <summary>
     /// Initialize collection of avilable controllers (including listening of connected/disconnected controller)
     /// </summary>
@@ -77,10 +93,11 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
     /// <remarks>this is expected to be called under the lock</remarks>
     protected virtual void RemoveAllControllers()
     {
-        foreach (var controllerId in AllControllerIds)
+        foreach (var controller in _availableControllers)
         {
-            RemoveController(controllerId);
+            controller.Stop();
         }
+        _availableControllers.Clear();
     }
 
     /// <summary>
@@ -91,7 +108,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         lock (_lockObject)
         {
             int unusedNumber = 1;
-            while (_availableControllers.Values.Any(gamepadController => gamepadController.ControllerNumber == unusedNumber))
+            while (_availableControllers.Any(gamepadController => gamepadController.ControllerNumber == unusedNumber))
             {
                 unusedNumber++;
             }
@@ -104,41 +121,39 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         lock (_lockObject)
         {
             // handle possible situation with duplicated controller
-            if (_availableControllers.Remove(controller.ControllerId, out var oldController))
+            if (_availableControllers.Remove(x => x.ControllerId == controller.ControllerId, out var oldController))
             {
-                //TODO _logger.LogDebug("Old duplicite gamepad was removed. UniqueId:{uniqueid}", oldController.UniquePersistantDeviceId);
+                _logger.LogDebug("Old duplicite gamepad was removed. ControllerId:{id}", oldController.ControllerId);
                 oldController.Stop();
             }
-            _availableControllers[controller.ControllerId] = controller;
+            _availableControllers.Add(controller);
             controller.Start();
         }
     }
 
-    protected void RemoveController(string controllerId)
+    protected void RemoveController(TGameController controller)
     {
         lock (_lockObject)
         {
             // remove and stop the controller
-            if (_availableControllers.Remove(controllerId, out var controller))
+            if (_availableControllers.Remove(controller))
             {
                 controller.Stop();
             }
         }
     }
 
-    protected bool TryGetController(string controllerId, [MaybeNullWhen(false)] out TGameController controller)
+    protected bool TryRemove(Func<TGameController, bool> predicate, [MaybeNullWhen(false)] out TGameController controller)
     {
         lock (_lockObject)
         {
-            // if there is no listener, block any access 
-            if (GameControllerEventInternal == null ||
-                !_availableControllers.TryGetValue(controllerId, out controller))
+            // remove and stop the controller
+            if (_availableControllers.Remove(predicate, out controller))
             {
-                controller = default;
-                return false;
+                controller.Stop();
+                return true;
             }
-
-            return true;
+            return false;
         }
     }
 
@@ -149,7 +164,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
             // if there is no listener, block any access 
             if (GameControllerEventInternal != null)
             {
-                controller = _availableControllers.Values.FirstOrDefault(x => predicate(x));
+                controller = _availableControllers.FirstOrDefault(x => predicate(x));
                 return controller is not null;
             }
 
@@ -157,9 +172,4 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
             return false;
         }
     }
-
-    /// <summary>
-    /// Get copy of all available keys of registered controllers
-    /// </summary>
-    protected IEnumerable<string> AllControllerIds => [.. _availableControllers.Keys];
 }

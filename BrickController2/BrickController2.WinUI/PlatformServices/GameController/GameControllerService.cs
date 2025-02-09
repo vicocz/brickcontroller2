@@ -50,14 +50,14 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
     {
         lock (_lockObject)
         {
-            // find the controller by provided instance of gamepad
-            if (!TryGetController(x => x.Gamepad == gamepad, out var controller))
-            {
-                return;
-            }
-
             // ensure stopped in UI thread
-            _ = _mainThreadService.RunOnMainThread(() => RemoveController(controller.ControllerId));
+            _ = _mainThreadService.RunOnMainThread(() =>
+            {
+                if (TryRemove(x => x.Gamepad == gamepad, out var controller))
+                {
+                    _logger.LogInformation("Gamepad has been removed ControllerId:{controllerId}", controller.ControllerId);
+                }
+            });
         }
     }
 

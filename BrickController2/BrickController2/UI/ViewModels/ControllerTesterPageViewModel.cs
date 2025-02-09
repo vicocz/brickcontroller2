@@ -49,7 +49,10 @@ namespace BrickController2.UI.ViewModels
                     }
                     else
                     {
-                        ControllerEventList.Add(new GameControllerEventViewModel(args.ControllerId, controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
+                        _gameControllerService.TryGetController(args.ControllerId, out var controller);
+
+                        ControllerEventList.Add(new GameControllerEventViewModel(args.ControllerId, controller,
+                            controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
                     }
                 }
                 else

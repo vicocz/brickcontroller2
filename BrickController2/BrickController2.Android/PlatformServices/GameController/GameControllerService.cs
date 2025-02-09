@@ -38,7 +38,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         {
             if (TryGetControllerByDeviceId(deviceId, out var controller))
             {
-                RemoveController(controller.ControllerId);
+                RemoveController(controller);
             }
         }
 
@@ -53,10 +53,10 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 // handle change
                 AddGameControllerDevice(device);
             }
-            else if (TryGetControllerByDeviceId(deviceId, out var controller))
+            else if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
             {
-                // just for sure, remove it
-                RemoveController(controller.ControllerId);
+                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                    deviceId, controller.ControllerId);
             }
         }
 
@@ -105,7 +105,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 {
                     if (currentController.ControllerNumber != gamepad.ControllerNumber)
                     {
-                        _logger.LogDebug("Gampad {deviceId} has changed.", gamepad.Id);
+                        _logger.LogDebug("Gamepad {deviceId} has changed.", gamepad.Id);
                     }
 
                     // ignore it as e.g. ControllerNumber has changed

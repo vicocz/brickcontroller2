@@ -7,6 +7,9 @@ public interface IGameController
 
     string Name { get; }
 
+    int VendorId { get; }
+    int ProductId { get; }
+
     void Start();
 
     void Stop();

@@ -10,7 +10,7 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
     private readonly Dictionary<string, float> _lastAxisValues = [];
 
     /// <summary>Controller service that owns/manages the controller</summary>
-    protected readonly IGameControllerServiceInternal _controllerService;
+    private readonly IGameControllerServiceInternal _controllerService;
 
     protected GamepadControllerBase(IGameControllerServiceInternal controllerService,
         TGamepad gamepad)
@@ -35,6 +35,9 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
     public string UniquePersistantDeviceId { get; protected init; } = default!;
 
     public string Name { get; protected init; } = default!;
+
+    public int VendorId { get; protected init; }
+    public int ProductId { get; protected init; }
 
     /// <summary>
     /// Native instance of gamepad

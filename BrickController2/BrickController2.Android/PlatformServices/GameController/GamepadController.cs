@@ -25,6 +25,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
         {
             // initialize properties
             Name = gamePad.Name!;
+            VendorId = gamePad.VendorId;
+            ProductId = gamePad.ProductId;
             ControllerNumber = gamePad.ControllerNumber;
             ControllerId = GetControllerIdFromNumber(gamePad.ControllerNumber);
             UniquePersistantDeviceId = gamePad.GetUniquePersistentDeviceId();

@@ -30,6 +30,8 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
         var rawController = RawGameController.FromGameController(gamepad);
         UniquePersistantDeviceId = rawController.NonRoamableId;
         Name = rawController.DisplayName;
+        VendorId = rawController.HardwareVendorId;
+        ProductId = rawController.HardwareProductId;
 
         _timer = timer;
 

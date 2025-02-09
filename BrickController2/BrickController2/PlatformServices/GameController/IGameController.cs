@@ -2,6 +2,7 @@
 
 public interface IGameController
 {
+    string ControllerId { get; }
     int ControllerNumber { get; }
 
     string Name { get; }

@@ -7,6 +7,8 @@ public static class GameControllers
     public const float BUTTON_DOWN = 1.0f;
     public const float BUTTON_UP = 0.0f;
 
+    public const float AXIS_DELTA_VALUE = 0.05f;
+
     public const float AXIS_ZERO_VALUE = 0.0f;
     public const float AXIS_MIN_VALUE = - 1.0f;
     public const float AXIS_MAX_VALUE = 1.0f;

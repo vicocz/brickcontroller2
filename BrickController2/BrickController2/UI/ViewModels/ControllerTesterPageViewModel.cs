@@ -5,6 +5,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+using static BrickController2.PlatformServices.GameController.GameControllers;
+
 namespace BrickController2.UI.ViewModels
 {
     public class ControllerTesterPageViewModel : PageViewModelBase
@@ -39,7 +41,7 @@ namespace BrickController2.UI.ViewModels
             foreach (var controllerEvent in args.ControllerEvents)
             {
                 var controllerEventViewModel = ControllerEventList.FirstOrDefault(ce => ce.ControllerId == args.ControllerId && ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
-                if (0.1F < Math.Abs(controllerEvent.Value))
+                if (AXIS_DELTA_VALUE < Math.Abs(controllerEvent.Value))
                 {
                     if (controllerEventViewModel != null)
                     {

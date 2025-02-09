@@ -19,7 +19,7 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
     /// Constructor
     /// </summary>
     /// <param name="service">reference to GameControllerService</param>
-    /// <param name="gamePad"> reference to InputDevice</param>
+    /// <param name="gamepad">reference to UWP's Gamepad</param>
     /// <param name="controllerNumber">zero-based Index of device inside the controller management</param>
     public GamepadController(GameControllerService service, Gamepad gamepad, int controllerNumber, IDispatcherTimer timer)
         : base(service, gamepad)
@@ -28,8 +28,8 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
         ControllerId = GetControllerIdFromNumber(controllerNumber);
 
         var rawController = RawGameController.FromGameController(gamepad);
-        UniquePersistantDeviceId = rawController.NonRoamableId ?? "unknown";
-        Name = rawController.DisplayName ?? ControllerId;
+        UniquePersistantDeviceId = rawController.NonRoamableId;
+        Name = rawController.DisplayName;
 
         _timer = timer;
 

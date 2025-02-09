@@ -19,7 +19,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// Constructor
         /// </summary>
         /// <param name="service">reference to GameControllerService</param>
-        /// <param name="gamePad"> reference to InputDevice</param>
+        /// <param name="gamePad">reference to InputDevice</param>
         public GamepadController(GameControllerService service, InputDevice gamePad)
             : base(service, gamePad)
         {
@@ -28,7 +28,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
             ControllerNumber = gamePad.ControllerNumber;
             ControllerId = GetControllerIdFromNumber(gamePad.ControllerNumber);
             UniquePersistantDeviceId = gamePad.GetUniquePersistentDeviceId();
-        } 
+        }
 
         internal bool OnButtonEvent(KeyEvent e, float buttonValue)
         {

@@ -34,7 +34,7 @@
                                 </StackLayout>
                                 <StackLayout Orientation="Horizontal">
                                     <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
-                                    <Label Text="-" FontSize="Large" Margin="5,0,5,0"/>
+                                    <Label Text=":" FontSize="Large" Margin="5,0,5,0"/>
                                     <Label Text="{Binding Value}" FontSize="Large"/>
                                 </StackLayout>
                                 <Label Text="{Binding EventType}" FontSize="Medium"/>

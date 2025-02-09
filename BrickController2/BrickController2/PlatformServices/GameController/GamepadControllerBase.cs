@@ -4,15 +4,16 @@ using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.PlatformServices.GameController;
 
-public abstract class GamepadControllerBase<TGamepad> : IGameController
+public abstract class GamepadControllerBase<TGamepad> : IGameController where TGamepad : class
 {
-    // stored last value per axis to detect changes 
+    /// <summary>stored last value per axis to detect changes</summary>
     private readonly Dictionary<string, float> _lastAxisValues = [];
 
     /// <summary>Controller service that owns/manages the controller</summary>
-    protected readonly GameControllerServiceBase _controllerService;
+    protected readonly IGameControllerServiceInternal _controllerService;
 
-    protected GamepadControllerBase(GameControllerServiceBase controllerService, TGamepad gamepad)
+    protected GamepadControllerBase(IGameControllerServiceInternal controllerService,
+        TGamepad gamepad)
     {
         _controllerService = controllerService;
         Gamepad = gamepad;
@@ -38,7 +39,7 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController
     /// <summary>
     /// Native instance of gamepad
     /// </summary>
-    protected internal TGamepad Gamepad { get; }
+    public TGamepad Gamepad { get; }
 
     public virtual void Start()
     {

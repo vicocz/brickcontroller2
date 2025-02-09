@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using BrickController2.PlatformServices.GameController;
 using Foundation;
@@ -71,6 +72,12 @@ namespace BrickController2.iOS.PlatformServices.GameController
         }
 
         public bool IsControllerIdSupported => false; // ToDo: implement ControllerManagement
+
+        public bool TryGetController(string id, [MaybeNullWhen(false)] out IGameController controller)
+        {
+            controller = default;
+            return false;
+        }
 
         private void FindController()
         {

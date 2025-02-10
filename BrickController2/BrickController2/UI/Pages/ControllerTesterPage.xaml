@@ -24,15 +24,10 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Controller event list -->
-                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" ItemsLayout="{OnIdiom 'VerticalList', Desktop='VerticalGrid, 2'}">
+                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="{Binding IsGrouped,Mode=OneTime}" ItemsLayout="{OnIdiom 'VerticalList', Desktop='VerticalGrid, 2'}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <StackLayout Orientation="Vertical" Padding="10">
-                                <StackLayout Orientation="Horizontal" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ControllerTesterPageViewModel}}, Path=IsControllerIdSupported}">
-                                    <Label Text="{Binding ControllerId}" FontSize="Medium"/>
-                                    <Label Text=":" FontSize="Medium" Margin="5,0,5,0"/>
-                                    <Label Text="{Binding ControllerName}" FontSize="Medium"/>
-                                </StackLayout>
+                            <StackLayout Orientation="Vertical" Padding="5">
                                 <StackLayout Orientation="Horizontal">
                                     <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
                                     <Label Text=":" FontSize="Large" Margin="5,0,5,0"/>
@@ -45,6 +40,15 @@
                     <CollectionView.EmptyView>
                         <Label Text="{extensions:Translate PressButtonsOrMoveJoys}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
                     </CollectionView.EmptyView>
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate>
+                            <StackLayout Orientation="Horizontal" BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" Padding="10">
+                                <Label Text="{Binding ControllerId}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}"/>
+                                <Label Text=":" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}"/>
+                                <Label Text="{Binding ControllerName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}"/>
+                            </StackLayout>
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
                 </CollectionView>
 
             </Grid>

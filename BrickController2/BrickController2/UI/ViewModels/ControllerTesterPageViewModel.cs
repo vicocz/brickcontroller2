@@ -2,7 +2,9 @@
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 
 using static BrickController2.PlatformServices.GameController.GameControllers;
@@ -12,6 +14,8 @@ namespace BrickController2.UI.ViewModels
     public class ControllerTesterPageViewModel : PageViewModelBase
     {
         private readonly IGameControllerService _gameControllerService;
+        private readonly ObservableCollection<GameControllerGroupViewModel> _groups = [];
+        private readonly ObservableCollection<GameControllerEventViewModel> _events = [];
 
         public ControllerTesterPageViewModel(
             INavigationService navigationService,
@@ -22,7 +26,8 @@ namespace BrickController2.UI.ViewModels
             _gameControllerService = gameControllerService;
         }
 
-        public bool IsControllerIdSupported => _gameControllerService.IsControllerIdSupported;
+        public bool IsGrouped => _gameControllerService.IsControllerIdSupported;
+        public IEnumerable<INotifyPropertyChanged> ControllerEventList => IsGrouped ? _groups : _events;
 
         public override void OnAppearing()
         {
@@ -34,33 +39,49 @@ namespace BrickController2.UI.ViewModels
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
         }
 
-        public ObservableCollection<GameControllerEventViewModel> ControllerEventList { get; } = new ObservableCollection<GameControllerEventViewModel>(); 
-
         private void GameControllerEventHandler(object sender, GameControllerEventArgs args)
         {
             foreach (var controllerEvent in args.ControllerEvents)
             {
-                var controllerEventViewModel = ControllerEventList.FirstOrDefault(ce => ce.ControllerId == args.ControllerId && ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
-                if (AXIS_DELTA_VALUE < Math.Abs(controllerEvent.Value))
+                // special handling for groups
+                if (IsGrouped)
                 {
-                    if (controllerEventViewModel != null)
-                    {
-                        controllerEventViewModel.Value = controllerEvent.Value;
-                    }
-                    else
+                    var group = _groups.FirstOrDefault(x => x.ControllerId == args.ControllerId);
+                    if (group is null)
                     {
                         _gameControllerService.TryGetController(args.ControllerId, out var controller);
-
-                        ControllerEventList.Add(new GameControllerEventViewModel(args.ControllerId, controller,
-                            controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
+                        group = new GameControllerGroupViewModel(args.ControllerId, controller);
+                        _groups.Add(group);
                     }
+                    ProcessEvent(group, controllerEvent);
                 }
                 else
                 {
-                    if (controllerEventViewModel != null)
-                    {
-                        ControllerEventList.Remove(controllerEventViewModel);
-                    }
+                    ProcessEvent(_events, controllerEvent);
+                }
+            }
+        }
+
+        private static void ProcessEvent(ICollection<GameControllerEventViewModel> events,
+            KeyValuePair<(GameControllerEventType EventType, string EventCode), float> controllerEvent)
+        {
+            var controllerEventViewModel = events.FirstOrDefault(ce => ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
+            if (AXIS_DELTA_VALUE < Math.Abs(controllerEvent.Value))
+            {
+                if (controllerEventViewModel != null)
+                {
+                    controllerEventViewModel.Value = controllerEvent.Value;
+                }
+                else
+                {
+                    events.Add(new GameControllerEventViewModel(controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
+                }
+            }
+            else
+            {
+                if (controllerEventViewModel != null)
+                {
+                    events.Remove(controllerEventViewModel);
                 }
             }
         }

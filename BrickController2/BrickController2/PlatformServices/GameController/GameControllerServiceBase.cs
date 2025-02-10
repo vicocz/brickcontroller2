@@ -131,18 +131,6 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected void RemoveController(TGameController controller)
-    {
-        lock (_lockObject)
-        {
-            // remove and stop the controller
-            if (_availableControllers.Remove(controller))
-            {
-                controller.Stop();
-            }
-        }
-    }
-
     protected bool TryRemove(Func<TGameController, bool> predicate, [MaybeNullWhen(false)] out TGameController controller)
     {
         lock (_lockObject)

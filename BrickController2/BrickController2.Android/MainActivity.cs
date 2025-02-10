@@ -70,9 +70,9 @@ namespace BrickController2.Droid
         {
             if (_gameControllerService is not null &&
                 e.IsGameControllerButtonEvent() &&
-                _gameControllerService.OnGameControllerButtonEvent(e!, BUTTON_DOWN))
+                _gameControllerService.OnGameControllerButtonEvent(e!, BUTTON_PRESSED))
             {
-                // event processed as GamePad button down event
+                // event processed as gamepad button down event
                 return true;
             }
             return base.OnKeyDown(keyCode, e);
@@ -84,7 +84,7 @@ namespace BrickController2.Droid
                 e.IsGameControllerButtonEvent() &&
                 _gameControllerService.OnGameControllerButtonEvent(e!, 0.0f))
             {
-                // event processed as GamePad button up event
+                // event processed as gamepad button up event
                 return true;
             }
             return base.OnKeyUp(keyCode, e);
@@ -96,7 +96,7 @@ namespace BrickController2.Droid
                 e.IsGameControllerAxisEvent() &&
                 _gameControllerService.OnGameControllerAxisEvent(e!))
             {
-                // event processed as GamePad axis event(s)
+                // event processed as gamepad axis event(s)
                 return true;
             }
             return base.OnGenericMotionEvent(e);

@@ -29,8 +29,8 @@
                         <DataTemplate>
                             <StackLayout Orientation="Vertical" Padding="10">
                                 <StackLayout Orientation="Horizontal" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ControllerTesterPageViewModel}}, Path=IsControllerIdSupported}">
-                                    <Label Text="{Binding ControllerNumber}" FontSize="Medium"/>
-                                    <Label Text=":" FontSize="Medium" Margin="0,0,5,0"/>
+                                    <Label Text="{Binding ControllerId}" FontSize="Medium"/>
+                                    <Label Text=":" FontSize="Medium" Margin="5,0,5,0"/>
                                     <Label Text="{Binding ControllerName}" FontSize="Medium"/>
                                 </StackLayout>
                                 <StackLayout Orientation="Horizontal">

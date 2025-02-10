@@ -78,13 +78,7 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
                 int controllerNumber = GetFirstUnusedControllerNumber();
                 var newController = new GamepadController(this, gamepad!, controllerNumber, dispatcher!.CreateTimer());
 
-                // deviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"
-                if(string.IsNullOrEmpty(newController.UniquePersistantDeviceId))
-                {
-                    _logger.LogDebug("Gamepad {gamepad} was not configured due to missing UniquePersistantDeviceId.", newController.Name);
-                    continue;
-                }
-                
+                // deviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
                 AddController(newController);
             }
         }

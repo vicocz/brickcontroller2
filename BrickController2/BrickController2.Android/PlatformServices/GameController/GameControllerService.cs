@@ -36,9 +36,10 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceRemoved(int deviceId)
         {
-            if (TryGetControllerByDeviceId(deviceId, out var controller))
+            if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
             {
-                RemoveController(controller);
+                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                    deviceId, controller.ControllerId);
             }
         }
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -61,6 +62,12 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
                 }
             }
         }
+    }
+
+    public event NotifyCollectionChangedEventHandler? CollectionChanged
+    {
+        add => _availableControllers.CollectionChanged += value;
+        remove => _availableControllers.CollectionChanged -= value;
     }
 
     public void RaiseEvent(GameControllerEventArgs eventArgs)
@@ -131,7 +138,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected bool TryRemove(Func<TGameController, bool> predicate, [MaybeNullWhen(false)] out TGameController controller)
+    protected bool TryRemove(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
     {
         lock (_lockObject)
         {
@@ -145,7 +152,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected bool TryGetController(Func<TGameController, bool> predicate, [MaybeNullWhen(false)] out TGameController controller)
+    protected bool TryGetController(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
     {
         lock (_lockObject)
         {

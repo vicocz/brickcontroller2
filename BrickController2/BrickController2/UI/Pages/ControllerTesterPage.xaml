@@ -49,10 +49,13 @@
                     </CollectionView.EmptyView>
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate>
-                            <HorizontalStackLayout BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" Margin="0" Padding="10">
-                                <Label Text="{Binding ControllerId}" FontSize="Medium" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}"/>
-                                <Label Text="-" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}"/>
-                                <Label Text="{Binding ControllerName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}"/>
+                            <HorizontalStackLayout BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}"
+                                                   Margin="0,0,0,5" Padding="10">
+                                <controls:ColorImage Grid.Column="0" Icon="sports_esports" Color="{DynamicResource PrimaryColor}"
+                                                     WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="0,0,10,0"/>
+                                <Label Text="{Binding ControllerId}" FontSize="Medium" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                                <Label Text="-" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                                <Label Text="{Binding ControllerName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>

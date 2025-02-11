@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BrickController2.PlatformServices.GameController
 {
-    public interface IGameControllerService
+    public interface IGameControllerService : INotifyCollectionChanged
     {
         event EventHandler<GameControllerEventArgs> GameControllerEvent;
 

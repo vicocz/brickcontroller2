@@ -24,17 +24,24 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Controller event list -->
-                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="{Binding IsGrouped,Mode=OneTime}" ItemsLayout="{OnIdiom 'VerticalList', Desktop='VerticalGrid, 2'}">
+                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="{Binding IsGrouped,Mode=OneTime}">
+                    <CollectionView.ItemsLayout>
+                        <OnIdiom x:TypeArguments="IItemsLayout" Default="VerticalList">
+                            <OnIdiom.Desktop>
+                                <GridItemsLayout Orientation="Vertical" Span="2"/>
+                            </OnIdiom.Desktop>
+                        </OnIdiom>
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <StackLayout Orientation="Vertical" Padding="5">
-                                <StackLayout Orientation="Horizontal">
+                            <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
+                                <HorizontalStackLayout>
                                     <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
                                     <Label Text=":" FontSize="Large" Margin="5,0,5,0"/>
                                     <Label Text="{Binding Value}" FontSize="Large"/>
-                                </StackLayout>
+                                </HorizontalStackLayout>
                                 <Label Text="{Binding EventType}" FontSize="Medium"/>
-                            </StackLayout>
+                            </VerticalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>
@@ -42,11 +49,11 @@
                     </CollectionView.EmptyView>
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate>
-                            <StackLayout Orientation="Horizontal" BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" Padding="10">
-                                <Label Text="{Binding ControllerId}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}"/>
-                                <Label Text=":" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}"/>
+                            <HorizontalStackLayout BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" Margin="0" Padding="10">
+                                <Label Text="{Binding ControllerId}" FontSize="Medium" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}"/>
+                                <Label Text="-" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}"/>
                                 <Label Text="{Binding ControllerName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}"/>
-                            </StackLayout>
+                            </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                 </CollectionView>

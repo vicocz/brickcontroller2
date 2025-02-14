@@ -79,7 +79,7 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
                 var newController = new GamepadController(this, gamepad!, controllerNumber, dispatcher!.CreateTimer());
 
                 // deviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
-                AddController(newController);
+                AddOrUpdateController(newController);
             }
         }
     }

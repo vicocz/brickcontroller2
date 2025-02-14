@@ -49,10 +49,14 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceChanged(int deviceId)
         {
-            if (TryGetGamepadDevice(deviceId, out var device))
+            var device = InputDevice.GetDevice(deviceId);
+            if (device is not null)
             {
                 // handle change
-                AddGameControllerDevice(device);
+                if (IsGamapadDevice(device))
+                {
+                    AddGameControllerDevice(device);
+                }
             }
             else if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
             {
@@ -101,21 +105,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
         {
             lock (_lockObject)
             {
-                // handle update
-                if (TryGetControllerByDeviceId(gamepad.Id, out var currentController))
-                {
-                    if (currentController.ControllerNumber != gamepad.ControllerNumber)
-                    {
-                        _logger.LogDebug("Gamepad {deviceId} has changed.", gamepad.Id);
-                    }
-
-                    // ignore it as e.g. ControllerNumber has changed
-                    return;
-                }
-
                 var newController = new GamepadController(this, gamepad);
-
-                AddController(newController);
+                AddOrUpdateController(newController);
             }
         }
 
@@ -125,7 +116,11 @@ namespace BrickController2.Droid.PlatformServices.GameController
         private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
         {
             device = InputDevice.GetDevice(deviceId);
+            return IsGamapadDevice(device);
+        }
 
+        private static bool IsGamapadDevice(InputDevice? device)
+        {
             // skip if device is missing or is strange one present
             if (device is null || device.Name?.StartsWith("uinput-") == true) // drop all gamepads with name starting with "uinput-"
             {

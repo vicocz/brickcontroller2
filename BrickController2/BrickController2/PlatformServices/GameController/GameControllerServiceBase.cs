@@ -123,14 +123,14 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected void AddController(TGameController controller)
+    protected void AddOrUpdateController(TGameController controller)
     {
         lock (_lockObject)
         {
-            // handle possible situation with duplicated controller
+            // handle possible situation with already present controller
             if (_availableControllers.Remove(x => x.ControllerId == controller.ControllerId, out var oldController))
             {
-                _logger.LogDebug("Old duplicite gamepad was removed. ControllerId:{id}", oldController.ControllerId);
+                _logger.LogDebug("Existing gamepad was removed. ControllerId:{id}", oldController.ControllerId);
                 oldController.Stop();
             }
             _availableControllers.Add(controller);

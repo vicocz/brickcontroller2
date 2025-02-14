@@ -5,7 +5,10 @@ namespace BrickController2.Extensions;
 
 public static class CollectionExtensions
 {
-    public static int FindIndex<T>(this IList<T> collection, Predicate<T> match)
+    /// <summary>
+    /// Searches index of an item that matches the specified predicate <paramref name="predicate"/>
+    /// </summary>
+    public static int FindIndex<T>(this IList<T> collection, Predicate<T> predicate)
     {
         switch (collection)
         {
@@ -13,12 +16,12 @@ public static class CollectionExtensions
                 throw new ArgumentNullException(nameof(collection));
 
             case List<T> list:
-                return list.FindIndex(match);
+                return list.FindIndex(predicate);
 
             default:
                 for (int i = 0; i < collection.Count; i++)
                 {
-                    if (match(collection[i]))
+                    if (predicate(collection[i]))
                     {
                         return i;
                     }
@@ -27,18 +30,21 @@ public static class CollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Remove the first item matching the prediccate specified in <paramref name="predicate"/>
+    /// </summary>
     public static bool Remove<T>(this IList<T> collection, Predicate<T> predicate, [MaybeNullWhen(false)] out T item)
         where T : class
     {
         var idx = collection.FindIndex(predicate);
-        if (idx >= 0)
+        if (idx < 0)
         {
-            item = collection[idx];
-            collection.RemoveAt(idx);
-            return true;
+            item = default;
+            return false;
         }
 
-        item = default;
-        return false;
+        item = collection[idx];
+        collection.RemoveAt(idx);
+        return true;
     }
 }

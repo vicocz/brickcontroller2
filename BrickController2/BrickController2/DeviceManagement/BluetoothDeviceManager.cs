@@ -89,6 +89,16 @@ namespace BrickController2.DeviceManagement
                         }
                     }
                     break;
+                case "05-45": // BuWizz2 has new ID since firmware 1.2.30
+                    if (advertismentData.TryGetValue(ADTYPE_LOCAL_NAME_COMPLETE, out byte[]? buwizzName))
+                    {
+                        var completeLocalNameString = BitConverter.ToString(buwizzName).ToLower();
+                        if (completeLocalNameString == "42-75-57-69-7a-7a-32") // BuWizz2
+                        {
+                            return (DeviceType.BuWizz2, manufacturerData);
+                        }
+                    }
+                    break;
                 case "97-03":
                     if (manufacturerDataString.Length >= 11)
                     {

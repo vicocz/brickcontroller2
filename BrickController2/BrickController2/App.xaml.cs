@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
@@ -14,6 +15,9 @@ namespace BrickController2
 {
 	public partial class App : Application
 	{
+        private readonly ViewModelFactory _viewModelFactory;
+        private readonly PageFactory _pageFactory;
+        private readonly Func<Page, NavigationPage> _navigationPageFactory;
         private readonly BackgroundService _backgroundService;
 
 		public App(
@@ -25,6 +29,9 @@ namespace BrickController2
 		{
 			InitializeComponent();
 
+            _viewModelFactory = viewModelFactory;
+            _pageFactory = pageFactory;
+            _navigationPageFactory = navigationPageFactory;
             _backgroundService = backgroundService;
 
 			Application.Current!.RequestedThemeChanged += (s, e) =>
@@ -38,17 +45,20 @@ namespace BrickController2
 				themeService.ApplyCurrentTheme();
 			};
 			themeService.ApplyCurrentTheme();
+		}
 
-            var vm = viewModelFactory(typeof(CreationListPageViewModel), null);
-		    var page = pageFactory(typeof(CreationListPage), vm);
-		    var navigationPage = navigationPageFactory(page);
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            var vm = _viewModelFactory(typeof(CreationListPageViewModel), null);
+            var page = _pageFactory(typeof(CreationListPage), vm);
+            var navigationPage = _navigationPageFactory(page);
             navigationPage.BarBackgroundColor = Colors.Red;
             navigationPage.BarTextColor = Colors.White;
 
-            MainPage = navigationPage;
-		}
+            return new Window(navigationPage);
+        }
 
-		protected override void OnStart()
+        protected override void OnStart()
 		{
 		}
 

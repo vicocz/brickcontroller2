@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -64,11 +63,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    public event NotifyCollectionChangedEventHandler? CollectionChanged
-    {
-        add => _availableControllers.CollectionChanged += value;
-        remove => _availableControllers.CollectionChanged -= value;
-    }
+    public event EventHandler<NotifyGameControllersChangedEventArgs> GameControllersChangedEvent;
 
     public void RaiseEvent(GameControllerEventArgs eventArgs)
     {
@@ -100,11 +95,18 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
     /// <remarks>this is expected to be called under the lock</remarks>
     protected virtual void RemoveAllControllers()
     {
+        if (_availableControllers.Count == 0)
+        {
+            return;
+        }
+        var controllers = _availableControllers.ToArray();
         foreach (var controller in _availableControllers)
         {
             controller.Stop();
         }
         _availableControllers.Clear();
+        // notify removal
+        OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Connected, controllers);
     }
 
     /// <summary>
@@ -132,9 +134,13 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
             {
                 _logger.LogDebug("Existing gamepad was removed. ControllerId:{id}", oldController.ControllerId);
                 oldController.Stop();
+                // notify removal
+                OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controller);
             }
             _availableControllers.Add(controller);
             controller.Start();
+            // notify adding
+            OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Connected, controller);
         }
     }
 
@@ -146,6 +152,8 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
             if (_availableControllers.Remove(predicate, out controller))
             {
                 controller.Stop();
+                // notify removal
+                OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controller);
                 return true;
             }
             return false;
@@ -166,5 +174,10 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
             controller = default;
             return false;
         }
+    }
+
+    private void OnGameControllersChangedEvent(NotifyGameControllersChangedAction action, params IGameController[] controllers)
+    {
+        GameControllersChangedEvent?.Invoke(this, new(action, controllers));
     }
 }

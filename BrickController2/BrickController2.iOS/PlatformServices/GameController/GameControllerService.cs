@@ -71,6 +71,8 @@ namespace BrickController2.iOS.PlatformServices.GameController
             }
         }
 
+        public event EventHandler<NotifyGameControllersChangedEventArgs> GameControllersChangedEvent;
+
         public bool IsControllerIdSupported => false; // ToDo: implement ControllerManagement
 
         public bool TryGetController(string id, [MaybeNullWhen(false)] out IGameController controller)

@@ -1,11 +1,9 @@
-﻿using BrickController2.Extensions;
-using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.GameController;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
@@ -17,7 +15,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IGameControllerService _gameControllerService;
         private readonly ObservableCollection<GameControllerEventViewModel> _events = [];
-        private ObservableGameControllerCollection _groups = [];
+        private ObservableCollection<GameControllerGroupViewModel> _groups = [];
 
         public ControllerTesterPageViewModel(
             INavigationService navigationService,
@@ -35,7 +33,7 @@ namespace BrickController2.UI.ViewModels
         {
             if (IsGrouped)
             {
-                _gameControllerService.CollectionChanged += GameController_CollectionChanged;
+                _gameControllerService.GameControllersChangedEvent += GameControllersChangedEventHandler;
                 _gameControllerService.GameControllerEvent += GameControllerEventHandler_Grouping!;
             }
             else
@@ -47,32 +45,28 @@ namespace BrickController2.UI.ViewModels
         public override void OnDisappearing()
         {
             // unregister all
-            _gameControllerService.CollectionChanged -= GameController_CollectionChanged;
+            _gameControllerService.GameControllersChangedEvent -= GameControllersChangedEventHandler;
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler_Grouping!;
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
         }
 
-        private void GameController_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void GameControllersChangedEventHandler(object? sender, NotifyGameControllersChangedEventArgs e)
         {
             switch (e.Action)
             {
-                case NotifyCollectionChangedAction.Add:
-                    _groups.AddRange(e.NewItems!.Cast<IGameController>());
+                case NotifyGameControllersChangedAction.Connected:
+                    // recreate collection due to MAUI could not handle adding of them
+                    _groups = new(_groups.Concat(e.Items.Select(x => new GameControllerGroupViewModel(x)))
+                        .OrderBy(x => x.ControllerNumber));
+                    // notify
+                    RaisePropertyChanged(nameof(ControllerEventList));
                     break;
-                case NotifyCollectionChangedAction.Remove:
-                    // -- workaround
+                case NotifyGameControllersChangedAction.Disconnected:
                     // MAUI could not handle removal of a group
-                    var removedItems = e.OldItems!.Cast<IGameController>()
-                        .Select(x => x.ControllerId)
-                        .ToHashSet();
+                    var removedItems = e.Items.Select(x => x.ControllerId).ToHashSet();
                     _groups = new(_groups.Where(x => !removedItems.Contains(x.ControllerId)));
                     // notify
                     RaisePropertyChanged(nameof(ControllerEventList));
-                    // -- original code
-                    //_groups.RemoveAll(e.OldItems!.Cast<IGameController>());
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    _groups.Clear();
                     break;
             }
         }
@@ -120,49 +114,6 @@ namespace BrickController2.UI.ViewModels
                 if (controllerEventViewModel != null)
                 {
                     events.Remove(controllerEventViewModel);
-                }
-            }
-        }
-
-        private class ObservableGameControllerCollection : ObservableCollection<GameControllerGroupViewModel>
-        {
-            public ObservableGameControllerCollection()
-            {
-            }
-
-            public ObservableGameControllerCollection(IEnumerable<GameControllerGroupViewModel> collection) : base(collection)
-            {
-            }
-
-            // override Add to support sorting
-            public new void Add(GameControllerGroupViewModel item)
-            {
-                if (Items is List<GameControllerGroupViewModel> list)
-                {
-                    var idx = list.BinarySearch(item);
-                    if (idx < 0)
-                    {
-                        InsertItem(~idx, item);
-                        return;
-                    }
-                }
-                // fallback
-                base.Add(item);
-            }
-
-            public void AddRange(IEnumerable<IGameController> controllers)
-            {
-                foreach (var controller in controllers)
-                {
-                    Add(new(controller));
-                }
-            }
-
-            public void RemoveAll(IEnumerable<IGameController> controllers)
-            {
-                foreach (var controller in controllers)
-                {
-                    Items.Remove(x => x.ControllerId == controller.ControllerId, out var _);
                 }
             }
         }

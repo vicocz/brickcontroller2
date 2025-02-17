@@ -9,7 +9,7 @@ namespace BrickController2.PlatformServices.GameController
         /// <summary>
         /// Event raised when a game controller is connected / disconnected
         /// </summary>
-        event EventHandler<NotifyGameControllersChangedEventArgs> GameControllersChangedEvent;
+        event EventHandler<GameControllersChangedEventArgs> GameControllersChangedEvent;
 
         bool IsControllerIdSupported { get; }
     }

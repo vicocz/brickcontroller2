@@ -50,7 +50,7 @@ namespace BrickController2.UI.ViewModels
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
         }
 
-        private void GameControllersChangedEventHandler(object? sender, NotifyGameControllersChangedEventArgs e)
+        private void GameControllersChangedEventHandler(object? sender, GameControllersChangedEventArgs e)
         {
             switch (e.Action)
             {

@@ -4,15 +4,15 @@ using System.Linq;
 
 namespace BrickController2.PlatformServices.GameController;
 
-public class NotifyGameControllersChangedEventArgs : EventArgs
+public class GameControllersChangedEventArgs : EventArgs
 {
-    public NotifyGameControllersChangedEventArgs(NotifyGameControllersChangedAction action, IEnumerable<IGameController> controllers)
+    public GameControllersChangedEventArgs(NotifyGameControllersChangedAction action, IEnumerable<IGameController> controllers)
     {
         Action = action;
         Items = controllers.ToArray();
     }
 
-    public NotifyGameControllersChangedEventArgs(NotifyGameControllersChangedAction action, IGameController controller)
+    public GameControllersChangedEventArgs(NotifyGameControllersChangedAction action, IGameController controller)
     {
         Action = action;
         Items = [controller];

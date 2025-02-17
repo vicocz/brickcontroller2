@@ -60,7 +60,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    public event EventHandler<NotifyGameControllersChangedEventArgs>? GameControllersChangedEvent;
+    public event EventHandler<GameControllersChangedEventArgs>? GameControllersChangedEvent;
 
     public void RaiseEvent(GameControllerEventArgs eventArgs)
     {

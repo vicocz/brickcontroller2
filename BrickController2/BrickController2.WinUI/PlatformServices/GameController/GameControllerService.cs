@@ -74,11 +74,17 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
             var dispatcher = _dispatcherProvider.GetForCurrentThread();
             foreach (var gamepad in gamepads)
             {
+                var rawController = RawGameController.FromGameController(gamepad);
+                if (rawController == null)
+                {
+                    // this might be some orphan, hard to say
+                    continue;
+                }
                 // get first unused number and apply it
                 int controllerNumber = GetFirstUnusedControllerNumber();
-                var newController = new GamepadController(this, gamepad!, controllerNumber, dispatcher!.CreateTimer());
+                var newController = new GamepadController(this, gamepad!, rawController, controllerNumber, dispatcher!.CreateTimer());
 
-                // deviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
+                // UniquePersistantDeviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
                 AddController(newController);
             }
         }

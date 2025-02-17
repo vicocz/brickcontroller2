@@ -21,13 +21,12 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
     /// <param name="service">reference to GameControllerService</param>
     /// <param name="gamepad">reference to UWP's Gamepad</param>
     /// <param name="controllerNumber">zero-based Index of device inside the controller management</param>
-    public GamepadController(GameControllerService service, Gamepad gamepad, int controllerNumber, IDispatcherTimer timer)
+    public GamepadController(GameControllerService service, Gamepad gamepad, RawGameController rawController, int controllerNumber, IDispatcherTimer timer)
         : base(service, gamepad)
     {
         ControllerNumber = controllerNumber;
         ControllerId = GetControllerIdFromNumber(controllerNumber);
 
-        var rawController = RawGameController.FromGameController(gamepad);
         UniquePersistantDeviceId = rawController.NonRoamableId;
         Name = rawController.DisplayName;
         VendorId = rawController.HardwareVendorId;

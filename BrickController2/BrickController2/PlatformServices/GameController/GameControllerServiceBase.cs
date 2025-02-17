@@ -62,6 +62,17 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
 
     public event EventHandler<GameControllersChangedEventArgs>? GameControllersChangedEvent;
 
+    protected bool CanProcessEvents
+    {
+        get
+        {
+            lock (_lockObject)
+            {
+                return GameControllerEventInternal != null;
+            }
+        }
+    }
+
     public void RaiseEvent(GameControllerEventArgs eventArgs)
     {
         GameControllerEventInternal?.Invoke(this, eventArgs);
@@ -139,15 +150,8 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
     {
         lock (_lockObject)
         {
-            // if there is no listener, block any access 
-            if (GameControllerEventInternal != null)
-            {
-                controller = _availableControllers.FirstOrDefault(x => predicate(x));
-                return controller is not null;
-            }
-
-            controller = default;
-            return false;
+            controller = _availableControllers.FirstOrDefault(x => predicate(x));
+            return controller is not null;
         }
     }
 

@@ -24,7 +24,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceAdded(int deviceId)
         {
-            if (TryGetGamepadDevice(deviceId, out var device))
+            if (CanProcessEvents && TryGetGamepadDevice(deviceId, out var device))
             {
                 AddGameControllerDevice(device);
             }
@@ -52,12 +52,20 @@ namespace BrickController2.Droid.PlatformServices.GameController
             var device = InputDevice.GetDevice(deviceId);
             if (device is not null)
             {
-                // handle change - remove and add again
-                if (IsGamapadDevice(device) &&
-                    TryGetControllerByDeviceId(deviceId, out var controller) &&
-                    controller.ControllerNumber != device.ControllerNumber)
+                if (CanProcessEvents && IsGamapadDevice(device))
                 {
-                    TryRemove(x => x.Gamepad.Id == deviceId, out _);
+                    // if there is no existing controller present - add it
+                    if (TryGetControllerByDeviceId(deviceId, out var controller) &&
+                        controller.ControllerNumber == device.ControllerNumber)
+                    {
+                        // ignore it, it's some update
+                        return;
+                    }
+                    else if (controller != null)
+                    {
+                        // handle change - remove and then add it again
+                        TryRemove(x => x.Gamepad.Id == deviceId, out _);
+                    }
                     AddGameControllerDevice(device);
                 }
             }

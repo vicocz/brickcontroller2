@@ -45,9 +45,9 @@ namespace BrickController2.UI.ViewModels
         public override void OnDisappearing()
         {
             // unregister all
-            _gameControllerService.GameControllersChangedEvent -= GameControllersChangedEventHandler;
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler_Grouping!;
             _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
+            _gameControllerService.GameControllersChangedEvent -= GameControllersChangedEventHandler;
         }
 
         private void GameControllersChangedEventHandler(object? sender, GameControllersChangedEventArgs e)

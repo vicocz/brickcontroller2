@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -20,9 +19,9 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
     private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
 
     /// <summary>
-    /// Dictionary of available gamepads having <see cref="IGameController.ControllerId"/>
+    /// Collection of available gamepads having <see cref="IGameController.ControllerId"/>
     /// </summary>
-    private readonly ObservableCollection<TGameController> _availableControllers = [];
+    private readonly List<TGameController> _availableControllers = [];
 
     protected GameControllerServiceBase(ILogger logger)
     {
@@ -106,7 +105,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
         _availableControllers.Clear();
         // notify removal
-        OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Connected, controllers);
+        OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controllers);
     }
 
     /// <summary>
@@ -125,18 +124,10 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected void AddOrUpdateController(TGameController controller)
+    protected void AddController(TGameController controller)
     {
         lock (_lockObject)
         {
-            // handle possible situation with already present controller
-            if (_availableControllers.Remove(x => x.ControllerId == controller.ControllerId, out var oldController))
-            {
-                _logger.LogDebug("Existing gamepad was removed. ControllerId:{id}", oldController.ControllerId);
-                oldController.Stop();
-                // notify removal
-                OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controller);
-            }
             _availableControllers.Add(controller);
             controller.Start();
             // notify adding

@@ -52,9 +52,12 @@ namespace BrickController2.Droid.PlatformServices.GameController
             var device = InputDevice.GetDevice(deviceId);
             if (device is not null)
             {
-                // handle change
-                if (IsGamapadDevice(device))
+                // handle change - remove and add again
+                if (IsGamapadDevice(device) &&
+                    TryGetControllerByDeviceId(deviceId, out var controller) &&
+                    controller.ControllerNumber != device.ControllerNumber)
                 {
+                    TryRemove(x => x.Gamepad.Id == deviceId, out _);
                     AddGameControllerDevice(device);
                 }
             }
@@ -106,7 +109,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
             lock (_lockObject)
             {
                 var newController = new GamepadController(this, gamepad);
-                AddOrUpdateController(newController);
+                AddController(newController);
             }
         }
 

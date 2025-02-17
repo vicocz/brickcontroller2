@@ -6,6 +6,7 @@ using BrickController2.Helpers;
 namespace BrickController2.UI.MarkupExtensions
 {
     [ContentProperty(nameof(Source))]
+    [AcceptEmptyServiceProvider]
     public class ImageResourceExtension : IMarkupExtension<ImageSource?>
     {
         public string? Source { get; set; }

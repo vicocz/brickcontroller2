@@ -380,7 +380,9 @@ namespace BrickController2.UI.ViewModels
 
                 ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
                 DeviceName = device != null ? device.Name : translationService.Translate("Missing");
-                DeviceType = device != null ? device.DeviceType : DeviceType.Unknown;
+                // primary take type from existing device or try to parse DeviceId
+                DeviceType = device != null ? device.DeviceType :
+                    (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
                 Channel = controllerAction.Channel;
                 InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
             }

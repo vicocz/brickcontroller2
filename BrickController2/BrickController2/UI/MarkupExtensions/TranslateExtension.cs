@@ -6,6 +6,7 @@ using BrickController2.Helpers;
 namespace BrickController2.UI.MarkupExtensions
 {
     [ContentProperty("Key")]
+    [AcceptEmptyServiceProvider]
     public class TranslateExtension : IMarkupExtension<string>
     {
         public required string Key { get; set; }

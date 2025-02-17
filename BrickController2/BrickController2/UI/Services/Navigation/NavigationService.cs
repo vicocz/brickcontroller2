@@ -22,25 +22,27 @@ namespace BrickController2.UI.Services.Navigation
         {
             var vm = _viewModelFactory(typeof(T), parameters);
             var page = _pageFactory(GetPageType<T>(), vm);
-            return Application.Current!.MainPage!.Navigation.PushAsync(page);
+            return Navigation.PushAsync(page);
         }
 
         public Task NavigateToModalAsync<T>(NavigationParameters? parameters = null) where T : PageViewModelBase
         {
             var vm = _viewModelFactory(typeof(T), parameters);
             var page = _pageFactory(GetPageType<T>(), vm);
-            return Application.Current!.MainPage!.Navigation.PushModalAsync(page);
+            return Navigation.PushModalAsync(page);
         }
 
         public Task NavigateBackAsync()
         {
-            return Application.Current!.MainPage!.Navigation.PopAsync();
+            return Navigation.PopAsync();
         }
 
         public Task NavigateModalBackAsync()
         {
-            return Application.Current!.MainPage!.Navigation.PopAsync();
+            return Navigation.PopAsync();
         }
+
+        private static INavigation Navigation => Application.Current!.Windows[0].Page!.Navigation;
 
         private Type GetPageType<T>() where T : PageViewModelBase
         {

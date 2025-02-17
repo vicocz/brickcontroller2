@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace BrickController2.PlatformServices.GameController
 {
@@ -13,7 +12,5 @@ namespace BrickController2.PlatformServices.GameController
         event EventHandler<NotifyGameControllersChangedEventArgs> GameControllersChangedEvent;
 
         bool IsControllerIdSupported { get; }
-
-        bool TryGetController(string id, [MaybeNullWhen(false)] out IGameController controller);
     }
 }

@@ -30,8 +30,6 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
 
     public abstract bool IsControllerIdSupported { get; }
 
-    public IReadOnlyCollection<IGameController> AvailableControllers => _availableControllers;
-
     public event EventHandler<GameControllerEventArgs> GameControllerEvent
     {
         add
@@ -62,25 +60,11 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    public event EventHandler<NotifyGameControllersChangedEventArgs> GameControllersChangedEvent;
+    public event EventHandler<NotifyGameControllersChangedEventArgs>? GameControllersChangedEvent;
 
     public void RaiseEvent(GameControllerEventArgs eventArgs)
     {
         GameControllerEventInternal?.Invoke(this, eventArgs);
-    }
-
-    public bool TryGetController(string id, [MaybeNullWhen(false)] out IGameController controller)
-    {
-        lock (_lockObject)
-        {
-            if (TryGetController(x => x.ControllerId == id, out var item))
-            {
-                controller = item;
-                return true;
-            }
-            controller = default;
-            return false;
-        }
     }
 
     /// <summary>

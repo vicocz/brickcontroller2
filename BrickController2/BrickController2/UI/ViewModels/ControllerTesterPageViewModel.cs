@@ -78,8 +78,8 @@ namespace BrickController2.UI.ViewModels
                 var group = _groups.FirstOrDefault(x => x.ControllerId == args.ControllerId);
                 if (group is null)
                 {
-                    _gameControllerService.TryGetController(args.ControllerId, out var controller);
-                    group = new GameControllerGroupViewModel(args.ControllerId, controller);
+                    // create proxy model
+                    group = new GameControllerGroupViewModel(args.ControllerId, default);
                     _groups.Add(group);
                 }
                 ProcessEvent(group, controllerEvent);

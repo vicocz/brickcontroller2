@@ -586,7 +586,7 @@
     <value>neue Kreation erstellen</value>
   </data>
   <data name="ScanForDevices" xml:space="preserve">
-    <value>neue Geräten scannen</value>
+    <value>neue Geräte scannen</value>
   </data>
   <data name="AddControlPoint" xml:space="preserve">
     <value>neuen Kontrollpunkt erstellen</value>
@@ -675,11 +675,25 @@
   <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
     <value>Strombegrenzung für PF Kanäle (mA)</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="BuWizz3ChannelA" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
+  <data name="BuWizz3Channel0" xml:space="preserve">
+    <value>1</value>
   </data>
-  <data name="PlayVmEnabled" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
+  <data name="BuWizz3Channel1" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="BuWizz3Channel2" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="BuWizz3Channel3" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="BuWizz3ChannelA" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="BuWizz3ChannelB" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="PlayVmEnabled" xml:space="preserve">
+    <value>Easy drive mode (PLAYVM)</value>
   </data>
 </root>

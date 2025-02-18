@@ -15,7 +15,6 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <!-- Converters -->
-            <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
         </ResourceDictionary>
@@ -40,7 +39,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Image Grid.Column="0" Source="{Binding Device.DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50" VerticalOptions="Start"/>
+                            <Image Grid.Column="0" Source="{Binding Device.SmallImage}" WidthRequest="50" HeightRequest="50" VerticalOptions="Start"/>
 
                             <Grid Grid.Column="1" RowSpacing="4">
                                 <Grid.ColumnDefinitions>

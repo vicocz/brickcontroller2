@@ -15,7 +15,6 @@
 
     <local:PageBase.Resources>
         <ResourceDictionary>
-            <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -50,7 +49,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
+                                        <Image Grid.Column="0" Source="{Binding SmallImage}" WidthRequest="50" HeightRequest="50"/>
                                         <VerticalStackLayout Grid.Column="1">
                                             <Label Text="{Binding Name}" FontSize="Large" FontAttributes="Bold"/>
                                             <Label Text="{Binding Address}" FontSize="Micro"/>

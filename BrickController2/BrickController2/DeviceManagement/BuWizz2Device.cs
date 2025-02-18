@@ -2,6 +2,7 @@
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz2;
+        public override ImageSource Image => ResourceHelper.GetImageResource("buwizz_image.png");
+        public override ImageSource SmallImage => ResourceHelper.GetImageResource("buwizz_image_small.png");
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 4;
         public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);

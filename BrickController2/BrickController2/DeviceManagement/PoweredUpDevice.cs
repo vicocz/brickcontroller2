@@ -1,4 +1,6 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.Helpers;
+using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Maui.Controls;
 
 namespace BrickController2.DeviceManagement
 {
@@ -10,6 +12,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.PoweredUp;
+        public override ImageSource Image => ResourceHelper.GetImageResource("poweredup_image.png");
+        public override ImageSource SmallImage => ResourceHelper.GetImageResource("poweredup_image_small.png");
         public override int NumberOfChannels => 2;
     }
 }

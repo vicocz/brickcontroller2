@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BrickController2.Helpers;
+using Microsoft.Maui.Controls;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +18,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.Infrared;
+        public override ImageSource Image => ResourceHelper.GetImageResource("infra_image.png");
+        public override ImageSource SmallImage => ResourceHelper.GetImageResource("infra_image_small.png");
         public override int NumberOfChannels => 2;
 
         public override async Task<DeviceConnectionResult> ConnectAsync(

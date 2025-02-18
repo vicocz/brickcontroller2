@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,6 +45,8 @@ namespace BrickController2.DeviceManagement
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override DeviceType DeviceType => DeviceType.WeDo2;
+        public override ImageSource Image => ResourceHelper.GetImageResource("wedo2hub_image.png");
+        public override ImageSource SmallImage => ResourceHelper.GetImageResource("wedo2hub_image_small.png");
 
         public override int NumberOfChannels => 2;
 

@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.Settings;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,9 @@ namespace BrickController2.DeviceManagement
         }
 
         public abstract DeviceType DeviceType { get; }
+
+        public abstract ImageSource Image { get; }
+        public abstract ImageSource SmallImage { get; }
         public string Address { get; }
         public string Id => DeviceId.Get(DeviceType, Address);
 

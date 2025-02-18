@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.CircuitCubes;
+        public override ImageSource Image => ResourceHelper.GetImageResource("circuitcubes_image.png");
+        public override ImageSource SmallImage => ResourceHelper.GetImageResource("circuitcubes_image_small.png");
         public override int NumberOfChannels => 3;
 
         public override string BatteryVoltageSign => "V";

@@ -9,7 +9,6 @@
 
     <ContentView.Resources>
         <ResourceDictionary>
-            <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToImage"/>
         </ResourceDictionary>
     </ContentView.Resources>
 

@@ -1,5 +1,7 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.Helpers;
+using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Maui.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +34,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.TechnicMove;
+        public override ImageSource Image => ResourceHelper.GetImageResource("technic_move.png");
+        public override ImageSource SmallImage => ResourceHelper.GetImageResource("technic_move_small.png");
         public override int NumberOfChannels => 9;
 
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);

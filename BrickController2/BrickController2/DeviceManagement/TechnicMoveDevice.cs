@@ -18,6 +18,9 @@ namespace BrickController2.DeviceManagement
         private const int CHANNEL_C = 2;
         private const string EnablePlayVmSettingName = "PlayVmEnabled";
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("technic_move.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("technic_move_small.png");
+
         private bool _applyPlayVmMode;
         private volatile byte _virtualMotorValue;
 
@@ -34,8 +37,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.TechnicMove;
-        public override ImageSource Image => ResourceHelper.GetImageResource("technic_move.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("technic_move_small.png");
+        public override ImageSource Image => TechnicMoveDevice.image;
+        public override ImageSource SmallImage => TechnicMoveDevice.smallImage;
         public override int NumberOfChannels => 9;
 
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);

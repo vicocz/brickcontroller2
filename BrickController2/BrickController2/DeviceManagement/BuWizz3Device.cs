@@ -39,6 +39,9 @@ namespace BrickController2.DeviceManagement
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("buwizz3_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("buwizz3_image_small.png");
+
         private readonly byte[] _sendOutputBuffer = new byte[] { 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, MOTOR_BREAKS_NONE, MOTOR_LUT_DISABLE_ALL };
 
         private readonly sbyte[] _outputValues = new sbyte[6];
@@ -81,8 +84,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz3;
-        public override ImageSource Image => ResourceHelper.GetImageResource("buwizz3_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("buwizz3_image_small.png");
+        public override ImageSource Image => BuWizz3Device.image;
+        public override ImageSource SmallImage => BuWizz3Device.smallImage;
         public override int NumberOfChannels => 6;
         public override int NumberOfOutputLevels => 1;
         public override int DefaultOutputLevel => 0;

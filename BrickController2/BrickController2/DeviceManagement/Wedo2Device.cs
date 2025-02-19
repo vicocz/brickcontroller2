@@ -23,6 +23,9 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("wedo2hub_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("wedo2hub_image_small.png");
+
         // Motor Driving Commands
         private readonly byte[] _motorBuffer = new byte[] { 0x00, 0x01, 0x01, 0x00 };
 
@@ -45,8 +48,8 @@ namespace BrickController2.DeviceManagement
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override DeviceType DeviceType => DeviceType.WeDo2;
-        public override ImageSource Image => ResourceHelper.GetImageResource("wedo2hub_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("wedo2hub_image_small.png");
+        public override ImageSource Image => Wedo2Device.image;
+        public override ImageSource SmallImage => Wedo2Device.smallImage;
 
         public override int NumberOfChannels => 2;
 

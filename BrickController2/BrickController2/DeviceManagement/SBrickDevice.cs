@@ -20,6 +20,9 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid CHARACTERISTIC_UUID_REMOTE_CONTROL = new Guid("02b8cbcc-0e25-4bda-8790-a15f53e6010f");
         private static readonly Guid CHARACTERISTIC_UUID_QUICK_DRIVE = new Guid("489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb");
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("sbrick_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("sbrick_image_small.png");
+
         private readonly int[] _outputValues = new int[4];
         private readonly int[] _directions = new int[4];
 
@@ -38,8 +41,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.SBrick;
-        public override ImageSource Image => ResourceHelper.GetImageResource("sbrick_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("sbrick_image_small.png");
+        public override ImageSource Image => SBrickDevice.image;
+        public override ImageSource SmallImage => SBrickDevice.smallImage;
         public override string BatteryVoltageSign => "V";
         public override int NumberOfChannels => 4;
         protected override bool AutoConnectOnFirstConnect => false;

@@ -18,6 +18,9 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid SERVICE_UUID = new Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("0000ffe1-0000-1000-8000-00805f9b34fb");
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("buwizz_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("buwizz_image_small.png");
+
         private static readonly TimeSpan LastOutputTimeout = TimeSpan.FromMilliseconds(1500);
 
         private const string DefaultOutputLevelName = "BuWizzDefaultOutputLevel";
@@ -41,8 +44,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz;
-        public override ImageSource Image => ResourceHelper.GetImageResource("buwizz_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("buwizz_image_small.png");
+        public override ImageSource Image => BuWizzDevice.image;
+        public override ImageSource SmallImage => BuWizzDevice.smallImage;
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 3;
         public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);

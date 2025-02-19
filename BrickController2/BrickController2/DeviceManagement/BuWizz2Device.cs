@@ -24,6 +24,9 @@ namespace BrickController2.DeviceManagement
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("buwizz_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("buwizz_image_small.png");
+
         private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
         private const string DefaultOutputLevelName = "BuWizz2DefaultOutputLevel";
         private const BuWizz2OutputLevels DefaultLevel = BuWizz2OutputLevels.Normal;
@@ -58,8 +61,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz2;
-        public override ImageSource Image => ResourceHelper.GetImageResource("buwizz_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("buwizz_image_small.png");
+        public override ImageSource Image => BuWizz2Device.image;
+        public override ImageSource SmallImage => BuWizz2Device.smallImage;
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 4;
         public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);

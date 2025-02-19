@@ -22,6 +22,9 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid CHARACTERISTIC_UUID_HARDWARE_REVISION = new Guid("00002a27-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
 
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("circuitcubes_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("circuitcubes_image_small.png");
+
         // Turn off power to all motors command: <0>
         private static readonly byte[] TURN_OFF_ALL_COMMAND = new[] { (byte)'0' };
         // Battery Status Command: <b>
@@ -46,8 +49,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.CircuitCubes;
-        public override ImageSource Image => ResourceHelper.GetImageResource("circuitcubes_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("circuitcubes_image_small.png");
+        public override ImageSource Image => CircuitCubeDevice.image;
+        public override ImageSource SmallImage => CircuitCubeDevice.smallImage;
         public override int NumberOfChannels => 3;
 
         public override string BatteryVoltageSign => "V";

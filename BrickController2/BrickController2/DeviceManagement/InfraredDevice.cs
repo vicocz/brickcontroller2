@@ -9,6 +9,9 @@ namespace BrickController2.DeviceManagement
 {
     internal class InfraredDevice : Device
     {
+        private static readonly ImageSource image = ResourceHelper.GetImageResource("infra_image.png");
+        private static readonly ImageSource smallImage = ResourceHelper.GetImageResource("infra_image_small.png");
+
         private readonly IInfraredDeviceManager _infraredDeviceManager;
 
         public InfraredDevice(string name, string address, byte[] deviceData, IInfraredDeviceManager infraredDeviceManager, IDeviceRepository deviceRepository)
@@ -18,8 +21,8 @@ namespace BrickController2.DeviceManagement
         }
 
         public override DeviceType DeviceType => DeviceType.Infrared;
-        public override ImageSource Image => ResourceHelper.GetImageResource("infra_image.png");
-        public override ImageSource SmallImage => ResourceHelper.GetImageResource("infra_image_small.png");
+        public override ImageSource Image => InfraredDevice.image;
+        public override ImageSource SmallImage => InfraredDevice.smallImage;
         public override int NumberOfChannels => 2;
 
         public override async Task<DeviceConnectionResult> ConnectAsync(

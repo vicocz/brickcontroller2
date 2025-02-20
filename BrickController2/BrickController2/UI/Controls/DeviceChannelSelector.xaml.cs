@@ -55,6 +55,12 @@ namespace BrickController2.UI.Controls
             TechnicMoveChannel4.Command = new SafeCommand(() => SelectedChannel = 6);
             TechnicMoveChannel5.Command = new SafeCommand(() => SelectedChannel = 7);
             TechnicMoveChannel6.Command = new SafeCommand(() => SelectedChannel = 8);
+            MK6Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK6Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK6Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK6Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK6Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            MK6Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);
@@ -93,6 +99,7 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannelA.IsVisible = !isPlayVm;
                 dcs.TechnicMoveChannelB.IsVisible = !isPlayVm;
                 dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
+                dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
             }
         }
 
@@ -143,6 +150,12 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannel4.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannel5.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannel6.SelectedChannel = selectedChannel;
+                dcs.MK6Channel0.SelectedChannel = selectedChannel;
+                dcs.MK6Channel1.SelectedChannel = selectedChannel;
+                dcs.MK6Channel2.SelectedChannel = selectedChannel;
+                dcs.MK6Channel3.SelectedChannel = selectedChannel;
+                dcs.MK6Channel4.SelectedChannel = selectedChannel;
+                dcs.MK6Channel5.SelectedChannel = selectedChannel;
             }
         }
     }

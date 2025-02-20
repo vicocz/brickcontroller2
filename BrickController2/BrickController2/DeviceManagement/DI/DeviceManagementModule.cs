@@ -24,6 +24,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
             builder.RegisterType<Wedo2Device>().Keyed<Device>(DeviceType.WeDo2);
             builder.RegisterType<TechnicMoveDevice>().Keyed<Device>(DeviceType.TechnicMove);
+            builder.RegisterType<MK6>().Keyed<Device>(DeviceType.MK6);
 
             builder.Register<DeviceFactory>(c =>
             {

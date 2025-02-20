@@ -1,0 +1,101 @@
+﻿using System;
+using BrickController2.Helpers;
+
+namespace BrickController2.Protocols;
+
+/// <summary>
+/// static class wich implements the encryption algorithm for the advertising data
+/// </summary>
+public class MKProtocol
+{
+    #region Constants
+    /// <summary>
+    /// CTXValue for Encryption
+    /// </summary>
+    public const byte CTXValue = 0x25;
+
+    /// <summary>
+    /// Address array
+    /// </summary>
+    public static readonly byte[] AddressArray = new byte[] { 0xC1, 0xC2, 0xC3, 0xC4, 0xC5 };
+    #endregion
+
+    #region static byte Get_rf_payload(byte[] addr, byte[] data, out byte[] rfPayload)
+    /// <summary>
+    /// crypt data-array with addr and ctxvalue
+    /// </summary>
+    /// <param name="addr">address array</param>
+    /// <param name="data">data array to encrypt</param>
+    /// <param name="ctxValue">ctx value for encryption</param>
+    /// <param name="rfPayload">crypted array</param>
+    /// <returns>size of crypted array</returns>
+    public static int Get_rf_payload(byte[] addr, byte[] data, byte ctxValue, out byte[] rfPayload)
+    {
+        int addrLength = addr.Length;
+        int dataLength = data.Length;
+
+        byte data_offset = 0x12;    // 0x12 (18)
+        byte inverse_offset = 0x0f; // 0x0f (15)
+
+        int result_data_size = data_offset + addrLength + dataLength + 2;
+        byte[] resultbuf = new byte[result_data_size];
+
+        resultbuf[15] = 0x71;   // 0x71 (113)
+        resultbuf[16] = 0x0f;   // 0x0f (15)
+        resultbuf[17] = 0x55;   // 0x55 (85)
+
+        // copy firstDataArray reverse into targetArray with offset 18
+        for (int index = 0; index < addrLength; index++)
+        {
+            //resultbuf[data_offset + addrLength - index - 1] = addr[index];
+            resultbuf[index + data_offset] = addr[(addrLength - index) - 1];
+        }
+
+        //Buffer.BlockCopy(data, 0, resultbuf, addrLength + data_offset, dataLength);
+        // copy dataArray into resultbuf with offset 18 + addrLength
+        for (int index = 0; index < dataLength; index++)
+        {
+            resultbuf[data_offset + addrLength + index] = data[index];
+        }
+
+        // crypt Bytes from position 15 to 22
+        for (int index = inverse_offset; index < addrLength + data_offset; index++)
+        {
+            resultbuf[index] = CryptTools.Invert_8(resultbuf[index]);
+        }
+
+        // calc checksum und copy to array
+        int checksum = CryptTools.Check_crc16(addr, data);
+        resultbuf[result_data_size - 2] = (byte)(checksum & 255);
+        resultbuf[result_data_size - 1] = (byte)((checksum >> 8) & 255);
+
+        byte[] ctx_0x3F = new byte[7]; // int local_58[8];
+        CryptTools.Whitening_init(0x3f, ctx_0x3F); // 0x3f (63) -> ctx_0x3F = [1111111]
+        CryptTools.Whitening_encode(resultbuf, 0x12, addrLength + dataLength + 2, ctx_0x3F);
+
+        byte[] ctx = new byte[7];
+        CryptTools.Whitening_init(ctxValue, ctx); // ctxValue= 0x25 (37) -> ctx = [1101110]
+        CryptTools.Whitening_encode(resultbuf, 0, result_data_size, ctx);
+
+        // resulting advertisment array has a length of constant 24 bytes
+        rfPayload = new byte[24];
+
+        int lengthResultArray = addrLength + dataLength + 5;
+
+        if (lengthResultArray > rfPayload.Length)
+        {
+            return 0;
+        }
+
+        Buffer.BlockCopy(resultbuf, 15, rfPayload, 0, lengthResultArray);
+
+        // fill rest of array
+        for (int index = lengthResultArray; index < rfPayload.Length; index++)
+        {
+            rfPayload[index] = (byte)(index + 1);
+        }
+
+        return rfPayload.Length;
+    }
+    #endregion
+}

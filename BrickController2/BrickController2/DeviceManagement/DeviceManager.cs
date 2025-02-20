@@ -97,22 +97,24 @@ namespace BrickController2.DeviceManagement
                 }
             }
 
-            async Task FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        }
+
+        // JK: just for the moment to demonstrate
+        public async Task FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        {
+            using (await _foundDeviceLock.LockAsync())
             {
-                using (await _foundDeviceLock.LockAsync())
+                if (Devices.Any(d => d.DeviceType == deviceType && d.Address == deviceAddress))
                 {
-                    if (Devices.Any(d => d.DeviceType == deviceType && d.Address == deviceAddress))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData, []);
-                    if (device != null)
-                    {
-                        await _deviceRepository.InsertDeviceAsync(device.DeviceType, device.Name, device.Address, deviceData, device.CurrentSettings);
+                var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData, []);
+                if (device != null)
+                {
+                    await _deviceRepository.InsertDeviceAsync(device.DeviceType, device.Name, device.Address, deviceData, device.CurrentSettings);
 
-                        await _uiThreadService.RunOnMainThread(() => Devices.Add(device));
-                    }
+                    await _uiThreadService.RunOnMainThread(() => Devices.Add(device));
                 }
             }
         }

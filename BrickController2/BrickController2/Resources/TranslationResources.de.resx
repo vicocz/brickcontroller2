@@ -696,4 +696,7 @@
   <data name="PlayVmEnabled" xml:space="preserve">
     <value>Easy drive mode (PLAYVM)</value>
   </data>
+  <data name="OpenDeviceInsertDialog" xml:space="preserve">
+    <value>Nicht-scannbare Geräte einfügen</value>
+  </data>
 </root>

@@ -251,17 +251,17 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
-                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel0" DeviceType="MK6" Channel="0" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,20,0"/>
-                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel4" DeviceType="MK6" Channel="4" HorizontalOptions="End" VerticalOptions="Center"/>
-                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel1" DeviceType="MK6" Channel="1" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,20,0"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel0" DeviceType="MK6" Channel="0" HorizontalOptions="End" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel2" DeviceType="MK6" Channel="2" HorizontalOptions="End" VerticalOptions="Center"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel4" DeviceType="MK6" Channel="4" HorizontalOptions="End" VerticalOptions="End"/>
                 </Grid>
 
                 <Image Grid.Column="1" Source="{extensions:ImageResource Source=mk6_image.png}" WidthRequest="150" HeightRequest="100"/>
 
                 <Grid Grid.Column="2">
-                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel3" DeviceType="MK6" Channel="3" HorizontalOptions="Start" VerticalOptions="Start" Margin="20,0,0,0"/>
-                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel5" DeviceType="MK6" Channel="5" HorizontalOptions="Start" VerticalOptions="Center"/>
-                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel2" DeviceType="MK6" Channel="2" HorizontalOptions="Start" VerticalOptions="End" Margin="20,0,0,0"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel1" DeviceType="MK6" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel3" DeviceType="MK6" Channel="3" HorizontalOptions="Start" VerticalOptions="Center"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK6Channel5" DeviceType="MK6" Channel="5" HorizontalOptions="Start" VerticalOptions="End"/>
                 </Grid>
             </Grid>     
             

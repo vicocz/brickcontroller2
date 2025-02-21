@@ -28,7 +28,7 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
-            ShowDeviceSelectorCommand = new SafeCommand(async () => await ShowDeviceSelectorAsync(), () => !DeviceManager.IsScanning);
+            ShowStaticDeviceListPageCommand = new SafeCommand(async () => await ShowStaticDeviceListPageAsync(), () => !DeviceManager.IsScanning);
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
             DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
@@ -37,7 +37,7 @@ namespace BrickController2.UI.ViewModels
         public IDeviceManager DeviceManager { get; }
 
         public ICommand ScanCommand { get; }
-        public ICommand ShowDeviceSelectorCommand { get; }
+        public ICommand ShowStaticDeviceListPageCommand { get; }
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
@@ -89,14 +89,11 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task ShowDeviceSelectorAsync()
+        private async Task ShowStaticDeviceListPageAsync()
         {
             try
             {
-                // Just for demonstration!
-                (DeviceManager as DeviceManager)?.FoundDevice(DeviceType.MK6, "MK6.0 Device 1", MK6.Device1, Array.Empty<byte>());
-                (DeviceManager as DeviceManager)?.FoundDevice(DeviceType.MK6, "MK6.0 Device 2", MK6.Device2, Array.Empty<byte>());
-                (DeviceManager as DeviceManager)?.FoundDevice(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>());
+                await NavigationService.NavigateToAsync<StaticDeviceListPageViewModel>(new());
             }
             catch (OperationCanceledException)
             {

@@ -52,4 +52,18 @@
 	<PackageReference Include="ZXing.Net.Maui.Controls" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="UI\Pages\StaticDeviceListPage.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>StaticDeviceListPage.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <MauiXaml Update="UI\Pages\StaticDeviceListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+  </ItemGroup>
+
 </Project>

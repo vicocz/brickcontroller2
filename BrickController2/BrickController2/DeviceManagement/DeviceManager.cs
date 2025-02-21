@@ -80,8 +80,8 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    var infraScan = _infraredDeviceManager.ScanAsync(FoundDevice!, token);
-                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(FoundDevice!, token);
+                    var infraScan = _infraredDeviceManager.ScanAsync(CreateDeviceAsync!, token);
+                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
 
                     await Task.WhenAll(infraScan, bluetoothScan);
 
@@ -99,8 +99,7 @@ namespace BrickController2.DeviceManagement
 
         }
 
-        // JK: just for the moment to demonstrate
-        public async Task FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        public async Task CreateDeviceAsync(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
         {
             using (await _foundDeviceLock.LockAsync())
             {

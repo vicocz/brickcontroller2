@@ -13,7 +13,7 @@ namespace BrickController2.DeviceManagement
 
         Task LoadDevicesAsync();
         Task<bool> ScanAsync(CancellationToken token);
-
+        Task CreateDeviceAsync(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData);
         Task DeleteDeviceAsync(Device device);
         Task DeleteDevicesAsync();
 

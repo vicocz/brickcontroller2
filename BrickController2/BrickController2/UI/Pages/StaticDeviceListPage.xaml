@@ -7,7 +7,7 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
-    x:Class="BrickController2.UI.Pages.DeviceListPage"
+    x:Class="BrickController2.UI.Pages.StaticDeviceListPage"
     x:Name="Page"
     Title="{extensions:Translate Devices}"
     ios:Page.UseSafeArea="True"
@@ -24,28 +24,12 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Device list -->
-                <CollectionView ItemsSource="{Binding DeviceManager.Devices}" SelectionMode="None">
+                <CollectionView ItemsSource="{Binding FactoryDatas}" SelectionMode="Multiple" SelectedItems="{Binding SelectedFactoryDatas}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <SwipeView>
-                                <SwipeView.LeftItems>
-                                    <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteDeviceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
-                                    </SwipeItems>
-                                </SwipeView.LeftItems>
-                                <SwipeView.RightItems>
-                                    <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate Settings}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            IsVisible="{Binding HasSettings}"
-                                                            Command="{Binding BindingContext.DeviceSettingsCommand, Source={x:Reference Page}}"
-                                                            CommandParameter="{Binding .}"/>
-                                    </SwipeItems>
-                                </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.DeviceTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
-                                        </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
@@ -62,12 +46,8 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>
-                        <Label Text="{extensions:Translate PressScanToDiscoverDevices}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
                     </CollectionView.EmptyView>
                 </CollectionView>
-
-                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding ShowStaticDeviceListPageCommand}" ToolTipProperties.Text="{extensions:Translate OpenStaticDeviceList}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10" IsVisible="{Binding IsBLEAdvertisingSupported}"/>
-                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" Command="{Binding ScanCommand}" ToolTipProperties.Text="{extensions:Translate ScanForDevices}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

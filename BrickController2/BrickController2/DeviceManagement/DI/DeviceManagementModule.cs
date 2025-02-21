@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using System;
 
 namespace BrickController2.DeviceManagement.DI
 {
@@ -11,6 +12,7 @@ namespace BrickController2.DeviceManagement.DI
 
             builder.RegisterType<DeviceRepository>().As<IDeviceRepository>().SingleInstance();
             builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance();
+            builder.RegisterType<StaticDeviceManager>().As<IStaticDeviceManager>().SingleInstance();
 
             builder.RegisterType<SBrickDevice>().Keyed<Device>(DeviceType.SBrick);
             builder.RegisterType<BuWizzDevice>().Keyed<Device>(DeviceType.BuWizz);
@@ -35,6 +37,10 @@ namespace BrickController2.DeviceManagement.DI
                     new NamedParameter("deviceData", deviceData),
                     new NamedParameter("settings", settings));
             });
+
+            builder.Register(c => new StaticDeviceFactoryData(DeviceType.MK6, "MK6.0 Device 1", MK6.Device1, Array.Empty<byte>(), [])).As<IStaticDeviceFactoryData>();
+            builder.Register(c => new StaticDeviceFactoryData(DeviceType.MK6, "MK6.0 Device 2", MK6.Device2, Array.Empty<byte>(), [])).As<IStaticDeviceFactoryData>();
+            builder.Register(c => new StaticDeviceFactoryData(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>(), [])).As<IStaticDeviceFactoryData>();
         }
     }
 }

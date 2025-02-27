@@ -33,7 +33,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         public ObservableCollection<IStaticDeviceFactoryData> FactoryDatas { get; } = new ObservableCollection<IStaticDeviceFactoryData>();
-        public ObservableCollection<object> SelectedFactoryDatas { get; } = new ObservableCollection<object>(); // generiec Type object is a workaround: https://github.com/dotnet/maui/issues/23358
+        public ObservableCollection<object> SelectedFactoryDatas { get; } = new ObservableCollection<object>(); // generic Type object is a workaround: https://github.com/dotnet/maui/issues/23358
 
         public override void OnAppearing()
         {

@@ -53,10 +53,10 @@ namespace BrickController2.PlatformServices.BluetoothLE
     public interface IBluetoothLEAdvertiserDevice :
             IDisposable
     {
-        Task<bool> StartAdvertiseAsync(AdvertisingInterval advertisingIterval, TxPowerLevel txPowerLevel, ushort manufacturerId, byte[] rawData);
+        void StartAdvertise(AdvertisingInterval advertisingIterval, TxPowerLevel txPowerLevel, ushort manufacturerId, byte[] rawData);
 
-        Task<bool> StopAdvertiseAsync();
+        void StopAdvertise();
 
-        bool ChangeAdvertiseAsync(ushort manufacturerId, byte[] rawData);
+        void UpdateAdvertisedData(ushort manufacturerId, byte[] rawData);
     }
 }

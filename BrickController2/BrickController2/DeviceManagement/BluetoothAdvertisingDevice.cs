@@ -212,7 +212,7 @@ namespace BrickController2.DeviceManagement
                     if (_bleAdvertiserDevice != null &&
                         TryGetTelegram(out currentData))
                     {
-                        await _bleAdvertiserDevice.StartAdvertiseAsync(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
+                        _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
 
                         await ProcessOutputsAsync(token).ConfigureAwait(false);
                     }
@@ -250,7 +250,7 @@ namespace BrickController2.DeviceManagement
 
             if (_bleAdvertiserDevice != null)
             {
-                await _bleAdvertiserDevice.StopAdvertiseAsync();
+                _bleAdvertiserDevice.StopAdvertise();
             }
         }
         #endregion
@@ -282,7 +282,7 @@ namespace BrickController2.DeviceManagement
                             lastChangeDataVersion = currentDataVersion;
                             stopwatch.Restart();
 
-                            _bleAdvertiserDevice?.ChangeAdvertiseAsync(_manufacturerId, currentData);
+                            _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
                         }
                     }
 

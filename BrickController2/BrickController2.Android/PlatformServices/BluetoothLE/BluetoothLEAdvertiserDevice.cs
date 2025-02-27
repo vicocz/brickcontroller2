@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Android.Bluetooth.LE;
+﻿using Android.Bluetooth.LE;
 using Android.Runtime;
 using BrickController2.PlatformServices.BluetoothLE;
 
@@ -15,7 +14,7 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
     private readonly BluetoothLeAdvertiser _advertiser = advertiser;
     private AdvertisingSet? _advertisingSet;
 
-    public async Task<bool> StartAdvertiseAsync(AdvertisingInterval advertisingIterval, TxPowerLevel txPowerLevel, ushort manufacturerId, byte[] rawData)
+    public void StartAdvertise(AdvertisingInterval advertisingIterval, TxPowerLevel txPowerLevel, ushort manufacturerId, byte[] rawData)
     {
         AdvertisingSetParameters settings = new AdvertisingSetParameters.Builder()
             .SetLegacyMode(true)
@@ -36,19 +35,14 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             null,
             null,
             this);
-
-        return await Task.FromResult(true);
     }
 
-    public async Task<bool> StopAdvertiseAsync()
+    public void StopAdvertise()
     {
         _advertiser?.StopAdvertisingSet(this);
-
-
-        return await Task.FromResult(true);
     }
 
-    public bool ChangeAdvertiseAsync(ushort manufacturerId, byte[] rawData)
+    public void UpdateAdvertisedData(ushort manufacturerId, byte[] rawData)
     {
         if (_advertisingSet != null)
         {
@@ -57,12 +51,6 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
                 .Build();
 
             _advertisingSet.SetAdvertisingData(data);
-
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 
@@ -71,5 +59,12 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
         base.OnAdvertisingSetStarted(advertisingSet, txPower, status);
 
         _advertisingSet = advertisingSet;
+    }
+
+    public override void OnAdvertisingSetStopped(AdvertisingSet? advertisingSet)
+    {
+        base.OnAdvertisingSetStopped(advertisingSet);
+
+        _advertisingSet = null;
     }
 }

@@ -180,9 +180,8 @@ namespace BrickController2.DeviceManagement
 
             _outputTask = Task.Run(async () =>
             {
-                byte[] currentData;
-                if (_bleAdvertiserDevice != null &&
-                    TryGetTelegram(out currentData))
+                 if (_bleAdvertiserDevice != null &&
+                    TryGetTelegram(out byte[] currentData))
                 {
                     _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
 
@@ -233,8 +232,7 @@ namespace BrickController2.DeviceManagement
                 if (valuesChanged ||
                     stopwatch.Elapsed > _cyclicDataRefreshTimeSpan)
                 {
-                    byte[] currentData;
-                    if (TryGetTelegram(out currentData))
+                    if (TryGetTelegram(out byte[] currentData))
                     {
                         lastChangeDataVersion = currentDataVersion;
                         stopwatch.Restart();

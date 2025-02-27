@@ -125,15 +125,12 @@ namespace BrickController2.DeviceManagement
                 return null;
             }
 
-            var deviceTypeAndAddress = id.Split('#');
-            if (!Enum.TryParse<DeviceType>(deviceTypeAndAddress[0], out var deviceType))
+            if (!DeviceId.TryParse(id, out var deviceType, out var deviceAddress))
             {
-                _logger.LogWarning("Device ID [{id}] contains unsupported DeviceType:{deviceType}.",
-                    id, deviceTypeAndAddress[0]);
+                _logger.LogWarning("Device ID [{id}] contains unsupported DeviceType or has bad format.", id);
                 return null;
             }
 
-            var deviceAddress = deviceTypeAndAddress[1];
             return Devices.FirstOrDefault(d => d.DeviceType == deviceType && d.Address == deviceAddress);
         }
 

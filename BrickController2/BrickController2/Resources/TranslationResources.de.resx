@@ -121,22 +121,22 @@
     <value>Über</value>
   </data>
   <data name="AddControllerEvents" xml:space="preserve">
-    <value>Controller-event</value>
+    <value>Steuerungsereignisse hinzufügen</value>
   </data>
   <data name="AddControllerProfiles" xml:space="preserve">
-    <value>Controllerprofile erstellen</value>
+    <value>Steuerungsprofile hinzufügen</value>
   </data>
   <data name="AddControlPoints" xml:space="preserve">
-    <value>Controll-punkt erstellen</value>
+    <value>Kontrollpunkte hinzufügen</value>
   </data>
   <data name="AddCreations" xml:space="preserve">
-    <value>Kreationen erstellen</value>
+    <value>Kreationen hinzufügen</value>
   </data>
   <data name="Address" xml:space="preserve">
     <value>Adresse</value>
   </data>
   <data name="AddSequences" xml:space="preserve">
-    <value>Sequenzen erstellen</value>
+    <value>Sequenzen hinzufügen</value>
   </data>
   <data name="AdvancedSettings" xml:space="preserve">
     <value>Erweiterte Einstellungen</value>
@@ -145,28 +145,28 @@
     <value>Änderungen übernehmen</value>
   </data>
   <data name="AreYouSureToDeleteControllerAction" xml:space="preserve">
-    <value>Wollen Sie diese Aktion wirklich löschen?</value>
+    <value>Möchten Sie diese Steuerungsaktion wirklich löschen?</value>
   </data>
   <data name="AreYouSureToDeleteControllerEvent" xml:space="preserve">
-    <value>Wollen Sie dieses Steuerungsereignis löschen:</value>
+    <value>Möchten Sie dieses Steuerungsereignis löschen</value>
   </data>
   <data name="AreYouSureToDeleteControlPoint" xml:space="preserve">
-    <value>Wollen Sie diese controller punkt wirklich löschen?</value>
+    <value>Möchten Sie diesen Kontrollpunkt wirklich löschen?</value>
   </data>
   <data name="AreYouSureToDeleteCreation" xml:space="preserve">
-    <value>Sind Sie sicher, dass Sie diese Erstellung löschen wollen:</value>
+    <value>Möchten Sie diese Kreation wirklich löschen</value>
   </data>
   <data name="AreYouSureToDeleteDevice" xml:space="preserve">
-    <value>Wollen Sie dieses Gerät löschen:</value>
+    <value>Möchten Sie dieses Gerät wirklich löschen</value>
   </data>
   <data name="AreYouSureToDeleteProfile" xml:space="preserve">
-    <value>Wollen Sie dieses Profil wirklich löschen:</value>
+    <value>Möchten Sie dieses Profil wirklich löschen</value>
   </data>
   <data name="AreYouSureToDeleteSequence" xml:space="preserve">
-    <value>Sind Sie sicher, dass Sie diese Sequenze löschen wollen:</value>
+    <value>Möchten Sie diese Sequenz wirklich löschen</value>
   </data>
   <data name="AreYouSureToDeleteThisControllerAcrion" xml:space="preserve">
-    <value>Wollen Sie diese Controllersaktion wirklich löschen?</value>
+    <value>Möchten Sie dieses Steuerungsereignis wirklich löschen?</value>
   </data>
   <data name="AutoCalibrate" xml:space="preserve">
     <value>Automatisch kalibrieren</value>
@@ -193,7 +193,7 @@
     <value>Blau</value>
   </data>
   <data name="BluetoothDevicesWillNOTBeAvailable" xml:space="preserve">
-    <value>Bluetooth-Geräte werden nicht verfügbar sein</value>
+    <value>Bluetooth-Geräte werden NICHT verfügbar sein</value>
   </data>
   <data name="BluetoothIsTurnedOff" xml:space="preserve">
     <value>Bluetooth ist ausgeschaltet</value>
@@ -202,16 +202,16 @@
     <value>Tastenart</value>
   </data>
   <data name="BuWizz2OutputLevel" xml:space="preserve">
-    <value>BuWizz 2 Ausgabelautstärke</value>
+    <value>BuWizz 2 Ausgabestufe</value>
   </data>
   <data name="BuWizz2SwapChannels" xml:space="preserve">
     <value>Kanäle tauschen</value>
   </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
-    <value>BuWizz Ausgabelautstärke</value>
+    <value>BuWizz Ausgabestufe</value>
   </data>
   <data name="Calibrating" xml:space="preserve">
-    <value>Kalibrieren...</value>
+    <value>Kalibriere...</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Abbrechen</value>
@@ -226,40 +226,40 @@
     <value>Bestätigen</value>
   </data>
   <data name="Connecting" xml:space="preserve">
-    <value>Verbinden ...</value>
+    <value>Verbinde...</value>
   </data>
   <data name="ConnectingTo" xml:space="preserve">
-    <value>Verbinden: </value>
+    <value>Verbinde: </value>
   </data>
   <data name="Controller" xml:space="preserve">
     <value>Controller</value>
   </data>
   <data name="ControllerAction" xml:space="preserve">
-    <value>Controller-Aktion</value>
+    <value>Steuerungsaktion</value>
   </data>
   <data name="ControllerProfile" xml:space="preserve">
-    <value>Controller-Profil</value>
+    <value>Steuerungsprofil</value>
   </data>
   <data name="ControllerTester" xml:space="preserve">
     <value>Controller-Test</value>
   </data>
   <data name="ControlPoint" xml:space="preserve">
-    <value>ControllPunkt</value>
+    <value>Kontrollpunkt</value>
   </data>
   <data name="CopyControllerProfile" xml:space="preserve">
-    <value>Das Controller-Profil in die Zwischenablage kopieren </value>
+    <value>Steuerungsprofil in die Zwischenablage kopieren </value>
   </data>
   <data name="CopyCreation" xml:space="preserve">
-    <value>Die Kreation in die Zwischenablage kopieren </value>
+    <value>Kreation in die Zwischenablage kopieren </value>
   </data>
   <data name="CopySequence" xml:space="preserve">
-    <value>Die Sequenz in die Zwischenablage kopieren</value>
+    <value>Sequenz in die Zwischenablage kopieren</value>
   </data>
   <data name="Create" xml:space="preserve">
     <value>Erstellen</value>
   </data>
   <data name="Creating" xml:space="preserve">
-    <value>Erstellung...</value>
+    <value>Erstelle...</value>
   </data>
   <data name="Creation" xml:space="preserve">
     <value>Kreation</value>
@@ -268,7 +268,7 @@
     <value>Name der Kreation</value>
   </data>
   <data name="CreationNameCanNotBeEmpty" xml:space="preserve">
-    <value>Neme der Kreation darf nicht leer bleiben</value>
+    <value>Name der Kreation darf nicht leer bleiben</value>
   </data>
   <data name="Creations" xml:space="preserve">
     <value>Kreationen</value>
@@ -280,7 +280,7 @@
     <value>Grundprofil</value>
   </data>
   <data name="Deleting" xml:space="preserve">
-    <value>Löschen...</value>
+    <value>Lösche...</value>
   </data>
   <data name="Device" xml:space="preserve">
     <value>Gerät</value>
@@ -307,25 +307,25 @@
     <value>Verbindung trennen...</value>
   </data>
   <data name="DoYouWantToOverWrite" xml:space="preserve">
-    <value>Willst du es überschreiben?</value>
+    <value>Möchten Sie es überschreiben?</value>
   </data>
   <data name="DurationMs" xml:space="preserve">
     <value>Dauer (ms)</value>
   </data>
   <data name="EnterControlPointDuration" xml:space="preserve">
-    <value>Zeitraum des ControllPunktes eingeben (300 - 10000ms).</value>
+    <value>Zeitraum des Kontrollpunktes eingeben (300 - 10000ms).</value>
   </data>
   <data name="EnterCreationName" xml:space="preserve">
-    <value>Einen Namen für die Kreation eingeben</value>
+    <value>Namen für die Kreation eingeben</value>
   </data>
   <data name="EnterDeviceName" xml:space="preserve">
-    <value>Einen Gerätenamen eingeben</value>
+    <value>Gerätenamen eingeben</value>
   </data>
   <data name="EnterProfileName" xml:space="preserve">
-    <value>Einen Profilnamen eingeben</value>
+    <value>Profilnamen eingeben</value>
   </data>
   <data name="EnterSequenceName" xml:space="preserve">
-    <value>Einen Sequenze eingeben</value>
+    <value>Sequenznamen eingeben</value>
   </data>
   <data name="Error" xml:space="preserve">
     <value>Fehler</value>
@@ -334,13 +334,13 @@
     <value>Fehler beim Scannen</value>
   </data>
   <data name="ExportControllerProfile" xml:space="preserve">
-    <value>Das Controller-Profil exportieren</value>
+    <value>Steuerungsprofil exportieren</value>
   </data>
   <data name="ExportCreation" xml:space="preserve">
-    <value>Die Kreation exportieren</value>
+    <value>Kreation exportieren</value>
   </data>
   <data name="ExportSequence" xml:space="preserve">
-    <value>Die Sequenz exportieren </value>
+    <value>Sequenz exportieren </value>
   </data>
   <data name="ExportSuccessful" xml:space="preserve">
     <value>Export erfolgreich:</value>
@@ -352,7 +352,7 @@
     <value>Verbindung nicht möglich</value>
   </data>
   <data name="FailedToExportControllerProfile" xml:space="preserve">
-    <value>Fehler beim Exportieren des Controller-Profils.</value>
+    <value>Fehler beim Exportieren des Steuerungsprofils.</value>
   </data>
   <data name="FailedToExportCreation" xml:space="preserve">
     <value>Fehler beim Exportieren der Kreation.</value>
@@ -361,7 +361,7 @@
     <value>Fehler beim Exportieren der Sequenz.</value>
   </data>
   <data name="FailedToImportControllerProfile" xml:space="preserve">
-    <value>Fehler beim Importieren des Controller-Profils.</value>
+    <value>Fehler beim Importieren des Steuerungsprofils.</value>
   </data>
   <data name="FailedToImportCreation" xml:space="preserve">
     <value>Fehler beim Importieren der Kreation.</value>
@@ -370,19 +370,19 @@
     <value>Fehler beim Importieren der Sequenz.</value>
   </data>
   <data name="FileAlreadyExists" xml:space="preserve">
-    <value>Die Datei existiert bereits</value>
+    <value>Datei existiert bereits</value>
   </data>
   <data name="IconSet" xml:space="preserve">
     <value>Icon-Set</value>
   </data>
   <data name="ImportControllerProfile" xml:space="preserve">
-    <value>Ein Controller-Profil importieren</value>
+    <value>Steuerungsprofil importieren</value>
   </data>
   <data name="ImportCreation" xml:space="preserve">
-    <value>Eine Kreation importieren</value>
+    <value>Kreation importieren</value>
   </data>
   <data name="ImportSequence" xml:space="preserve">
-    <value>Eine Sequenz importieren</value>
+    <value>Sequenz importieren</value>
   </data>
   <data name="ImportSuccessful" xml:space="preserve">
     <value>Import erfolgreich:</value>
@@ -406,7 +406,7 @@
     <value>Wird geladen...</value>
   </data>
   <data name="LocationPermissionIsNeeded" xml:space="preserve">
-    <value>Für die Bluetooth-Verbindung ist eine Standortgenehmigung erforderlich</value>
+    <value>Für die Bluetooth-Verbindung ist eine Standortfreigabe erforderlich</value>
   </data>
   <data name="Loop" xml:space="preserve">
     <value>Schleife</value>
@@ -421,19 +421,19 @@
     <value>Fehlende Geräte in der Einstellung der Kreation</value>
   </data>
   <data name="MissingSequence" xml:space="preserve">
-    <value>Fehlende sequenz</value>
+    <value>Fehlende Sequenz</value>
   </data>
   <data name="No" xml:space="preserve">
     <value>Nein</value>
   </data>
   <data name="NoControllerActions" xml:space="preserve">
-    <value>Keine Controller-Aktionen für diese Kreation</value>
+    <value>Keine Steuerungsaktionen für diese Kreation.</value>
   </data>
   <data name="NoCreationsToImport" xml:space="preserve">
     <value>Keine zu importierenden Kreationen.</value>
   </data>
   <data name="NoProfilesToImport" xml:space="preserve">
-    <value>Keine zu importierenden Controller-Profile.</value>
+    <value>Keine zu importierenden Steuerungsprofile.</value>
   </data>
   <data name="NoSequences" xml:space="preserve">
     <value>Keine Sequenzen.</value>
@@ -448,13 +448,13 @@
     <value>Ausgabestufe</value>
   </data>
   <data name="PasteControllerProfile" xml:space="preserve">
-    <value>Ein Controller-Profil aus der Zwischenablage importieren</value>
+    <value>Steuerungsprofil aus der Zwischenablage einfügen</value>
   </data>
   <data name="PasteCreation" xml:space="preserve">
-    <value>Eine Kreation aus der Zwischenablage importieren</value>
+    <value>Kreation aus der Zwischenablage einfügen</value>
   </data>
   <data name="PasteSequence" xml:space="preserve">
-    <value>Eine Sequenz aus der Zwischenablage importieren</value>
+    <value>Sequenz aus der Zwischenablage einfügen</value>
   </data>
   <data name="PermissionRequest" xml:space="preserve">
     <value>Erlaubnisanfrage</value>
@@ -463,7 +463,7 @@
     <value>Abspielen</value>
   </data>
   <data name="PressButtonOrMoveJoy" xml:space="preserve">
-    <value>Eine Taste drücken oder einen Joystick auf dem Controller bewegen</value>
+    <value>Taste drücken oder Joystick auf dem Controller bewegen</value>
   </data>
   <data name="PressButtonsOrMoveJoys" xml:space="preserve">
     <value>Tasten drücken oder Joysticks bewegen</value>
@@ -472,13 +472,13 @@
     <value>Auf Scannen drücken, um Geräte zu finden</value>
   </data>
   <data name="ProfileLoadSaveWillNotBeAvailable" xml:space="preserve">
-    <value>Laden und Speichern von Profilen ist nicht erreichbar.</value>
+    <value>Laden und Speichern von Profilen ist nicht möglich.</value>
   </data>
   <data name="ProfileName" xml:space="preserve">
     <value>Profilname</value>
   </data>
   <data name="ProfileNameCanNotBeEmpty" xml:space="preserve">
-    <value>Der Profilname darf nicht leer bleiben</value>
+    <value>Profilname darf nicht leer bleiben</value>
   </data>
   <data name="Red" xml:space="preserve">
     <value>Rot</value>
@@ -499,10 +499,10 @@
     <value>Speichern...</value>
   </data>
   <data name="ScanForDevicesFirst" xml:space="preserve">
-    <value>Vor Hinzufügung von Controller-Aktionen nach Geräten suchen</value>
+    <value>Vor dem Hinzufügung von Steuerungsaktionen nach Geräten suchen</value>
   </data>
   <data name="Scanning" xml:space="preserve">
-    <value>Scannen...</value>
+    <value>Scanne...</value>
   </data>
   <data name="ScanQr" xml:space="preserve">
     <value>QR-Code scannen</value>
@@ -511,31 +511,31 @@
     <value>Geräte suchen</value>
   </data>
   <data name="SelectDevice" xml:space="preserve">
-    <value>Ein Gerät auswählen</value>
+    <value>Gerät auswählen</value>
   </data>
   <data name="SelectDeviceBeforeSaving" xml:space="preserve">
     <value>Vor dem Speichern ein Gerät auswählen</value>
   </data>
   <data name="SelectSequence" xml:space="preserve">
-    <value>Eine Sequenz auswählen</value>
+    <value>Sequenz auswählen</value>
   </data>
   <data name="Sequence" xml:space="preserve">
     <value>Sequenz</value>
   </data>
   <data name="SequenceName" xml:space="preserve">
-    <value>Name der Sequenze</value>
+    <value>Name der Sequenz</value>
   </data>
   <data name="SequenceNameCanNotBeEmpty" xml:space="preserve">
-    <value>Name der Sequenze darf nicht leer bleiben</value>
+    <value>Name der Sequenz darf nicht leer bleiben</value>
   </data>
   <data name="SequenceNameIsUsed" xml:space="preserve">
-    <value>Dieser Sequenzname wird bereits verwendet</value>
+    <value>Sequenzname wird bereits verwendet</value>
   </data>
   <data name="Sequences" xml:space="preserve">
     <value>Sequenzen</value>
   </data>
   <data name="ServoAngle" xml:space="preserve">
-    <value>Servo-Drehen</value>
+    <value>Servobereich</value>
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Einstellungen</value>
@@ -565,10 +565,10 @@
     <value>Wert</value>
   </data>
   <data name="ValueMustBeNumeric" xml:space="preserve">
-    <value>Wert numerisch sein soll</value>
+    <value>Wert muss numerisch sein</value>
   </data>
   <data name="ValueOutOfRange" xml:space="preserve">
-    <value>Wert außerhalb der Grenze</value>
+    <value>Wert außerhalb des Bereichs</value>
   </data>
   <data name="ValuePercent" xml:space="preserve">
     <value>Wert (%)</value>
@@ -583,31 +583,31 @@
     <value>Ja</value>
   </data>
   <data name="AddCreation" xml:space="preserve">
-    <value>Eine neue Kreation erstellen</value>
+    <value>neue Kreation erstellen</value>
   </data>
   <data name="ScanForDevices" xml:space="preserve">
-    <value>Neuen Geräten scannen</value>
+    <value>neue Geräte scannen</value>
   </data>
   <data name="AddControlPoint" xml:space="preserve">
-    <value>Einen neuen Controll-punkt erstellen</value>
+    <value>neuen Kontrollpunkt erstellen</value>
   </data>
   <data name="AddControllerProfile" xml:space="preserve">
-    <value>Ein neues Controllerprofil erstellen</value>
+    <value>neues Steuerungsprofil erstellen</value>
   </data>
   <data name="AddControllerEvent" xml:space="preserve">
-    <value>Ein neues Controller-Event erstellen</value>
+    <value>neues Steuerungsereignis erstellen</value>
   </data>
   <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
-    <value>Ein neues Controller-Event für einen bestimmten Controller erstellen</value>
+    <value>neues Steuerungsereignis für einen bestimmten Controller erstellen</value>
   </data>
   <data name="OpenDeviceDetails" xml:space="preserve">
-    <value>Die Gerätedetails anzeigen</value>
+    <value>Gerätedetails anzeigen</value>
   </data>
   <data name="OpenSequenceEditor" xml:space="preserve">
-    <value>Die Sequenz bearbeiten </value>
+    <value>Sequenz bearbeiten </value>
   </data>
   <data name="AddSequence" xml:space="preserve">
-    <value>Eine neue Sequenz erstellen</value>
+    <value>neue Sequenz erstellen</value>
   </data>
   <data name="OpenChannelSetup" xml:space="preserve">
     <value>Einrichtung des Kanals</value>
@@ -619,61 +619,61 @@
     <value>Hinzufügen</value>
   </data>
   <data name="ShareCreationAsFile" xml:space="preserve">
-    <value>Die Kreation als Datei teilen</value>
+    <value>Kreation als Datei teilen</value>
   </data>
   <data name="ShareCreationAsText" xml:space="preserve">
-    <value>Die Kreation als Text teilen</value>
+    <value>Kreation als Text teilen</value>
   </data>
   <data name="ShareSequenceAsFile" xml:space="preserve">
-    <value>Die Sequenze als Datei teilen</value>
+    <value>Sequenz als Datei teilen</value>
   </data>
   <data name="ShareSequenceAsText" xml:space="preserve">
-    <value>Die Sequenze als Text teilen</value>
+    <value>Sequenz als Text teilen</value>
   </data>
   <data name="ImportCreationFromFile" xml:space="preserve">
-    <value>Eine Kreation aus einer Datei importieren</value>
+    <value>Kreation aus einer Datei importieren</value>
   </data>
   <data name="ImportSequenceFromFile" xml:space="preserve">
-    <value>Eine Sequenz aus einer Datei importieren</value>
+    <value>Sequenz aus einer Datei importieren</value>
   </data>
   <data name="ChooseJsonFileToImport" xml:space="preserve">
-    <value>Wählen Sie eine JSON-Datei zum Importieren aus</value>
+    <value>Wählen Sie eine JSON-Datei für den Import</value>
   </data>
   <data name="ActivateShelfMode" xml:space="preserve">
-    <value>Den Regalmodus aktivieren</value>
+    <value>Shelf-Modus aktivieren</value>
   </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
-    <value>Die Aktivierung des Regalmodus ist fehlgeschlagen:</value>
+    <value>Fehler beim Aktivieren des Shelf-Modus:</value>
   </data>
   <data name="ActivateShelfModeConfirm" xml:space="preserve">
-    <value>Sind Sie sicher, dass Sie den Regalmodus für dieses BuWizz3-Gerät aktivieren möchten? Dadurch wird der Akku vom Gerät getrennt und der Benutzer muss das Ladegerät anschließen, um das Gerät aufzuwecken.</value>
+    <value>Möchten Sie wirklich den Shelf-Modus für dieses BuWizz-Gerät aktivieren? Dadurch wird die Batterie vom Gerät getrennt und der Benutzer muss normalerweise das Ladegerät anschließen, um das Gerät zu aktivieren.</value>
   </data>
   <data name="Applying" xml:space="preserve">
-    <value>Bewerben...</value>
+    <value>Übernehme...</value>
   </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
-    <value>Standardausgangspegel</value>
+    <value>Grundwert Ausgabestufe</value>
   </data>
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
-    <value>Standardausgangspegel</value>
+    <value>Grundwert Ausgabestufe</value>
   </data>
   <data name="On" xml:space="preserve">
-    <value>Ein</value>
+    <value>An</value>
   </data>
   <data name="Off" xml:space="preserve">
     <value>Aus</value>
   </data>
   <data name="ResetToDefaults" xml:space="preserve">
-    <value>Die Einstellungen zurücksetzen</value>
+    <value>Auf Grundeinstellung zurücksetzen</value>
   </data>
   <data name="_defaultGroup" xml:space="preserve">
-    <value>Allgemeine Einstellungen</value>
-  </data>
-  <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
-    <value>Stromgrenzen für PF-Kanäle (mA)</value>
+    <value>Grundeinstellungen</value>
   </data>
   <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
-    <value>Stromgrenzen für PU-Kanäle (mA)</value>
+    <value>Strombegrenzung für PU Kanäle (mA)</value>
+  </data>
+  <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
+    <value>Strombegrenzung für PF Kanäle (mA)</value>
   </data>
   <data name="BuWizz3Channel0" xml:space="preserve">
     <value>1</value>
@@ -694,6 +694,6 @@
     <value>B</value>
   </data>
   <data name="PlayVmEnabled" xml:space="preserve">
-    <value>Einfacher Fahrmodus (PLAYVM)</value>
+    <value>Easy drive mode (PLAYVM)</value>
   </data>
 </root>

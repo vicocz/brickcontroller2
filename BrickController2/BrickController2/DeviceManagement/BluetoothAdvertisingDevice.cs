@@ -125,11 +125,10 @@ namespace BrickController2.DeviceManagement
 
                     return DeviceConnectionResult.Canceled;
                 }
-                catch (Exception exception)
+                catch
                 {
                     await DisconnectInternalAsync();
 
-                    Log.Error($"Connection exception: {exception.Message}");
                     return DeviceConnectionResult.Error;
                 }
             }
@@ -181,24 +180,13 @@ namespace BrickController2.DeviceManagement
 
             _outputTask = Task.Run(async () =>
             {
-                try
+                byte[] currentData;
+                if (_bleAdvertiserDevice != null &&
+                    TryGetTelegram(out currentData))
                 {
-                    byte[] currentData;
-                    if (_bleAdvertiserDevice != null &&
-                        TryGetTelegram(out currentData))
-                    {
-                        _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
+                    _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
 
-                        await ProcessOutputsAsync(token).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        Log.Error("Outputloop not started - can't get telegram data");
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Log.Error($"StartOutputTaskAsync: {exception.Message}");
+                    await ProcessOutputsAsync(token).ConfigureAwait(false);
                 }
             });
         }
@@ -233,36 +221,29 @@ namespace BrickController2.DeviceManagement
         /// <param name="token">CancellationToken</param>
         protected async Task ProcessOutputsAsync(CancellationToken token)
         {
-            try
-            {
-                int lastChangeDataVersion = _dataVersion - 1;
-                int currentDataVersion;
-                Stopwatch stopwatch = Stopwatch.StartNew();
+            int lastChangeDataVersion = _dataVersion - 1;
+            int currentDataVersion;
+            Stopwatch stopwatch = Stopwatch.StartNew();
 
-                while (!token.IsCancellationRequested)
+            while (!token.IsCancellationRequested)
+            {
+                currentDataVersion = _dataVersion;
+                bool valuesChanged = lastChangeDataVersion != currentDataVersion;
+
+                if (valuesChanged ||
+                    stopwatch.Elapsed > _cyclicDataRefreshTimeSpan)
                 {
-                    currentDataVersion = _dataVersion;
-                    bool valuesChanged = lastChangeDataVersion != currentDataVersion;
-
-                    if (valuesChanged ||
-                        stopwatch.Elapsed > _cyclicDataRefreshTimeSpan)
+                    byte[] currentData;
+                    if (TryGetTelegram(out currentData))
                     {
-                        byte[] currentData;
-                        if (TryGetTelegram(out currentData))
-                        {
-                            lastChangeDataVersion = currentDataVersion;
-                            stopwatch.Restart();
+                        lastChangeDataVersion = currentDataVersion;
+                        stopwatch.Restart();
 
-                            _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
-                        }
+                        _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
                     }
-
-                    await Task.Delay(_cyclicLoopWaitTimeSpan, token).ConfigureAwait(false);
                 }
-            }
-            catch (Exception exception)
-            {
-                Log.Error($"ProcessOutputsAsync: {exception.Message}");
+
+                await Task.Delay(_cyclicLoopWaitTimeSpan, token).ConfigureAwait(false);
             }
         }
 

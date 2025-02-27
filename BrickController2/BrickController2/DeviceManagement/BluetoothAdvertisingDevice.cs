@@ -257,6 +257,6 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         /// <param name="currentData">ref to byte array</param>
         /// <returns>True: success. False: no success</returns>
-        public abstract bool TryGetTelegram(out byte[] currentData);
+        protected abstract bool TryGetTelegram(out byte[] currentData);
     }
 }

@@ -120,7 +120,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public override bool TryGetTelegram(out byte[] payload)
+        protected override bool TryGetTelegram(out byte[] payload)
         {
             byte[] rawData;
 

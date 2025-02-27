@@ -110,7 +110,7 @@ namespace BrickController2.DeviceManagement
 
                     if (startOutputProcessing)
                     {
-                        InitOutputTask();
+                        InitDevice();
                         await StartOutputTaskAsync();
                     }
 
@@ -248,7 +248,7 @@ namespace BrickController2.DeviceManagement
         /// <summary>
         /// set device to initial state before output loop starts
         /// </summary>
-        protected abstract void InitOutputTask();
+        protected abstract void InitDevice();
 
         /// <summary>
         /// This method is called from the output loop in ProcessOutputsAsync if 

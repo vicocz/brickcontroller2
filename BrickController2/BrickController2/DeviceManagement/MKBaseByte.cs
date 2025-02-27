@@ -72,7 +72,7 @@ namespace BrickController2.DeviceManagement
         /// <summary>
         /// This method sets the device to initial state before advertising starts
         /// </summary>
-        protected override void InitOutputTask()
+        protected override void InitDevice()
         {
             _isInitialized = false;
         }

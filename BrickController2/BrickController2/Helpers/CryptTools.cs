@@ -5,7 +5,6 @@
     /// </summary>
     public static class CryptTools
     {
-        #region static byte Invert_8(byte value)
         /// <summary>
         /// inverts the bits of a given byte
         /// </summary>
@@ -23,8 +22,7 @@
             }
             return (byte)result;
         }
-        #endregion
-        #region static ushort Invert_16(ushort value)
+
         /// <summary>
         /// inverts the bits of a given short
         /// </summary>
@@ -42,8 +40,7 @@
             }
             return (ushort)result;
         }
-        #endregion
-        #region static ushort Check_crc16(byte[] array1, byte[] array2)
+
         /// <summary>
         /// calculate crc16
         /// </summary>
@@ -94,9 +91,7 @@
             ushort result_inverse = Invert_16((ushort)result);
             return (ushort)(result_inverse ^ 0xffff);
         }
-        #endregion
 
-        #region static void Whitening_init(byte val, byte[] ctx)
         /// <summary>
         /// initialize ctx array
         /// </summary>
@@ -112,8 +107,7 @@
             ctx[5] = (byte)(val >> 1 & 1);
             ctx[6] = (byte)(val & 1);
         }
-        #endregion
-        #region static void Whitening_encode(byte[] data, int dataStartIndex, int len, byte[] ctx)
+
         /// <summary>
         /// encode byte[]
         /// </summary>
@@ -136,8 +130,7 @@
             }
             return;
         }
-        #endregion
-        #region static byte whitening_output(byte[] ctx)
+
         /// <summary>
         /// 
         /// </summary>
@@ -156,6 +149,5 @@
             ctx[4] = (byte)(value_3 ^ value_6);
             return ctx[0];
         }
-        #endregion
     }
 }

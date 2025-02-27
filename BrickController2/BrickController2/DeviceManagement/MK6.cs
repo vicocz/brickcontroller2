@@ -7,7 +7,6 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal class MK6 : MKBaseByte
     {
-        #region Constants
         /// <summary>
         /// ManufacturerID for MK
         /// </summary>
@@ -36,22 +35,14 @@ namespace BrickController2.DeviceManagement
         /// Base Telegram for Device 3
         /// </summary>
         private static readonly byte[] Telegram_Base_Device_3 = new byte[] { 0x63, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9C };
-        #endregion
 
-        #region Fields
-        #endregion
-        #region Properties
-        public override DeviceType DeviceType => DeviceType.MK6;
-        #endregion
-
-        #region Constructor
         public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
           : base(name, address, deviceData, deviceRepository, bleService, MK6.ManufacturerID, 6, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
         {
         }
-        #endregion
 
-        #region GetTelegramBase(string address)
+        public override DeviceType DeviceType => DeviceType.MK6;
+
         /// <summary>
         /// Gets the Base-Telegram for the given address
         /// </summary>
@@ -70,6 +61,5 @@ namespace BrickController2.DeviceManagement
                     return Telegram_Base_Device_1;
             }
         }
-        #endregion
     }
 }

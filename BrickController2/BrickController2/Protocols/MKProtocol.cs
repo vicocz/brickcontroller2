@@ -6,9 +6,8 @@ namespace BrickController2.Protocols;
 /// <summary>
 /// static class wich implements the encryption algorithm for the advertising data
 /// </summary>
-public class MKProtocol
+public static class MKProtocol
 {
-    #region Constants
     /// <summary>
     /// CTXValue for Encryption
     /// </summary>
@@ -18,9 +17,7 @@ public class MKProtocol
     /// Address array
     /// </summary>
     public static readonly byte[] AddressArray = new byte[] { 0xC1, 0xC2, 0xC3, 0xC4, 0xC5 };
-    #endregion
 
-    #region static byte Get_rf_payload(byte[] addr, byte[] data, out byte[] rfPayload)
     /// <summary>
     /// crypt data-array with addr and ctxvalue
     /// </summary>
@@ -97,5 +94,4 @@ public class MKProtocol
 
         return rfPayload.Length;
     }
-    #endregion
 }

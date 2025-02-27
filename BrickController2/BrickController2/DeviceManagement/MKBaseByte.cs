@@ -10,14 +10,11 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     {
-        #region Constants
         /// <summary>
         /// offset to position of first channel in base telegram
         /// </summary>
         protected const int ChannelStartOffset = 3;
-        #endregion
 
-        #region Fields
         /// <summary>
         /// stopwatch
         /// </summary>
@@ -53,8 +50,15 @@ namespace BrickController2.DeviceManagement
         /// after this timespan and all channel's values equal to zero the connect telegram is sent
         /// </summary>
         protected TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
-        #endregion
-        #region Properties
+
+        protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ushort manufacturerId, int channelCount, byte[] telegram_Connect, byte[] telegram_Base)
+            : base(name, address, deviceData, deviceRepository, bleService, manufacturerId)
+        {
+            _channelCount = channelCount;
+            _telegram_Connect = telegram_Connect;
+            _telegram_Base = telegram_Base;
+        }
+
         /// <summary>
         /// returns the number of channels
         /// </summary>
@@ -64,19 +68,7 @@ namespace BrickController2.DeviceManagement
         /// No voltage
         /// </summary>
         public override string BatteryVoltageSign => string.Empty;
-        #endregion
 
-        #region Constructor
-        protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ushort manufacturerId, int channelCount, byte[] telegram_Connect, byte[] telegram_Base)
-            : base(name, address, deviceData, deviceRepository, bleService, manufacturerId)
-        {
-            _channelCount = channelCount;
-            _telegram_Connect = telegram_Connect;
-            _telegram_Base = telegram_Base;
-        }
-        #endregion
-
-        #region InitOutputTask()
         /// <summary>
         /// This method sets the device to initial state before advertising starts
         /// </summary>
@@ -84,9 +76,7 @@ namespace BrickController2.DeviceManagement
         {
             _isInitialized = false;
         }
-        #endregion
 
-        #region SetOutput(int channel, float value)
         public override void SetOutput(int channel, float value)
         {
             CheckChannel(channel);
@@ -129,9 +119,7 @@ namespace BrickController2.DeviceManagement
                 }
             }
         }
-        #endregion
 
-        #region TryGetTelegram(out byte[] currentData)
         public override bool TryGetTelegram(out byte[] payload)
         {
             byte[] rawData;
@@ -156,9 +144,7 @@ namespace BrickController2.DeviceManagement
             MKProtocol.Get_rf_payload(MKProtocol.AddressArray, rawData, MKProtocol.CTXValue, out payload);
             return true;
         }
-        #endregion
 
-        #region CheckAllChannelsZero()
         private bool CheckAllChannelsZero()
         {
             for (int index = 0; index < _channelCount; index++)
@@ -173,6 +159,5 @@ namespace BrickController2.DeviceManagement
 
             return true;
         }
-        #endregion
     }
 }

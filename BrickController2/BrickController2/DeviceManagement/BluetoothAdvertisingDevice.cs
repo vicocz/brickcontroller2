@@ -13,16 +13,13 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal abstract class BluetoothAdvertisingDevice : Device
     {
-        #region Constants
-        #endregion
-        #region Fields
         /// <summary>
         /// reference to bleService object
         /// </summary>
         protected readonly IBluetoothLEService _bleService;
 
         /// <summary>
-        /// manufacturerId wich is sent by the BluetoothAdvertising
+        /// manufacturerId to advertise
         /// </summary>
         protected readonly ushort _manufacturerId;
 
@@ -32,7 +29,17 @@ namespace BrickController2.DeviceManagement
         protected readonly object _outputLock = new object();
 
         /// <summary>
-        /// task to run the cyclic output loop
+        /// timespan after TryGetTelegram is called from output loop to refresh data
+        /// </summary>
+        private readonly TimeSpan _cyclicDataRefreshTimeSpan = TimeSpan.FromSeconds(2);
+
+        /// <summary>
+        /// timespan to wait after each output loop
+        /// </summary>
+        private readonly TimeSpan _cyclicLoopWaitTimeSpan = TimeSpan.FromMilliseconds(100);
+
+        /// <summary>
+        /// task running the cyclic output loop
         /// </summary>
         private Task? _outputTask;
 
@@ -51,40 +58,16 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected int _dataVersion = 0;
 
-        /// <summary>
-        /// timespan after TryGetTelegram is called from output loop to refresh data
-        /// </summary>
-        private TimeSpan _cyclicDataRefreshTimeSpan = TimeSpan.FromSeconds(2);
-
-        /// <summary>
-        /// timespan to wait after each output loop
-        /// </summary>
-        private TimeSpan _cyclicLoopWaitTimeSpan = TimeSpan.FromMilliseconds(100);
-        #endregion
-        #region Properties
-        public virtual AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
-        public virtual TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
-        #endregion
-
-        #region Constructor
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="address"></param>
-        /// <param name="deviceData"></param>
-        /// <param name="deviceRepository"></param>
-        /// <param name="bleService"></param>
-        /// <param name="manufacturerId"></param>
         protected BluetoothAdvertisingDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ushort manufacturerId)
             : base(name, address, deviceRepository)
         {
             _bleService = bleService;
             _manufacturerId = manufacturerId;
         }
-        #endregion
 
-        #region ConnectAsync
+        public virtual AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
+        public virtual TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
+
         /// <summary>
         /// creates the advertising device and starts the output loop
         /// </summary>
@@ -151,12 +134,10 @@ namespace BrickController2.DeviceManagement
                 }
             }
         }
-        #endregion
-        #region DisconnectAsync
+
         /// <summary>
-        /// stop output loop and dispos the advertising device
+        /// stop output loop and dispose the advertising device
         /// </summary>
-        /// <returns>Task</returns>
         public override async Task DisconnectAsync()
         {
             using (await _asyncLock.LockAsync())
@@ -169,13 +150,10 @@ namespace BrickController2.DeviceManagement
                 await DisconnectInternalAsync();
             }
         }
-        #endregion
 
-        #region DisconnectInternalAsync
         /// <summary>
         /// stop output loop and disposes the advertising device
         /// </summary>
-        /// <returns>Task</returns>
         private async Task DisconnectInternalAsync()
         {
             if (_bleAdvertiserDevice != null)
@@ -190,13 +168,10 @@ namespace BrickController2.DeviceManagement
 
             DeviceState = DeviceState.Disconnected;
         }
-        #endregion
 
-        #region StartOutputTaskAsync
         /// <summary>
         /// create a new task to start bluetooth advertising and run the output loop
         /// </summary>
-        /// <returns>Task</returns>
         private async Task StartOutputTaskAsync()
         {
             await StopOutputTaskAsync();
@@ -227,12 +202,10 @@ namespace BrickController2.DeviceManagement
                 }
             });
         }
-        #endregion
-        #region StopOutputTaskAsync
+
         /// <summary>
         /// stop output loop
         /// </summary>
-        /// <returns></returns>
         private async Task StopOutputTaskAsync()
         {
             if (_outputTaskTokenSource != null &&
@@ -253,13 +226,11 @@ namespace BrickController2.DeviceManagement
                 _bleAdvertiserDevice.StopAdvertise();
             }
         }
-        #endregion
-        #region ProcessOutputsAsync
+
         /// <summary>
         /// process output loop to check for new data
         /// </summary>
         /// <param name="token">CancellationToken</param>
-        /// <returns>Task</returns>
         protected async Task ProcessOutputsAsync(CancellationToken token)
         {
             try
@@ -294,16 +265,12 @@ namespace BrickController2.DeviceManagement
                 Log.Error($"ProcessOutputsAsync: {exception.Message}");
             }
         }
-        #endregion
 
-        #region InitOutputTask()
         /// <summary>
         /// set device to initial state before output loop starts
         /// </summary>
         protected abstract void InitOutputTask();
-        #endregion
 
-        #region TryGetTelegram(out byte[] currentData)
         /// <summary>
         /// This method is called from the output loop in ProcessOutputsAsync if 
         /// * dataVersion has changed
@@ -312,6 +279,5 @@ namespace BrickController2.DeviceManagement
         /// <param name="currentData">ref to byte array</param>
         /// <returns>True: success. False: no success</returns>
         public abstract bool TryGetTelegram(out byte[] currentData);
-        #endregion
     }
 }

@@ -40,6 +40,8 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
     public void StopAdvertise()
     {
         _advertiser?.StopAdvertisingSet(this);
+
+        _advertisingSet = null;
     }
 
     public void UpdateAdvertisedData(ushort manufacturerId, byte[] rawData)
@@ -61,10 +63,11 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
         _advertisingSet = advertisingSet;
     }
 
-    public override void OnAdvertisingSetStopped(AdvertisingSet? advertisingSet)
-    {
-        base.OnAdvertisingSetStopped(advertisingSet);
+    // JK: commented out because app crashes
+    //public override void OnAdvertisingSetStopped(AdvertisingSet? advertisingSet)
+    //{
+    //    base.OnAdvertisingSetStopped(advertisingSet);
 
-        _advertisingSet = null;
-    }
+    //    _advertisingSet = null;
+    //}
 }

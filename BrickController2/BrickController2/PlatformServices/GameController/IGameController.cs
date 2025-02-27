@@ -8,7 +8,7 @@ public interface IGameController
     string ControllerId { get; }
 
     /// <summary>
-    /// Get logincal controller number
+    /// Get logical controller number
     /// </summary>
     /// <remarks>Starts from 1</remarks>
     int ControllerNumber { get; }

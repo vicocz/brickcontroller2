@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using System;
 
 namespace BrickController2.DeviceManagement
 {
@@ -50,16 +51,14 @@ namespace BrickController2.DeviceManagement
         /// <returns>Base-Telegram</returns>
         private static byte[] GetTelegramBase(string address)
         {
-            switch (address)
+            return address switch
             {
-                case MK6.Device3:
-                    return Telegram_Base_Device_3;
-                case MK6.Device2:
-                    return Telegram_Base_Device_2;
-                case MK6.Device1:
-                default:
-                    return Telegram_Base_Device_1;
-            }
+                MK6.Device3 => Telegram_Base_Device_3,
+                MK6.Device2 => Telegram_Base_Device_2,
+                MK6.Device1 => Telegram_Base_Device_1,
+                _ => throw new ArgumentException("Illegal Argument", nameof(address))
+            };
+
         }
     }
 }

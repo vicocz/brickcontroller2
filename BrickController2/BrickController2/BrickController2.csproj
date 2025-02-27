@@ -36,7 +36,7 @@
 
   <ItemGroup>
     <!-- Custom Fonts -->
-	<MauiFont Include="Resources\Fonts\*" />
+	  <MauiFont Include="Resources\Fonts\*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,21 +49,7 @@
     <PackageReference Include="SQLiteNetExtensions" />
     <PackageReference Include="SQLiteNetExtensions.Async" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" />
-	<PackageReference Include="ZXing.Net.Maui.Controls" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="UI\Pages\StaticDeviceListPage.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>StaticDeviceListPage.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <MauiXaml Update="UI\Pages\StaticDeviceListPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </MauiXaml>
+	  <PackageReference Include="ZXing.Net.Maui.Controls" />
   </ItemGroup>
 
 </Project>

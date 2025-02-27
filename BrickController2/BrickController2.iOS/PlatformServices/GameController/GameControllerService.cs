@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BrickController2.Helpers;
 using BrickController2.PlatformServices.GameController;
 using Foundation;
 using GameController;
+
+using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.iOS.PlatformServices.GameController
 {
@@ -68,6 +69,8 @@ namespace BrickController2.iOS.PlatformServices.GameController
                 }
             }
         }
+
+        public event EventHandler<GameControllersChangedEventArgs>? GameControllersChangedEvent;
 
         public bool IsControllerIdSupported => false; // ToDo: implement ControllerManagement
 
@@ -206,7 +209,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
                 if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
                 {
                     // ToDo: find ControllerId
-                    string controllerId = GameControllerHelper.GetControllerIdFromIndex(0);
+                    string controllerId = GetControllerIdFromIndex(0);
 
                     _lastControllerEventValueMap[name] = value;
                     GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Button, name, value));
@@ -223,7 +226,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
                 if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
                 {
                     // ToDo: find ControllerId
-                    string controllerId = GameControllerHelper.GetControllerIdFromIndex(0);
+                    string controllerId = GetControllerIdFromIndex(0);
 
                     _lastControllerEventValueMap[name] = value;
                     GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
@@ -248,7 +251,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
                 if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
                 {
                     // ToDo: find ControllerId
-                    string controllerId = GameControllerHelper.GetControllerIdFromIndex(0);
+                    string controllerId = GetControllerIdFromIndex(0);
 
                     GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
                     _lastControllerEventValueMap[name] = value;
@@ -271,25 +274,12 @@ namespace BrickController2.iOS.PlatformServices.GameController
                 if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
                 {
                     // ToDo: find ControllerId
-                    string controllerId = GameControllerHelper.GetControllerIdFromIndex(0);
+                    string controllerId = GetControllerIdFromIndex(0);
 
                     GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
                     _lastControllerEventValueMap[name] = value;
                 }
             };
-        }
-
-        private float AdjustControllerValue(float value)
-        {
-            value = Math.Abs(value) < 0.05 ? 0.0F : value;
-            value = value > 0.95 ? 1.0F : value;
-            value = value < -0.95 ? -1.0F : value;
-            return value;
-        }
-
-        private bool AreAlmostEqual(float a, float b)
-        {
-            return Math.Abs(a - b) < 0.001;
         }
     }
 }

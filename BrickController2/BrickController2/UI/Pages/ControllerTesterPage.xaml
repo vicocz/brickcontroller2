@@ -24,26 +24,41 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Controller event list -->
-                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None">
+                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="{Binding IsGrouped,Mode=OneTime}">
+                    <CollectionView.ItemsLayout>
+                        <OnIdiom x:TypeArguments="IItemsLayout" Default="VerticalList">
+                            <OnIdiom.Desktop>
+                                <GridItemsLayout Orientation="Vertical" Span="2"/>
+                            </OnIdiom.Desktop>
+                        </OnIdiom>
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <StackLayout Orientation="Vertical" Padding="10">
-                                <StackLayout Orientation="Horizontal" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ControllerTesterPageViewModel}}, Path=IsControllerIdSupported}">
-                                    <Label Text="ControllerId:" FontSize="Medium" Margin="0,0,5,0"/>
-                                    <Label Text="{Binding ControllerId}" FontSize="Medium"/>
-                                </StackLayout>
-                                <StackLayout Orientation="Horizontal">
+                            <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
+                                <HorizontalStackLayout>
                                     <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
-                                    <Label Text="-" FontSize="Large" Margin="5,0,5,0"/>
+                                    <Label Text=":" FontSize="Large" Margin="5,0,5,0"/>
                                     <Label Text="{Binding Value}" FontSize="Large"/>
-                                </StackLayout>
+                                </HorizontalStackLayout>
                                 <Label Text="{Binding EventType}" FontSize="Medium"/>
-                            </StackLayout>
+                            </VerticalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>
                         <Label Text="{extensions:Translate PressButtonsOrMoveJoys}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
                     </CollectionView.EmptyView>
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate>
+                            <HorizontalStackLayout BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}"
+                                                   Margin="0,0,0,5" Padding="10">
+                                <controls:ColorImage Grid.Column="0" Icon="sports_esports" Color="{DynamicResource PrimaryColor}"
+                                                     WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="0,0,10,0"/>
+                                <Label Text="{Binding ControllerId}" FontSize="Medium" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                                <Label Text="-" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                                <Label Text="{Binding ControllerName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
                 </CollectionView>
 
             </Grid>

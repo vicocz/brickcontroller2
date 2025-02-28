@@ -124,7 +124,8 @@ namespace BrickController2.DeviceManagement
                 _advertisingDeviceList.Remove(requestingDevice);
 
                 // on last remove
-                if (_connectedDeviceList.Count == 0)
+                if (_connectedDeviceList.Count == 0 &&
+                    _outputTaskTokenSource != null)
                 {
                     await StopOutputTaskInternalAsync();
                 }

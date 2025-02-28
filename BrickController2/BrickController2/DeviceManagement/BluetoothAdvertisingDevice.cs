@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Helpers;
 
 namespace BrickController2.DeviceManagement
 {
@@ -24,30 +22,22 @@ namespace BrickController2.DeviceManagement
         protected readonly IBluetoothLEService _bleService;
 
         /// <summary>
-        /// manufacturerId to advertise
-        /// </summary>
-        protected readonly ushort _manufacturerId;
-
-        /// <summary>
         /// object to lock the output data
         /// </summary>
         protected readonly object _outputLock = new object();
 
-        /// <summary>
-        /// counter to increment if data has changed (in method "SetOutput")
-        /// </summary>
-        protected int _dataVersion = 0;
 
-        protected BluetoothAdvertisingDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ushort manufacturerId)
+        protected BluetoothAdvertisingDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository)
         {
             _bleService = bleService;
-            _manufacturerId = manufacturerId;
-            _bluetoothAdvertiser = GetBluetoothAdvertiser(_bleService, _manufacturerId);
+            _bluetoothAdvertiser = GetBluetoothAdvertiser();
         }
 
-        public virtual AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
-        public virtual TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
+        /// <summary>
+        /// manufacturerId to advertise
+        /// </summary>
+        protected abstract ushort ManufacturerId { get; }
 
         /// <summary>
         /// creates the advertising device and starts the output loop

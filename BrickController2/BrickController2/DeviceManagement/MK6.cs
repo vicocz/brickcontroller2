@@ -37,12 +37,29 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         private static readonly byte[] Telegram_Base_Device_3 = new byte[] { 0x63, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9C };
 
+        /// <summary>
+        /// manufacturerId to advertise
+        /// </summary>
+        protected override ushort ManufacturerId => MK6.ManufacturerID;
+
+        /// <summary>
+        /// number of bytes containing channel values in base telegram
+        /// </summary>
+        protected override int BaseTelegram_ChannelBytesCount => 6;
+
+        /// <summary>
+        /// offset to position of first channel in base telegram
+        /// </summary>
+        protected override int BaseTelegram_ChannelStartOffset => 3;
+
         public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-          : base(name, address, deviceData, deviceRepository, bleService, MK6.ManufacturerID, 6, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
+          : base(name, address, deviceData, deviceRepository, bleService, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
         {
         }
 
         public override DeviceType DeviceType => DeviceType.MK6;
+
+        public override int NumberOfChannels => 6;
 
         /// <summary>
         /// Get reference to Base-Telegram for the given address
@@ -66,8 +83,8 @@ namespace BrickController2.DeviceManagement
         /// <returns>Instance of BluetoothAdvertiser</returns>
         protected override BluetoothAdvertiser GetBluetoothAdvertiser()
         {
-            // MK6.0 needs a BluetoothAdvertiser for each module
-            return new BluetoothAdvertiser(_bleService, _manufacturerId, TryGetTelegram);
+            // MK6.0 needs a BluetoothAdvertiser per module
+            return new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram);
         }
     }
 }

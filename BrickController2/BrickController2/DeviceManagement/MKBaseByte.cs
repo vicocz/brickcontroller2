@@ -11,11 +11,6 @@ namespace BrickController2.DeviceManagement
     internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     {
         /// <summary>
-        /// offset to position of first channel in base telegram
-        /// </summary>
-        protected const int ChannelStartOffset = 3;
-
-        /// <summary>
         /// stopwatch
         /// </summary>
         protected readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
@@ -32,9 +27,9 @@ namespace BrickController2.DeviceManagement
         protected readonly byte[] _telegram_Base;
 
         /// <summary>
-        /// number of channels
+        /// byte offset to first channel in _telegram_base
         /// </summary>
-        protected readonly int _channelCount;
+        protected readonly int _channelStartOffset;
 
         /// <summary>
         /// true if initialized
@@ -51,23 +46,28 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
 
-        protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ushort manufacturerId, int channelCount, byte[] telegram_Connect, byte[] telegram_Base)
-            : base(name, address, deviceData, deviceRepository, bleService, manufacturerId)
+        protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
+            : base(name, address, deviceData, deviceRepository, bleService)
         {
-            _channelCount = channelCount;
+            _channelStartOffset = channelStartOffset;
             _telegram_Connect = telegram_Connect;
             _telegram_Base = telegram_Base;
         }
 
         /// <summary>
-        /// returns the number of channels
-        /// </summary>
-        public override int NumberOfChannels => _channelCount;
-
-        /// <summary>
         /// No voltage
         /// </summary>
         public override string BatteryVoltageSign => string.Empty;
+
+        /// <summary>
+        /// offset to position of first channel in base telegram
+        /// </summary>
+        protected abstract int BaseTelegram_ChannelStartOffset { get; }
+
+        /// <summary>
+        /// number of bytes containing channel values in base telegram
+        /// </summary>
+        protected abstract int BaseTelegram_ChannelBytesCount { get; }
 
         /// <summary>
         /// This method sets the device to initial state before advertising starts
@@ -83,7 +83,7 @@ namespace BrickController2.DeviceManagement
             value = CutOutputValue(value);
             byte byteValue;
 
-            int byteOffset = MKBaseByte.ChannelStartOffset + channelNo;
+            int byteOffset = _channelStartOffset + channelNo;
 
             if (value < 0)
             {
@@ -149,11 +149,9 @@ namespace BrickController2.DeviceManagement
 
         private bool CheckAllChannelsZero()
         {
-            for (int channelNo = 0; channelNo < _channelCount; channelNo++)
+            for (int index = 0; index < BaseTelegram_ChannelBytesCount; index++)
             {
-                int currentChannelStartOffset = MKBaseByte.ChannelStartOffset + channelNo;
-
-                if (_telegram_Base[currentChannelStartOffset] != 0x80)
+                if (_telegram_Base[BaseTelegram_ChannelStartOffset + index] != 0x80)
                 {
                     return false;
                 }

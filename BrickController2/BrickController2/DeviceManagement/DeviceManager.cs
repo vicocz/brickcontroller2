@@ -58,12 +58,20 @@ namespace BrickController2.DeviceManagement
                 var deviceDTOs = await _deviceRepository.GetDevicesAsync();
                 foreach (var deviceDTO in deviceDTOs)
                 {
-                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, deviceDTO.Settings);
-                    if (device != null)
+                    try
                     {
-                        Devices.Add(device);
+                        var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, deviceDTO.Settings);
+                        if (device != null)
+                        {
+                            Devices.Add(device);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
+                                deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);
+                        }
                     }
-                    else
+                    catch
                     {
                         _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
                             deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);

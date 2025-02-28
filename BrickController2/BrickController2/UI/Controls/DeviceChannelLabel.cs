@@ -76,6 +76,7 @@ namespace BrickController2.UI.Controls
                         TranslationHelper.Translate("Red");
                     break;
 
+                case DeviceType.MK4:
                 case DeviceType.MK6:
                     SetChannelText(_mk6ChannelLetters);
                     break;

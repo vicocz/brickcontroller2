@@ -1,0 +1,103 @@
+﻿using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Protocols;
+using System;
+
+namespace BrickController2.DeviceManagement
+{
+    /// <summary>
+    /// MK 4.0 Module
+    /// </summary>
+    internal class MK4 : MKBaseNible
+    {
+        /// <summary>
+        /// ManufacturerID for MK
+        /// </summary>
+        public const ushort ManufacturerID = 0xFFF0;
+
+        public const string Device1 = "Device1";
+        public const string Device2 = "Device2";
+        public const string Device3 = "Device3";
+
+        /// <summary>
+        /// number of channels
+        /// </summary>
+        private const int ChannelCount = 4;
+
+        /// <summary>
+        /// offset to position of first channel in base telegram
+        /// </summary>
+        private const int ChannelStartOffset = 3;
+
+        /// <summary>
+        /// Telegram wich is sent to connect to MK6.0
+        /// </summary>
+        private static readonly byte[] Telegram_Connect = new byte[] { 0xAD, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0x52 };
+
+        /// <summary>
+        /// Base Telegram for MK4
+        /// </summary>
+        private static readonly byte[] Telegram_Base = new byte[] { 0x7D, 0x7B, 0xA7, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82 };
+
+        /// <summary>
+        /// all MK4.0 modules share the same BluetoothAdvertiser
+        /// </summary>
+        private static BluetoothAdvertiser? bluetoothAdvertiser;
+
+        /// <summary>
+        /// manufacturerId to advertise
+        /// </summary>
+        protected override ushort ManufacturerId => MK4.ManufacturerID;
+
+        /// <summary>
+        /// number of bytes containing channel values in base telegram
+        /// </summary>
+        protected override int BaseTelegram_ChannelBytesCount => 6;
+
+        /// <summary>
+        /// offset to position of first channel in base telegram
+        /// </summary>
+        protected override int BaseTelegram_ChannelStartOffset => 3;
+
+        public MK4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+          : base(name, address, deviceData, deviceRepository, bleService, MK4.GetChannelStartOffset(address), MK4.Telegram_Connect, MK4.Telegram_Base)
+        {
+        }
+
+        public override DeviceType DeviceType => DeviceType.MK4;
+
+        public override int NumberOfChannels => 4;
+
+        /// <summary>
+        /// Get reference to Base-Telegram for the given address
+        /// </summary>
+        /// <param name="address">address</param>
+        /// <returns>reference to Base-Telegram</returns>
+        private static int GetChannelStartOffset(string address)
+        {
+            return address switch
+            {
+                MK6.Device3 => MK4.ChannelStartOffset + 4,
+                MK6.Device2 => MK4.ChannelStartOffset + 2,
+                MK6.Device1 => MK4.ChannelStartOffset,
+                _ => throw new ArgumentException("Illegal Argument", nameof(address))
+            };
+        }
+
+        /// <summary>
+        /// Get or create BluetoothAdvertiser
+        /// </summary>
+        /// <returns>Instance of BluetoothAdvertiser</returns>
+        protected override BluetoothAdvertiser GetBluetoothAdvertiser()
+        {
+            lock (typeof(MK4)) // lock type
+            {
+                if (bluetoothAdvertiser == null)
+                {
+                    // all MK4.0 modules share the same BluetoothAdvertiser
+                    bluetoothAdvertiser = new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram);
+                }
+                return bluetoothAdvertiser;
+            }
+        }
+    }
+}

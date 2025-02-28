@@ -15,6 +15,7 @@
         CircuitCubes,
         WeDo2,
         TechnicMove,
+        MK4,
         MK6,
     }
 }

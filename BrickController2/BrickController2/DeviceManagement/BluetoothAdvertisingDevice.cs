@@ -14,6 +14,11 @@ namespace BrickController2.DeviceManagement
     internal abstract class BluetoothAdvertisingDevice : Device
     {
         /// <summary>
+        /// BluetoothAdvertiser
+        /// </summary>
+        protected readonly BluetoothAdvertiser _bluetoothAdvertiser;
+
+        /// <summary>
         /// reference to bleService object
         /// </summary>
         protected readonly IBluetoothLEService _bleService;
@@ -29,31 +34,6 @@ namespace BrickController2.DeviceManagement
         protected readonly object _outputLock = new object();
 
         /// <summary>
-        /// timespan after TryGetTelegram is called from output loop to refresh data
-        /// </summary>
-        private readonly TimeSpan _cyclicDataRefreshTimeSpan = TimeSpan.FromSeconds(2);
-
-        /// <summary>
-        /// timespan to wait after each output loop
-        /// </summary>
-        private readonly TimeSpan _cyclicLoopWaitTimeSpan = TimeSpan.FromMilliseconds(100);
-
-        /// <summary>
-        /// task running the cyclic output loop
-        /// </summary>
-        private Task? _outputTask;
-
-        /// <summary>
-        /// CancellationToken to stop the output task
-        /// </summary>
-        private CancellationTokenSource? _outputTaskTokenSource;
-
-        /// <summary>
-        /// BluetoothLEAdvertiserDevice created in ConnectAsync
-        /// </summary>
-        private IBluetoothLEAdvertiserDevice? _bleAdvertiserDevice;
-
-        /// <summary>
         /// counter to increment if data has changed (in method "SetOutput")
         /// </summary>
         protected int _dataVersion = 0;
@@ -63,6 +43,7 @@ namespace BrickController2.DeviceManagement
         {
             _bleService = bleService;
             _manufacturerId = manufacturerId;
+            _bluetoothAdvertiser = GetBluetoothAdvertiser(_bleService, _manufacturerId);
         }
 
         public virtual AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
@@ -88,18 +69,9 @@ namespace BrickController2.DeviceManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                if (_bleAdvertiserDevice != null ||
-                    DeviceState != DeviceState.Disconnected)
-                {
-                    return DeviceConnectionResult.Error;
-                }
-
                 try
                 {
-                    // get advertiserdevice from BLEService
-                    _bleAdvertiserDevice = _bleService.GetBluetoothLEAdvertiserDevice();
-
-                    if (_bleAdvertiserDevice == null)
+                    if (!await _bluetoothAdvertiser.TryConnectAsync(this))
                     {
                         return DeviceConnectionResult.Error;
                     }
@@ -111,7 +83,8 @@ namespace BrickController2.DeviceManagement
                     if (startOutputProcessing)
                     {
                         InitDevice();
-                        await StartOutputTaskAsync();
+                        
+                        await _bluetoothAdvertiser.StartOutputTaskAsync(this);
                     }
 
                     token.ThrowIfCancellationRequested();
@@ -121,13 +94,13 @@ namespace BrickController2.DeviceManagement
                 }
                 catch (OperationCanceledException)
                 {
-                    await DisconnectInternalAsync();
+                    await DisconnectAsync();
 
                     return DeviceConnectionResult.Canceled;
                 }
                 catch
                 {
-                    await DisconnectInternalAsync();
+                    await DisconnectAsync();
 
                     return DeviceConnectionResult.Error;
                 }
@@ -146,102 +119,12 @@ namespace BrickController2.DeviceManagement
                     return;
                 }
 
-                await DisconnectInternalAsync();
-            }
-        }
-
-        /// <summary>
-        /// stop output loop and disposes the advertising device
-        /// </summary>
-        private async Task DisconnectInternalAsync()
-        {
-            if (_bleAdvertiserDevice != null)
-            {
                 DeviceState = DeviceState.Disconnecting;
 
-                await StopOutputTaskAsync();
+                await _bluetoothAdvertiser.StopOutputTaskAsync(this);
+                await _bluetoothAdvertiser.TryDisconnect(this);
 
-                _bleAdvertiserDevice.Dispose();
-                _bleAdvertiserDevice = null;
-            }
-
-            DeviceState = DeviceState.Disconnected;
-        }
-
-        /// <summary>
-        /// create a new task to start bluetooth advertising and run the output loop
-        /// </summary>
-        private async Task StartOutputTaskAsync()
-        {
-            await StopOutputTaskAsync();
-
-            _outputTaskTokenSource = new CancellationTokenSource();
-            CancellationToken token = _outputTaskTokenSource.Token;
-
-            _outputTask = Task.Run(async () =>
-            {
-                 if (_bleAdvertiserDevice != null &&
-                    TryGetTelegram(out byte[] currentData))
-                {
-                    _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
-
-                    await ProcessOutputsAsync(token).ConfigureAwait(false);
-                }
-            });
-        }
-
-        /// <summary>
-        /// stop output loop
-        /// </summary>
-        private async Task StopOutputTaskAsync()
-        {
-            if (_outputTaskTokenSource != null &&
-                _outputTask != null)
-            {
-                _outputTaskTokenSource.Cancel();
-
-                await _outputTask;
-
-                _outputTaskTokenSource.Dispose();
-                _outputTaskTokenSource = null;
-
-                _outputTask = null;
-            }
-
-            if (_bleAdvertiserDevice != null)
-            {
-                _bleAdvertiserDevice.StopAdvertise();
-            }
-        }
-
-        /// <summary>
-        /// process output loop to check for new data
-        /// </summary>
-        /// <param name="token">CancellationToken</param>
-        protected async Task ProcessOutputsAsync(CancellationToken token)
-        {
-            int lastChangeDataVersion = _dataVersion - 1;
-            int currentDataVersion;
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-            while (!token.IsCancellationRequested)
-            {
-                currentDataVersion = _dataVersion;
-                bool valuesChanged = lastChangeDataVersion != currentDataVersion;
-
-                if (valuesChanged ||
-                    stopwatch.Elapsed > _cyclicDataRefreshTimeSpan)
-                {
-                    if (TryGetTelegram(out byte[] currentData))
-                    {
-                        lastChangeDataVersion = currentDataVersion;
-                        stopwatch.Restart();
-
-                        _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
-                    }
-                }
-
-                await Task.Delay(_cyclicLoopWaitTimeSpan, token).ConfigureAwait(false);
+                DeviceState = DeviceState.Disconnected;
             }
         }
 
@@ -251,12 +134,9 @@ namespace BrickController2.DeviceManagement
         protected abstract void InitDevice();
 
         /// <summary>
-        /// This method is called from the output loop in ProcessOutputsAsync if 
-        /// * dataVersion has changed
-        /// * cyclic after a timespan
+        /// Get or create BluetoothAdvertiser
         /// </summary>
-        /// <param name="currentData">ref to byte array</param>
-        /// <returns>True: success. False: no success</returns>
-        protected abstract bool TryGetTelegram(out byte[] currentData);
+        /// <returns>Instance of BluetoothAdvertiser</returns>
+        protected abstract BluetoothAdvertiser GetBluetoothAdvertiser();
     }
 }

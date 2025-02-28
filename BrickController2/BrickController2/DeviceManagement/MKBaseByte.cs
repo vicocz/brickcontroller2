@@ -1,7 +1,7 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
-using System;
+﻿using System;
 using System.Diagnostics;
+using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Protocols;
 
 namespace BrickController2.DeviceManagement
 {
@@ -77,13 +77,13 @@ namespace BrickController2.DeviceManagement
             _isInitialized = false;
         }
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutput(int channelNo, float value)
         {
-            CheckChannel(channel);
+            CheckChannel(channelNo);
             value = CutOutputValue(value);
             byte byteValue;
 
-            int byteOffset = MKBaseByte.ChannelStartOffset + channel;
+            int byteOffset = MKBaseByte.ChannelStartOffset + channelNo;
 
             if (value < 0)
             {
@@ -115,12 +115,14 @@ namespace BrickController2.DeviceManagement
                     {
                         _allChannelsZero = false;
                     }
-                    _dataVersion++;
+
+                    // increase version
+                    _bluetoothAdvertiser.DataVersion++;
                 }
             }
         }
 
-        protected override bool TryGetTelegram(out byte[] payload)
+        protected bool TryGetTelegram(out byte[] payload)
         {
             byte[] rawData;
 
@@ -147,9 +149,9 @@ namespace BrickController2.DeviceManagement
 
         private bool CheckAllChannelsZero()
         {
-            for (int index = 0; index < _channelCount; index++)
+            for (int channelNo = 0; channelNo < _channelCount; channelNo++)
             {
-                int currentChannelStartOffset = MKBaseByte.ChannelStartOffset + index;
+                int currentChannelStartOffset = MKBaseByte.ChannelStartOffset + channelNo;
 
                 if (_telegram_Base[currentChannelStartOffset] != 0x80)
                 {

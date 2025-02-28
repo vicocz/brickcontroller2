@@ -1,5 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
-using System;
+﻿using System;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement
 {
@@ -18,7 +18,7 @@ namespace BrickController2.DeviceManagement
         public const string Device3 = "Device3";
 
         /// <summary>
-        /// Telegram wich is sent to connect to MK6.0
+        /// Telegram connect to MK6.0 (switch MK6.0 to Bluetooth mode)
         /// </summary>
         private static readonly byte[] Telegram_Connect = new byte[] { 0x6D, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x92, };
 
@@ -45,10 +45,10 @@ namespace BrickController2.DeviceManagement
         public override DeviceType DeviceType => DeviceType.MK6;
 
         /// <summary>
-        /// Gets the Base-Telegram for the given address
+        /// Get reference to Base-Telegram for the given address
         /// </summary>
         /// <param name="address">address</param>
-        /// <returns>Base-Telegram</returns>
+        /// <returns>reference to Base-Telegram</returns>
         private static byte[] GetTelegramBase(string address)
         {
             return address switch
@@ -58,7 +58,16 @@ namespace BrickController2.DeviceManagement
                 MK6.Device1 => Telegram_Base_Device_1,
                 _ => throw new ArgumentException("Illegal Argument", nameof(address))
             };
+        }
 
+        /// <summary>
+        /// Get or create BluetoothAdvertiser
+        /// </summary>
+        /// <returns>Instance of BluetoothAdvertiser</returns>
+        protected override BluetoothAdvertiser GetBluetoothAdvertiser()
+        {
+            // MK6.0 needs a BluetoothAdvertiser for each module
+            return new BluetoothAdvertiser(_bleService, _manufacturerId, TryGetTelegram);
         }
     }
 }

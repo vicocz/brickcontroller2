@@ -34,9 +34,8 @@ namespace BrickController2.Android.UI.CustomHandlers
             platformView.StopTrackingTouch -= StopTrackingTouch;
             platformView.ProgressChanged -= ProgressChanged;
 
-            base.DisconnectHandler(platformView);
-            // seems since .NET 9 dispose should be the last action
             platformView.Dispose();
+            base.DisconnectHandler(platformView);
         }
 
         private void StartTrackingTouch(object? sender, SeekBar.StartTrackingTouchEventArgs e)

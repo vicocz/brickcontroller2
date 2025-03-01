@@ -115,6 +115,7 @@ namespace BrickController2.DeviceManagement
 
             lock (_outputLock)
             {
+                // check for change
                 if (_telegram_Base[channelOffset] != setValue_byte)
                 {
                     _telegram_Base[channelOffset] = setValue_byte;
@@ -128,7 +129,9 @@ namespace BrickController2.DeviceManagement
                     {
                         _allChannelsZero = false;
                     }
-                    _bluetoothAdvertiser.DataVersion++;
+
+                    // notify data changed
+                    _bluetoothAdvertiser.NotifyDataChanged();
                 }
             }
         }

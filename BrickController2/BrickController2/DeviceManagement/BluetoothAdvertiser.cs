@@ -74,6 +74,11 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         private IBluetoothLEAdvertiserDevice? _bleAdvertiserDevice;
 
+        /// <summary>
+        /// internal counter increased on data has changed
+        /// </summary>
+        private int _dataVersion = 0;
+
         public BluetoothAdvertiser(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram)
         {
             _bleService = bleService;
@@ -84,7 +89,10 @@ namespace BrickController2.DeviceManagement
         public AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
         public TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
 
-        public int DataVersion { get; set; } = 0;
+        public void NotifyDataChanged()
+        {
+            _dataVersion++;
+        }
 
         public async Task<bool> TryConnectAsync(BluetoothAdvertisingDevice requestingDevice)
         {
@@ -236,13 +244,13 @@ namespace BrickController2.DeviceManagement
         /// <param name="token">CancellationToken</param>
         private async Task ProcessOutputsAsync(CancellationToken token)
         {
-            int lastChangeDataVersion = DataVersion - 1;
+            int lastChangeDataVersion = _dataVersion - 1; // first check for valuesChanged will be true
             int currentDataVersion;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             while (!token.IsCancellationRequested)
             {
-                currentDataVersion = DataVersion;
+                currentDataVersion = _dataVersion;
                 bool valuesChanged = lastChangeDataVersion != currentDataVersion;
 
                 if (valuesChanged ||

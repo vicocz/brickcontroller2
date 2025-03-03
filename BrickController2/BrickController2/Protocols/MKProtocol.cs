@@ -58,10 +58,7 @@ public static class MKProtocol
         }
 
         // copy dataArray into resultbuf with offset 18 + addrLength
-        for (int index = 0; index < dataLength; index++)
-        {
-            resultbuf[data_offset + addrLength + index] = data[index];
-        }
+        Buffer.BlockCopy(data, 0, resultbuf, data_offset + addrLength, dataLength);
 
         // crypt Bytes from position 15 to 22
         for (int index = inverse_offset; index < addrLength + data_offset; index++)

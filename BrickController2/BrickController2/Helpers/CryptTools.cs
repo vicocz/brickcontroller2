@@ -10,14 +10,14 @@
         /// </summary>
         /// <param name="value">byte to invert</param>
         /// <returns>inverted byte</returns>
-        public static byte Invert_8(byte value)
+        public static byte Invert8(byte value)
         {
             int result = 0;
-            for (int index = 0; index < 8; index++)
+            for (byte index = 0; index < 8; index++)
             {
-                if ((value & 1 << ((byte)index & 0x1f)) != 0)
+                if ((value & 1 << (index & 0x1f)) != 0)
                 {
-                    result |= (byte)(1 << (7 - (byte)index & 0x1f));
+                    result |= (byte)(1 << (7 - index & 0x1f));
                 }
             }
             return (byte)result;
@@ -28,14 +28,14 @@
         /// </summary>
         /// <param name="value">short to invert</param>
         /// <returns>inverted short</returns>
-        public static ushort Invert_16(ushort value)
+        public static ushort Invert16(ushort value)
         {
             int result = 0;
-            for (int index = 0; index < 0x10; index++)
+            for (byte index = 0; index < 0x10; index++)
             {
-                if (((uint)value & 1 << ((byte)index & 0x1f)) != 0)
+                if (((uint)value & 1 << (index & 0x1f)) != 0)
                 {
-                    result |= (ushort)(1 << (0xf - (byte)index & 0x1f));
+                    result |= (ushort)(1 << (0xf - index & 0x1f));
                 }
             }
             return (ushort)result;
@@ -47,14 +47,14 @@
         /// <param name="array1">first array</param>
         /// <param name="array2">second array</param>
         /// <returns></returns>
-        public static ushort Check_crc16(byte[] array1, byte[] array2)
+        public static ushort CheckCRC16(byte[] array1, byte[] array2)
         {
             int array1Length = array1.Length;
 
             int result = 0xffff;
             for (int index = 0; index < array1Length; index++)
             {
-                result ^= (ushort)(array1[array1Length + -1 - index] << 8);
+                result ^= (ushort)(array1[array1Length -1 - index] << 8);
 
                 for (int local_24 = 0; local_24 < 8; local_24++)
                 {
@@ -72,7 +72,7 @@
             int array2Length = array2.Length;
             for (int index = 0; index < array2Length; index++)
             {
-                byte cVar1 = Invert_8(array2[index]);
+                byte cVar1 = Invert8(array2[index]);
 
                 result = result ^ (ushort)(cVar1 << 8);
 
@@ -88,7 +88,7 @@
                     }
                 }
             }
-            ushort result_inverse = Invert_16((ushort)result);
+            ushort result_inverse = Invert16((ushort)result);
             return (ushort)(result_inverse ^ 0xffff);
         }
 
@@ -97,7 +97,7 @@
         /// </summary>
         /// <param name="val">value to init</param>
         /// <param name="ctx">byte[7] to be initialized</param>
-        public static void Whitening_init(byte val, byte[] ctx)
+        public static void WhiteningInit(byte val, byte[] ctx)
         {
             ctx[0] = 1;
             ctx[1] = (byte)(val >> 5 & 1);
@@ -115,16 +115,16 @@
         /// <param name="dataStartIndex">startindex of bytes to encode</param>
         /// <param name="len">length of bytearray</param>
         /// <param name="ctx">ctx array</param>
-        public static void Whitening_encode(byte[] data, int dataStartIndex, int len, byte[] ctx)
+        public static void WhiteningEncode(byte[] data, int dataStartIndex, int len, byte[] ctx)
         {
             for (int index = 0; index < len; index++)
             {
                 byte currentByte = data[dataStartIndex + index];
                 int currentResult = 0;
-                for (int bitIndex = 0; bitIndex < 8; bitIndex++)
+                for (byte bitIndex = 0; bitIndex < 8; bitIndex++)
                 {
-                    byte uVar2 = whitening_output(ctx);
-                    currentResult = (int)((uVar2 ^ currentByte >> ((byte)bitIndex & 0x1f) & 1U) << ((byte)bitIndex & 0x1f)) + currentResult;
+                    byte uVar2 = WhiteningOutput(ctx);
+                    currentResult = (int)((uVar2 ^ currentByte >> (bitIndex & 0x1f) & 1U) << (bitIndex & 0x1f)) + currentResult;
                 }
                 data[dataStartIndex + index] = (byte)currentResult;
             }
@@ -136,7 +136,7 @@
         /// </summary>
         /// <param name="ctx"></param>
         /// <returns></returns>
-        private static byte whitening_output(byte[] ctx)
+        private static byte WhiteningOutput(byte[] ctx)
         {
             byte value_3 = ctx[3];
             byte value_6 = ctx[6];

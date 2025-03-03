@@ -44,11 +44,9 @@ public static class MKProtocol
         // copy firstDataArray reverse into targetArray with offset 18
         for (int index = 0; index < addrLength; index++)
         {
-            //resultbuf[data_offset + addrLength - index - 1] = addr[index];
-            resultbuf[index + data_offset] = addr[(addrLength - index) - 1];
+            resultbuf[index + data_offset] = addr[addrLength - 1 - index];
         }
 
-        //Buffer.BlockCopy(data, 0, resultbuf, addrLength + data_offset, dataLength);
         // copy dataArray into resultbuf with offset 18 + addrLength
         for (int index = 0; index < dataLength; index++)
         {
@@ -58,21 +56,21 @@ public static class MKProtocol
         // crypt Bytes from position 15 to 22
         for (int index = inverse_offset; index < addrLength + data_offset; index++)
         {
-            resultbuf[index] = CryptTools.Invert_8(resultbuf[index]);
+            resultbuf[index] = CryptTools.Invert8(resultbuf[index]);
         }
 
         // calc checksum und copy to array
-        int checksum = CryptTools.Check_crc16(addr, data);
+        int checksum = CryptTools.CheckCRC16(addr, data);
         resultbuf[result_data_size - 2] = (byte)(checksum & 255);
         resultbuf[result_data_size - 1] = (byte)((checksum >> 8) & 255);
 
         byte[] ctx_0x3F = new byte[7]; // int local_58[8];
-        CryptTools.Whitening_init(0x3f, ctx_0x3F); // 0x3f (63) -> ctx_0x3F = [1111111]
-        CryptTools.Whitening_encode(resultbuf, 0x12, addrLength + dataLength + 2, ctx_0x3F);
+        CryptTools.WhiteningInit(0x3f, ctx_0x3F); // 0x3f (63) -> ctx_0x3F = [1111111]
+        CryptTools.WhiteningEncode(resultbuf, 0x12, addrLength + dataLength + 2, ctx_0x3F);
 
         byte[] ctx = new byte[7];
-        CryptTools.Whitening_init(ctxValue, ctx); // ctxValue= 0x25 (37) -> ctx = [1101110]
-        CryptTools.Whitening_encode(resultbuf, 0, result_data_size, ctx);
+        CryptTools.WhiteningInit(ctxValue, ctx); // ctxValue= 0x25 (37) -> ctx = [1101110]
+        CryptTools.WhiteningEncode(resultbuf, 0, result_data_size, ctx);
 
         // resulting advertisment array has a length of constant 24 bytes
         rfPayload = new byte[24];

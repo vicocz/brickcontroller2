@@ -23,7 +23,7 @@ namespace BrickController2.UI.ViewModels
         {
             _deviceManager = deviceManager;
 
-            foreach (var item in staticDeviceManager.FactoryDatas)
+            foreach (var item in staticDeviceManager.FactoryDataList)
             {
                 if (deviceManager.Devices.FirstOrDefault(d => d.DeviceType == item.DeviceType && d.Address == item.Address) == null)
                 {

@@ -1,11 +1,10 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement
 {
     public interface IStaticDeviceManager : INotifyPropertyChanged
     {
-        ObservableCollection<IStaticDeviceFactoryData> FactoryDatas { get; }
+        IEnumerable<IStaticDeviceFactoryData> FactoryDataList { get; }
     }
 }

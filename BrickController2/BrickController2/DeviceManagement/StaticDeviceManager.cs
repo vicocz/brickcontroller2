@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using BrickController2.Helpers;
 
 namespace BrickController2.DeviceManagement
@@ -12,13 +12,9 @@ namespace BrickController2.DeviceManagement
     {
         public StaticDeviceManager(IEnumerable<IStaticDeviceFactoryData> staticDeviceFactoryDatas)
         {
-            foreach (var currentItem in staticDeviceFactoryDatas)
-            {
-                FactoryDatas.Add(currentItem);
-            }
+            FactoryDataList = staticDeviceFactoryDatas.ToArray();
         }
 
-        public ObservableCollection<IStaticDeviceFactoryData> FactoryDatas { get; } = new ObservableCollection<IStaticDeviceFactoryData>();
-
+        public IEnumerable<IStaticDeviceFactoryData> FactoryDataList { get; }
     }
 }

@@ -26,7 +26,7 @@ public static class MKProtocol
     /// <param name="ctxValue">ctx value for encryption</param>
     /// <param name="rfPayload">crypted array</param>
     /// <returns>size of crypted array</returns>
-    public static int Get_rf_payload(byte[] addr, byte[] data, byte ctxValue, out byte[] rfPayload)
+    public static int GetRfPayload(byte[] addr, byte[] data, byte ctxValue, out byte[] rfPayload)
     {
         int addrLength = addr.Length;
         int dataLength = data.Length;

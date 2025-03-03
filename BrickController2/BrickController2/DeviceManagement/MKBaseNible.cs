@@ -157,7 +157,7 @@ namespace BrickController2.DeviceManagement
                 _allZeroStopwatch.Restart();
             }
 
-            MKProtocol.Get_rf_payload(MKProtocol.AddressArray, rawData, MKProtocol.CTXValue, out payload);
+            MKProtocol.GetRfPayload(MKProtocol.AddressArray, rawData, MKProtocol.CTXValue, out payload);
             return true;
         }
 

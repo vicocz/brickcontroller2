@@ -46,6 +46,20 @@ namespace BrickController2.Helpers
             return BitConverter.ToInt32(tempBuffer, 0);
         }
 
+        public static void SetUInt16(this byte[] data, ushort value, int offset = 0)
+        {
+            if (BitConverter.IsLittleEndian)
+            {
+                data[offset + 0] = (byte)(value & 0xff);
+                data[offset + 1] = (byte)((value >> 8) & 0xff);
+            }
+            else
+            {
+                data[offset + 1] = (byte)(value & 0xff);
+                data[offset + 0] = (byte)((value >> 8) & 0xff);
+            }
+        }
+
         public static void SetInt32(this byte[] data, int value, int offset = 0)
         {
             if (BitConverter.IsLittleEndian)
@@ -63,7 +77,6 @@ namespace BrickController2.Helpers
                 data[offset + 0] = (byte)((value >> 24) & 0xff);
             }
         }
-
         public static float GetFloat(this byte[] data, int offset = 0)
         {
             var tempBuffer = BitConverter.IsLittleEndian ?

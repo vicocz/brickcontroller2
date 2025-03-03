@@ -28,8 +28,18 @@ public static class MKProtocol
     /// <returns>size of crypted array</returns>
     public static int GetRfPayload(byte[] addr, byte[] data, byte ctxValue, out byte[] rfPayload)
     {
+        // resulting advertisment array has a length of constant 24 bytes
+        const int rfPayloadLength = 24;
+
         int addrLength = addr.Length;
         int dataLength = data.Length;
+        int lengthResultArray = addrLength + dataLength + 5;
+
+        if (lengthResultArray > rfPayloadLength)
+        {
+            rfPayload = Array.Empty<byte>();
+            return 0;
+        }
 
         byte data_offset = 0x12;    // 0x12 (18)
         byte inverse_offset = 0x0f; // 0x0f (15)
@@ -60,9 +70,8 @@ public static class MKProtocol
         }
 
         // calc checksum und copy to array
-        int checksum = CryptTools.CheckCRC16(addr, data);
-        resultbuf[result_data_size - 2] = (byte)(checksum & 255);
-        resultbuf[result_data_size - 1] = (byte)((checksum >> 8) & 255);
+        ushort checksum = CryptTools.CheckCRC16(addr, data);
+        resultbuf.SetUInt16(checksum, result_data_size - 2);
 
         byte[] ctx_0x3F = new byte[7]; // int local_58[8];
         CryptTools.WhiteningInit(0x3f, ctx_0x3F); // 0x3f (63) -> ctx_0x3F = [1111111]
@@ -73,23 +82,16 @@ public static class MKProtocol
         CryptTools.WhiteningEncode(resultbuf, 0, result_data_size, ctx);
 
         // resulting advertisment array has a length of constant 24 bytes
-        rfPayload = new byte[24];
-
-        int lengthResultArray = addrLength + dataLength + 5;
-
-        if (lengthResultArray > rfPayload.Length)
-        {
-            return 0;
-        }
+        rfPayload = new byte[rfPayloadLength];
 
         Buffer.BlockCopy(resultbuf, 15, rfPayload, 0, lengthResultArray);
 
         // fill rest of array
-        for (int index = lengthResultArray; index < rfPayload.Length; index++)
+        for (int index = lengthResultArray; index < rfPayloadLength; index++)
         {
             rfPayload[index] = (byte)(index + 1);
         }
 
-        return rfPayload.Length;
+        return rfPayloadLength;
     }
 }

@@ -121,14 +121,13 @@ namespace BrickController2.DeviceManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                // check if device is connected
-                if (!_connectedDeviceList.Contains(requestingDevice))
+                // remove device
+                if (!_connectedDeviceList.Remove(requestingDevice))
                 {
+                    // devices wasn't in list - nothing further to do
                     return false;
                 }
 
-                // remove device
-                _connectedDeviceList.Remove(requestingDevice);
                 _advertisingDeviceList.Remove(requestingDevice);
 
                 // on last remove

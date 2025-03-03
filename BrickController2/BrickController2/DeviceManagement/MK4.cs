@@ -76,9 +76,9 @@ namespace BrickController2.DeviceManagement
         {
             return address switch
             {
-                MK6.Device3 => MK4.ChannelStartOffset + 4,
-                MK6.Device2 => MK4.ChannelStartOffset + 2,
-                MK6.Device1 => MK4.ChannelStartOffset,
+                MK4.Device1 => MK4.ChannelStartOffset,
+                MK4.Device2 => MK4.ChannelStartOffset + 2,
+                MK4.Device3 => MK4.ChannelStartOffset + 4,
                 _ => throw new ArgumentException("Illegal Argument", nameof(address))
             };
         }

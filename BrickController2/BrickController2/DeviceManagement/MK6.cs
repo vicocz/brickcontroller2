@@ -70,9 +70,9 @@ namespace BrickController2.DeviceManagement
         {
             return address switch
             {
-                MK6.Device3 => Telegram_Base_Device_3,
-                MK6.Device2 => Telegram_Base_Device_2,
                 MK6.Device1 => Telegram_Base_Device_1,
+                MK6.Device2 => Telegram_Base_Device_2,
+                MK6.Device3 => Telegram_Base_Device_3,
                 _ => throw new ArgumentException("Illegal Argument", nameof(address))
             };
         }

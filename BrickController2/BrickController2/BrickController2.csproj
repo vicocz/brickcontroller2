@@ -38,7 +38,7 @@
 
   <ItemGroup>
     <!-- Custom Fonts -->
-	  <MauiFont Include="Resources\Fonts\*" />
+    <MauiFont Include="Resources\Fonts\*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,7 +51,7 @@
     <PackageReference Include="SQLiteNetExtensions" />
     <PackageReference Include="SQLiteNetExtensions.Async" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" />
-	  <PackageReference Include="ZXing.Net.Maui.Controls" />
+    <PackageReference Include="ZXing.Net.Maui.Controls" />
   </ItemGroup>
 
 </Project>

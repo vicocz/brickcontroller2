@@ -69,14 +69,6 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected abstract int BaseTelegram_ChannelBytesCount { get; }
 
-        /// <summary>
-        /// This method sets the device to initial state before advertising starts
-        /// </summary>
-        protected override void InitDevice()
-        {
-            _isInitialized = false;
-        }
-
         public override void SetOutput(int channelNo, float value)
         {
             CheckChannel(channelNo);
@@ -134,6 +126,14 @@ namespace BrickController2.DeviceManagement
                     _bluetoothAdvertiser.NotifyDataChanged();
                 }
             }
+        }
+
+        /// <summary>
+        /// This method sets the device to initial state before advertising starts
+        /// </summary>
+        protected override void InitDevice()
+        {
+            _isInitialized = false;
         }
 
         protected bool TryGetTelegram(out byte[] payload)

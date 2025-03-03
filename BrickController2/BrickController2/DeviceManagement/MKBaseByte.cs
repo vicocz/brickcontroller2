@@ -44,7 +44,7 @@ namespace BrickController2.DeviceManagement
         /// <summary>
         /// after this timespan and all channel's values equal to zero the connect telegram is sent
         /// </summary>
-        protected TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
+        protected readonly TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
 
         protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
             : base(name, address, deviceData, deviceRepository, bleService)
@@ -68,14 +68,6 @@ namespace BrickController2.DeviceManagement
         /// number of bytes containing channel values in base telegram
         /// </summary>
         protected abstract int BaseTelegram_ChannelBytesCount { get; }
-
-        /// <summary>
-        /// This method sets the device to initial state before advertising starts
-        /// </summary>
-        protected override void InitDevice()
-        {
-            _isInitialized = false;
-        }
 
         public override void SetOutput(int channelNo, float value)
         {
@@ -121,6 +113,14 @@ namespace BrickController2.DeviceManagement
                     _bluetoothAdvertiser.NotifyDataChanged();
                 }
             }
+        }
+
+        /// <summary>
+        /// This method sets the device to initial state before advertising starts
+        /// </summary>
+        protected override void InitDevice()
+        {
+            _isInitialized = false;
         }
 
         protected bool TryGetTelegram(out byte[] payload)

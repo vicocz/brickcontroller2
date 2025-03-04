@@ -11,6 +11,11 @@ namespace BrickController2.DeviceManagement
     internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     {
         /// <summary>
+        /// after this timespan and all channel's values equal to zero the connect telegram is sent
+        /// </summary>
+        protected readonly TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
+
+        /// <summary>
         /// stopwatch
         /// </summary>
         protected readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
@@ -40,11 +45,6 @@ namespace BrickController2.DeviceManagement
         /// true if all channel's values equal zero
         /// </summary>
         protected bool _allChannelsZero = true;
-
-        /// <summary>
-        /// after this timespan and all channel's values equal to zero the connect telegram is sent
-        /// </summary>
-        protected readonly TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
 
         protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
             : base(name, address, deviceData, deviceRepository, bleService)

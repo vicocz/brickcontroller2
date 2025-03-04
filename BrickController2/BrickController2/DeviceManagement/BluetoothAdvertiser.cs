@@ -91,7 +91,7 @@ namespace BrickController2.DeviceManagement
 
         public void NotifyDataChanged()
         {
-            _dataVersion++;
+           Interlocked.Increment(ref _dataVersion);
         }
 
         public async Task<bool> TryConnectAsync(BluetoothAdvertisingDevice requestingDevice)

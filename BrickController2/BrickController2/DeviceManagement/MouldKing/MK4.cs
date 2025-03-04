@@ -29,7 +29,7 @@ namespace BrickController2.DeviceManagement
         private const int ChannelStartOffset = 3;
 
         /// <summary>
-        /// Telegram wich is sent to connect to MK6.0
+        /// Telegram wich is sent to connect to MK4.0
         /// </summary>
         private static readonly byte[] Telegram_Connect = new byte[] { 0xAD, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0x52 };
 

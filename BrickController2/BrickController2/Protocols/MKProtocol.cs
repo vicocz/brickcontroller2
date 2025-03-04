@@ -9,6 +9,11 @@ namespace BrickController2.Protocols;
 public static class MKProtocol
 {
     /// <summary>
+    /// ManufacturerID for MK
+    /// </summary>
+    public const ushort ManufacturerID = 0xFFF0;
+
+    /// <summary>
     /// CTXValue for Encryption
     /// </summary>
     public const byte CTXValue = 0x25;

@@ -9,11 +9,6 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal class MK4 : MKBaseNible
     {
-        /// <summary>
-        /// ManufacturerID for MK
-        /// </summary>
-        public const ushort ManufacturerID = 0xFFF0;
-
         public const string Device1 = "Device1";
         public const string Device2 = "Device2";
         public const string Device3 = "Device3";
@@ -46,7 +41,7 @@ namespace BrickController2.DeviceManagement
         /// <summary>
         /// manufacturerId to advertise
         /// </summary>
-        protected override ushort ManufacturerId => MK4.ManufacturerID;
+        protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
         /// <summary>
         /// number of bytes containing channel values in base telegram

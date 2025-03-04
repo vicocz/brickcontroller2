@@ -1,5 +1,6 @@
 ﻿using System;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Protocols;
 
 namespace BrickController2.DeviceManagement
 {
@@ -8,11 +9,6 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal class MK6 : MKBaseByte
     {
-        /// <summary>
-        /// ManufacturerID for MK
-        /// </summary>
-        public const ushort ManufacturerID = 0xFFF0;
-
         public const string Device1 = "Device1";
         public const string Device2 = "Device2";
         public const string Device3 = "Device3";
@@ -40,7 +36,7 @@ namespace BrickController2.DeviceManagement
         /// <summary>
         /// manufacturerId to advertise
         /// </summary>
-        protected override ushort ManufacturerId => MK6.ManufacturerID;
+        protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
         /// <summary>
         /// number of bytes containing channel values in base telegram

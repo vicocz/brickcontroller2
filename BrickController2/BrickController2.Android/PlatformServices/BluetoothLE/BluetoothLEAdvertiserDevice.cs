@@ -1,5 +1,6 @@
 ﻿using Android.Bluetooth.LE;
 using Android.Runtime;
+using BrickController2.Droid.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
@@ -20,8 +21,8 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             .SetLegacyMode(true)
             .SetConnectable(true)
             .SetScannable(true)
-            .SetInterval(AdvertisingSetParameters.IntervalMedium)
-            .SetTxPowerLevel(AdvertiseTxPower.Max)
+            .SetInterval(advertisingIterval.ToInterval())
+            .SetTxPowerLevel(txPowerLevel.ToTxPowerLevel())
             .Build();
 
         AdvertiseData data = new AdvertiseData.Builder()

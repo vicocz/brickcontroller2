@@ -9,6 +9,7 @@ using Android.OS;
 using Android.Runtime;
 using Java.Util;
 using BrickController2.PlatformServices.BluetoothLE;
+using System.Diagnostics;
 
 namespace BrickController2.Droid.PlatformServices.BluetoothLE
 {
@@ -226,6 +227,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
 
         public async Task<bool> WriteAsync(IGattCharacteristic characteristic, byte[] data, CancellationToken token)
         {
+            var stopwatch = Stopwatch.StartNew();
             using (token.Register(() =>
             {
                 lock (_lock)
@@ -242,19 +244,19 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                     }
 
                     var nativeCharacteristic = ((GattCharacteristic)characteristic).BluetoothGattCharacteristic;
-                    nativeCharacteristic.WriteType = GattWriteType.Default;
+                    //nativeCharacteristic.WriteType = GattWriteType.Default;
 
 #pragma warning disable CA1422 // Validate platform compatibility
-                    if (!(nativeCharacteristic?.SetValue(data) ?? false))
-                    {
-                        return false;
-                    }
+                    //if (!(nativeCharacteristic?.SetValue(data) ?? false))
+                    //{
+                    //    return false;
+                    //}
 #pragma warning restore CA1422 // Validate platform compatibility
 
                     _writeCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #pragma warning disable CA1422 // Validate platform compatibility
-                    if (!(_bluetoothGatt?.WriteCharacteristic(nativeCharacteristic) ?? false))
+                    if (_bluetoothGatt.WriteCharacteristic(nativeCharacteristic, data, (int) GattWriteType.Default) != 0)
                     {
                         _writeCompletionSource = null;
                         return false;
@@ -262,11 +264,16 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
 #pragma warning restore CA1422 // Validate platform compatibility
                 }
 
+                System.Diagnostics.Debug.WriteLine("WriteAsync INTER: " + stopwatch.Elapsed);
+
                 var result = await _writeCompletionSource.Task.ConfigureAwait(false);
 
                 lock (_lock)
                 {
                     _writeCompletionSource = null;
+
+                    System.Diagnostics.Debug.WriteLine("WriteAsync: " + stopwatch.Elapsed);
+
                     return result;
                 }
             }
@@ -405,13 +412,21 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
         }
 
-        public override void OnCharacteristicRead(BluetoothGatt? gatt, BluetoothGattCharacteristic? characteristic, [GeneratedEnum] GattStatus status)
+//        public override void OnCharacteristicRead(BluetoothGatt? gatt, BluetoothGattCharacteristic? characteristic, [GeneratedEnum] GattStatus status)
+//        {
+//            lock (_lock)
+//            {
+//#pragma warning disable CA1422 // Validate platform compatibility
+//                _readCompletionSource?.TrySetResult(characteristic?.GetValue());
+//#pragma warning restore CA1422 // Validate platform compatibility
+//            }
+//        }
+
+        public override void OnCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value, [GeneratedEnum] GattStatus status)
         {
             lock (_lock)
             {
-#pragma warning disable CA1422 // Validate platform compatibility
-                _readCompletionSource?.TrySetResult(characteristic?.GetValue());
-#pragma warning restore CA1422 // Validate platform compatibility
+                _readCompletionSource?.TrySetResult(value);
             }
         }
 
@@ -423,6 +438,8 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
         }
 
+
+
         public override void OnDescriptorWrite(BluetoothGatt? gatt, BluetoothGattDescriptor? descriptor, [GeneratedEnum] GattStatus status)
         {
             lock (_lock)
@@ -431,20 +448,24 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
         }
 
-        public override void OnCharacteristicChanged(BluetoothGatt? gatt, BluetoothGattCharacteristic? characteristic)
+        //MYTODO public override void OnCharacteristicChanged(BluetoothGatt? gatt, BluetoothGattCharacteristic? characteristic)
+        public override void OnCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, byte[] value)
         {
-            lock (_lock)
+            var stopwatch = Stopwatch.StartNew();
+            //lock (_lock)
             {
-                var guid = characteristic?.Uuid?.ToGuid();
+                var guid = characteristic.Uuid?.ToGuid();
 #pragma warning disable CA1422 // Validate platform compatibility
-                var data = characteristic?.GetValue();
+                //var data = characteristic?.GetValue();
 #pragma warning restore CA1422 // Validate platform compatibility
 
-                if (guid is not null && data is not null)
+                if (guid is not null && value is not null)
                 {
-                    _onCharacteristicChanged?.Invoke(guid.Value, data);
+                    _onCharacteristicChanged?.Invoke(guid.Value, value);
                 }
             }
+
+            System.Diagnostics.Debug.WriteLine("OnCharacteristicChanged: " + stopwatch.Elapsed);
         }
     }
 }

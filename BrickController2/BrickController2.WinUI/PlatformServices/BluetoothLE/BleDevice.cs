@@ -3,6 +3,7 @@ using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Windows.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -157,6 +158,7 @@ public class BleDevice : IBluetoothLEDevice
 
     public async Task<bool> WriteAsync(IGattCharacteristic characteristic, byte[] data, CancellationToken token)
     {
+        var stopwatch = Stopwatch.StartNew();
         using (await _lock.LockAsync(token))
         {
             if (State == BluetoothLEDeviceState.Connected &&
@@ -164,7 +166,11 @@ public class BleDevice : IBluetoothLEDevice
             {
 
                 var result = await bleGattCharacteristic.WriteWithResponseAsync(data);
+
+                System.Diagnostics.Debug.WriteLine("WriteAsync: " + stopwatch.Elapsed);
                 return result.Status == GattCommunicationStatus.Success;
+
+
             }
             return false;
         }

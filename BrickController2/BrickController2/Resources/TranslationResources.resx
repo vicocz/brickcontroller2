@@ -696,7 +696,13 @@
   <data name="PlayVmEnabled" xml:space="preserve">
     <value>Easy drive mode (PLAYVM)</value>
   </data>
-  <data name="OpenStaticDeviceList" xml:space="preserve">
-    <value>Insert static devices</value>
+  <data name="OpenAddDevicesManually" xml:space="preserve">
+    <value>Add devices manually</value>
+  </data>
+  <data name="AddDevicesManually" xml:space="preserve">
+    <value>Add Devices manually</value>
+  </data>
+  <data name="AddDevice" xml:space="preserve">
+    <value>Add device</value>
   </data>
 </root>

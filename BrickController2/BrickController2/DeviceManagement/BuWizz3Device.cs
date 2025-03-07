@@ -240,7 +240,7 @@ namespace BrickController2.DeviceManagement
 
                 var result = true;
 
-                result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
+                /*result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
 
                 result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
@@ -273,7 +273,7 @@ namespace BrickController2.DeviceManagement
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
                 _relativePositions.CopyTo(_servoBiasAngles, 0);
                 _relativePositions.CopyTo(_currentStepperAngles, 0);
-
+                */
                 return true;
             }
             catch

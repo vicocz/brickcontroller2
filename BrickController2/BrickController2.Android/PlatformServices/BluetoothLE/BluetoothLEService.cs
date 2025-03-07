@@ -71,7 +71,13 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                 return null;
             }
 
-            return new BluetoothLEDevice(_context, _bluetoothAdapter, address);
+            return Build.VERSION.SdkInt switch
+            {
+                // latest Android SDK 33+
+                >= BuildVersionCodes.Tiramisu => new BluetoothLEDevice_Sdk33(_context, _bluetoothAdapter, address),
+                // legacy
+                _ => new BluetoothLEDevice_SdkIKD(_context, _bluetoothAdapter, address)
+            };
         }
 
         private async Task<bool> OldScanAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)

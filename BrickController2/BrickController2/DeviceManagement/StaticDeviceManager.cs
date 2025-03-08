@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using BrickController2.Helpers;
 
 namespace BrickController2.DeviceManagement
 {
@@ -8,7 +7,7 @@ namespace BrickController2.DeviceManagement
     /// This manager stores the needed data to build so called StaticDevices.
     /// StaticDevices cannot be scanned and so must be inserted manually.
     /// </summary>
-    internal class StaticDeviceManager : NotifyPropertyChangedSource, IStaticDeviceManager
+    internal class StaticDeviceManager : IStaticDeviceManager
     {
         public StaticDeviceManager(IEnumerable<IStaticDeviceFactoryData> staticDeviceFactoryDatas)
         {

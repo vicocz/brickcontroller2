@@ -8,6 +8,7 @@ using Device = BrickController2.DeviceManagement.Device;
 using BrickController2.UI.Commands;
 using System.Threading;
 using BrickController2.UI.Services.Translation;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -20,12 +21,21 @@ namespace BrickController2.UI.ViewModels
         public DeviceListPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
+            IBluetoothLEService bluetoothLEService,
             IDeviceManager deviceManager,
             IDialogService dialogService) 
             : base(navigationService, translationService)
         {
             DeviceManager = deviceManager;
             _dialogService = dialogService;
+
+#if DEBUG
+            // JK: to allow development on windows this is enabled
+            IsBLEAdvertisingSupported = true;
+#else
+            IsBLEAdvertisingSupported = bluetoothLEService.IsBluetoothLEAdvertisingSupported;
+#endif
+
 
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
             ShowStaticDeviceListPageCommand = new SafeCommand(async () => await ShowStaticDeviceListPageAsync(), () => !DeviceManager.IsScanning);
@@ -42,8 +52,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
 
-        // ToDo: it should be calling IBluetoothLEService.IsBluetoothLEAdvertisingSupported in release
-        public bool IsBLEAdvertisingSupported => true;
+        public bool IsBLEAdvertisingSupported { get; }
 
         public override void OnAppearing()
         {

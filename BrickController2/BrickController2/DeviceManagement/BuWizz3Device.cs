@@ -2,6 +2,7 @@
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Maui.Devices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -377,7 +378,12 @@ namespace BrickController2.DeviceManagement
                 _sendOutputBuffer[17] = (byte)v4;
                 _sendOutputBuffer[18] = (byte)v5;
 
-                var result = await _bleDevice!.WriteAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false);
+                // workaround for BuWizz3 long writes with response on Android
+                // https://github.com/vicocz/brickcontroller2/issues/104
+                var result = DeviceInfo.Platform == DevicePlatform.Android
+                    ? await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false)
+                    : await _bleDevice!.WriteAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false);
+
                 await Task.Delay(100, token).ConfigureAwait(false); // this delay is needed not to flood the BW3 internal command queue
                 return result;
             }

@@ -700,7 +700,7 @@
     <value>Add devices manually</value>
   </data>
   <data name="AddDevicesManually" xml:space="preserve">
-    <value>Add Devices manually</value>
+    <value>Manually add Devices</value>
   </data>
   <data name="AddDevice" xml:space="preserve">
     <value>Add device</value>

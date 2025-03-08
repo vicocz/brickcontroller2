@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 
@@ -10,16 +9,6 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     {
-        /// <summary>
-        /// after this timespan and all channel's values equal to zero the connect telegram is sent
-        /// </summary>
-        protected readonly TimeSpan _reconnectTimeSpan = TimeSpan.FromSeconds(3);
-
-        /// <summary>
-        /// stopwatch
-        /// </summary>
-        protected readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
-
         /// <summary>
         /// Telegram to connect to the device
         /// This telegram is sent on init and on reconnect conditions matching
@@ -36,15 +25,6 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected readonly int _channelStartOffset;
 
-        /// <summary>
-        /// true if initialized
-        /// </summary>
-        protected bool _isInitialized = false;
-
-        /// <summary>
-        /// true if all channel's values equal zero
-        /// </summary>
-        protected bool _allChannelsZero = true;
 
         protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
             : base(name, address, deviceData, deviceRepository, bleService)
@@ -102,15 +82,14 @@ namespace BrickController2.DeviceManagement
                     // Zero was set -> check all channel's values
                     if (byteValue == 0x80)
                     {
-                        _allChannelsZero = CheckAllChannelsZero();
+                        // notify data changed
+                        _bluetoothAdvertiser.NotifyDataChanged(CheckAllChannelsZero());
                     }
                     else
                     {
-                        _allChannelsZero = false;
+                        // notify data changed
+                        _bluetoothAdvertiser.NotifyDataChanged(false);
                     }
-
-                    // notify data changed
-                    _bluetoothAdvertiser.NotifyDataChanged();
                 }
             }
         }
@@ -120,28 +99,24 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected override void InitDevice()
         {
-            _isInitialized = false;
+            // set all channels to zero
+            for (int index = 0; index < BaseTelegram_ChannelBytesCount; index++)
+            {
+                _telegram_Base[BaseTelegram_ChannelStartOffset + index] = 0x80;
+            }
         }
 
-        protected bool TryGetTelegram(out byte[] payload)
+        protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
         {
             byte[] rawData;
 
-            if (!_isInitialized ||
-                (_allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan))
+            if (getConnectTelegram)
             {
                 rawData = _telegram_Connect;
-
-                _isInitialized = true;
-            }
-            else if (_allChannelsZero)
-            {
-                rawData = _telegram_Base;
             }
             else
             {
                 rawData = _telegram_Base;
-                _allZeroStopwatch.Restart();
             }
 
             MKProtocol.GetRfPayload(MKProtocol.AddressArray, rawData, MKProtocol.CTXValue, out payload);

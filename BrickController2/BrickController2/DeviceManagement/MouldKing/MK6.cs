@@ -34,6 +34,11 @@ namespace BrickController2.DeviceManagement
         private static readonly byte[] Telegram_Base_Device_3 = new byte[] { 0x63, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9C };
 
         /// <summary>
+        /// after this timespan and all channel's values equal to zero the connect telegram is sent
+        /// </summary>
+        private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
+
+        /// <summary>
         /// manufacturerId to advertise
         /// </summary>
         protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
@@ -80,7 +85,7 @@ namespace BrickController2.DeviceManagement
         protected override BluetoothAdvertiser GetBluetoothAdvertiser()
         {
             // MK6.0 needs a BluetoothAdvertiser per module
-            return new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram);
+            return new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram, MK6.ReconnectTimeSpan);
         }
     }
 }

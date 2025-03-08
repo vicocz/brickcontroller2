@@ -15,14 +15,14 @@ namespace BrickController2.DeviceManagement
     internal class BluetoothAdvertiser
     {
         /// <summary>
-        /// Definition of a delegate to get 
+        /// Definition of a delegate to get telegram data
         /// </summary>
-        public delegate bool TryGetTelegramHandler(out byte[] currentData);
+        public delegate bool TryGetTelegramHandler(bool getConnectTelegram, out byte[] telegramData);
 
         /// <summary>
         /// object to lock the list handling
         /// </summary>
-        protected readonly AsyncLock _asyncLock = new AsyncLock();
+        private readonly AsyncLock _asyncLock = new AsyncLock();
 
         /// <summary>
         /// List containing all connected devices
@@ -45,9 +45,9 @@ namespace BrickController2.DeviceManagement
         private readonly TimeSpan _cyclicDataRefreshTimeSpan = TimeSpan.FromSeconds(2);
 
         /// <summary>
-        /// timespan to wait after each output loop
+        /// after this timespan and all channel's values equal to zero the connect telegram is sent
         /// </summary>
-        private readonly TimeSpan _cyclicLoopWaitTimeSpan = TimeSpan.FromMilliseconds(100);
+        private readonly TimeSpan _reconnectTimeSpan;
 
         /// <summary>
         /// manufacturerId to advertise
@@ -58,6 +58,11 @@ namespace BrickController2.DeviceManagement
         /// callback to get data
         /// </summary>
         private readonly TryGetTelegramHandler _tryGetTelegram;
+
+        /// <summary>
+        /// stopwatch to measure timespan since _allChannelsZero is set to true
+        /// </summary>
+        private readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
 
         /// <summary>
         /// task running the cyclic output loop
@@ -75,23 +80,37 @@ namespace BrickController2.DeviceManagement
         private IBluetoothLEAdvertiserDevice? _bleAdvertiserDevice;
 
         /// <summary>
-        /// internal counter increased on data has changed
+        /// AutoResetEvent to signal changes of values immediately
         /// </summary>
-        private int _dataVersion = 0;
+        private AutoResetEvent? _waitForNewData;
 
-        public BluetoothAdvertiser(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram)
+        /// <summary>
+        /// True if all channels are zero
+        /// </summary>
+        private bool _allChannelsZero = true;
+
+        public BluetoothAdvertiser(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram, TimeSpan reconnectTimespan)
         {
             _bleService = bleService;
             _manufacturerId = manufacturerId;
             _tryGetTelegram = tryGetTelegram;
+            _reconnectTimeSpan = reconnectTimespan;
         }
 
         public AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
         public TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
 
-        public void NotifyDataChanged()
+        public void NotifyDataChanged(bool allChannelsZero)
         {
-           Interlocked.Increment(ref _dataVersion);
+            // on _allChannelsZero will change to true
+            if (allChannelsZero && !_allChannelsZero)
+            {
+                _allZeroStopwatch.Restart();
+            }
+            _allChannelsZero = allChannelsZero;
+
+            // signal _waitForNewData to immediately run next loop in ProcessOutputs
+            _waitForNewData?.Set();
         }
 
         public async Task<bool> TryConnectAsync(BluetoothAdvertisingDevice requestingDevice)
@@ -195,16 +214,18 @@ namespace BrickController2.DeviceManagement
             _outputTaskTokenSource = new CancellationTokenSource();
             CancellationToken token = _outputTaskTokenSource.Token;
 
-            _outputTask = Task.Run(async () =>
+            _outputTask = Task.Run(() =>
             {
                 try
                 {
                     if (_bleAdvertiserDevice != null &&
-                       _tryGetTelegram(out byte[] currentData))
+                       _tryGetTelegram(true, out byte[] currentData))
                     {
                         _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
 
-                        await ProcessOutputsAsync(token).ConfigureAwait(false);
+                        _waitForNewData = new(false);
+
+                        ProcessOutputs(token);
                     }
                 }
                 catch (TaskCanceledException) // catch this valid exception thrown on cancellation
@@ -223,10 +244,16 @@ namespace BrickController2.DeviceManagement
             {
                 _outputTaskTokenSource.Cancel();
 
+                // signal _waitForNewData to immediately run next loop in ProcessOutputs and check token.IsCancellationRequested
+                _waitForNewData?.Set();
+
                 await _outputTask;
 
                 _outputTaskTokenSource.Dispose();
                 _outputTaskTokenSource = null;
+
+                _waitForNewData?.Dispose();
+                _waitForNewData = null;
 
                 _outputTask = null;
             }
@@ -241,30 +268,18 @@ namespace BrickController2.DeviceManagement
         /// process output loop to check for new data
         /// </summary>
         /// <param name="token">CancellationToken</param>
-        private async Task ProcessOutputsAsync(CancellationToken token)
+        private void ProcessOutputs(CancellationToken token)
         {
-            int lastChangeDataVersion = _dataVersion - 1; // first check for valuesChanged will be true
-            int currentDataVersion;
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
             while (!token.IsCancellationRequested)
             {
-                currentDataVersion = _dataVersion;
-                bool valuesChanged = lastChangeDataVersion != currentDataVersion;
-
-                if (valuesChanged ||
-                    stopwatch.Elapsed > _cyclicDataRefreshTimeSpan)
+                if (_tryGetTelegram(_allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan, out byte[] currentData))
                 {
-                    if (_tryGetTelegram(out byte[] currentData))
-                    {
-                        lastChangeDataVersion = currentDataVersion;
-                        stopwatch.Restart();
-
-                        _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
-                    }
+                    _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
                 }
 
-                await Task.Delay(_cyclicLoopWaitTimeSpan, token).ConfigureAwait(false);
+                Thread.Sleep(1); // prevent loop without sleep
+
+                _waitForNewData?.WaitOne(_cyclicDataRefreshTimeSpan); // wait till _newData is signalled or _cyclicDataRefreshTimeSpan has passed
             }
         }
     }

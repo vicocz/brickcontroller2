@@ -1,6 +1,6 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using System;
+using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
-using System;
 
 namespace BrickController2.DeviceManagement
 {
@@ -12,11 +12,6 @@ namespace BrickController2.DeviceManagement
         public const string Device1 = "Device1";
         public const string Device2 = "Device2";
         public const string Device3 = "Device3";
-
-        /// <summary>
-        /// number of channels
-        /// </summary>
-        private const int ChannelCount = 4;
 
         /// <summary>
         /// offset to position of first channel in base telegram
@@ -32,6 +27,11 @@ namespace BrickController2.DeviceManagement
         /// Base Telegram for MK4
         /// </summary>
         private static readonly byte[] Telegram_Base = new byte[] { 0x7D, 0x7B, 0xA7, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82 };
+
+        /// <summary>
+        /// after this timespan and all channel's values equal to zero the connect telegram is sent
+        /// </summary>
+        private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
         /// <summary>
         /// all MK4.0 modules share the same BluetoothAdvertiser
@@ -89,7 +89,7 @@ namespace BrickController2.DeviceManagement
                 if (bluetoothAdvertiser == null)
                 {
                     // all MK4.0 modules share the same BluetoothAdvertiser
-                    bluetoothAdvertiser = new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram);
+                    bluetoothAdvertiser = new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram, MK4.ReconnectTimeSpan);
                 }
                 return bluetoothAdvertiser;
             }

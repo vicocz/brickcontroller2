@@ -525,10 +525,4 @@
   <data name="Yes" xml:space="preserve">
     <value>Igen</value>
   </data>
-  <data name="AddDevicesManually" xml:space="preserve">
-    <value />
-  </data>
-  <data name="AddDevice" xml:space="preserve">
-    <value />
-  </data>
 </root>

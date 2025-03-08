@@ -55,6 +55,10 @@ namespace BrickController2.UI.Controls
             TechnicMoveChannel4.Command = new SafeCommand(() => SelectedChannel = 6);
             TechnicMoveChannel5.Command = new SafeCommand(() => SelectedChannel = 7);
             TechnicMoveChannel6.Command = new SafeCommand(() => SelectedChannel = 8);
+            MK4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK4Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             MK6Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK6Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK6Channel2.Command = new SafeCommand(() => SelectedChannel = 2);

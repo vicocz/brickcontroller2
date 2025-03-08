@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace BrickController2.DeviceManagement
 {
-    public interface IStaticDeviceManager : INotifyPropertyChanged
+    public interface IStaticDeviceManager
     {
         IEnumerable<IStaticDeviceFactoryData> FactoryDataList { get; }
     }

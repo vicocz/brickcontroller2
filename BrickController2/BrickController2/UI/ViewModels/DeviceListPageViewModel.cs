@@ -42,6 +42,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
 
+        // ToDo: it should be calling IBluetoothLEService.IsBluetoothLEAdvertisingSupported in release
         public bool IsBLEAdvertisingSupported => true;
 
         public override void OnAppearing()

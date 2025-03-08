@@ -54,14 +54,14 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <VerticalStackLayout>
-                                <Grid Style="{StaticResource CollectionItemGridStyle}">
+                                <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="50"/>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="1" Text="{Binding StaticDeviceFactoryData.Address}" FontSize="Micro"/>
-                                    <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}"  HorizontalOptions="End"/>
+                                    <Label Grid.Column="1" Text="{Binding StaticDeviceFactoryData.Address}" FontSize="Micro" VerticalTextAlignment="Center" />
+                                    <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
                                 </Grid>
                             </VerticalStackLayout>
                         </DataTemplate>

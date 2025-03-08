@@ -38,6 +38,7 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
+        private static readonly bool ApplyWriteWorkaround = DeviceInfo.Platform == DevicePlatform.Android;
 
         private readonly byte[] _sendOutputBuffer = new byte[] { 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, MOTOR_BREAKS_NONE, MOTOR_LUT_DISABLE_ALL };
 
@@ -380,7 +381,7 @@ namespace BrickController2.DeviceManagement
 
                 // workaround for BuWizz3 long writes with response on Android
                 // https://github.com/vicocz/brickcontroller2/issues/104
-                var result = DeviceInfo.Platform == DevicePlatform.Android
+                var result = ApplyWriteWorkaround
                     ? await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false)
                     : await _bleDevice!.WriteAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false);
 

@@ -56,7 +56,8 @@ namespace BrickController2.UI.ViewModels
 
             // translate list to dict (key is DeviceType)
             var dict = staticDeviceManager.FactoryDataList.GroupBy(o => o.DeviceType)
-                       .ToDictionary(g => g.Key, g => g.Select(x => new StaticDeviceEntry(x, GetDeviceInstance(x))).ToList());
+                       .ToDictionary(g => g.Key, g => g.Select(x => new StaticDeviceEntry(x, GetDeviceInstance(x)))
+                       .ToList());
 
             GroupedFactoryDatas.AddRange(dict.Select(item => new StaticDeviceGroup(item.Key, item.Value)));
 
@@ -75,7 +76,10 @@ namespace BrickController2.UI.ViewModels
             IStaticDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas.SelectMany(group => group.FindAll(entry => entry.Selected && entry.ExistingDevice == null).Select(entry => entry.StaticDeviceFactoryData)).ToArray();
 
             // get all entries to delete (=> !entry.Selected && entry.ExistingDevice != null)
-            Device[] devicesToDelete = GroupedFactoryDatas.SelectMany(group => group.FindAll(entry => !entry.Selected && entry.ExistingDevice != null).Select(entry => entry.ExistingDevice!)).ToArray();
+            Device[] devicesToDelete = GroupedFactoryDatas
+                .SelectMany(group => group.FindAll(entry => !entry.Selected && entry.ExistingDevice != null)
+                    .Select(entry => entry.ExistingDevice!))
+                .ToArray();
 
             if (devicesToCreate.Length > 0)
             {

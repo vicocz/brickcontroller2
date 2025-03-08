@@ -73,7 +73,10 @@ namespace BrickController2.UI.ViewModels
         private async Task ApplyChangesAsync()
         {
             // get all entries to create (=> entry.Selected && entry.ExistingDevice == null)
-            IStaticDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas.SelectMany(group => group.FindAll(entry => entry.Selected && entry.ExistingDevice == null).Select(entry => entry.StaticDeviceFactoryData)).ToArray();
+            IStaticDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas
+                .SelectMany(group => group.FindAll(entry => entry.Selected && entry.ExistingDevice == null)
+                    .Select(entry => entry.StaticDeviceFactoryData))
+                .ToArray();
 
             // get all entries to delete (=> !entry.Selected && entry.ExistingDevice != null)
             Device[] devicesToDelete = GroupedFactoryDatas

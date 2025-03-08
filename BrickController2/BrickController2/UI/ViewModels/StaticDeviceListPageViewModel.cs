@@ -84,20 +84,24 @@ namespace BrickController2.UI.ViewModels
                     .Select(entry => entry.ExistingDevice!))
                 .ToArray();
 
-            if (devicesToCreate.Length > 0)
+            if (devicesToCreate.Length > 0 ||
+                devicesToDelete.Length > 0)
             {
                 await _dialogService.ShowProgressDialogAsync(
                     false,
-                    async (progressDialog, token) => await _deviceManager.CreateDevicesAsync(devicesToCreate),
-                    Translate("Adding"));
-            }
+                    async (progressDialog, token) => 
+                    {
+                        if (devicesToCreate.Length > 0)
+                        {
+                            await _deviceManager.CreateDevicesAsync(devicesToCreate);
+                        }
 
-            if (devicesToDelete.Length > 0)
-            {
-                await _dialogService.ShowProgressDialogAsync(
-                    false,
-                    async (progressDialog, token) => await _deviceManager.DeleteDevicesAsync(devicesToDelete),
-                    Translate("Deleting"));
+                        if (devicesToDelete.Length > 0)
+                        {
+                            await _deviceManager.DeleteDevicesAsync(devicesToDelete);
+                        }
+                    },
+                    Translate("Applying"));
             }
 
             await NavigationService.NavigateBackAsync();

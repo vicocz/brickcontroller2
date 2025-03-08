@@ -1,5 +1,6 @@
 ﻿using System;
 using Android.Bluetooth.LE;
+using Android.Locations;
 using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.Droid.Extensions;
@@ -15,21 +16,15 @@ public static class BluetootLEExtensions
     /// <returns>Android AdvertisingSetParameters Interval</returns>
     public static int ToInterval(this AdvertisingInterval advertisingInterval)
     {
-        switch (advertisingInterval)
+        return advertisingInterval switch
         {
-            case AdvertisingInterval.Min:
-                return AdvertisingSetParameters.IntervalMin;
-            case AdvertisingInterval.Low:
-                return AdvertisingSetParameters.IntervalLow;
-            case AdvertisingInterval.Medium:
-                return AdvertisingSetParameters.IntervalMedium;
-            case AdvertisingInterval.High:
-                return AdvertisingSetParameters.IntervalHigh;
-            case AdvertisingInterval.Max:
-                return AdvertisingSetParameters.IntervalMax;
-            default:
-                throw new ArgumentException("Illegal Argument", nameof(advertisingInterval));
-        }
+            AdvertisingInterval.Min => AdvertisingSetParameters.IntervalMin,
+            AdvertisingInterval.Low => AdvertisingSetParameters.IntervalLow,
+            AdvertisingInterval.Medium => AdvertisingSetParameters.IntervalMedium,
+            AdvertisingInterval.High => AdvertisingSetParameters.IntervalHigh,
+            AdvertisingInterval.Max => AdvertisingSetParameters.IntervalMax,
+            _ => throw new ArgumentException("Illegal Argument", nameof(advertisingInterval))
+        };
     }
 
     /// <summary>
@@ -39,22 +34,15 @@ public static class BluetootLEExtensions
     /// <returns>Android AdvertisingSetParameters enum AdvertiseTxPower</returns>
     public static AdvertiseTxPower ToTxPowerLevel(this TxPowerLevel txPowerLevel)
     {
-        switch (txPowerLevel)
+        return txPowerLevel switch
         {
-            case TxPowerLevel.Min:
-                return AdvertiseTxPower.Min;
-            case TxPowerLevel.UltraLow:
-                return AdvertiseTxPower.UltraLow;
-            case TxPowerLevel.Low:
-                return AdvertiseTxPower.Low;
-            case TxPowerLevel.Medium:
-                return AdvertiseTxPower.Medium;
-            case TxPowerLevel.High:
-                return AdvertiseTxPower.High;
-            case TxPowerLevel.Max:
-                return AdvertiseTxPower.Max;
-            default:
-                throw new ArgumentException("Illegal Argument", nameof(txPowerLevel));
-        }
+            TxPowerLevel.Min => AdvertiseTxPower.Min,
+            TxPowerLevel.UltraLow => AdvertiseTxPower.UltraLow,
+            TxPowerLevel.Low => AdvertiseTxPower.Low,
+            TxPowerLevel.Medium => AdvertiseTxPower.Medium,
+            TxPowerLevel.High => AdvertiseTxPower.High,
+            TxPowerLevel.Max => AdvertiseTxPower.Max,
+            _ => throw new ArgumentException("Illegal Argument", nameof(txPowerLevel))
+        };
     }
 }

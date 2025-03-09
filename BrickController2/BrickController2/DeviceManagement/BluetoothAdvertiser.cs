@@ -40,6 +40,11 @@ namespace BrickController2.DeviceManagement
         protected readonly IBluetoothLEService _bleService;
 
         /// <summary>
+        /// timespan to wait after each output loop
+        /// </summary>
+        private readonly TimeSpan _cyclicLoopWaitTimeSpan = TimeSpan.FromMilliseconds(100);
+
+        /// <summary>
         /// timespan after TryGetTelegram is called from output loop to refresh data
         /// </summary>
         private readonly TimeSpan _cyclicDataRefreshTimeSpan = TimeSpan.FromSeconds(2);
@@ -102,15 +107,26 @@ namespace BrickController2.DeviceManagement
 
         public void NotifyDataChanged(bool allChannelsZero)
         {
-            // on _allChannelsZero will change to true
-            if (allChannelsZero && !_allChannelsZero)
+            if (allChannelsZero)
             {
-                _allZeroStopwatch.Restart();
-            }
-            _allChannelsZero = allChannelsZero;
+                // _allChannelsZero will change to true
+                if (!_allChannelsZero)
+                {
+                    _allChannelsZero = true;
+                    _allZeroStopwatch.Restart();
 
-            // signal _waitForNewData to immediately run next loop in ProcessOutputs
-            _waitForNewData?.Set();
+                    // signal _waitForNewData to immediately run next loop in ProcessOutputs
+                    _waitForNewData?.Set();
+                }
+                //else {} // no change, no signalling
+            }
+            else
+            {
+                _allChannelsZero = false;
+
+                // signal _waitForNewData to immediately run next loop in ProcessOutputs
+                _waitForNewData?.Set();
+            }
         }
 
         public async Task<bool> TryConnectAsync(BluetoothAdvertisingDevice requestingDevice)
@@ -214,7 +230,7 @@ namespace BrickController2.DeviceManagement
             _outputTaskTokenSource = new CancellationTokenSource();
             CancellationToken token = _outputTaskTokenSource.Token;
 
-            _outputTask = Task.Run(() =>
+            _outputTask = Task.Run(async () =>
             {
                 try
                 {
@@ -225,7 +241,7 @@ namespace BrickController2.DeviceManagement
 
                         _waitForNewData = new(false);
 
-                        ProcessOutputs(token);
+                        await ProcessOutputsAsync(token);
                     }
                 }
                 catch (TaskCanceledException) // catch this valid exception thrown on cancellation
@@ -268,18 +284,35 @@ namespace BrickController2.DeviceManagement
         /// process output loop to check for new data
         /// </summary>
         /// <param name="token">CancellationToken</param>
-        private void ProcessOutputs(CancellationToken token)
+        private async Task ProcessOutputsAsync(CancellationToken token)
         {
+            bool newDataSignalled = true;
+            bool inConnectMode = true;
+            bool inConnectModePrevious = false;
+
             while (!token.IsCancellationRequested)
             {
-                if (_tryGetTelegram(_allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan, out byte[] currentData))
+                if (newDataSignalled && // different data is needed
+                    _tryGetTelegram(inConnectMode, out byte[] currentData))
                 {
                     _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
+                    inConnectModePrevious = inConnectMode;
                 }
 
-                Thread.Sleep(1); // prevent loop without sleep
+                await Task.Delay(_cyclicLoopWaitTimeSpan, token).ConfigureAwait(false); // prevent loop without sleep
 
-                _waitForNewData?.WaitOne(_cyclicDataRefreshTimeSpan); // wait till _newData is signalled or _cyclicDataRefreshTimeSpan has passed
+                // wait till _newData is signalled or _cyclicDataRefreshTimeSpan has passed
+                newDataSignalled = _waitForNewData?.WaitOne(_cyclicDataRefreshTimeSpan) ?? false;
+
+                // if all channels are zero and _reconnectTimeSpan has elapsed
+                // then the connect telegram should be sent
+                inConnectMode = _allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
+
+                // if connectMode is requested and if previous was not a connect telegram
+                if (inConnectMode && !inConnectModePrevious)
+                {
+                    newDataSignalled = true;    // force newDataSignalled
+                }
             }
         }
     }

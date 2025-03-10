@@ -237,7 +237,7 @@ namespace BrickController2.DeviceManagement
                     if (_bleAdvertiserDevice != null &&
                        _tryGetTelegram(true, out byte[] currentData))
                     {
-                        _bleAdvertiserDevice.StartAdvertise(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
+                        await _bleAdvertiserDevice.StartAdvertiseAsync(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
 
                         _waitForNewData = new(false);
 
@@ -276,7 +276,7 @@ namespace BrickController2.DeviceManagement
 
             if (_bleAdvertiserDevice != null)
             {
-                _bleAdvertiserDevice.StopAdvertise();
+                await _bleAdvertiserDevice.StopAdvertiseAsync();
             }
         }
 
@@ -292,10 +292,11 @@ namespace BrickController2.DeviceManagement
 
             while (!token.IsCancellationRequested)
             {
-                if (newDataSignalled && // different data is needed
+                if (_bleAdvertiserDevice != null &&
+                    newDataSignalled && // different data is needed
                     _tryGetTelegram(inConnectMode, out byte[] currentData))
                 {
-                    _bleAdvertiserDevice?.UpdateAdvertisedData(_manufacturerId, currentData);
+                    await _bleAdvertiserDevice.UpdateAdvertisedDataAsync(_manufacturerId, currentData);
                     inConnectModePrevious = inConnectMode;
                 }
 

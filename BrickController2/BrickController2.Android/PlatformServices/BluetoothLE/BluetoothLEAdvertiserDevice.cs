@@ -2,6 +2,7 @@
 using Android.Runtime;
 using BrickController2.Droid.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
+using System.Threading.Tasks;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -13,9 +14,13 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
     IBluetoothLEAdvertiserDevice
 {
     private readonly BluetoothLeAdvertiser _advertiser = advertiser;
+    private TaskCompletionSource<bool>? _advertisingStarted;
+    private TaskCompletionSource<bool>? _advertisingStopped;
+    private TaskCompletionSource<bool>? _advertisingUpdated;
+
     private AdvertisingSet? _advertisingSet;
 
-    public void StartAdvertise(AdvertisingInterval advertisingIterval, TxPowerLevel txPowerLevel, ushort manufacturerId, byte[] rawData)
+    public async Task StartAdvertiseAsync(AdvertisingInterval advertisingIterval, TxPowerLevel txPowerLevel, ushort manufacturerId, byte[] rawData)
     {
         AdvertisingSetParameters settings = new AdvertisingSetParameters.Builder()
             .SetLegacyMode(true)
@@ -29,21 +34,37 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             .AddManufacturerData(manufacturerId, rawData)
             .Build();
 
-        _advertiser?.StartAdvertisingSet(
-            settings,
-            data,
-            null,
-            null,
-            null,
-            this);
+        if (_advertiser != null)
+        {
+            TaskCompletionSource<bool> advertisingStarted = new TaskCompletionSource<bool>();
+            _advertisingStarted = advertisingStarted;
+
+            _advertiser?.StartAdvertisingSet(
+                settings,
+                data,
+                null,
+                null,
+                null,
+                this);
+
+            await advertisingStarted.Task;
+        }
     }
 
-    public void StopAdvertise()
+    public async Task StopAdvertiseAsync()
     {
-        _advertiser?.StopAdvertisingSet(this);
+        if (_advertiser != null)
+        {
+            TaskCompletionSource<bool> advertisingStopped = new TaskCompletionSource<bool>();
+            _advertisingStopped = advertisingStopped;
+
+            _advertiser?.StopAdvertisingSet(this);
+
+            await advertisingStopped.Task;
+        }
     }
 
-    public void UpdateAdvertisedData(ushort manufacturerId, byte[] rawData)
+    public async Task UpdateAdvertisedDataAsync(ushort manufacturerId, byte[] rawData)
     {
         if (_advertisingSet != null)
         {
@@ -51,8 +72,21 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
                 .AddManufacturerData(manufacturerId, rawData)
                 .Build();
 
+            TaskCompletionSource<bool> advertisingUpdated = new TaskCompletionSource<bool>();
+            _advertisingUpdated = advertisingUpdated;
+
             _advertisingSet.SetAdvertisingData(data);
+
+            await advertisingUpdated.Task;
         }
+    }
+
+    public override void OnAdvertisingDataSet(AdvertisingSet? advertisingSet, [GeneratedEnum] AdvertiseResult status)
+    {
+        base.OnAdvertisingDataSet(advertisingSet, status);
+
+        _advertisingUpdated?.SetResult(true);
+        _advertisingUpdated = null;
     }
 
     public override void OnAdvertisingSetStarted(AdvertisingSet? advertisingSet, int txPower, [GeneratedEnum] AdvertiseResult status)
@@ -60,6 +94,9 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
         base.OnAdvertisingSetStarted(advertisingSet, txPower, status);
 
         _advertisingSet = advertisingSet;
+
+        _advertisingStarted?.SetResult(true);
+        _advertisingStarted = null;
     }
 
     public override void OnAdvertisingSetStopped(AdvertisingSet? advertisingSet)
@@ -67,5 +104,8 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
         base.OnAdvertisingSetStopped(advertisingSet);
 
         _advertisingSet = null;
+
+        _advertisingStopped?.SetResult(true);
+        _advertisingStopped = null;
     }
 }

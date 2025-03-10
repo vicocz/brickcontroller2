@@ -132,7 +132,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
         }
 
-        public IBluetoothLEAdvertiserDevice? GetBluetoothLEAdvertiserDevice()
+        public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
         {
             BluetoothLeAdvertiser? advertiser = _bluetoothAdapter?.BluetoothLeAdvertiser;
 

@@ -145,7 +145,7 @@ namespace BrickController2.DeviceManagement
                 if (_connectedDeviceList.Count == 1)
                 {
                     // get advertiserdevice from BLEService
-                    _bleAdvertiserDevice = _bleService?.GetBluetoothLEAdvertiserDevice();
+                    _bleAdvertiserDevice = _bleService?.CreateBluetoothLEAdvertiserDevice();
                 }
 
                 return _bleAdvertiserDevice != null;
@@ -166,10 +166,15 @@ namespace BrickController2.DeviceManagement
                 _advertisingDeviceList.Remove(requestingDevice);
 
                 // on last remove
-                if (_connectedDeviceList.Count == 0 &&
-                    _outputTaskTokenSource != null)
+                if (_connectedDeviceList.Count == 0)
                 {
-                    await StopOutputTaskInternalAsync();
+                    if (_outputTaskTokenSource != null)
+                    {
+                        await StopOutputTaskInternalAsync();
+                    }
+
+                    _bleAdvertiserDevice?.Dispose();
+                    _bleAdvertiserDevice = null;
                 }
 
                 return true;

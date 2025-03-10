@@ -14,6 +14,6 @@ namespace BrickController2.PlatformServices.BluetoothLE
 
         IBluetoothLEDevice? GetKnownDevice(string address);
 
-        IBluetoothLEAdvertiserDevice? GetBluetoothLEAdvertiserDevice();
+        IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice();
     }
 }

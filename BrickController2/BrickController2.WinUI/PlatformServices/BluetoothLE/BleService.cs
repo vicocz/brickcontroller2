@@ -102,7 +102,7 @@ public class BleService : IBluetoothLEService
         }
     }
 
-    public IBluetoothLEAdvertiserDevice? GetBluetoothLEAdvertiserDevice()
+    public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
     {
         return null; // Not supported yet - has to be implemented
     }

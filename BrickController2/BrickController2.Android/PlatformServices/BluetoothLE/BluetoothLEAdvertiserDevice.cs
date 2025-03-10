@@ -55,6 +55,7 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             }
             catch // don't await advertisingStarted on any exception
             {
+                _advertisingStarted = null;
             }
         }
     }
@@ -74,6 +75,7 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             }
             catch // don't await advertisingStopped on any exception
             {
+                _advertisingStopped = null;
             }
         }
     }
@@ -97,6 +99,7 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             }
             catch // don't await advertisingUpdated on any exception
             {
+                _advertisingUpdated = null;
             }
         }
     }

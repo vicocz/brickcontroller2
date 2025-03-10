@@ -54,13 +54,10 @@ namespace BrickController2.UI.ViewModels
             _deviceManager = deviceManager;
             _dialogService = dialogService;
 
-            // translate list to dict (key is DeviceType)
-            var dict = staticDeviceManager.FactoryDataList.GroupBy(o => o.DeviceType)
-                       .ToDictionary(g => g.Key, g => g.Select(x => new StaticDeviceEntry(x, GetDeviceInstance(x)))
-                       .ToList());
+            var groups = staticDeviceManager.FactoryDataList
+                .GroupBy(o => o.DeviceType, x => new StaticDeviceEntry(x, GetDeviceInstance(x)));
 
-            GroupedFactoryDatas.AddRange(dict.Select(item => new StaticDeviceGroup(item.Key, item.Value)));
-
+            GroupedFactoryDatas.AddRange(groups.Select(item => new StaticDeviceGroup(item.Key, item.ToList())));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }

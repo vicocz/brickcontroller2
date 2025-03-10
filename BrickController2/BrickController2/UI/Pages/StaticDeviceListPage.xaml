@@ -60,7 +60,7 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="1" Text="{Binding StaticDeviceFactoryData.Address}" FontSize="Micro" VerticalTextAlignment="Center" />
+                                    <Label Grid.Column="1" Text="{Binding StaticDeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
                                     <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
                                 </Grid>
                             </VerticalStackLayout>

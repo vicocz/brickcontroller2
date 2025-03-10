@@ -243,40 +243,32 @@ namespace BrickController2.DeviceManagement
                 var result = true;
 
                 result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
-                result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
 
                 result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
-
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
-                result = result && await SetServoReferencesAsync(new[] { 0, 0, 0, 0 }, token).ConfigureAwait(false);
+                result = result && await SetPuPortModesAsync(token).ConfigureAwait(false);
 
-                // Need to set the modes a couple of times to take effect
-                for (int i = 0; i < 4; i++)
+                result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
+
+                var servoRefs = new int[NUMBER_OF_PU_PORTS];
+                for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
                 {
-                    result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
+                    servoRefs[channel] = CalculateServoReference(_absolutePositions[channel], _relativePositions[channel], _servoBaseAngles[channel]);
 
-                    result = result && await SetPuPortModesAsync(token).ConfigureAwait(false);
-
-                    var servoRefs = new int[NUMBER_OF_PU_PORTS];
-                    for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
+                    if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
                     {
-                        servoRefs[channel] = CalculateServoReference(_absolutePositions[channel], _relativePositions[channel], _servoBaseAngles[channel]);
-
-                        if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
-                        {
-                            result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
-                        }
+                        result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
                     }
-
-                    result = result && await SetServoReferencesAsync(servoRefs, token).ConfigureAwait(false);
-                    await Task.Delay(200);
                 }
+
+                result = result && await SetServoReferencesAsync(servoRefs, token).ConfigureAwait(false);
+                await Task.Delay(200);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
                 _relativePositions.CopyTo(_servoBiasAngles, 0);
                 _relativePositions.CopyTo(_currentStepperAngles, 0);
 
-                return true;
+                return result;
             }
             catch
             {
@@ -636,6 +628,7 @@ namespace BrickController2.DeviceManagement
             await Task.Delay(100, token).ConfigureAwait(false);
             return result;
         }
+        
         private async Task<bool> SetCalibrationPidParametersAsync(int channel, CancellationToken token)
         {
             var buffer = new byte[38];

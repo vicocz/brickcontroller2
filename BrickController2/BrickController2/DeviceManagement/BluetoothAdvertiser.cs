@@ -152,7 +152,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task<bool> TryDisconnect(BluetoothAdvertisingDevice requestingDevice)
+        public async Task<bool> TryDisconnectAsync(BluetoothAdvertisingDevice requestingDevice)
         {
             using (await _asyncLock.LockAsync())
             {

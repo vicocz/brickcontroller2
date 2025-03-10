@@ -112,7 +112,7 @@ namespace BrickController2.DeviceManagement
                 DeviceState = DeviceState.Disconnecting;
 
                 await _bluetoothAdvertiser.StopOutputTaskAsync(this);
-                await _bluetoothAdvertiser.TryDisconnect(this);
+                await _bluetoothAdvertiser.TryDisconnectAsync(this);
 
                 DeviceState = DeviceState.Disconnected;
             }

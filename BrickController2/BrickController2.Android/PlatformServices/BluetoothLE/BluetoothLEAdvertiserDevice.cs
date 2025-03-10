@@ -1,8 +1,8 @@
-﻿using Android.Bluetooth.LE;
+﻿using System.Threading.Tasks;
+using Android.Bluetooth.LE;
 using Android.Runtime;
 using BrickController2.Droid.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
-using System.Threading.Tasks;
 
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -39,15 +39,23 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             TaskCompletionSource<bool> advertisingStarted = new TaskCompletionSource<bool>();
             _advertisingStarted = advertisingStarted;
 
-            _advertiser?.StartAdvertisingSet(
-                settings,
-                data,
-                null,
-                null,
-                null,
-                this);
+            try
+            {
+                // https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertisingSetCallback)
+                // possible exception: IllegalArgumentException
+                _advertiser?.StartAdvertisingSet(
+                    settings,
+                    data,
+                    null,
+                    null,
+                    null,
+                    this);
 
-            await advertisingStarted.Task;
+                await advertisingStarted.Task;
+            }
+            catch // don't await advertisingStarted on any exception
+            {
+            }
         }
     }
 
@@ -58,9 +66,15 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             TaskCompletionSource<bool> advertisingStopped = new TaskCompletionSource<bool>();
             _advertisingStopped = advertisingStopped;
 
-            _advertiser?.StopAdvertisingSet(this);
+            try
+            {
+                _advertiser?.StopAdvertisingSet(this);
 
-            await advertisingStopped.Task;
+                await advertisingStopped.Task;
+            }
+            catch // don't await advertisingStopped on any exception
+            {
+            }
         }
     }
 
@@ -75,9 +89,15 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             TaskCompletionSource<bool> advertisingUpdated = new TaskCompletionSource<bool>();
             _advertisingUpdated = advertisingUpdated;
 
-            _advertisingSet.SetAdvertisingData(data);
+            try
+            {
+                _advertisingSet.SetAdvertisingData(data);
 
-            await advertisingUpdated.Task;
+                await advertisingUpdated.Task;
+            }
+            catch // don't await advertisingUpdated on any exception
+            {
+            }
         }
     }
 

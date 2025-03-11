@@ -3,14 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-#Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrickController2.Android", "BrickController2\BrickController2.Android\BrickController2.Android.csproj", "{A82CFFAA-423D-473B-820C-174F7AE48B7E}"
-#EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrickController2.Android", "BrickController2\BrickController2.Android\BrickController2.Android.csproj", "{A82CFFAA-423D-473B-820C-174F7AE48B7E}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrickController2.iOS", "BrickController2\BrickController2.iOS\BrickController2.iOS.csproj", "{E52D9D91-6F31-42E2-8261-D85AA62D39D1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrickController2", "BrickController2\BrickController2\BrickController2.csproj", "{852D9034-471A-42D0-8701-63D12E2EDACA}"
 EndProject
-#Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrickController2.WinUI", "BrickController2\BrickController2.WinUI\BrickController2.WinUI.csproj", "{47060ECF-9DBD-424B-8CB7-0B0578DB6D7A}"
-#EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrickController2.WinUI", "BrickController2\BrickController2.WinUI\BrickController2.WinUI.csproj", "{47060ECF-9DBD-424B-8CB7-0B0578DB6D7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

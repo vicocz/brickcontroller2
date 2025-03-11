@@ -34,9 +34,9 @@ namespace BrickController2.DeviceManagement
         private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
         /// <summary>
-        /// all MK4.0 modules share the same BluetoothAdvertiser
+        /// all MK4.0 modules share the same BluetoothAdvertisingDeviceHandler
         /// </summary>
-        private static BluetoothAdvertiser? bluetoothAdvertiser;
+        private static BluetoothAdvertisingDeviceHandler? bluetoothAdvertisingDeviceHandler;
 
         /// <summary>
         /// manufacturerId to advertise
@@ -79,19 +79,19 @@ namespace BrickController2.DeviceManagement
         }
 
         /// <summary>
-        /// Get or create BluetoothAdvertiser
+        /// Get or create BluetoothAdvertisingDeviceHandler
         /// </summary>
-        /// <returns>Instance of BluetoothAdvertiser</returns>
-        protected override BluetoothAdvertiser GetBluetoothAdvertiser()
+        /// <returns>Instance of BluetoothAdvertisingDeviceHandler</returns>
+        protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler()
         {
             lock (typeof(MK4)) // lock type
             {
-                if (bluetoothAdvertiser == null)
+                if (bluetoothAdvertisingDeviceHandler == null)
                 {
-                    // all MK4.0 modules share the same BluetoothAdvertiser
-                    bluetoothAdvertiser = new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram, MK4.ReconnectTimeSpan);
+                    // all MK4.0 modules share the same BluetoothAdvertisingDeviceHandler
+                    bluetoothAdvertisingDeviceHandler = new BluetoothAdvertisingDeviceHandler(_bleService, ManufacturerId, TryGetTelegram, MK4.ReconnectTimeSpan);
                 }
-                return bluetoothAdvertiser;
+                return bluetoothAdvertisingDeviceHandler;
             }
         }
     }

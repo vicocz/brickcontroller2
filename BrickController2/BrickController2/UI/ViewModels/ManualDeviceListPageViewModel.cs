@@ -15,26 +15,26 @@ using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.ViewModels
 {
-    public class StaticDeviceListPageViewModel : PageViewModelBase
+    public class ManualDeviceListPageViewModel : PageViewModelBase
     {
-        public class StaticDeviceEntry
+        public class DeviceEntry
         {
-            public IStaticDeviceFactoryData StaticDeviceFactoryData { get; }
+            public IDeviceFactoryData DeviceFactoryData { get; }
             public Device? ExistingDevice { get; }
             public bool Selected { get; set; }
 
-            public StaticDeviceEntry(IStaticDeviceFactoryData staticDeviceFactoryData, Device? instace)
+            public DeviceEntry(IDeviceFactoryData deviceFactoryData, Device? instace)
             {
-                StaticDeviceFactoryData = staticDeviceFactoryData;
+                DeviceFactoryData = deviceFactoryData;
                 ExistingDevice = instace;
                 Selected = instace != null;
             }
         }
-        public class StaticDeviceGroup : List<StaticDeviceEntry>
+        public class DeviceGroup : List<DeviceEntry>
         {
             public DeviceType DeviceType { get; }
 
-            public StaticDeviceGroup(DeviceType deviceType, List<StaticDeviceEntry> staticDeviceEntry) : base(staticDeviceEntry)
+            public DeviceGroup(DeviceType deviceType, List<DeviceEntry> deviceEntry) : base(deviceEntry)
             {
                 DeviceType = deviceType;
             }
@@ -43,26 +43,26 @@ namespace BrickController2.UI.ViewModels
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
 
-        public StaticDeviceListPageViewModel(
+        public ManualDeviceListPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
             IDeviceManager deviceManager,
-            IStaticDeviceManager staticDeviceManager,
+            IManualDeviceManager manualDeviceManager,
             IDialogService dialogService) 
             : base(navigationService, translationService)
         {
             _deviceManager = deviceManager;
             _dialogService = dialogService;
 
-            var groups = staticDeviceManager.FactoryDataList
-                .GroupBy(o => o.DeviceType, x => new StaticDeviceEntry(x, GetDeviceInstance(x)));
+            var groups = manualDeviceManager.FactoryDataList
+                .GroupBy(o => o.DeviceType, x => new DeviceEntry(x, GetDeviceInstance(x)));
 
-            GroupedFactoryDatas.AddRange(groups.Select(item => new StaticDeviceGroup(item.Key, item.ToList())));
+            GroupedFactoryDatas.AddRange(groups.Select(item => new DeviceGroup(item.Key, item.ToList())));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }
 
-        public List<StaticDeviceGroup> GroupedFactoryDatas { get; } = new List<StaticDeviceGroup>();
+        public List<DeviceGroup> GroupedFactoryDatas { get; } = new List<DeviceGroup>();
 
         public ICommand ApplyChangesCommand { get; }
 
@@ -70,9 +70,9 @@ namespace BrickController2.UI.ViewModels
         private async Task ApplyChangesAsync()
         {
             // get all entries to create (=> entry.Selected && entry.ExistingDevice == null)
-            IStaticDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas
+            IDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas
                 .SelectMany(group => group.FindAll(entry => entry.Selected && entry.ExistingDevice == null)
-                    .Select(entry => entry.StaticDeviceFactoryData))
+                    .Select(entry => entry.DeviceFactoryData))
                 .ToArray();
 
             // get all entries to delete (=> !entry.Selected && entry.ExistingDevice != null)
@@ -107,11 +107,11 @@ namespace BrickController2.UI.ViewModels
         /// <summary>
         /// get matching device from DeviceManager or null
         /// </summary>
-        /// <param name="staticDeviceFactoryData"></param>
+        /// <param name="deviceFactoryData"></param>
         /// <returns>existing device or null</returns>
-        private Device? GetDeviceInstance(IStaticDeviceFactoryData staticDeviceFactoryData)
+        private Device? GetDeviceInstance(IDeviceFactoryData deviceFactoryData)
         {
-            return _deviceManager.Devices.FirstOrDefault(d => d.DeviceType == staticDeviceFactoryData.DeviceType && d.Address == staticDeviceFactoryData.Address);
+            return _deviceManager.Devices.FirstOrDefault(d => d.DeviceType == deviceFactoryData.DeviceType && d.Address == deviceFactoryData.Address);
         }
     }
 }

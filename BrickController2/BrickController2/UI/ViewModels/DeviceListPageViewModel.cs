@@ -38,7 +38,7 @@ namespace BrickController2.UI.ViewModels
 
 
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
-            ShowStaticDeviceListPageCommand = new SafeCommand(async () => await ShowStaticDeviceListPageAsync(), () => !DeviceManager.IsScanning);
+            ShowManualDeviceListPageCommand = new SafeCommand(async () => await ShowManualDeviceListPageAsync(), () => !DeviceManager.IsScanning);
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
             DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
@@ -47,7 +47,7 @@ namespace BrickController2.UI.ViewModels
         public IDeviceManager DeviceManager { get; }
 
         public ICommand ScanCommand { get; }
-        public ICommand ShowStaticDeviceListPageCommand { get; }
+        public ICommand ShowManualDeviceListPageCommand { get; }
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
@@ -99,11 +99,11 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task ShowStaticDeviceListPageAsync()
+        private async Task ShowManualDeviceListPageAsync()
         {
             try
             {
-                await NavigationService.NavigateToAsync<StaticDeviceListPageViewModel>(new());
+                await NavigationService.NavigateToAsync<ManualDeviceListPageViewModel>(new());
             }
             catch (OperationCanceledException)
             {

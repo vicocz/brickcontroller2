@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement
 {
-    public interface IStaticDeviceFactoryData
+    public interface IDeviceFactoryData
     {
         DeviceType DeviceType { get; }
         string Name { get; }

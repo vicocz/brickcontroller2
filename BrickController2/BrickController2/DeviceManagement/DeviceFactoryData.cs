@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement
 {
-    public class StaticDeviceFactoryData : IStaticDeviceFactoryData
+    public class DeviceFactoryData : IDeviceFactoryData
     {
-        public StaticDeviceFactoryData(DeviceType deviceType, string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings)
+        public DeviceFactoryData(DeviceType deviceType, string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings)
         {
             DeviceType = deviceType;
             Name = name;

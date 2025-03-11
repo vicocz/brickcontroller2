@@ -9,6 +9,6 @@ public static class ContainerBuilderExtensions
 {
     public static void RegisterDeviceFactory(this ContainerBuilder builder, DeviceType deviceType, string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings)
     {
-        builder.Register(c => new StaticDeviceFactoryData(deviceType, name, address, deviceData, settings)).As<IStaticDeviceFactoryData>();
+        builder.Register(c => new DeviceFactoryData(deviceType, name, address, deviceData, settings)).As<IDeviceFactoryData>();
     }
 }

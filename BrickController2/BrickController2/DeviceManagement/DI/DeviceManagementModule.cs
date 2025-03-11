@@ -13,7 +13,7 @@ namespace BrickController2.DeviceManagement.DI
 
             builder.RegisterType<DeviceRepository>().As<IDeviceRepository>().SingleInstance();
             builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance();
-            builder.RegisterType<StaticDeviceManager>().As<IStaticDeviceManager>().SingleInstance();
+            builder.RegisterType<ManualDeviceManager>().As<IManualDeviceManager>().SingleInstance();
 
             builder.RegisterType<SBrickDevice>().Keyed<Device>(DeviceType.SBrick);
             builder.RegisterType<BuWizzDevice>().Keyed<Device>(DeviceType.BuWizz);

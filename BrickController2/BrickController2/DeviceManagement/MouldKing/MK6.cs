@@ -79,13 +79,13 @@ namespace BrickController2.DeviceManagement
         }
 
         /// <summary>
-        /// Get or create BluetoothAdvertiser
+        /// Get or create BluetoothAdvertisingDeviceHandler
         /// </summary>
-        /// <returns>Instance of BluetoothAdvertiser</returns>
-        protected override BluetoothAdvertiser GetBluetoothAdvertiser()
+        /// <returns>Instance of BluetoothAdvertisingDeviceHandler</returns>
+        protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler()
         {
             // MK6.0 needs a BluetoothAdvertiser per module
-            return new BluetoothAdvertiser(_bleService, ManufacturerId, TryGetTelegram, MK6.ReconnectTimeSpan);
+            return new BluetoothAdvertisingDeviceHandler(_bleService, ManufacturerId, TryGetTelegram, MK6.ReconnectTimeSpan);
         }
     }
 }

@@ -7,7 +7,7 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
-    x:Class="BrickController2.UI.Pages.StaticDeviceListPage"
+    x:Class="BrickController2.UI.Pages.ManualDeviceListPage"
     x:Name="Page"
     Title="{extensions:Translate AddDevicesManually}"
     ios:Page.UseSafeArea="True"
@@ -60,7 +60,7 @@
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="1" Text="{Binding StaticDeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
+                                    <Label Grid.Column="1" Text="{Binding DeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
                                     <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
                                 </Grid>
                             </VerticalStackLayout>

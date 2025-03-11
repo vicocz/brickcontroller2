@@ -6,17 +6,17 @@ namespace BrickController2.Extensions;
 
 public static class DeviceManagerExtensions
 {
-    internal static async Task CreateDevicesAsync(this IDeviceManager deviceManager, IEnumerable<IStaticDeviceFactoryData> staticDeviceFactoryDataList)
+    internal static async Task CreateDevicesAsync(this IDeviceManager deviceManager, IEnumerable<IDeviceFactoryData> deviceFactoryDataList)
     {
-        foreach (var item in staticDeviceFactoryDataList)
+        foreach (var item in deviceFactoryDataList)
         {
             await deviceManager.CreateDeviceAsync(item);
         }
     }
 
-    internal static async Task CreateDeviceAsync(this IDeviceManager deviceManager, IStaticDeviceFactoryData staticDeviceFactoryData)
+    internal static async Task CreateDeviceAsync(this IDeviceManager deviceManager, IDeviceFactoryData deviceFactoryData)
     {
-        await deviceManager.CreateDeviceAsync(staticDeviceFactoryData.DeviceType, staticDeviceFactoryData.Name, staticDeviceFactoryData.Address, staticDeviceFactoryData.DeviceData);
+        await deviceManager.CreateDeviceAsync(deviceFactoryData.DeviceType, deviceFactoryData.Name, deviceFactoryData.Address, deviceFactoryData.DeviceData);
     }
 
     internal static async Task DeleteDevicesAsync(this IDeviceManager deviceManager, IEnumerable<Device> devices)

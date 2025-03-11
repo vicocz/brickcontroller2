@@ -83,12 +83,12 @@ namespace BrickController2.DeviceManagement
                     if (byteValue == 0x80)
                     {
                         // notify data changed
-                        _bluetoothAdvertiser.NotifyDataChanged(CheckAllChannelsZero());
+                        _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(CheckAllChannelsZero());
                     }
                     else
                     {
                         // notify data changed
-                        _bluetoothAdvertiser.NotifyDataChanged(false);
+                        _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(false);
                     }
                 }
             }

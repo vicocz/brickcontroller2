@@ -9,10 +9,14 @@ using BrickController2.Helpers;
 namespace BrickController2.DeviceManagement
 {
     /// <summary>
-    /// BluetoothAdvertiser class
-    /// 
+    /// An instance of BluetoothAdvertisingDeviceHandler is coordinating the BluetoothAdvertising 
+    /// of one or multiple BluetoothAdvertisingDevices.
+    /// BluetoothAdvertisingDevices have to be connected/disconnected and are requesting the 
+    /// starting/stopping of the output loop.
+    /// If a change of the output data is signalled BluetoothAdvertisingDeviceHandler tries to get
+    /// the new data and updates the output of the data being advertised.
     /// </summary>
-    internal class BluetoothAdvertiser
+    internal class BluetoothAdvertisingDeviceHandler
     {
         /// <summary>
         /// Definition of a delegate to get telegram data
@@ -94,7 +98,7 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         private bool _allChannelsZero = true;
 
-        public BluetoothAdvertiser(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram, TimeSpan reconnectTimespan)
+        public BluetoothAdvertisingDeviceHandler(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram, TimeSpan reconnectTimespan)
         {
             _bleService = bleService;
             _manufacturerId = manufacturerId;

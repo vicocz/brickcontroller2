@@ -6,9 +6,9 @@ using Microsoft.Maui.Controls.Xaml;
 namespace BrickController2.UI.Pages
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class StaticDeviceListPage
+    public partial class ManualDeviceListPage
     {
-        public StaticDeviceListPage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
+        public ManualDeviceListPage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
             : base(backgroundService, dialogServerHost)
         {
             InitializeComponent();

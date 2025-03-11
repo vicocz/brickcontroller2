@@ -12,9 +12,9 @@ namespace BrickController2.DeviceManagement
     internal abstract class BluetoothAdvertisingDevice : Device
     {
         /// <summary>
-        /// BluetoothAdvertiser
+        /// BluetoothAdvertisingDeviceHandler
         /// </summary>
-        protected readonly BluetoothAdvertiser _bluetoothAdvertiser;
+        protected readonly BluetoothAdvertisingDeviceHandler _bluetoothAdvertisingDeviceHandler;
 
         /// <summary>
         /// reference to bleService object
@@ -31,7 +31,7 @@ namespace BrickController2.DeviceManagement
             : base(name, address, deviceRepository)
         {
             _bleService = bleService;
-            _bluetoothAdvertiser = GetBluetoothAdvertiser();
+            _bluetoothAdvertisingDeviceHandler = GetBluetoothAdvertisingDeviceHandler();
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace BrickController2.DeviceManagement
             {
                 try
                 {
-                    if (!await _bluetoothAdvertiser.TryConnectAsync(this))
+                    if (!await _bluetoothAdvertisingDeviceHandler.TryConnectAsync(this))
                     {
                         return DeviceConnectionResult.Error;
                     }
@@ -74,7 +74,7 @@ namespace BrickController2.DeviceManagement
                     {
                         InitDevice();
                         
-                        await _bluetoothAdvertiser.StartOutputTaskAsync(this);
+                        await _bluetoothAdvertisingDeviceHandler.StartOutputTaskAsync(this);
                     }
 
                     token.ThrowIfCancellationRequested();
@@ -111,8 +111,8 @@ namespace BrickController2.DeviceManagement
 
                 DeviceState = DeviceState.Disconnecting;
 
-                await _bluetoothAdvertiser.StopOutputTaskAsync(this);
-                await _bluetoothAdvertiser.TryDisconnectAsync(this);
+                await _bluetoothAdvertisingDeviceHandler.StopOutputTaskAsync(this);
+                await _bluetoothAdvertisingDeviceHandler.TryDisconnectAsync(this);
 
                 DeviceState = DeviceState.Disconnected;
             }
@@ -124,9 +124,9 @@ namespace BrickController2.DeviceManagement
         protected abstract void InitDevice();
 
         /// <summary>
-        /// Get or create BluetoothAdvertiser
+        /// Get or create BluetoothAdvertisingDeviceHandler
         /// </summary>
-        /// <returns>Instance of BluetoothAdvertiser</returns>
-        protected abstract BluetoothAdvertiser GetBluetoothAdvertiser();
+        /// <returns>Instance of BluetoothAdvertisingDeviceHandler</returns>
+        protected abstract BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler();
     }
 }

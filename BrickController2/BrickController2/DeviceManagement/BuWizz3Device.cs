@@ -268,6 +268,8 @@ namespace BrickController2.DeviceManagement
                 _relativePositions.CopyTo(_servoBiasAngles, 0);
                 _relativePositions.CopyTo(_currentStepperAngles, 0);
 
+                result = result && await SetLEDStatusAsync(token).ConfigureAwait(false);
+
                 return result;
             }
             catch
@@ -576,9 +578,18 @@ namespace BrickController2.DeviceManagement
             return result;
         }
 
+        private async Task<bool> SetLEDStatusAsync(CancellationToken token)
+        {
+            var buffer = new byte[] { 0x36, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 0, 0, 0 };
+
+            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            await Task.Delay(50, token).ConfigureAwait(false);
+            return result;
+        }
+
         private async Task<bool> ResetMotorRampUpDownAsync(CancellationToken token)
         {
-            var buffer = new byte[] { 0x33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            var buffer = new byte[] { 0x33, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100 };
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
@@ -628,7 +639,7 @@ namespace BrickController2.DeviceManagement
             await Task.Delay(100, token).ConfigureAwait(false);
             return result;
         }
-        
+
         private async Task<bool> SetCalibrationPidParametersAsync(int channel, CancellationToken token)
         {
             var buffer = new byte[38];

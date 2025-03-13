@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Android.Bluetooth.LE;
 using Android.Runtime;
 using BrickController2.Droid.Extensions;
@@ -13,6 +14,11 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE;
 internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : AdvertisingSetCallback,
     IBluetoothLEAdvertiserDevice
 {
+    /// <summary>
+    /// TaskCompletionSource is awaited till this Timespan expires
+    /// </summary>
+    private static readonly TimeSpan WaitAsyncTimeout = TimeSpan.FromMilliseconds(100);
+
     private readonly BluetoothLeAdvertiser _advertiser = advertiser;
     private TaskCompletionSource<bool>? _advertisingStarted;
     private TaskCompletionSource<bool>? _advertisingStopped;
@@ -51,7 +57,8 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
                     null,
                     this);
 
-                await advertisingStarted.Task;
+                // await TaskCompletionSource is set or WaitAsyncTimeout expires
+                await advertisingStarted.Task.WaitAsync(WaitAsyncTimeout);
             }
             catch // don't await advertisingStarted on any exception
             {
@@ -71,7 +78,8 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             {
                 _advertiser.StopAdvertisingSet(this);
 
-                await advertisingStopped.Task;
+                // await TaskCompletionSource is set or WaitAsyncTimeout expires
+                await advertisingStopped.Task.WaitAsync(WaitAsyncTimeout);
             }
             catch // don't await advertisingStopped on any exception
             {
@@ -95,7 +103,8 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             {
                 _advertisingSet.SetAdvertisingData(data);
 
-                await advertisingUpdated.Task;
+                // await TaskCompletionSource is set or WaitAsyncTimeout expires
+                await advertisingUpdated.Task.WaitAsync(WaitAsyncTimeout);
             }
             catch // don't await advertisingUpdated on any exception
             {

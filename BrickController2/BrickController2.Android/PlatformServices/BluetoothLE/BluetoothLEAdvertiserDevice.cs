@@ -43,7 +43,7 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
             {
                 // https://developer.android.com/reference/android/bluetooth/le/BluetoothLeAdvertiser#startAdvertisingSet(android.bluetooth.le.AdvertisingSetParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.PeriodicAdvertisingParameters,%20android.bluetooth.le.AdvertiseData,%20android.bluetooth.le.AdvertisingSetCallback)
                 // possible exception: IllegalArgumentException
-                _advertiser?.StartAdvertisingSet(
+                _advertiser.StartAdvertisingSet(
                     settings,
                     data,
                     null,
@@ -69,7 +69,7 @@ internal class BluetoothLEAdvertiserDevice(BluetoothLeAdvertiser advertiser) : A
 
             try
             {
-                _advertiser?.StopAdvertisingSet(this);
+                _advertiser.StopAdvertisingSet(this);
 
                 await advertisingStopped.Task;
             }

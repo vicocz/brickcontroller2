@@ -91,6 +91,8 @@ namespace BrickController2.DeviceManagement
 
         public override bool CanChangeOutputType(int channel) => channel < NUMBER_OF_PU_PORTS;
 
+        public override bool CanChangeMaxServoAngle(int channel) => true;
+
         public async override Task<DeviceConnectionResult> ConnectAsync(
             bool reconnect,
             Action<Device> onDeviceDisconnected,
@@ -107,11 +109,11 @@ namespace BrickController2.DeviceManagement
                     _lastOutputValues[channel] = 0;
                 }
             }
-            
+
             lock (_positionLock)
             {
                 // process only PU ports
-                for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)                
+                for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
                 {
                     var channelConfig = channelConfigurations.FirstOrDefault(c => c.Channel == channel);
 
@@ -243,40 +245,34 @@ namespace BrickController2.DeviceManagement
                 var result = true;
 
                 result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
-                result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
 
                 result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
-
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
-                result = result && await SetServoReferencesAsync(new[] { 0, 0, 0, 0 }, token).ConfigureAwait(false);
+                result = result && await SetPuPortModesAsync(token).ConfigureAwait(false);
 
-                // Need to set the modes a couple of times to take effect
-                for (int i = 0; i < 4; i++)
+                result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
+
+                var servoRefs = new int[NUMBER_OF_PU_PORTS];
+                for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
                 {
-                    result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
+                    servoRefs[channel] = CalculateServoReference(_absolutePositions[channel], _relativePositions[channel], _servoBaseAngles[channel]);
 
-                    result = result && await SetPuPortModesAsync(token).ConfigureAwait(false);
-
-                    var servoRefs = new int[NUMBER_OF_PU_PORTS];
-                    for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
+                    if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
                     {
-                        servoRefs[channel] = CalculateServoReference(_absolutePositions[channel], _relativePositions[channel], _servoBaseAngles[channel]);
-
-                        if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
-                        {
-                            result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
-                        }
+                        result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
                     }
-
-                    result = result && await SetServoReferencesAsync(servoRefs, token).ConfigureAwait(false);
-                    await Task.Delay(200);
                 }
+
+                result = result && await SetServoReferencesAsync(servoRefs, token).ConfigureAwait(false);
+                await Task.Delay(200);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
                 _relativePositions.CopyTo(_servoBiasAngles, 0);
                 _relativePositions.CopyTo(_currentStepperAngles, 0);
 
-                return true;
+                result = result && await SetLEDStatusAsync(token).ConfigureAwait(false);
+
+                return result;
             }
             catch
             {
@@ -289,16 +285,16 @@ namespace BrickController2.DeviceManagement
             try
             {
                 lock (_outputLock)
-                lock (_positionLock)
-                {
-                    for (int channel = 0; channel < NumberOfChannels; channel++)
+                    lock (_positionLock)
                     {
-                        _outputValues[channel] = 0;
-                        _lastOutputValues[channel] = 1;
-                    }
+                        for (int channel = 0; channel < NumberOfChannels; channel++)
+                        {
+                            _outputValues[channel] = 0;
+                            _lastOutputValues[channel] = 1;
+                        }
 
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-                }
+                        _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                    }
 
                 while (!token.IsCancellationRequested)
                 {
@@ -447,10 +443,10 @@ namespace BrickController2.DeviceManagement
                 var servoReference = CalculateServoReference(absPosStart, relPosStart, baseAngle);
 
                 result = result && await SetPuPortModeAsync(channel, true, token).ConfigureAwait(false);
-                result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
+                result = result && await SetCalibrationPidParametersAsync(channel, token).ConfigureAwait(false);
 
-                result = await SetServoReferenceAsync(channel, servoReference, token).ConfigureAwait(false);
-                await Task.Delay(500).ConfigureAwait(false);
+                result = result && await SetServoReferenceAsync(channel, servoReference, token).ConfigureAwait(false);
+                await Task.Delay(2000).ConfigureAwait(false);
 
                 result = result && await SetPuPortModeAsync(channel, false, token).ConfigureAwait(false);
                 result = result && await SetSpeedAsync(channel, 0, token).ConfigureAwait(false);
@@ -512,15 +508,15 @@ namespace BrickController2.DeviceManagement
                 var relPos2 = _relativePositions[channel];
 
                 result = result && await SetPuPortModeAsync(channel, true, token).ConfigureAwait(false);
-                result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
+                result = result && await SetCalibrationPidParametersAsync(channel, token).ConfigureAwait(false);
 
                 var absPos2Corrected = (absPos2 <= absPos1) ? absPos2 : absPos2 - 360;
-                var absPosMid = RoundAngleToNearest90((absPos1 + absPos2Corrected) / 2);
+                var absPosMid = (absPos1 + absPos2Corrected) / 2;
 
                 var servoReference = CalculateServoReference(absPosStart, relPosStart, absPosMid);
 
                 result = result && await SetServoReferenceAsync(channel, servoReference, token).ConfigureAwait(false);
-                await Task.Delay(500).ConfigureAwait(false);
+                await Task.Delay(2000).ConfigureAwait(false);
 
                 result = result && await SetPuPortModeAsync(channel, false, token).ConfigureAwait(false);
                 result = result && await SetSpeedAsync(channel, 0, token).ConfigureAwait(false);
@@ -589,9 +585,18 @@ namespace BrickController2.DeviceManagement
             return result;
         }
 
+        private async Task<bool> SetLEDStatusAsync(CancellationToken token)
+        {
+            var buffer = new byte[] { 0x36, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 0, 0, 0 };
+
+            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            await Task.Delay(50, token).ConfigureAwait(false);
+            return result;
+        }
+
         private async Task<bool> ResetMotorRampUpDownAsync(CancellationToken token)
         {
-            var buffer = new byte[] { 0x33, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            var buffer = new byte[] { 0x33, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100 };
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
@@ -620,24 +625,50 @@ namespace BrickController2.DeviceManagement
 
             buffer[0] = 0x53;
             buffer[1] = (byte)channel;
-            buffer.SetFloat(0f, 2); // outLP
-            buffer.SetFloat(0f, 6); // D_LP
-            buffer.SetFloat(0.6f, 10); // speed_LP
-            buffer.SetFloat(0.5f, 14); // Kp
-            buffer.SetFloat(0.01f, 18); // Ki
-            buffer.SetFloat(-1f, 22); // Kd
-            buffer.SetFloat(20f, 26); // Liml
-            buffer.SetFloat(50f, 30); // Reference rate limit
-            buffer[34] = 127; // limOut
-            buffer[35] = 5; // DeadbandOut
-            buffer[36] = 10; // DeadbandOutBoost
-            buffer[37] = isServo ? (byte)0x15 : (byte)0x10; // valid mode (equal to port mode selected)
+            buffer.SetFloat(0.7f, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            buffer.SetFloat(0f, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            buffer.SetFloat(0f, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            buffer.SetFloat(0f, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
+            buffer.SetFloat(0f, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            buffer[35] = 2; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            buffer[36] = 0; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            buffer.SetFloat(0f, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
+            buffer[34] = 127; // limOut - default: 20 (position servo) / 127 (speed servo)
+            //buffer.SetFloat(60f, 30); // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
+            buffer[37] = (byte)0x15; // valid mode (equal to port mode selected)
+
+            if (!isServo)
+            {
+                buffer.SetFloat(0.6f, 10); // speed_LP - default: / (position servo) / 0.9 (speed servo)
+            }
 
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(100, token).ConfigureAwait(false);
             return result;
         }
 
+        private async Task<bool> SetCalibrationPidParametersAsync(int channel, CancellationToken token)
+        {
+            var buffer = new byte[38];
+
+            buffer[0] = 0x53;
+            buffer[1] = (byte)channel;
+            buffer.SetFloat(1f, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            buffer.SetFloat(0f, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            buffer.SetFloat(0f, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            buffer.SetFloat(0f, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
+            buffer.SetFloat(0.9f, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            buffer[35] = 0; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            buffer[36] = 0; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            buffer.SetFloat(0f, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
+            buffer[34] = 10; // limOut - default: 20 (position servo) / 127 (speed servo)
+            // buffer.SetFloat(10f, 30); // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
+            buffer[37] = (byte)0x15; // valid mode (equal to port mode selected)
+
+            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            await Task.Delay(100, token).ConfigureAwait(false);
+            return result;
+        }
         private async Task<bool> WaitForNextCharacteristicNotificationAsync(CancellationToken token)
         {
             _characteristicNotificationResetEvent.Reset();

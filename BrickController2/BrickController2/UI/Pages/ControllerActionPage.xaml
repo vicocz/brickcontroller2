@@ -95,6 +95,9 @@
                                             <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.ServoMotor}">
                                                 <Setter Property="IsVisible" Value="True"/>
                                             </DataTrigger>
+                                            <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.StepperMotor}">
+                                                <Setter Property="IsVisible" Value="True"/>
+                                            </DataTrigger>
                                         </controls:FloatingActionButton.Triggers>
                                     </controls:FloatingActionButton>
                                 </Grid>

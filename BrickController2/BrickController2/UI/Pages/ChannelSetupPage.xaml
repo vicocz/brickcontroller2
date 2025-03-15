@@ -53,7 +53,6 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
                                 <Label Grid.Column="0" Grid.Row="0" Text="{extensions:Translate DeviceName}" FontSize="Small"/>
@@ -62,8 +61,12 @@
                                 <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small"/>
                                 <Label Grid.Column="1" Grid.Row="1" Text="{Binding Device.DeviceType}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Channel}" FontSize="Small"/>
-                                <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
+                                <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Channel}" FontSize="Small"/>
+                                <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
+
+                                <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
+                                <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold"/>
+
                             </Grid>
                         </Grid>
 
@@ -85,6 +88,16 @@
                                 <Label Text="°"/>
                             </StackLayout>
                             <Button Text="{extensions:Translate Reset}" Command="{Binding ResetServoBaseCommand}" Margin="0, 30, 0, 0"/>
+
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+                        </StackLayout>
+
+                        <!-- Stepper test controls -->
+                        <StackLayout Orientation="Vertical" Padding="10">
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+
+                            <Button Text="{extensions:Translate NextStep}" Command="{Binding StepperNextStepCommand}" Margin="0, 30, 0, 30"/>
+                            <Button Text="{extensions:Translate StepBack}" Command="{Binding StepperStepBackCommand}" Margin="0, 30, 0, 30"/>
 
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                         </StackLayout>

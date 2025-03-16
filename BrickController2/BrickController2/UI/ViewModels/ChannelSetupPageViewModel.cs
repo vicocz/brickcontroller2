@@ -17,13 +17,14 @@ namespace BrickController2.UI.ViewModels
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
         private readonly bool _startOutputProcessing;
-        private readonly IReadOnlyList<ChannelConfiguration> _channelConfig;
 
+        private ChannelConfiguration _channelConfig;
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
         private bool _isDisappearing = false;
 
         private int _servoBaseAngle;
+        private int _stepperAngle;
 
         public ChannelSetupPageViewModel(
             INavigationService navigationService,
@@ -39,17 +40,11 @@ namespace BrickController2.UI.ViewModels
             Device = parameters.Get<Device>("device");
             Action = parameters.Get<ControllerAction>("controlleraction");
             ServoBaseAngle = Action.ServoBaseAngle;
+            StepperAngle = Action.StepperAngle;
 
-            // conditional setup
+            // setup channel config for testing
+            UpdateChannelConfig();
             _startOutputProcessing = Action.ChannelOutputType == ChannelOutputType.StepperMotor;
-            _channelConfig = Action.ChannelOutputType == ChannelOutputType.ServoMotor ?
-                [] :
-                [new ChannelConfiguration
-                {
-                    Channel = Action.Channel,
-                    ChannelOutputType = ChannelOutputType.StepperMotor,
-                    StepperAngle = Action.StepperAngle
-                }];
 
             SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !_dialogService.IsDialogOpen);
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
@@ -68,6 +63,11 @@ namespace BrickController2.UI.ViewModels
         {
             get { return _servoBaseAngle; }
             set { _servoBaseAngle = value; RaisePropertyChanged(); }
+        }
+        public int StepperAngle
+        {
+            get { return _stepperAngle; }
+            set { _stepperAngle = value; RaisePropertyChanged(); }
         }
 
         public ICommand SaveChannelSettingsCommand { get; }
@@ -134,7 +134,7 @@ namespace BrickController2.UI.ViewModels
                                 await Device.ConnectAsync(
                                     false,
                                     OnDeviceDisconnected,
-                                    _channelConfig,
+                                    _startOutputProcessing ? new[] { _channelConfig } : [],
                                     _startOutputProcessing,
                                     false,
                                     token);
@@ -188,7 +188,14 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SaveChannelSettingsAsync()
         {
-            Action.ServoBaseAngle = ServoBaseAngle;
+            if (Action.ChannelOutputType == ChannelOutputType.ServoMotor)
+            {
+                Action.ServoBaseAngle = ServoBaseAngle;
+            }
+            else if (Action.ChannelOutputType == ChannelOutputType.StepperMotor)
+            {
+                Action.StepperAngle = StepperAngle;
+            }
             await NavigationService.NavigateModalBackAsync();
         }
 
@@ -224,8 +231,38 @@ namespace BrickController2.UI.ViewModels
                 DisappearingToken);
         }
 
+        private void UpdateChannelConfig()
+        {
+            _channelConfig = new ChannelConfiguration
+            {
+                Channel = Action.Channel,
+                ChannelOutputType = Action.ChannelOutputType,
+                ServoBaseAngle = ServoBaseAngle,
+                MaxServoAngle = Action.MaxServoAngle,
+                StepperAngle = StepperAngle
+            };
+        }
+
         private async Task StepperOneStepAsync(float value)
         {
+            // if stepper angle has changed, we need to reconnect to apply it
+            if (StepperAngle != _channelConfig.StepperAngle)
+            {
+                UpdateChannelConfig();
+
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) =>
+                    {
+                        await Device.DisconnectAsync();
+                        await Task.Delay(250, token);
+                    },
+                    Translate("Reseting"),
+                    null,
+                    Translate("Cancel"),
+                    DisappearingToken);
+            }
+
             // simulate triggering of button
             Device.SetOutput(Action.Channel, value);
             await Task.Delay(250);

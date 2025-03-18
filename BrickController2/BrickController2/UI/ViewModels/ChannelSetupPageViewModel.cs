@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BrickController2.CreationManagement;
@@ -16,8 +15,8 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
-        private readonly bool _startOutputProcessing;
 
+        private bool _startOutputProcessing;
         private ChannelConfiguration _channelConfig;
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
@@ -49,7 +48,7 @@ namespace BrickController2.UI.ViewModels
             SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !_dialogService.IsDialogOpen);
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
             ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => Device.CanResetOutput(Action.Channel));
-            StepperNextStepCommand = new SafeCommand(() => StepperOneStepAsync(GameControllers.BUTTON_PRESSED));
+            StepperStepForwardCommand = new SafeCommand(() => StepperOneStepAsync(GameControllers.BUTTON_PRESSED));
             StepperStepBackCommand = new SafeCommand(() => StepperOneStepAsync(GameControllers.BUTTON_PRESSED_INV));
         }
 
@@ -73,7 +72,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand SaveChannelSettingsCommand { get; }
         public ICommand AutoCalibrateServoCommand { get; }
         public ICommand ResetServoBaseCommand { get; }
-        public ICommand StepperNextStepCommand { get; }
+        public ICommand StepperStepForwardCommand { get; }
         public ICommand StepperStepBackCommand { get; }
 
         public override async void OnAppearing()
@@ -237,8 +236,9 @@ namespace BrickController2.UI.ViewModels
             {
                 Channel = Action.Channel,
                 ChannelOutputType = Action.ChannelOutputType,
-                ServoBaseAngle = ServoBaseAngle,
                 MaxServoAngle = Action.MaxServoAngle,
+                // current settings
+                ServoBaseAngle = ServoBaseAngle,
                 StepperAngle = StepperAngle
             };
         }
@@ -246,26 +246,31 @@ namespace BrickController2.UI.ViewModels
         private async Task StepperOneStepAsync(float value)
         {
             // if stepper angle has changed, we need to reconnect to apply it
-            if (StepperAngle != _channelConfig.StepperAngle)
+            if (StepperAngle != _channelConfig.StepperAngle || !_startOutputProcessing)
             {
+                // update prerequsities
                 UpdateChannelConfig();
+                _startOutputProcessing = true;
 
-                await _dialogService.ShowProgressDialogAsync(
-                    false,
-                    async (progressDialog, token) =>
-                    {
-                        await Device.DisconnectAsync();
-                        await Task.Delay(250, token);
-                    },
-                    Translate("Reseting"),
-                    null,
-                    Translate("Cancel"),
-                    DisappearingToken);
+                // disconnect 
+                await Device.DisconnectAsync();
+
+                // await reconnection
+                while (!DisappearingToken.IsCancellationRequested && Device.DeviceState != DeviceState.Connected)
+                {
+                    await Task.Delay(100, DisappearingToken);
+                }
             }
 
             // simulate triggering of button
+            await SimulateTestButton(value);
+        }
+
+        private async Task SimulateTestButton(float value)
+        {
+            // simulate triggering of button
             Device.SetOutput(Action.Channel, value);
-            await Task.Delay(250);
+            await Task.Delay(500);
             Device.SetOutput(Action.Channel, GameControllers.BUTTON_RELEASED);
         }
     }

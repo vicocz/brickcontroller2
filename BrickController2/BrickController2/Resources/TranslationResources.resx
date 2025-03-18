@@ -696,4 +696,10 @@
   <data name="PlayVmEnabled" xml:space="preserve">
     <value>Easy drive mode (PLAYVM)</value>
   </data>
+  <data name="StepBack" xml:space="preserve">
+    <value>Step backward</value>
+  </data>
+  <data name="StepForward" xml:space="preserve">
+    <value>Step forward</value>
+  </data>
 </root>

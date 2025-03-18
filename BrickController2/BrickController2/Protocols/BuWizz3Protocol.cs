@@ -9,6 +9,12 @@ internal static class BuWizz3Protocol
     public const byte MOTOR_BREAKS_NONE = 0x00;
     public const byte MOTOR_LUT_DISABLE_ALL = 0x3f;
 
+    public const byte PU_PORT_GENERIC_PWM = 0x00;
+    public const byte PU_PORT_SIMPLE_PWM = 0x10;
+    public const byte PU_PORT_SPEED_SERVO = 0x14;
+    public const byte PU_PORT_POSITION_SERVO = 0x15;
+    public const byte PU_PORT_ABSOLUTE_SERVO = 0x16;
+
     public static byte[] ActivteShelfMode() => [ 0xA1 ];
 
     public static byte[] SetCurrentLimits(double v0, double v1, double v2, double v3, double v4, double v5)

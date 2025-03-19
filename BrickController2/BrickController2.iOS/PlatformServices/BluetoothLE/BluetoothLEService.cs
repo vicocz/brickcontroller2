@@ -29,6 +29,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         }
 
         public bool IsBluetoothLESupported => true;
+        public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
         public bool IsBluetoothOn => _centralManager.State == CBManagerState.PoweredOn;
 
         public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
@@ -174,6 +175,11 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
                 }
             }
             return null;
+        }
+
+        public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
+        {
+            return null; // Not supported yet - has to be implemented
         }
     }
 }

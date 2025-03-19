@@ -33,6 +33,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         }
 
         public bool IsBluetoothLESupported => _bluetoothAdapter != null;
+        public bool IsBluetoothLEAdvertisingSupported => _bluetoothAdapter?.BluetoothLeAdvertiser != null;
         public bool IsBluetoothOn => _bluetoothAdapter?.IsEnabled ?? false;
 
         public async Task<bool> ScanDevicesAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
@@ -128,6 +129,20 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             catch (Exception)
             {
                 return false;
+            }
+        }
+
+        public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
+        {
+            BluetoothLeAdvertiser? advertiser = _bluetoothAdapter?.BluetoothLeAdvertiser;
+
+            if (advertiser != null)
+            {
+                return new BluetoothLEAdvertiserDevice(advertiser);
+            }
+            else
+            {
+                return null;
             }
         }
     }

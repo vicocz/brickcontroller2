@@ -66,6 +66,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding ShowManualDeviceListPageCommand}" ToolTipProperties.Text="{extensions:Translate OpenAddDevicesManually}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10" IsVisible="{Binding IsBLEAdvertisingSupported}"/>
                 <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" Command="{Binding ScanCommand}" ToolTipProperties.Text="{extensions:Translate ScanForDevices}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>

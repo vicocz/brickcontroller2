@@ -58,12 +58,20 @@ namespace BrickController2.DeviceManagement
                 var deviceDTOs = await _deviceRepository.GetDevicesAsync();
                 foreach (var deviceDTO in deviceDTOs)
                 {
-                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, deviceDTO.Settings);
-                    if (device != null)
+                    try
                     {
-                        Devices.Add(device);
+                        var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, deviceDTO.Settings);
+                        if (device != null)
+                        {
+                            Devices.Add(device);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
+                                deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);
+                        }
                     }
-                    else
+                    catch
                     {
                         _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
                             deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);
@@ -80,8 +88,8 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    var infraScan = _infraredDeviceManager.ScanAsync(FoundDevice!, token);
-                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(FoundDevice!, token);
+                    var infraScan = _infraredDeviceManager.ScanAsync(CreateDeviceAsync!, token);
+                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
 
                     await Task.WhenAll(infraScan, bluetoothScan);
 
@@ -97,22 +105,23 @@ namespace BrickController2.DeviceManagement
                 }
             }
 
-            async Task FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        }
+
+        public async Task CreateDeviceAsync(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        {
+            using (await _foundDeviceLock.LockAsync())
             {
-                using (await _foundDeviceLock.LockAsync())
+                if (Devices.Any(d => d.DeviceType == deviceType && d.Address == deviceAddress))
                 {
-                    if (Devices.Any(d => d.DeviceType == deviceType && d.Address == deviceAddress))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData, []);
-                    if (device != null)
-                    {
-                        await _deviceRepository.InsertDeviceAsync(device.DeviceType, device.Name, device.Address, deviceData, device.CurrentSettings);
+                var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData, []);
+                if (device != null)
+                {
+                    await _deviceRepository.InsertDeviceAsync(device.DeviceType, device.Name, device.Address, deviceData, device.CurrentSettings);
 
-                        await _uiThreadService.RunOnMainThread(() => Devices.Add(device));
-                    }
+                    await _uiThreadService.RunOnMainThread(() => Devices.Add(device));
                 }
             }
         }

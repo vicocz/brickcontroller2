@@ -11,6 +11,7 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _technicMove = ["A", "B", "C", "1", "2", "3", "4", "5", "6"];
         private readonly static string[] _circuitCubesChannelLetters = new[] { "A", "B", "C" };
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
+        private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
 
         public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
         public static BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
@@ -73,6 +74,11 @@ namespace BrickController2.UI.Controls
                     Text = Channel == 0 ?
                         TranslationHelper.Translate("Blue") :
                         TranslationHelper.Translate("Red");
+                    break;
+
+                case DeviceType.MK4:
+                case DeviceType.MK6:
+                    SetChannelText(_mk6ChannelLetters);
                     break;
 
                 default:

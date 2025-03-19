@@ -14,6 +14,8 @@
         BuWizz3,
         CircuitCubes,
         WeDo2,
-        TechnicMove
+        TechnicMove,
+        MK4,
+        MK6,
     }
 }

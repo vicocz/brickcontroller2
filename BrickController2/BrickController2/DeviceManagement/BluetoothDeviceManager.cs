@@ -113,6 +113,7 @@ namespace BrickController2.DeviceManagement
                         }
                     }
                     break;
+                case "33-ac": return (DeviceType.MK_DIY, manufacturerData);
             }
 
             return (DeviceType.Unknown, null);

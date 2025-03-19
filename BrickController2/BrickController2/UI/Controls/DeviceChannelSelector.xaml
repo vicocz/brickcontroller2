@@ -285,7 +285,29 @@
                     <controls:ChannelSelectorRadioButton x:Name="MK6Channel0" DeviceType="MK6" Channel="0" HorizontalOptions="Start" VerticalOptions="End" />
                 </Grid>
             </Grid>
-            
+
+
+            <!-- MK_DIY -->
+            <Grid x:Name="MK_DIYSection">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <controls:ChannelSelectorRadioButton x:Name="MK_DIYChannel3" DeviceType="MK4" Channel="3" HorizontalOptions="End" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK_DIYChannel0" DeviceType="MK4" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+                </Grid>
+
+                <Image Grid.Column="1" Source="{extensions:ImageResource Source=mk_diy_image.png}" WidthRequest="100" HeightRequest="60"/>
+
+                <Grid Grid.Column="2">
+                    <controls:ChannelSelectorRadioButton x:Name="MK_DIYChannel1" DeviceType="MK4" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK_DIYChannel2" DeviceType="MK4" Channel="2" HorizontalOptions="Start" VerticalOptions="End"/>
+                </Grid>
+            </Grid>
+
         </Grid>
     </ContentView.Content>
 </ContentView>

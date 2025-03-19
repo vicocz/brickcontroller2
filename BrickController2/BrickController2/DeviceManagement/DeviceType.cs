@@ -17,5 +17,6 @@
         TechnicMove,
         MK4,
         MK6,
+        MK_DIY,
     }
 }

@@ -78,6 +78,7 @@ namespace BrickController2.UI.Controls
 
                 case DeviceType.MK4:
                 case DeviceType.MK6:
+                case DeviceType.MK_DIY:
                     SetChannelText(_mk6ChannelLetters);
                     break;
 

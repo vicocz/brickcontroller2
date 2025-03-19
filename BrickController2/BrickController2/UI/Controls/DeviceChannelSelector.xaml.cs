@@ -105,6 +105,7 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
                 dcs.MK4Section.IsVisible = deviceType == DeviceType.MK4;
                 dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
+                dcs.MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
             }
         }
 
@@ -165,6 +166,10 @@ namespace BrickController2.UI.Controls
                 dcs.MK6Channel3.SelectedChannel = selectedChannel;
                 dcs.MK6Channel4.SelectedChannel = selectedChannel;
                 dcs.MK6Channel5.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel0.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel1.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel2.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel3.SelectedChannel = selectedChannel;
             }
         }
     }

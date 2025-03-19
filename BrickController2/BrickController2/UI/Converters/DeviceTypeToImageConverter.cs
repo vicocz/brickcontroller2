@@ -58,6 +58,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.MK6:
                     return ResourceHelper.GetImageResource("mk6_image.png");
 
+                case DeviceType.MK_DIY:
+                    return ResourceHelper.GetImageResource("mk_diy_image.png");
+
                 default:
                     return null;
             }

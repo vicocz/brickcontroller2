@@ -102,9 +102,9 @@
 
                         <!-- Stepper setting -->
                         <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
-                            <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Orientation="Horizontal">
-                                <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="-180" Maximum="179" Step="5" HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
+                                <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 10, 10"/>
+                                <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5" HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
                                 <Label Text="{Binding StepperAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
                                 <Label Text="°"/>
                             </StackLayout>

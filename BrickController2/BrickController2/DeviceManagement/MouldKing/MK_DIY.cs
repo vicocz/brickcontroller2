@@ -40,7 +40,7 @@ namespace BrickController2.DeviceManagement
                                                       0x00,                                             // cross sum byte
                                                       0x33 };                                           // footer
 
-        private volatile int _sendAttemptsLeft;
+        private int _sendAttemptsLeft;
 
         private IGattCharacteristic? _characteristic_AE3B_CMD;
 

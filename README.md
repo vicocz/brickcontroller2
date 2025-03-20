@@ -23,6 +23,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Circuit Cubes
 - Mould King 4.0 Powered Module
 - Mould King 6.0 Powered Module
+- Mould King DIY Module
 
 ## Project details
 

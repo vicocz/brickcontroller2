@@ -25,7 +25,7 @@ public class BleService : IBluetoothLEService
     }
 
     public bool IsBluetoothLESupported => CurrentBluetoothStatus.HasFlag(BluetoothStatus.LowEnergySupported);
-    public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
+    public bool IsBluetoothLEAdvertisingSupported => true;
     public bool IsBluetoothOn => CurrentBluetoothStatus.HasFlag(BluetoothStatus.ClassicSupported);
 
     private BluetoothStatus CurrentBluetoothStatus
@@ -79,6 +79,8 @@ public class BleService : IBluetoothLEService
         return new BleDevice(address);
     }
 
+    public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice() => new BleAdvertiserDevice();
+
     private async Task<bool> ScanAsync(Action<ScanResult> scanCallback, CancellationToken token)
     {
         try
@@ -100,10 +102,5 @@ public class BleService : IBluetoothLEService
         {
             return false;
         }
-    }
-
-    public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
-    {
-        return null; // Not supported yet - has to be implemented
     }
 }

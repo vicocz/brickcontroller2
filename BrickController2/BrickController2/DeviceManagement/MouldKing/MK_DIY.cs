@@ -109,7 +109,7 @@ namespace BrickController2.DeviceManagement
                     for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
                     {
                         _sendOutputBuffer[CHANNEL_START_OFFSET + channelNo] = 0x80;
-                        _lastOutputValues[channelNo] = 0x00; // enshure that values are differnt
+                        _lastOutputValues[channelNo] = 0x00; // ensure that values are differnt
                     }
                     ApplyCrossSum();
                     _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
@@ -121,7 +121,7 @@ namespace BrickController2.DeviceManagement
                 {
                     int sendAttemptsLeft;
 
-                    lock (_outputLock) // enshure consistency
+                    lock (_outputLock) // ensure consistency
                     {
                         Buffer.BlockCopy(_sendOutputBuffer, 0, localBuffer, 0, _sendOutputBuffer.Length);
 

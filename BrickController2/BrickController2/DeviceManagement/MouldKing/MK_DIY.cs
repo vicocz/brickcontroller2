@@ -96,7 +96,7 @@ namespace BrickController2.DeviceManagement
             var service_AE3A = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_AE3A_UNKNOWN_SERVICE);
             _characteristic_AE3B_CMD = service_AE3A?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_AE3B_UNKNOWN_CHARACTERISTIC);
 
-            return Task<bool>.FromResult(_characteristic_AE3B_CMD != null);
+            return Task.FromResult(_characteristic_AE3B_CMD != null);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)

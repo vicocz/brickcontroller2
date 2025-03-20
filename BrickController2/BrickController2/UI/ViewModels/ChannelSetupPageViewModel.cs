@@ -38,8 +38,8 @@ namespace BrickController2.UI.ViewModels
 
             Device = parameters.Get<Device>("device");
             Action = parameters.Get<ControllerAction>("controlleraction");
-            ServoBaseAngle = Action.ServoBaseAngle;
-            StepperAngle = Action.StepperAngle;
+            ServoBaseAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? Action.ServoBaseAngle : 0;
+            StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? Action.StepperAngle : 0;
 
             // setup channel config for testing
             UpdateChannelConfig();
@@ -47,9 +47,10 @@ namespace BrickController2.UI.ViewModels
 
             SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !_dialogService.IsDialogOpen);
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
-            ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => Device.CanResetOutput(Action.Channel));
+            ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => CanResetChannelOutput);
             StepperStepForwardCommand = new SafeCommand(() => StepperOneStepAsync(GameControllers.BUTTON_PRESSED));
             StepperStepBackCommand = new SafeCommand(() => StepperOneStepAsync(GameControllers.BUTTON_PRESSED_INV));
+            StepperResetAngleCommand = new SafeCommand(StepperResetAngleAsync, () => CanResetChannelOutput);
         }
 
         public Device Device { get; }
@@ -57,6 +58,7 @@ namespace BrickController2.UI.ViewModels
 
         public bool IsServoChannelOutputType => Action.ChannelOutputType == ChannelOutputType.ServoMotor;
         public bool IsStepperChannelOutputType => Action.ChannelOutputType == ChannelOutputType.StepperMotor;
+        public bool CanResetChannelOutput => Device.CanResetOutput(Action.Channel);
 
         public int ServoBaseAngle
         {
@@ -74,6 +76,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand ResetServoBaseCommand { get; }
         public ICommand StepperStepForwardCommand { get; }
         public ICommand StepperStepBackCommand { get; }
+        public ICommand StepperResetAngleCommand { get; }
 
         public override async void OnAppearing()
         {
@@ -238,8 +241,8 @@ namespace BrickController2.UI.ViewModels
                 ChannelOutputType = Action.ChannelOutputType,
                 MaxServoAngle = Action.MaxServoAngle,
                 // current settings
-                ServoBaseAngle = ServoBaseAngle,
-                StepperAngle = StepperAngle
+                ServoBaseAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? ServoBaseAngle : 0,
+                StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? StepperAngle : 0
             };
         }
 
@@ -248,29 +251,50 @@ namespace BrickController2.UI.ViewModels
             // if stepper angle has changed, we need to reconnect to apply it
             if (StepperAngle != _channelConfig.StepperAngle || !_startOutputProcessing)
             {
-                // update prerequsities
+                // update prerequsities for stepper testing
                 UpdateChannelConfig();
                 _startOutputProcessing = true;
 
-                // disconnect 
-                await Device.DisconnectAsync();
-
-                // await reconnection
-                while (!DisappearingToken.IsCancellationRequested && Device.DeviceState != DeviceState.Connected)
-                {
-                    await Task.Delay(100, DisappearingToken);
-                }
+                // force reconnection
+                await ReconnectDeviceAsync();
             }
 
             // simulate triggering of button
-            await SimulateTestButton(value);
+            await SimulateTestButton(value).ConfigureAwait(false);
+        }
+
+        private async Task StepperResetAngleAsync()
+        {
+            // if stepper angle has changed, we need to reconnect to apply it
+            if (_startOutputProcessing)
+            {
+                // update prerequsities for stepper reset
+                _startOutputProcessing = false;
+
+                // force reconnection
+                await ReconnectDeviceAsync();
+            }
+            // reset current angle
+            await ResetServoBaseAngleAsync().ConfigureAwait(false);
+        }
+
+        private async Task ReconnectDeviceAsync()
+        {
+            // disconnect 
+            await Device.DisconnectAsync();
+
+            // await reconnection
+            while (!DisappearingToken.IsCancellationRequested && Device.DeviceState != DeviceState.Connected)
+            {
+                await Task.Delay(100, DisappearingToken);
+            }
         }
 
         private async Task SimulateTestButton(float value)
         {
             // simulate triggering of button
             Device.SetOutput(Action.Channel, value);
-            await Task.Delay(500);
+            await Task.Delay(400, DisappearingToken);
             Device.SetOutput(Action.Channel, GameControllers.BUTTON_RELEASED);
         }
     }

@@ -179,6 +179,7 @@
         <!-- Text button styles -->
         <Style x:Key="TextButtonStyle" TargetType="Button">
             <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Margin" Value="0, 30, 0, 30"/>
             <Setter Property="BackgroundColor" Value="{DynamicResource InlineButtonColor}"/>
             <Setter Property="TextColor" Value="White"/>
             <Setter Property="VisualStateManager.VisualStateGroups">

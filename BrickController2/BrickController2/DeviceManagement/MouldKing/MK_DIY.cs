@@ -62,21 +62,12 @@ namespace BrickController2.DeviceManagement
             value = CutOutputValue(value);
             int byteOffset = CHANNEL_START_OFFSET + channelNo;
 
-            byte byteValue;
-            if (value > 0)
+            byte byteValue = value switch
             {
-                float value_abs = Math.Min(0x7F, value * 0x7F);
-                byteValue = (byte)(0x80 + value_abs);
-            }
-            else if (value < 0)
-            {
-                float value_abs = Math.Min(0x80, -value * 0x80);
-                byteValue = (byte)(0x80 - value_abs);
-            }
-            else // if (intValue == 0)
-            {
-                byteValue = 0x80; // Zero
-            }
+                > 0 => (byte)(0x80 + Math.Min(0x7F, value * 0x7F)),
+                < 0 => (byte)(0x80 - Math.Min(0x80, -value * 0x80)),
+                _ => 0x80
+            };
 
             lock (_outputLock)
             {
@@ -160,7 +151,7 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                return await _bleDevice!.WriteNoResponseAsync(_characteristic_AE3B_CMD!, sendOutputBuffer, token);
+                return await _bleDevice!.WriteAsync(_characteristic_AE3B_CMD!, sendOutputBuffer, token);
             }
             catch (Exception)
             {

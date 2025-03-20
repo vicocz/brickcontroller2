@@ -58,8 +58,8 @@ namespace BrickController2.DeviceManagement
 
         public override void SetOutput(int channelNo, float value)
         {
-            this.CheckChannel(channelNo);
-            value = this.CutOutputValue(value);
+            CheckChannel(channelNo);
+            value = CutOutputValue(value);
             int byteOffset = CHANNEL_START_OFFSET + channelNo;
 
             byte byteValue;

@@ -253,18 +253,29 @@ namespace BrickController2.DeviceManagement
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
 
                 var servoRefs = new int[NUMBER_OF_PU_PORTS];
+                short absolutePosition;
+                int relativePositions;
                 for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
                 {
-                    servoRefs[channel] = CalculateServoReference(_absolutePositions[channel], _relativePositions[channel], _servoBaseAngles[channel]);
+                    lock (_positionLock)
+                    {
+                        absolutePosition = _absolutePositions[channel];
+                        relativePositions = _relativePositions[channel];
+                    }
 
                     if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
                     {
+                        servoRefs[channel] = CalculateServoReference(absolutePosition, relativePositions, _servoBaseAngles[channel]);
                         result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
                     }
                     else if (_channelOutputTypes[channel] == ChannelOutputType.StepperMotor)
                     {
-                        servoRefs[channel] = CalculateServoReference(0, _relativePositions[channel], 0);
-                        result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
+                        servoRefs[channel] = relativePositions;
+                        result = result && await SetStepperPidParametersAsync(channel, token).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        servoRefs[channel] = 0;
                     }
                 }
 
@@ -626,74 +637,81 @@ namespace BrickController2.DeviceManagement
             return result;
         }
 
-        private async Task<bool> SetDefaultPidParametersAsync(int channel, bool isServo, CancellationToken token)
+        private Task<bool> SetDefaultPidParametersAsync(int channel, bool isServo, CancellationToken token) => SetPidParametersAsync(channel,
+            Kp: 0.7f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            Ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            Kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            outLP: 0f, // outLP - default: 0 (position servo) / 0.5 (speed servo)
+            D_LP: 0f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            DeadbandOut: 2, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            DeadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            Liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
+            limOut: 127, // limOut - default: 20 (position servo) / 127 (speed servo)
+                         //refRateLimit: 60f, // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
+            portMode: PU_PORT_POSITION_SERVO, // valid mode (equal to port mode selected)d)
+            speed_LP: isServo ? 0.0f : 0.6f, // speed_LP - default: / (position servo) / 0.9 (speed servo)
+            token);
+
+        private Task<bool> SetCalibrationPidParametersAsync(int channel, CancellationToken token) => SetPidParametersAsync(channel,
+            Kp: 1f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            Ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            Kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            outLP: 0f, // outLP - default: 0 (position servo) / 0.5 (speed servo)
+            D_LP: 0.9f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            DeadbandOut: 0, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            DeadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            Liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
+            limOut: 10, // limOut - default: 20 (position servo) / 127 (speed servo)
+                        //refRateLimit: 60f, // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
+            portMode: PU_PORT_POSITION_SERVO, // valid mode (equal to port mode selected)d)
+            speed_LP: 0.0f, // speed_LP - default: / (position servo) / 0.9 (speed servo)
+            token);
+
+        private Task<bool> SetStepperPidParametersAsync(int channel, CancellationToken token) => SetPidParametersAsync(channel,
+            Kp: 0.4f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            Ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            Kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            outLP: 0f, // outLP - default: 0 (position servo) / 0.5 (speed servo)
+            D_LP: 0.5f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            DeadbandOut: 2, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            DeadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            Liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
+            limOut: 64, // limOut - default: 20 (position servo) / 127 (speed servo)
+                         //refRateLimit: 60f, // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
+            portMode: PU_PORT_POSITION_SERVO, // valid mode (equal to port mode selected)
+            speed_LP: 0.3f, // speed_LP - default: / (position servo) / 0.9 (speed servo)
+            token);
+
+        private async Task<bool> SetPidParametersAsync(int channel,
+            float Kp,
+            float Ki,
+            float Kd,
+            float outLP,
+            float D_LP,
+            byte DeadbandOut,
+            byte DeadbandOutBoost,
+            float Liml,
+            byte limOut,
+            byte portMode,
+            float speed_LP,
+            CancellationToken token)
         {
             var buffer = new byte[38];
 
-            buffer[0] = 0x53;
+            buffer[0] = CMD_SET_PID_PARAMS;
             buffer[1] = (byte)channel;
-            buffer.SetFloat(0.7f, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            buffer.SetFloat(0f, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            buffer.SetFloat(0f, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
-            buffer.SetFloat(0f, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            buffer.SetFloat(0f, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            buffer[35] = 2; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            buffer[36] = 0; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            buffer.SetFloat(0f, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
-            buffer[34] = 127; // limOut - default: 20 (position servo) / 127 (speed servo)
+            buffer.SetFloat(Kp, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            buffer.SetFloat(Ki, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            buffer.SetFloat(Kd, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            buffer.SetFloat(outLP, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
+            buffer.SetFloat(D_LP, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            buffer[35] = DeadbandOut; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            buffer[36] = DeadbandOutBoost; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            buffer.SetFloat(Liml, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
+            buffer[34] = limOut; // limOut - default: 20 (position servo) / 127 (speed servo)
             //buffer.SetFloat(60f, 30); // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
-            buffer[37] = PU_PORT_POSITION_SERVO; // valid mode (equal to port mode selected)
-
-            if (!isServo)
-            {
-                buffer.SetFloat(0.6f, 10); // speed_LP - default: / (position servo) / 0.9 (speed servo)
-            }
-
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
-            await Task.Delay(100, token).ConfigureAwait(false);
-            return result;
-        }
-
-        private async Task<bool> SetCalibrationPidParametersAsync(int channel, CancellationToken token)
-        {
-            var buffer = new byte[38];
-
-            buffer[0] = 0x53;
-            buffer[1] = (byte)channel;
-            buffer.SetFloat(1f, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            buffer.SetFloat(0f, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            buffer.SetFloat(0f, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
-            buffer.SetFloat(0f, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            buffer.SetFloat(0.9f, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            buffer[35] = 0; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            buffer[36] = 0; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            buffer.SetFloat(0f, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
-            buffer[34] = 10; // limOut - default: 20 (position servo) / 127 (speed servo)
-            // buffer.SetFloat(10f, 30); // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
-            buffer[37] = PU_PORT_POSITION_SERVO; // valid mode (equal to port mode selected)
-
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
-            await Task.Delay(100, token).ConfigureAwait(false);
-            return result;
-        }
-
-        private async Task<bool> SetStepperPidParametersAsync(int channel, CancellationToken token)
-        {
-            var buffer = new byte[38];
-
-            buffer[0] = 0x53;
-            buffer[1] = (byte)channel;
-            buffer.SetFloat(0.4f, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            buffer.SetFloat(0f, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            buffer.SetFloat(0f, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
-            buffer.SetFloat(0f, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            buffer.SetFloat(0f, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            buffer[35] = 2; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            buffer[36] = 0; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            buffer.SetFloat(0f, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
-            buffer[34] = 127; // limOut - default: 20 (position servo) / 127 (speed servo)
-            //buffer.SetFloat(60f, 30); // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
-            buffer[37] = PU_PORT_ABSOLUTE_SERVO; // valid mode (equal to port mode selected)
+            buffer[37] = portMode; // valid mode (equal to port mode selected)
+            buffer.SetFloat(speed_LP, 10); // speed_LP - default: / (position servo) / 0.9 (speed servo)
 
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(100, token).ConfigureAwait(false);

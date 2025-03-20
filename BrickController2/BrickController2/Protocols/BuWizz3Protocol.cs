@@ -5,6 +5,7 @@ internal static class BuWizz3Protocol
     public const double CurrentLimitStep = 35;
 
     public const byte CMD_SET_CURRENT_LIMITS = 0x38;
+    public const byte CMD_SET_PID_PARAMS = 0x53;
 
     public const byte MOTOR_BREAKS_NONE = 0x00;
     public const byte MOTOR_LUT_DISABLE_ALL = 0x3f;

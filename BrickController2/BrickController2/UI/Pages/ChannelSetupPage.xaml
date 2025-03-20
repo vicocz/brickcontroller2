@@ -66,21 +66,56 @@
 
                                 <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
                                 <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold"/>
-
                             </Grid>
                         </Grid>
 
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+
+                        <!-- Servo test controls -->
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+                            <Label Text="{extensions:Translate ServoAngle}" Margin="0, 10, 0, 10"/>
+                            <StackLayout Orientation="Horizontal">
+                                <controls:ExtendedSlider Value="{Binding MaxServoAngle}" Minimum="0" Maximum="180" Step="5"
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
+                                <Label Text="{Binding MaxServoAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
+                                <Label Text="°"/>
+                            </StackLayout>
+                            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="20" >
+                                <Button Grid.Column="0" Text="-100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-1.0"/>
+                                <Button Grid.Column="1" Text="-50%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-0.5"/>
+                                <Button Grid.Column="2" Text="0%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.0"/>
+                                <Button Grid.Column="3" Text="50%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.5"/>
+                                <Button Grid.Column="4" Text="100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="1.0"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                        
+                        <!-- Stepper test controls -->
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
+                            <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 0, 10"/>
+                            <StackLayout Orientation="Horizontal">
+                                <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5"
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
+                                <Label Text="{Binding StepperAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
+                                <Label Text="°"/>
+                            </StackLayout>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
+                                <Button Grid.Column="0" Text="{extensions:Translate StepBack}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperTestCommand}" CommandParameter="-1.0"/>
+                                <Button Grid.Column="1" Text="{extensions:Translate StepForward}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperTestCommand}" CommandParameter="1.0"/>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+
                         <!-- Auto servo calibration -->
                         <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
 
                             <Button Text="{extensions:Translate AutoCalibrate}" Style="{StaticResource TextButtonStyle}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
 
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                         </StackLayout>
 
-                        <!-- Manual servo calibration -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+                        <!-- Manual servo/stepper calibration -->
+                        <VerticalStackLayout Padding="10">
                             <Label Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5"
@@ -90,39 +125,6 @@
                                 <Label Text="°"/>
                             </StackLayout>
                             <Button Text="{extensions:Translate Reset}" Style="{StaticResource TextButtonStyle}" Command="{Binding ResetServoBaseCommand}"/>
-                        </VerticalStackLayout>
-
-                        <!-- Stepper test controls -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
-                            <Button Text="{extensions:Translate StepBack}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperStepBackCommand}"/>
-                            <Button Text="{extensions:Translate StepForward}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperStepForwardCommand}"/>
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
-                        </VerticalStackLayout>
-
-                        <!-- Stepper setting -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
-                            <StackLayout Orientation="Horizontal">
-                                <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 20, 10"/>
-                                <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5"
-                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
-                                <Label Text="{Binding StepperAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
-                                <Label Text="°"/>
-                            </StackLayout>
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
-                        </VerticalStackLayout>
-
-                        <!-- Manual stepper angle reset -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
-                            <StackLayout Orientation="Horizontal">
-                                <Label Text="{extensions:Translate BaseAngle}" Margin="0, 10, 20, 10"/>
-                                <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5"
-                                                         IsEnabled="{Binding CanResetChannelOutput, Mode=OneTime}"
-                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
-                                <Label Text="{Binding ServoBaseAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
-                                <Label Text="°"/>
-                            </StackLayout>
-                            <Button Text="{extensions:Translate Reset}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperResetAngleCommand}"/>
                         </VerticalStackLayout>
                         
                     </StackLayout>

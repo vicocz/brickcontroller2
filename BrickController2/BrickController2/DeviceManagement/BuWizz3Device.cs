@@ -633,14 +633,14 @@ namespace BrickController2.DeviceManagement
         }
 
         private Task<bool> SetDefaultPidParametersAsync(int channel, bool isServo, CancellationToken token) => SetPidParametersAsync(channel,
-            Kp: 0.7f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            Ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            Kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            kp: 0.7f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
             outLP: 0f, // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            D_LP: 0f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            DeadbandOut: 2, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            DeadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            Liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
+            d_LP: 0f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            deadbandOut: 2, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            deadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
             limOut: 127, // limOut - default: 20 (position servo) / 127 (speed servo)
                          //refRateLimit: 60f, // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
             portMode: PU_PORT_POSITION_SERVO, // valid mode (equal to port mode selected)d)
@@ -648,14 +648,14 @@ namespace BrickController2.DeviceManagement
             token);
 
         private Task<bool> SetCalibrationPidParametersAsync(int channel, CancellationToken token) => SetPidParametersAsync(channel,
-            Kp: 1f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            Ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            Kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            kp: 1f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
             outLP: 0f, // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            D_LP: 0.9f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            DeadbandOut: 0, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            DeadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            Liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
+            d_LP: 0.9f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            deadbandOut: 0, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            deadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
             limOut: 10, // limOut - default: 20 (position servo) / 127 (speed servo)
                         //refRateLimit: 60f, // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
             portMode: PU_PORT_POSITION_SERVO, // valid mode (equal to port mode selected)d)
@@ -663,14 +663,14 @@ namespace BrickController2.DeviceManagement
             token);
 
         private Task<bool> SetStepperPidParametersAsync(int channel, CancellationToken token) => SetPidParametersAsync(channel,
-            Kp: 0.4f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            Ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            Kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            kp: 0.4f, // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            ki: 0f, // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            kd: 0f, // Kd - default: -0.8 (position servo) / -3 (speed servo)
             outLP: 0f, // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            D_LP: 0.5f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            DeadbandOut: 2, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            DeadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            Liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
+            d_LP: 0.5f, // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            deadbandOut: 2, // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            deadbandOutBoost: 0, // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            liml: 0f, // Liml - default: 20 (position servo) / 127 (speed servo)
             limOut: 64, // limOut - default: 20 (position servo) / 127 (speed servo)
                          //refRateLimit: 60f, // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
             portMode: PU_PORT_POSITION_SERVO, // valid mode (equal to port mode selected)
@@ -678,14 +678,14 @@ namespace BrickController2.DeviceManagement
             token);
 
         private async Task<bool> SetPidParametersAsync(int channel,
-            float Kp,
-            float Ki,
-            float Kd,
+            float kp,
+            float ki,
+            float kd,
             float outLP,
-            float D_LP,
-            byte DeadbandOut,
-            byte DeadbandOutBoost,
-            float Liml,
+            float d_LP,
+            byte deadbandOut,
+            byte deadbandOutBoost,
+            float liml,
             byte limOut,
             byte portMode,
             float speed_LP,
@@ -695,14 +695,14 @@ namespace BrickController2.DeviceManagement
 
             buffer[0] = CMD_SET_PID_PARAMS;
             buffer[1] = (byte)channel;
-            buffer.SetFloat(Kp, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
-            buffer.SetFloat(Ki, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
-            buffer.SetFloat(Kd, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
+            buffer.SetFloat(kp, 14); // Kp - default: 0.4 (position servo) / 0.8 (speed servo)
+            buffer.SetFloat(ki, 18); // Ki - default: 0.01 (position servo) / 0.06 (speed servo)
+            buffer.SetFloat(kd, 22); // Kd - default: -0.8 (position servo) / -3 (speed servo)
             buffer.SetFloat(outLP, 2); // outLP - default: 0 (position servo) / 0.5 (speed servo)
-            buffer.SetFloat(D_LP, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
-            buffer[35] = DeadbandOut; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
-            buffer[36] = DeadbandOutBoost; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
-            buffer.SetFloat(Liml, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
+            buffer.SetFloat(d_LP, 6); // D_LP - default: 0.9 (position servo) / 0.5 (speed servo)
+            buffer[35] = deadbandOut; // DeadbandOut - default: 2 (position servo) / 2 (speed servo)
+            buffer[36] = deadbandOutBoost; // DeadbandOutBoost - default: 2 (position servo) / 2 (speed servo)
+            buffer.SetFloat(liml, 26); // Liml - default: 20 (position servo) / 127 (speed servo)
             buffer[34] = limOut; // limOut - default: 20 (position servo) / 127 (speed servo)
             //buffer.SetFloat(60f, 30); // Reference rate limit - default: N/A (position servo) / N/A (speed servo)
             buffer[37] = portMode; // valid mode (equal to port mode selected)

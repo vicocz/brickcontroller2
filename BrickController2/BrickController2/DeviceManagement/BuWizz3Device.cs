@@ -253,29 +253,19 @@ namespace BrickController2.DeviceManagement
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
 
                 var servoRefs = new int[NUMBER_OF_PU_PORTS];
-                short absolutePosition;
-                int relativePositions;
                 for (int channel = 0; channel < NUMBER_OF_PU_PORTS; channel++)
                 {
-                    lock (_positionLock)
-                    {
-                        absolutePosition = _absolutePositions[channel];
-                        relativePositions = _relativePositions[channel];
-                    }
+                    GetCurrentPosition(channel, out var absolutePosition, out var relativePosition);
+                    servoRefs[channel] = CalculateServoReference(absolutePosition, relativePosition, _servoBaseAngles[channel]);
 
                     if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
                     {
-                        servoRefs[channel] = CalculateServoReference(absolutePosition, relativePositions, _servoBaseAngles[channel]);
                         result = result && await SetDefaultPidParametersAsync(channel, true, token).ConfigureAwait(false);
                     }
                     else if (_channelOutputTypes[channel] == ChannelOutputType.StepperMotor)
                     {
-                        servoRefs[channel] = relativePositions;
+                        servoRefs[channel] = relativePosition;
                         result = result && await SetStepperPidParametersAsync(channel, token).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        servoRefs[channel] = 0;
                     }
                 }
 
@@ -363,6 +353,15 @@ namespace BrickController2.DeviceManagement
             }
             catch
             {
+            }
+        }
+
+        private void GetCurrentPosition(int channel, out short absolutePosition, out int relativePosition)
+        {
+            lock (_positionLock)
+            {
+                absolutePosition = _absolutePositions[channel];
+                relativePosition = _relativePositions[channel];
             }
         }
 
@@ -456,8 +455,7 @@ namespace BrickController2.DeviceManagement
                 result = result && await SetServoReferenceAsync(channel, 0, token).ConfigureAwait(false);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
-                var absPosStart = _absolutePositions[channel];
-                var relPosStart = _relativePositions[channel];
+                GetCurrentPosition(channel, out var absPosStart, out var relPosStart);
                 var servoReference = CalculateServoReference(absPosStart, relPosStart, baseAngle);
 
                 result = result && await SetPuPortModeAsync(channel, true, token).ConfigureAwait(false);
@@ -503,8 +501,7 @@ namespace BrickController2.DeviceManagement
                 result = result && await SetServoReferenceAsync(channel, 0, token).ConfigureAwait(false);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
-                var absPosStart = _absolutePositions[channel];
-                var relPosStart = _relativePositions[channel];
+                GetCurrentPosition(channel, out var absPosStart, out var relPosStart);
 
                 result = result && await SetPuPortModeAsync(channel, false, token).ConfigureAwait(false);
                 result = result && await SetSpeedAsync(channel, 0x33, token).ConfigureAwait(false);
@@ -513,8 +510,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(100, token);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
-                var absPos1 = _absolutePositions[channel];
-                var relPos1 = _relativePositions[channel];
+                GetCurrentPosition(channel, out var absPos1, out var relPos1);
 
                 result = result && await SetSpeedAsync(channel, -0x33, token).ConfigureAwait(false);
                 await Task.Delay(1200, token).ConfigureAwait(false);
@@ -522,8 +518,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(100, token).ConfigureAwait(false);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
-                var absPos2 = _absolutePositions[channel];
-                var relPos2 = _relativePositions[channel];
+                GetCurrentPosition(channel, out var absPos2, out var relPos2);
 
                 result = result && await SetPuPortModeAsync(channel, true, token).ConfigureAwait(false);
                 result = result && await SetCalibrationPidParametersAsync(channel, token).ConfigureAwait(false);
@@ -576,7 +571,7 @@ namespace BrickController2.DeviceManagement
                 buffer[1 + channel] = _channelOutputTypes[channel] switch
                 {
                     ChannelOutputType.ServoMotor => PU_PORT_POSITION_SERVO,
-                    ChannelOutputType.StepperMotor => PU_PORT_POSITION_SERVO, // Not sure about this
+                    ChannelOutputType.StepperMotor => PU_PORT_POSITION_SERVO,
                     _ => PU_PORT_SIMPLE_PWM
                 };
             }

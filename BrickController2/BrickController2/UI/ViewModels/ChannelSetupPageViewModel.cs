@@ -52,8 +52,8 @@ namespace BrickController2.UI.ViewModels
             SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !_dialogService.IsDialogOpen);
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
             ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => CanResetChannelOutput);
-            ServoTestCommand = new SafeCommand((object? value) => TestChannelAsync(value, reset: false));
-            StepperTestCommand = new SafeCommand((object? value) => TestChannelAsync(value, reset: true));
+            ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
+            StepperTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: true));
         }
 
         public Device Device { get; }
@@ -204,6 +204,7 @@ namespace BrickController2.UI.ViewModels
             }
             else if (Action.ChannelOutputType == ChannelOutputType.StepperMotor)
             {
+                // ServoBaseAngle is used for testing only
                 Action.StepperAngle = StepperAngle;
             }
             await NavigationService.NavigateModalBackAsync();
@@ -251,12 +252,12 @@ namespace BrickController2.UI.ViewModels
                 ChannelOutputType = Action.ChannelOutputType,
                 // current settings
                 MaxServoAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? MaxServoAngle : 0,
-                ServoBaseAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? ServoBaseAngle : 0,
+                ServoBaseAngle = ServoBaseAngle, // for testing applied both servo and stepper
                 StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? StepperAngle : 0
             };
         }
 
-        private async Task TestChannelAsync(object? parameter, bool reset = true)
+        private async Task TestChannelAsync(string parameter, bool reset = true)
         {
             var value = Convert.ToSingle(parameter, CultureInfo.InvariantCulture);
             // ensure stepper / servo settings are uptodate and output processing is set

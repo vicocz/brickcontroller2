@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -28,17 +27,9 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid SERVICE_UUID_AE3A_UNKNOWN_SERVICE = new Guid("0000ae3a-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID_AE3B_UNKNOWN_CHARACTERISTIC = new Guid("0000ae3b-0000-1000-8000-00805f9b34fb");
 
-        private readonly byte[] _lastOutputValues;
+        private readonly int[] _lastOutputValues = new int[4];
+        private readonly int[] _outputValues = new int[4];
         private readonly object _outputLock = new object();
-
-        /// <summary>
-        /// This buffer contains the needed values and channel's OutputValues (from offset 4 to 8) and a cross sum byte
-        /// </summary>
-        private readonly byte[] _sendOutputBuffer = { 0xcc, 0xaa, 0xbb, 0x01,                           // header
-                                                      0x80, 0x80, 0x80, 0x80,                           // channel's values
-                                                      0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,   // ?
-                                                      0x00,                                             // cross sum byte
-                                                      0x33 };                                           // footer
 
         private int _sendAttemptsLeft;
 
@@ -47,7 +38,6 @@ namespace BrickController2.DeviceManagement
         public MK_DIY(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
-            _lastOutputValues = new byte[NumberOfChannels];
         }
 
         public override DeviceType DeviceType => DeviceType.MK_DIY;
@@ -60,23 +50,14 @@ namespace BrickController2.DeviceManagement
         {
             CheckChannel(channelNo);
             value = CutOutputValue(value);
-            int byteOffset = CHANNEL_START_OFFSET + channelNo;
 
-            byte byteValue = value switch
-            {
-                > 0 => (byte)(0x80 + Math.Min(0x7F, value * 0x7F)),
-                < 0 => (byte)(0x80 - Math.Min(0x80, -value * 0x80)),
-                _ => 0x80
-            };
+            var intValue = (int)(value * 0x80); // scale and cast
 
             lock (_outputLock)
             {
-                if (_sendOutputBuffer[byteOffset] != byteValue)
+                if (_outputValues[channelNo] != intValue)
                 {
-                    _sendOutputBuffer[byteOffset] = byteValue;
-
-                    ApplyCrossSum();
-
+                    _outputValues[channelNo] = intValue;
                     _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
                 }
             }
@@ -94,46 +75,51 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                // on startup
                 lock (_outputLock)
                 {
                     for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
                     {
-                        _sendOutputBuffer[CHANNEL_START_OFFSET + channelNo] = 0x80;
-                        _lastOutputValues[channelNo] = 0x00; // ensure that values are differnt
+                        _outputValues[channelNo] = 0x00;
+                        _lastOutputValues[channelNo] = 0x01;
                     }
-                    ApplyCrossSum();
+
                     _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
                 }
 
-                byte[] localBuffer = new byte[_sendOutputBuffer.Length];
-                Stopwatch lastSent = Stopwatch.StartNew();
+                int[] outputValues = new int[NumberOfChannels];
+                int sendAttemptsLeft;
+
                 while (!token.IsCancellationRequested)
                 {
-                    int sendAttemptsLeft;
-
-                    lock (_outputLock) // ensure consistency
+                    lock (_outputLock)
                     {
-                        Buffer.BlockCopy(_sendOutputBuffer, 0, localBuffer, 0, _sendOutputBuffer.Length);
+                        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+                        {
+                            outputValues[channelNo] = _outputValues[channelNo];
+                        }
 
                         sendAttemptsLeft = _sendAttemptsLeft;
-                        _sendAttemptsLeft = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0; // decrement _sendAttemptsLeft
+                        _sendAttemptsLeft = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
                     }
 
-                    bool sendOutputBufferHasChanged = false;
-                    for (int channelNo = 0; channelNo < NumberOfChannels && !sendOutputBufferHasChanged; channelNo++)
+                    if (outputValues[0] != _lastOutputValues[0] || 
+                        outputValues[1] != _lastOutputValues[1] || 
+                        outputValues[2] != _lastOutputValues[2] || 
+                        outputValues[3] != _lastOutputValues[3] || 
+                        sendAttemptsLeft > 0)
                     {
-                        sendOutputBufferHasChanged |= localBuffer[CHANNEL_START_OFFSET + channelNo] != _lastOutputValues[channelNo];
-                    }
-
-                    if (sendAttemptsLeft > 0 ||                 // sendAttemptsLeft
-                        lastSent.Elapsed > ResendTimeSpan ||    // timeout
-                        sendOutputBufferHasChanged)             // channel's values have changed
-                    {
-                        if (await SendOutputValuesAsync(localBuffer, token).ConfigureAwait(false))
+                        if (await SendOutputValuesAsync(outputValues, token).ConfigureAwait(false))
                         {
-                            Buffer.BlockCopy(localBuffer, CHANNEL_START_OFFSET, _lastOutputValues, 0, NumberOfChannels); // save channel's values last sent 
-                            lastSent.Restart();
+                            for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+                            {
+                                _lastOutputValues[channelNo] = outputValues[channelNo];
+                            }
+
+                            // reset attemps due to success
+                            lock (_outputLock)
+                            {
+                                _sendAttemptsLeft = 0;
+                            }
                         }
                     }
                     else
@@ -147,29 +133,52 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> SendOutputValuesAsync(byte[] sendOutputBuffer, CancellationToken token)
+        private async Task<bool> SendOutputValuesAsync(int[] outputValues, CancellationToken token)
         {
+            // byte offset to first channel in _sendOutputBuffer
+            const int CROSS_SUM_OFFSET = 16;
+
+            // precalculated cross sum of the static values of the output buffer
+            const int STATIC_CROSS_SUM =
+                0x01 +                                                  // startoffset
+                0xCC + 0xAA + 0xBB + 0x01 +                             // header
+                //0x80 + 0x80 + 0x80 + 0x80 +                           // dynamic part: Channel 0 .. Channel 3
+                0x80 + 0x80 + 0x80 + 0x80 + 0x80 + 0x80 + 0x80 + 0x80 + // ?
+                //0x00                                                  // lower byte of cross sum
+                0x33;                                                   // footer
+
+            byte[] sendOutputBuffer = {
+                0xCC, 0xAA, 0xBB, 0x01,                           // header
+                0x80, 0x80, 0x80, 0x80,                           // channel's values
+                0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,   // ?
+                0x00,                                             // lower byte of cross sum
+                0x33 };                                           // footer
+
+            int crosssum = STATIC_CROSS_SUM;
+            for (int channelNo = 0; channelNo < 4; channelNo++)
+            {
+                int intValue = outputValues[channelNo];
+
+                byte byteValue = intValue switch
+                {
+                    > 0 => (byte)(0x80 + Math.Min(0x7F, intValue)),
+                    < 0 => (byte)(0x80 - Math.Min(0x80, -intValue)),
+                    _ => 0x80
+                };
+
+                sendOutputBuffer[CHANNEL_START_OFFSET + channelNo] = byteValue;
+                crosssum += byteValue;
+            }
+            sendOutputBuffer[CROSS_SUM_OFFSET] = (byte)crosssum;
+
             try
             {
-                return await _bleDevice!.WriteAsync(_characteristic_AE3B_CMD!, sendOutputBuffer, token);
+                return await _bleDevice!.WriteNoResponseAsync(_characteristic_AE3B_CMD!, sendOutputBuffer, token);
             }
             catch (Exception)
             {
                 return false;
             }
-        }
-
-        private void ApplyCrossSum()
-        {
-            // array's byte at prelast position contains the cross sum of the array's bytes + 1
-            int lastCalcIndex = _sendOutputBuffer.Length - 2;
-
-            int sum = 0x01 + 0x33; // 0x01 is the startvalue, 0x33 is last byte in array
-            for (int index = 0; index < lastCalcIndex; index++)
-            {
-                sum += _sendOutputBuffer[index];
-            }
-            _sendOutputBuffer[lastCalcIndex] = (byte)sum;
         }
     }
 }

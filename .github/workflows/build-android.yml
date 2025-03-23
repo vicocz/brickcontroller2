@@ -48,4 +48,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/*Signed.a*
+        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/*Signed.apk

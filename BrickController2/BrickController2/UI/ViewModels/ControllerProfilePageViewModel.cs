@@ -243,21 +243,22 @@ namespace BrickController2.UI.ViewModels
             {
             }
         }
+
         private async Task ShowActionAsync(ControllerActionViewModel controllerActionViewModel)
         {
             try
             {
-                if (_deviceManager.Devices?.Count == 0)
+                if (_deviceManager.Devices.Count == 0)
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
                         Translate("MissingDevices"),
                         Translate("Ok"),
-                        _disappearingTokenSource.Token);
+                        DisappearingToken);
                     return;
                 }
 
-                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction)));
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new (controllerActionViewModel.ControllerAction, "controlleraction"));
             }
             catch (OperationCanceledException)
             {

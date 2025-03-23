@@ -115,7 +115,7 @@ namespace BrickController2.DeviceManagement
                                 _lastOutputValues[channelNo] = outputValues[channelNo];
                             }
 
-                            // reset attemps due to success
+                            // reset attempts due to success
                             lock (_outputLock)
                             {
                                 _sendAttemptsLeft = 0;

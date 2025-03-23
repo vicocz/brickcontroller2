@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
@@ -12,17 +13,20 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal class MK_DIY : BluetoothDevice
     {
+        /// <summary>
+        /// max number of transmission attempts
+        /// </summary>
         private const int MAX_SEND_ATTEMPTS = 10;
 
         /// <summary>
-        /// byte offset to first channel in _sendOutputBuffer
+        /// delay after successfully data transmission
         /// </summary>
-        private const int CHANNEL_START_OFFSET = 4;
+        private static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(10);
 
         /// <summary>
-        /// After this TimeSpan has elapsed since the last sending OutputValues are send again
+        /// After this time period has elapsed since the last transmission, the output values ​​are sent again.
         /// </summary>
-        private static readonly TimeSpan ResendTimeSpan = TimeSpan.FromMilliseconds(100);
+        private static readonly TimeSpan RESEND_DELAY = TimeSpan.FromMilliseconds(1000);
 
         private static readonly Guid SERVICE_UUID_AE3A_UNKNOWN_SERVICE = new Guid("0000ae3a-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID_AE3B_UNKNOWN_CHARACTERISTIC = new Guid("0000ae3b-0000-1000-8000-00805f9b34fb");
@@ -88,6 +92,7 @@ namespace BrickController2.DeviceManagement
 
                 int[] outputValues = new int[NumberOfChannels];
                 int sendAttemptsLeft;
+                Stopwatch lastSent = Stopwatch.StartNew();
 
                 while (!token.IsCancellationRequested)
                 {
@@ -106,10 +111,13 @@ namespace BrickController2.DeviceManagement
                         outputValues[1] != _lastOutputValues[1] || 
                         outputValues[2] != _lastOutputValues[2] || 
                         outputValues[3] != _lastOutputValues[3] || 
-                        sendAttemptsLeft > 0)
+                        sendAttemptsLeft > 0 ||
+                        lastSent.Elapsed > RESEND_DELAY)
                     {
                         if (await SendOutputValuesAsync(outputValues, token).ConfigureAwait(false))
                         {
+                            lastSent.Restart();
+
                             for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
                             {
                                 _lastOutputValues[channelNo] = outputValues[channelNo];
@@ -120,11 +128,15 @@ namespace BrickController2.DeviceManagement
                             {
                                 _sendAttemptsLeft = 0;
                             }
+
+                            // delay after success
+                            await Task.Delay(SEND_DELAY, token).ConfigureAwait(false);
                         }
                     }
                     else
                     {
-                        await Task.Delay(10, token).ConfigureAwait(false);
+                        // delay: no change or no attempts left
+                        await Task.Delay(SEND_DELAY, token).ConfigureAwait(false);
                     }
                 }
             }
@@ -135,6 +147,9 @@ namespace BrickController2.DeviceManagement
 
         private async Task<bool> SendOutputValuesAsync(int[] outputValues, CancellationToken token)
         {
+            // byte offset to first channel in _sendOutputBuffer
+            const int CHANNEL_START_OFFSET = 4;
+
             // byte offset to first channel in _sendOutputBuffer
             const int CROSS_SUM_OFFSET = 16;
 

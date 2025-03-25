@@ -41,7 +41,7 @@ namespace BrickController2.DeviceManagement
         private readonly bool[] _positionsUpdated;
         private readonly DateTime[] _positionUpdateTimes;
         private readonly object _positionLock = new object();
-        private readonly Stopwatch[] _lastSent_NormalMotor;
+        private readonly Stopwatch _lastSent_NormalMotor = new Stopwatch();
 
         private IGattCharacteristic? _characteristic;
 
@@ -51,7 +51,6 @@ namespace BrickController2.DeviceManagement
             _outputValues = new int[NumberOfChannels];
             _lastOutputValues = new int[NumberOfChannels];
             _sendAttemptsLeft = new int[NumberOfChannels];
-            _lastSent_NormalMotor = new Stopwatch[NumberOfChannels];
 
             _channelOutputTypes = new ChannelOutputType[NumberOfChannels];
             _maxServoAngles = new int[NumberOfChannels];
@@ -389,6 +388,7 @@ namespace BrickController2.DeviceManagement
                         InitializeChannelInfo(channel);
                     }
                 }
+                _lastSent_NormalMotor.Reset();
 
                 while (!token.IsCancellationRequested)
                 {
@@ -411,7 +411,6 @@ namespace BrickController2.DeviceManagement
             _outputValues[channel] = 0;
             _lastOutputValues[channel] = lastOutputValue;
             _sendAttemptsLeft[channel] = sendAttempsLeft;
-            _lastSent_NormalMotor[channel] = new Stopwatch();
             _positionsUpdated[channel] = false;
             _positionUpdateTimes[channel] = DateTime.MinValue;
         }
@@ -494,12 +493,12 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] || 
                     sendAttemptsLeft > 0 ||
-                    _lastSent_NormalMotor[channel].Elapsed > ResendDelay_NormalMotor)
+                    _lastSent_NormalMotor.Elapsed > ResendDelay_NormalMotor)
                 {
                     var outputCmd = GetOutputCommand(channel, v);
                     if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, outputCmd, token))
                     {
-                        _lastSent_NormalMotor[channel].Restart();
+                        _lastSent_NormalMotor.Restart();
 
                         _lastOutputValues[channel] = v;
                         ResetSendAttemps(channel, 0);

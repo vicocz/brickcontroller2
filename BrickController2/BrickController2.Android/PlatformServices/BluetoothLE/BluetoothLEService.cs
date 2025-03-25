@@ -14,6 +14,11 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         private readonly Context _context;
         private readonly BluetoothAdapter? _bluetoothAdapter;
 
+        /// <summary>
+        /// identifier for the Android device
+        /// </summary>
+        private readonly string _hardwareSerialNumber;
+
         private bool _isScanning = false;
 
         public BluetoothLEService(Context context)
@@ -29,11 +34,18 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             {
                 _bluetoothAdapter = null;
             }
+
+#pragma warning disable CA1416 // Validate platform compatibility
+            // get hardware serial number
+            _hardwareSerialNumber = Build.GetSerial() ?? "unknown";
+#pragma warning restore CA1416 // Validate platform compatibility
         }
 
         public bool IsBluetoothLESupported => _bluetoothAdapter != null;
         public bool IsBluetoothLEAdvertisingSupported => _bluetoothAdapter?.BluetoothLeAdvertiser != null;
         public bool IsBluetoothOn => _bluetoothAdapter?.IsEnabled ?? false;
+
+        public string DeviceID => _hardwareSerialNumber;
 
         public async Task<bool> ScanDevicesAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
         {

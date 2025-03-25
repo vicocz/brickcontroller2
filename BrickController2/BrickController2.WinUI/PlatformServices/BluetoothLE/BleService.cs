@@ -19,14 +19,21 @@ public class BleService : IBluetoothLEService
     }
 
     private bool _isScanning;
+    /// <summary>
+    /// identifier for the device
+    /// </summary>
+    private readonly string _hardwareSerialNumber;
+
 
     public BleService()
     {
+        _hardwareSerialNumber = "ToDo";
     }
 
     public bool IsBluetoothLESupported => CurrentBluetoothStatus.HasFlag(BluetoothStatus.LowEnergySupported);
     public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
     public bool IsBluetoothOn => CurrentBluetoothStatus.HasFlag(BluetoothStatus.ClassicSupported);
+    public string DeviceID => _hardwareSerialNumber;
 
     private BluetoothStatus CurrentBluetoothStatus
     {

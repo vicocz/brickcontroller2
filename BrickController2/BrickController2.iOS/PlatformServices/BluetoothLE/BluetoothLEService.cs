@@ -19,6 +19,11 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         private readonly IDictionary<CBPeripheral, BluetoothLEDevice> _peripheralMap = new Dictionary<CBPeripheral, BluetoothLEDevice>();
         private readonly object _lock = new();
 
+        /// <summary>
+        /// identifier for the iOS device
+        /// </summary>
+        private readonly string _hardwareSerialNumber;
+
         private Action<ScanResult>? _scanCallback;
 
         public BluetoothLEService()
@@ -26,11 +31,13 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
 #pragma warning disable CA1422 // Validate platform compatibility
             _centralManager = new CBCentralManager(this, DispatchQueue.CurrentQueue);
 #pragma warning restore CA1422 // Validate platform compatibility
+            _hardwareSerialNumber = "ToDo";
         }
 
         public bool IsBluetoothLESupported => true;
         public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
         public bool IsBluetoothOn => _centralManager.State == CBManagerState.PoweredOn;
+        public string DeviceID => _hardwareSerialNumber;
 
         public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
         {

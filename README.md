@@ -20,6 +20,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Lego Technic Hub
 - Lego WeDo 2.0 Smart Hub
 - Lego Technic Move Hub (PLAYVM mode)
+- Lego Duplo Train Hub
 - Circuit Cubes
 - Mould King 4.0 Powered Module
 - Mould King 6.0 Powered Module

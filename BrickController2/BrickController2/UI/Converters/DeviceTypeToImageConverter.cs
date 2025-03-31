@@ -61,6 +61,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.MK_DIY:
                     return ResourceHelper.GetImageResource("mk_diy_image.png");
 
+                case DeviceType.CaDA_RaceCar:
+                    return ResourceHelper.GetImageResource("cada_racecar_image.png");
+
                 default:
                     return null;
             }

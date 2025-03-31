@@ -65,6 +65,9 @@ namespace BrickController2.UI.Controls
             MK6Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             MK6Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             MK6Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
+            CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);
@@ -106,6 +109,7 @@ namespace BrickController2.UI.Controls
                 dcs.MK4Section.IsVisible = deviceType == DeviceType.MK4;
                 dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
                 dcs.MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
+                dcs.CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
             }
         }
 
@@ -170,6 +174,9 @@ namespace BrickController2.UI.Controls
                 dcs.MK_DIYChannel1.SelectedChannel = selectedChannel;
                 dcs.MK_DIYChannel2.SelectedChannel = selectedChannel;
                 dcs.MK_DIYChannel3.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel0.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel1.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel2.SelectedChannel = selectedChannel;
             }
         }
     }

@@ -18,5 +18,6 @@
         MK4,
         MK6,
         MK_DIY,
+        CaDA_RaceCar
     }
 }

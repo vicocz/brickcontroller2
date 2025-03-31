@@ -17,9 +17,10 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         public override void OnScanResult([GeneratedEnum] ScanCallbackType callbackType, ScanResult? result)
         {
             if (result is null ||
-                result.ScanRecord is null ||
+                result.ScanRecord is null /*||                      JK: CaDA result don't have Name or Address
                 string.IsNullOrEmpty(result?.Device?.Name) ||
-                string.IsNullOrEmpty(result?.Device?.Address))
+                string.IsNullOrEmpty(result?.Device?.Address)*/
+                )
             {
                 return;
             }
@@ -31,7 +32,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
 
             var advertismentData = ScanRecordProcessor.GetAdvertismentData(bytes);
-            _scanCallback(new BrickController2.PlatformServices.BluetoothLE.ScanResult(result.Device.Name, result.Device.Address, advertismentData));
+            _scanCallback(new BrickController2.PlatformServices.BluetoothLE.ScanResult(result.Device?.Name ?? string.Empty, result.Device?.Address ?? string.Empty, advertismentData));
         }
 
         public override void OnBatchScanResults(IList<ScanResult>? results)

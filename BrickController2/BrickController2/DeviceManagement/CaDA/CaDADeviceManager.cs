@@ -1,0 +1,126 @@
+﻿using System;
+using BrickController2.Helpers;
+using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Protocols;
+using BrickController2.UI.Services.Preferences;
+
+namespace BrickController2.DeviceManagement.CaDA;
+
+/// <summary>
+/// Manager for CaDA devices
+/// </summary>
+internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBluetoothLEDeviceManager
+{
+    private const string SECTION = "CaDA";
+    private const string APPIDKEY = "AppID";
+
+    // this identifier is patched into the advertising data identify the app
+    private readonly byte[] _appIdChecksumMaskArray;
+
+    public CaDADeviceManager(IPreferencesService preferencesService)
+    {
+        // gets or creates an App-persistant AppIdentifier
+        string _appID;
+        if (preferencesService.ContainsKey(APPIDKEY, SECTION))
+        {
+            _appID = preferencesService.Get(APPIDKEY, string.Empty, SECTION);
+        }
+        else
+        {
+            _appID = StringHelper.CreateRandomString(3);
+            preferencesService.Set(APPIDKEY, _appID, SECTION);
+        }
+        // create an 3-byte-array
+        // this app identifier is patched into the advertising data identifying the app
+        _appIdChecksumMaskArray = CaDAProtocol.CreateAppIDMaskArray(_appID);
+    }
+
+    public AdvertisingInterval AdvertisingIterval => AdvertisingInterval.Min;
+
+    public TxPowerLevel TXPowerLevel => TxPowerLevel.Max;
+
+    public ushort ManufacturerId => CaDAProtocol.ManufacturerID;
+
+    /// <summary>
+    /// Create an byte-array to be advertised on device-scan
+    /// </summary>
+    /// <returns>byte-array to be advertised on device-scan</returns>
+    public byte[] CreateScanData()
+    {
+        byte[] pairingDataArray = new byte[] // 16
+        {
+              0x75, //  [0] const 0x75 (117)
+              0x10, //  [1] 0x17 (23) STATUS_UNPAIRING - else - 0x10 (16)
+              0x00, //  [2] DeviceAddress
+              0x00, //  [3] DeviceAddress
+              0x00, //  [4] DeviceAddress
+              _appIdChecksumMaskArray[0], //  [5] AppID
+              _appIdChecksumMaskArray[1], //  [6] AppID
+              _appIdChecksumMaskArray[2], //  [7] AppID
+              0x00, //  [8] 
+              0x00, //  [9] 
+              0x80, // [10] min 128
+              0x80, // [11] min 128
+              0x00, // [12] 
+              0x00, // [13] 
+              0x00, // [14] 
+              0x00, // [15] 
+        };
+
+        byte[] rf_payload_Array;
+        CaDAProtocol.GetRfPayload(CaDAProtocol.AddressArray, pairingDataArray, CaDAProtocol.CTXValue, out rf_payload_Array);
+
+        return rf_payload_Array;
+    }
+
+    /// <summary>
+    /// Check if this manager can handle the device
+    /// </summary>
+    /// <param name="manufacturerId"></param>
+    /// <param name="manufacturerData"></param>
+    /// <param name="deviceType">device type</param>
+    /// <param name="deviceName">changable devicename</param>
+    /// <param name="deviceAddress">changable device address</param>
+    /// <returns>true: manager can handle this device</returns>
+    public bool TryGetDevice(string manufacturerId, byte[] manufacturerData, out DeviceType deviceType, ref string deviceName, ref string deviceAddress)
+    {
+        switch (manufacturerId)
+        {
+            case "f0-ff":
+                if (IsCadaRaceCar(manufacturerData))
+                {
+                    deviceType = DeviceType.CaDA_RaceCar;
+
+                    // the origin deviceAddress is changing on every scan-response
+                    // but inside the manufacturerData are 3 bytes identifying the device
+                    deviceAddress = BitConverter.ToString(manufacturerData, 4, 3).ToLower(); // change device address
+
+                    // an empty devicename is given so create one
+                    deviceName = $"CaDA {deviceAddress}";
+                    return true;
+                }
+                break;
+                // extend when needed for other CaDA devices
+        }
+
+        // no, device not handled
+        deviceType = DeviceType.Unknown;
+        return false;
+    }
+
+    /// <summary>
+    /// Check if manufacturerData is a scan-response from a CaDA RaceCar
+    /// </summary>
+    /// <param name="manufacturerData">byte-array with manufacturer data to check</param>
+    /// <returns>true, if byte-array matches</returns>
+    private bool IsCadaRaceCar(byte[] manufacturerData)
+    {
+        return
+            manufacturerData?.Length == 18 &&
+            manufacturerData[2] == 0x75 &&
+            (manufacturerData[3] & 0x40) > 0 &&
+            manufacturerData[7] == _appIdChecksumMaskArray[0] && // response has to have the same appId
+            manufacturerData[8] == _appIdChecksumMaskArray[1] &&
+            manufacturerData[9] == _appIdChecksumMaskArray[2];
+    }
+}

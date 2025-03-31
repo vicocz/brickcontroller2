@@ -9,7 +9,6 @@ namespace BrickController2.PlatformServices.BluetoothLE
         bool IsBluetoothLESupported { get; }
         bool IsBluetoothLEAdvertisingSupported { get; }
         bool IsBluetoothOn { get; }
-        public string DeviceID {  get; }
 
         Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token);
 

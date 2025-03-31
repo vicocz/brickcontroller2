@@ -1,6 +1,9 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
+using BrickController2.DeviceManagement.CaDA;
 using BrickController2.Extensions;
-using System;
+using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Protocols;
 
 namespace BrickController2.DeviceManagement.DI
 {
@@ -30,6 +33,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<MK4>().Keyed<Device>(DeviceType.MK4);
             builder.RegisterType<MK6>().Keyed<Device>(DeviceType.MK6);
             builder.RegisterType<MK_DIY>().Keyed<Device>(DeviceType.MK_DIY);
+            builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
 
             builder.Register<DeviceFactory>(c =>
             {
@@ -47,6 +51,8 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 1", MK6.Device1, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 2", MK6.Device2, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>(), []);
+
+            builder.RegisterType<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanData>().As<IBluetoothLEDeviceManager>().SingleInstance();
         }
     }
 }

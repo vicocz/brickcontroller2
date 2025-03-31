@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Bluetooth;
@@ -13,17 +15,16 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
     {
         private readonly Context _context;
         private readonly BluetoothAdapter? _bluetoothAdapter;
-
-        /// <summary>
-        /// identifier for the Android device
-        /// </summary>
-        private readonly string _hardwareSerialNumber;
+        private readonly IEnumerable<IBluetoothLEAdvertiserDeviceScanData> _bluetoothLEAdvertiserDeviceScanDataList;
 
         private bool _isScanning = false;
 
-        public BluetoothLEService(Context context)
+        public BluetoothLEService(
+            Context context,
+            IEnumerable<IBluetoothLEAdvertiserDeviceScanData> bluetoothLEAdvertiserDeviceScanDataList)
         {
             _context = context;
+            _bluetoothLEAdvertiserDeviceScanDataList = bluetoothLEAdvertiserDeviceScanDataList;
 
             if (context.PackageManager?.HasSystemFeature(PackageManager.FeatureBluetoothLe) ?? false)
             {
@@ -34,18 +35,11 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             {
                 _bluetoothAdapter = null;
             }
-
-#pragma warning disable CA1416 // Validate platform compatibility
-            // get hardware serial number
-            _hardwareSerialNumber = Build.GetSerial() ?? "unknown";
-#pragma warning restore CA1416 // Validate platform compatibility
         }
 
         public bool IsBluetoothLESupported => _bluetoothAdapter != null;
         public bool IsBluetoothLEAdvertisingSupported => _bluetoothAdapter?.BluetoothLeAdvertiser != null;
         public bool IsBluetoothOn => _bluetoothAdapter?.IsEnabled ?? false;
-
-        public string DeviceID => _hardwareSerialNumber;
 
         public async Task<bool> ScanDevicesAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
         {
@@ -56,10 +50,15 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
 
             try
             {
+                var scanTaskList = new List<Task<bool>>();
+
                 _isScanning = true;
+                scanTaskList.Add(ScanAsync(scanCallback, token));
+                scanTaskList.Add(ScanAdvertisingDeviceAsync(scanCallback, token));
 
-                return await ScanAsync(scanCallback, token);
+                await Task.WhenAll(scanTaskList);
 
+                return scanTaskList.All(scanTask => scanTask.Result);
             }
             catch (Exception)
             {
@@ -106,6 +105,52 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             {
                 return false;
             }
+        }
+
+        private async Task<bool> ScanAdvertisingDeviceAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
+        {
+            var scanTaskList = new List<Task<bool>>();
+
+            foreach (var currentEntry in _bluetoothLEAdvertiserDeviceScanDataList)
+            {
+                scanTaskList.Add(Task.Run(async () =>
+                {
+                    IBluetoothLEAdvertiserDevice? advertiserDevice = null;
+                    try
+                    {
+                        if ((advertiserDevice = this.CreateBluetoothLEAdvertiserDevice()) != null)
+                        {
+                            await advertiserDevice.StartAdvertiseAsync(currentEntry.AdvertisingIterval, currentEntry.TXPowerLevel, currentEntry.ManufacturerId, currentEntry.CreateScanData());
+
+                            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                            using (token.Register(async () =>
+                            {
+                                await advertiserDevice.StopAdvertiseAsync();
+
+                                tcs.TrySetResult(true);
+                            }))
+                            {
+                                return await tcs.Task;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        advertiserDevice?.Dispose();
+                    }
+                }));
+            }
+            await Task.WhenAll(scanTaskList);
+            return scanTaskList.All(scanTask => scanTask.Result);
         }
 
         public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()

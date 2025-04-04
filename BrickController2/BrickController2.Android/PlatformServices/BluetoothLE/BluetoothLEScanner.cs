@@ -5,11 +5,11 @@ using Android.Runtime;
 
 namespace BrickController2.Droid.PlatformServices.BluetoothLE
 {
-    public class BluetoothLENewScanner : ScanCallback
+    public class BluetoothLEScanner : ScanCallback
     {
         private readonly Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> _scanCallback;
 
-        public BluetoothLENewScanner(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback)
+        public BluetoothLEScanner(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback)
         {
             _scanCallback = scanCallback;
         }

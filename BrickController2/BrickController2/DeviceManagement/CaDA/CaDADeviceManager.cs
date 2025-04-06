@@ -20,19 +20,19 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBlueto
     public CaDADeviceManager(IPreferencesService preferencesService)
     {
         // gets or creates an App-persistant AppIdentifier
-        string _appID;
+        string appId;
         if (preferencesService.ContainsKey(APPIDKEY, SECTION))
         {
-            _appID = preferencesService.Get(APPIDKEY, string.Empty, SECTION);
+            appId = preferencesService.Get(APPIDKEY, string.Empty, SECTION);
         }
         else
         {
-            _appID = StringHelper.CreateRandomString(3);
-            preferencesService.Set(APPIDKEY, _appID, SECTION);
+            appId = StringHelper.CreateRandomString(3);
+            preferencesService.Set(APPIDKEY, appId, SECTION);
         }
         // create an 3-byte-array
         // this app identifier is patched into the advertising data identifying the app
-        _appIdChecksumMaskArray = CaDAProtocol.CreateAppIDMaskArray(_appID);
+        _appIdChecksumMaskArray = CaDAProtocol.CreateAppIDMaskArray(appId);
     }
 
     public AdvertisingInterval AdvertisingIterval => AdvertisingInterval.Min;

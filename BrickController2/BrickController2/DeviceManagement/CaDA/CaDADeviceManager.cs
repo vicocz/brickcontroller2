@@ -88,8 +88,7 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBlueto
               0x00, // [15] 
         };
 
-        byte[] rf_payload_Array;
-        CaDAProtocol.GetRfPayload(CaDAProtocol.AddressArray, pairingDataArray, CaDAProtocol.CTXValue, out rf_payload_Array);
+        CaDAProtocol.GetRfPayload(CaDAProtocol.AddressArray, pairingDataArray, CaDAProtocol.CTXValue, out byte[] rf_payload_Array);
 
         return rf_payload_Array;
     }

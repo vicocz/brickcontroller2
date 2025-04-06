@@ -1,5 +1,5 @@
 ﻿using System;
-using BrickController2.Helpers;
+using System.Text;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using BrickController2.UI.Services.Preferences;
@@ -20,19 +20,40 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBlueto
     public CaDADeviceManager(IPreferencesService preferencesService)
     {
         // gets or creates an App-persistant AppIdentifier
-        string appId;
-        if (preferencesService.ContainsKey(APPIDKEY, SECTION))
+        try
         {
-            appId = preferencesService.Get(APPIDKEY, string.Empty, SECTION);
+            if (preferencesService.ContainsKey(APPIDKEY, SECTION))
+            {
+                // throws exception if converting went wrong
+                _appIdChecksumMaskArray = Convert.FromBase64String(preferencesService.Get(APPIDKEY, string.Empty, SECTION));
+
+                // check minimum length
+                if(_appIdChecksumMaskArray?.Length >= 3)
+                {
+                    return; // valid
+                }
+            }
         }
-        else
+        catch // catch all exceptions
         {
-            appId = StringHelper.CreateRandomString(3);
-            preferencesService.Set(APPIDKEY, appId, SECTION);
         }
-        // create an 3-byte-array
-        // this app identifier is patched into the advertising data identifying the app
-        _appIdChecksumMaskArray = CaDAProtocol.CreateAppIDMaskArray(appId);
+
+        // create new byte[] with random values
+        // * on first run
+        // * on exception
+        // * on length to short
+        _appIdChecksumMaskArray = new byte[3];
+
+        Random rnd = new Random();
+        rnd.NextBytes(_appIdChecksumMaskArray);
+
+        try
+        {
+            preferencesService.Set(APPIDKEY, Convert.ToBase64String(_appIdChecksumMaskArray), SECTION);
+        }
+        catch // catch all exceptions to keep app alive
+        {
+        }
     }
 
     public AdvertisingInterval AdvertisingIterval => AdvertisingInterval.Min;

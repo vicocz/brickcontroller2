@@ -14,7 +14,6 @@
     <EmbeddedResource Include="UI\Images\buwizz3_image_small.png" />
     <EmbeddedResource Include="UI\Images\buwizz_image.png" />
     <EmbeddedResource Include="UI\Images\buwizz_image_small.png" />
-    <EmbeddedResource Include="UI\Images\cada_racecar_image.png" />
     <EmbeddedResource Include="UI\Images\cada_racecar_image_small.png" />
     <EmbeddedResource Include="UI\Images\circuitcubes_image.png" />
     <EmbeddedResource Include="UI\Images\circuitcubes_image_small.png" />
@@ -26,6 +25,9 @@
     <EmbeddedResource Include="UI\Images\mk4_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk6_image.png" />
     <EmbeddedResource Include="UI\Images\mk6_image_small.png" />
+    <EmbeddedResource Include="UI\Images\rc_left_right_image.png" />
+    <EmbeddedResource Include="UI\Images\rc_light_on_off.png" />
+    <EmbeddedResource Include="UI\Images\rc_up_down_image.png" />
     <EmbeddedResource Include="UI\Images\technichub_image.png" />
     <EmbeddedResource Include="UI\Images\technichub_image_small.png" />
     <EmbeddedResource Include="UI\Images\infra_image.png" />
@@ -43,11 +45,6 @@
   <ItemGroup>
     <!-- Custom Fonts -->
     <MauiFont Include="Resources\Fonts\*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="UI\Images\cada_racecar_image.png" />
-    <None Remove="UI\Images\cada_racecar_image_small.png" />
   </ItemGroup>
 
   <ItemGroup>

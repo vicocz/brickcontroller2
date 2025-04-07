@@ -310,17 +310,23 @@
             <!-- CaDARaceCar -->
             <Grid x:Name="CaDARaceCarSection">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <Image Grid.Column="0" Source="{extensions:ImageResource Source=cada_racecar_image.png}" WidthRequest="168" HeightRequest="176"/>
-
-                <Grid Grid.Column="1">
-                    <controls:ChannelSelectorRadioButton x:Name="CaDARaceCarChannel0" DeviceType="CaDA_RaceCar" Channel="0" HorizontalOptions="Start" VerticalOptions="Start" Margin="10,25,0,50"/>
-                    <controls:ChannelSelectorRadioButton x:Name="CaDARaceCarChannel1" DeviceType="CaDA_RaceCar" Channel="1" HorizontalOptions="Start" VerticalOptions="Center" Margin="10,5,0,0"/>
-                    <controls:ChannelSelectorRadioButton x:Name="CaDARaceCarChannel2" DeviceType="CaDA_RaceCar" Channel="2" HorizontalOptions="Start" VerticalOptions="End" Margin="10,0,0,15"/>
-                </Grid>
+                <Image Grid.Row="0" Grid.Column="0" Source="{extensions:ImageResource Source=rc_up_down_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
+                <controls:ChannelSelectorRadioButton Grid.Row="0" Grid.Column="1" x:Name="CaDARaceCarChannel0" DeviceType="CaDA_RaceCar" Channel="0" VerticalOptions="Center"/>
+                
+                <Image Grid.Row="1" Grid.Column="0" Source="{extensions:ImageResource Source=rc_left_right_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
+                <controls:ChannelSelectorRadioButton Grid.Row="1" Grid.Column="1" x:Name="CaDARaceCarChannel1" DeviceType="CaDA_RaceCar" Channel="1" VerticalOptions="Center"/>
+                
+                <Image Grid.Row="2" Grid.Column="0" Source="{extensions:ImageResource Source=rc_light_on_off.png}" HeightRequest="50" Margin="0,0,10,5"/>
+                <controls:ChannelSelectorRadioButton Grid.Row="2" Grid.Column="1" x:Name="CaDARaceCarChannel2" DeviceType="CaDA_RaceCar" Channel="2" VerticalOptions="Center"/>
 
             </Grid>
 

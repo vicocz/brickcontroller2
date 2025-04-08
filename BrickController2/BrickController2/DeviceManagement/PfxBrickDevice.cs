@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static BrickController2.Protocols.PfxProtocol;
 
 namespace BrickController2.DeviceManagement
 {
@@ -150,6 +150,8 @@ namespace BrickController2.DeviceManagement
                         await Task.Delay(10, token).ConfigureAwait(false);
                     }
                 }
+                // ensure everything is stopped in the end
+                await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
             }
             catch
             {
@@ -163,17 +165,39 @@ namespace BrickController2.DeviceManagement
                 var v0 = values[0];
                 var v1 = values[1];
 
-                var motorCmd = PfxProtocol.SetMotorSpeed(v0, v1);
+                // optimize writes
+                if (v0 == v1)
+                {
+                    var motorCmd = PfxProtocol.SetMotorSpeed(MOTOR_OUTPUT_AB, v0);
+                    return await WriteCommandAsync(motorCmd, token).ConfigureAwait(false);
+                }
+                else
+                {
+                    var motorCmd1 = PfxProtocol.SetMotorSpeed(MOTOR_OUTPUT_A, v0);
+                    await WriteCommandAsync(motorCmd1, token).ConfigureAwait(false);
 
+                    var motorCmd2 = PfxProtocol.SetMotorSpeed(MOTOR_OUTPUT_B, v1);
+                    return await WriteCommandAsync(motorCmd2, token).ConfigureAwait(false);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> WriteCommandAsync(byte[] command, CancellationToken token)
+        {
+            try
+            {
                 _characteristicNotificationResetEvent.Reset();
 
-                foreach (var cmdChunk in motorCmd.Chunk(20))
+                // split per 20 bytes
+                foreach (var cmdChunk in command.Chunk(20))
                 {
                     var result = await _bleDevice!.WriteNoResponseAsync(_writeCharacteristic!, cmdChunk, token);
                 }
-                Debug.WriteLine("Cmd" + Convert.ToHexString(motorCmd));
-                //var result = await _bleDevice!.WriteAsync(_writeCharacteristic!, motorCmd, token);
-
+                Debug.WriteLine("Cmd" + Convert.ToHexString(command));
 
                 return await _characteristicNotificationResetEvent.WaitAsync(token).ConfigureAwait(false);
             }

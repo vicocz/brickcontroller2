@@ -95,17 +95,22 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         int random = 0; // JK: not needed
 
-        byte[] channelDataArray = // 8
+        byte[] channelDataArray;
+
+        lock (_outputLock)
         {
-            (byte)(random & 255),
-            (byte)((random >> 8) & 255),
-            (byte)Math.Max(0, Math.Min(0x80 - _outputValues[0], 0xFF)), // speed value - reversed
-            (byte)Math.Max(0, Math.Min(0x80 + _outputValues[1], 0xFF)), // 
-            (byte)Math.Max(0, Math.Min(0x80 + _outputValues[2], 0xFF)), // light on/off
-            0,
-            0,
-            0
-        };
+            channelDataArray = new byte[]// 8
+            {
+                (byte)(random & 255),
+                (byte)((random >> 8) & 255),
+                (byte)Math.Max(0, Math.Min(0x80 - _outputValues[0], 0xFF)), // speed value - reversed
+                (byte)Math.Max(0, Math.Min(0x80 + _outputValues[1], 0xFF)), // 
+                (byte)Math.Max(0, Math.Min(0x80 + _outputValues[2], 0xFF)), // light on/off
+                0,
+                0,
+                0
+            };
+        }
 
         CaDAProtocol.Encrypt(channelDataArray);
 

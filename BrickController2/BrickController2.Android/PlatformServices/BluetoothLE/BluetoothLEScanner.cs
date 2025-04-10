@@ -17,10 +17,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         public override void OnScanResult([GeneratedEnum] ScanCallbackType callbackType, ScanResult? result)
         {
             if (result is null ||
-                result.ScanRecord is null /*||                      JK: CaDA result don't have Name or Address
-                string.IsNullOrEmpty(result?.Device?.Name) ||
-                string.IsNullOrEmpty(result?.Device?.Address)*/
-                )
+                result.ScanRecord is null)
             {
                 return;
             }

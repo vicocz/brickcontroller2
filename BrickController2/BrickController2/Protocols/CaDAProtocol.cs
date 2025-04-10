@@ -174,49 +174,4 @@ internal static class CaDAProtocol
             data[index] = (byte)(switchSheet[(int)(data[index] / 4)] + data[index] % 4);
         }
     }
-
-    public static int UnmaskArray(byte[] bArr, int offset, int count, bool z = true)
-    {
-        int result;
-        int index = 0;
-        if (z)
-        {
-            result = 0;
-            while (index < count)
-            {
-                result |= (bArr[offset + index] & 255) << (((count - 1) - index) * 8);
-                index++;
-            }
-        }
-        else
-        {
-            result = 0;
-            while (index < count)
-            {
-                result |= (bArr[offset + index] & 255) << (index * 8);
-                index++;
-            }
-        }
-        return result;
-    }
-
-    public static byte[] CreateMaskArray(int i, int length)
-    {
-        byte[] bArr = new byte[length];
-        for (int index = 0; index < length; index++)
-        {
-            bArr[index] = (byte)((i >> (((length - 1) - index) * 8)) & 255);
-        }
-        return bArr;
-    }
-
-    public static byte[] CreateAppIDMaskArray(string appId)
-    {
-        int appIdIntValue =
-            (appId[0] << 0) +
-            (appId[1] << 8) +
-            (appId[2] << 16);
-
-        return CaDAProtocol.CreateMaskArray(appIdIntValue, 3);
-    }
 }

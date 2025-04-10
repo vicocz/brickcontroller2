@@ -4,10 +4,10 @@ namespace BrickController2.PlatformServices.BluetoothLE
 {
     public class ScanResult
     {
-        public ScanResult(string deviceName, string deviceAddress, IDictionary<byte, byte[]> advertismentData)
+        public ScanResult(string? deviceName, string? deviceAddress, IDictionary<byte, byte[]> advertismentData)
         {
-            DeviceName = deviceName;
-            DeviceAddress = deviceAddress;
+            DeviceName = deviceName ?? string.Empty;
+            DeviceAddress = deviceAddress ?? string.Empty;
             AdvertismentData = advertismentData;
         }
 

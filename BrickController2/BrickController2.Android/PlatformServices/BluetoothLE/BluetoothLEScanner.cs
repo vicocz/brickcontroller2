@@ -29,7 +29,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
 
             var advertismentData = ScanRecordProcessor.GetAdvertismentData(bytes);
-            _scanCallback(new BrickController2.PlatformServices.BluetoothLE.ScanResult(result.Device?.Name ?? string.Empty, result.Device?.Address ?? string.Empty, advertismentData));
+            _scanCallback(new BrickController2.PlatformServices.BluetoothLE.ScanResult(result.Device?.Name, result.Device?.Address, advertismentData));
         }
 
         public override void OnBatchScanResults(IList<ScanResult>? results)

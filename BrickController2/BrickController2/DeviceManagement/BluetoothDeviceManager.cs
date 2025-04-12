@@ -13,14 +13,17 @@ namespace BrickController2.DeviceManagement
     {
         private readonly IBluetoothLEService _bleService;
         private readonly IEnumerable<IBluetoothLEDeviceManager> _bleDeviceManagers;
+        private readonly IEnumerable<IBluetoothLEAdvertiserDeviceScanData> _bluetoothLEAdvertiserDeviceScanDataList;
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public BluetoothDeviceManager(
             IBluetoothLEService bleService,
-            IEnumerable<IBluetoothLEDeviceManager> bleDeviceManagers)
+            IEnumerable<IBluetoothLEDeviceManager> bleDeviceManagers,
+            IEnumerable<IBluetoothLEAdvertiserDeviceScanData> bluetoothLEAdvertiserDeviceScanDataList)
         {
             _bleService = bleService;
             _bleDeviceManagers = bleDeviceManagers;
+            _bluetoothLEAdvertiserDeviceScanDataList = bluetoothLEAdvertiserDeviceScanDataList;
         }
 
         public bool IsBluetoothLESupported => _bleService.IsBluetoothLESupported;
@@ -37,20 +40,17 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    return await _bleService.ScanDevicesAsync(
-                        async scanResult =>
-                        {
-                            var deviceInfo = GetDeviceIfo(scanResult);
-                            if (deviceInfo.DeviceType != DeviceType.Unknown)
-                            {
-                                await deviceFoundCallback(deviceInfo.DeviceType, deviceInfo.DeviceName, deviceInfo.DeviceAddress, deviceInfo.ManufacturerData);
-                            }
-                            else
-                            {
-                                
-                            }
-                        },
-                        token);
+                    var scanTaskList = new List<Task<bool>>();
+                    
+                    scanTaskList.Add(ScanDeviceAsync(deviceFoundCallback, token));
+
+                    if (_bleService.IsBluetoothLEAdvertisingSupported)
+                    {
+                        scanTaskList.Add(ScanAdvertisingDeviceAsync(token));
+                    }
+
+                    await Task.WhenAll(scanTaskList);
+                    return scanTaskList.All(scanTask => scanTask.Result);
                 }
                 catch (OperationCanceledException)
                 {
@@ -62,9 +62,86 @@ namespace BrickController2.DeviceManagement
                 }
             }
         }
+        private async Task<bool> ScanDeviceAsync(Func<DeviceType, string, string, byte[]?, Task> deviceFoundCallback, CancellationToken token)
+        {
+            try
+            {
+                return await _bleService.ScanDevicesAsync(
+                    async scanResult =>
+                    {
+                        var deviceInfo = GetDeviceIfo(scanResult);
+                        if (deviceInfo.DeviceType != DeviceType.Unknown)
+                        {
+                            await deviceFoundCallback(deviceInfo.DeviceType, deviceInfo.DeviceName, deviceInfo.DeviceAddress, deviceInfo.ManufacturerData);
+                        }
+                        else
+                        {
 
-        // JK: The Scan-Response from the CaDA devices don't include a DeviceName and the DeviceAddress is changing with each response
-        // So I had to extend the returned structure to be able to set these values.
+                        }
+                    },
+                    token);
+            }
+            catch (OperationCanceledException)
+            {
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> ScanAdvertisingDeviceAsync(CancellationToken token)
+        {
+            var scanTaskList = new List<Task<bool>>();
+
+            foreach (var currentEntry in _bluetoothLEAdvertiserDeviceScanDataList)
+            {
+                scanTaskList.Add(Task.Run(async () =>
+                {
+                    IBluetoothLEAdvertiserDevice? advertiserDevice = null;
+                    try
+                    {
+                        if ((advertiserDevice = _bleService.CreateBluetoothLEAdvertiserDevice()) != null)
+                        {
+                            await advertiserDevice.StartAdvertiseAsync(currentEntry.AdvertisingIterval, currentEntry.TXPowerLevel, currentEntry.ManufacturerId, currentEntry.CreateScanData());
+
+                            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                            using (token.Register(async () =>
+                            {
+                                await advertiserDevice.StopAdvertiseAsync();
+
+                                tcs.TrySetResult(true);
+                            }))
+                            {
+                                return await tcs.Task;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        advertiserDevice?.Dispose();
+                    }
+                }));
+            }
+
+            await Task.WhenAll(scanTaskList);
+            return scanTaskList.All(scanTask => scanTask.Result);
+        }
+
         private (DeviceType DeviceType, string DeviceName, string DeviceAddress, byte[]? ManufacturerData) GetDeviceIfo(ScanResult scanResult)
         {
             string newDeviceName = scanResult.DeviceName;

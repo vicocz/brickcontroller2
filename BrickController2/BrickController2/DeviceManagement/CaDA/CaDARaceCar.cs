@@ -33,6 +33,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     };
 
     private readonly int[] _outputValues = new int[3];
+    private readonly Random _rnd = new Random();
 
     public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
       : base(name, address, deviceData, deviceRepository, bleService)
@@ -93,7 +94,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
 
     protected bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
-        int random = 0; // JK: not needed
+        ushort random = (ushort)_rnd.Next(ushort.MinValue, ushort.MaxValue);
 
         byte[] channelDataArray;
 

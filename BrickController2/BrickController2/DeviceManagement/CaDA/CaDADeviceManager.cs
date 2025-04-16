@@ -44,8 +44,7 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBlueto
         // * on length to short
         _appIdChecksumMaskArray = new byte[3];
 
-        Random rnd = new Random();
-        rnd.NextBytes(_appIdChecksumMaskArray);
+        Random.Shared.NextBytes(_appIdChecksumMaskArray);
 
         try
         {

@@ -9,7 +9,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// <summary>
 /// Manager for CaDA devices
 /// </summary>
-internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBluetoothLEDeviceManager
+internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
 {
     private const string SECTION = "CaDA";
     private const string APPIDKEY = "AppID";

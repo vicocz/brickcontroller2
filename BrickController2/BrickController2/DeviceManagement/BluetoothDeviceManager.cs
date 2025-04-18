@@ -13,17 +13,17 @@ namespace BrickController2.DeviceManagement
     {
         private readonly IBluetoothLEService _bleService;
         private readonly IEnumerable<IBluetoothLEDeviceManager> _bleDeviceManagers;
-        private readonly IEnumerable<IBluetoothLEAdvertiserDeviceScanData> _bluetoothLEAdvertiserDeviceScanDataList;
+        private readonly IEnumerable<IBluetoothLEAdvertiserDeviceScanInfo> _bluetoothLEAdvertiserDeviceScanInfoList;
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
         public BluetoothDeviceManager(
             IBluetoothLEService bleService,
             IEnumerable<IBluetoothLEDeviceManager> bleDeviceManagers,
-            IEnumerable<IBluetoothLEAdvertiserDeviceScanData> bluetoothLEAdvertiserDeviceScanDataList)
+            IEnumerable<IBluetoothLEAdvertiserDeviceScanInfo> bluetoothLEAdvertiserDeviceScanInfoList)
         {
             _bleService = bleService;
             _bleDeviceManagers = bleDeviceManagers;
-            _bluetoothLEAdvertiserDeviceScanDataList = bluetoothLEAdvertiserDeviceScanDataList;
+            _bluetoothLEAdvertiserDeviceScanInfoList = bluetoothLEAdvertiserDeviceScanInfoList;
         }
 
         public bool IsBluetoothLESupported => _bleService.IsBluetoothLESupported;
@@ -95,7 +95,7 @@ namespace BrickController2.DeviceManagement
         {
             var scanTaskList = new List<Task<bool>>();
 
-            foreach (var currentEntry in _bluetoothLEAdvertiserDeviceScanDataList)
+            foreach (var currentEntry in _bluetoothLEAdvertiserDeviceScanInfoList)
             {
                 scanTaskList.Add(Task.Run(async () =>
                 {

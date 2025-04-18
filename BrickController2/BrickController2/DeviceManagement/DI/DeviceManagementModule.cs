@@ -52,7 +52,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 2", MK6.Device2, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>(), []);
 
-            builder.RegisterType<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanData>().As<IBluetoothLEDeviceManager>().SingleInstance();
+            builder.RegisterType<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>().As<IBluetoothLEDeviceManager>().SingleInstance();
         }
     }
 }

@@ -142,41 +142,39 @@ namespace BrickController2.DeviceManagement
             return scanTaskList.All(scanTask => scanTask.Result);
         }
 
-        private (DeviceType DeviceType, string DeviceName, string DeviceAddress, byte[]? ManufacturerData) GetDeviceIfo(ScanResult scanResult)
+        private FoundDevice GetDeviceIfo(ScanResult scanResult)
         {
-            string newDeviceName = scanResult.DeviceName;
-            string newDeviceAddress = scanResult.DeviceAddress;
-
             IDictionary<byte, byte[]> advertismentData = scanResult.AdvertismentData;
             if (advertismentData == null)
             {
-                return (DeviceType.Unknown, newDeviceName, newDeviceAddress, null);
+                return FoundDevice.Unknown;
             }
 
             if (!advertismentData.TryGetValue(ADTYPE_MANUFACTURER_SPECIFIC, out var manufacturerData) || manufacturerData.Length < 2)
             {
                 var result = GetDeviceInfoByService(advertismentData);
-                return (result.DeviceType, newDeviceName, newDeviceAddress, result.ManufacturerData);
+                return new FoundDevice(result.DeviceType, scanResult.DeviceName, scanResult.DeviceAddress, result.ManufacturerData);
             }
 
+            var foundDevice = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress, manufacturerData);
             var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
             var manufacturerId = manufacturerDataString.Substring(0, 5);
 
             switch (manufacturerId)
             {
-                case "98-01": return (DeviceType.SBrick, newDeviceName, newDeviceAddress, manufacturerData);
-                case "48-4d": return (DeviceType.BuWizz, newDeviceName, newDeviceAddress, manufacturerData);
+                case "98-01": return foundDevice with { DeviceType = DeviceType.SBrick };
+                case "48-4d": return foundDevice with { DeviceType = DeviceType.BuWizz };
                 case "4e-05":
                     if (advertismentData.TryGetValue(ADTYPE_LOCAL_NAME_COMPLETE, out byte[]? completeLocalName))
                     {
                         var completeLocalNameString = BitConverter.ToString(completeLocalName).ToLower();
                         if (completeLocalNameString == "42-75-57-69-7a-7a") // BuWizz
                         {
-                            return (DeviceType.BuWizz2, newDeviceName, newDeviceAddress, manufacturerData);
+                            return foundDevice with { DeviceType = DeviceType.BuWizz2 };
                         }
                         else
                         {
-                            return (DeviceType.BuWizz3, newDeviceName, newDeviceAddress, manufacturerData);
+                            return foundDevice with { DeviceType = DeviceType.BuWizz3 };
                         }
                     }
                     break;
@@ -186,7 +184,7 @@ namespace BrickController2.DeviceManagement
                         var completeLocalNameString = BitConverter.ToString(buwizzName).ToLower();
                         if (completeLocalNameString == "42-75-57-69-7a-7a-32") // BuWizz2
                         {
-                            return (DeviceType.BuWizz2, newDeviceName, newDeviceAddress, manufacturerData);
+                            return foundDevice with { DeviceType = DeviceType.BuWizz2 };
                         }
                     }
                     break;
@@ -196,27 +194,23 @@ namespace BrickController2.DeviceManagement
                         var pupType = manufacturerDataString.Substring(9, 2);
                         switch (pupType)
                         {
-                            case "40": return (DeviceType.Boost, newDeviceName, newDeviceAddress, manufacturerData);
-                            case "41": return (DeviceType.PoweredUp, newDeviceName, newDeviceAddress, manufacturerData);
-                            case "80": return (DeviceType.TechnicHub, newDeviceName, newDeviceAddress, manufacturerData);
-                            case "84": return (DeviceType.TechnicMove, newDeviceName, newDeviceAddress, manufacturerData);
-                            case "20": return (DeviceType.DuploTrainHub, newDeviceName, newDeviceAddress, manufacturerData);
+                            case "40": return foundDevice with { DeviceType = DeviceType.Boost };
+                            case "41": return foundDevice with { DeviceType = DeviceType.PoweredUp };
+                            case "80": return foundDevice with { DeviceType = DeviceType.TechnicHub };
+                            case "84": return foundDevice with { DeviceType = DeviceType.TechnicMove };
+                            case "20": return foundDevice with { DeviceType = DeviceType.DuploTrainHub };
                         }
                     }
                     break;
-                case "33-ac": return (DeviceType.MK_DIY, newDeviceName, newDeviceAddress, manufacturerData);
+                case "33-ac": return foundDevice with { DeviceType = DeviceType.MK_DIY };
             }
 
-            // JK: by putting all the above code in specific managers (i.e. LegoDeviceManager, BuwizzDevicerManager,...)
-            // we can decentralize the code...
-
-            DeviceType deviceType = DeviceType.Unknown;
-            if(_bleDeviceManagers.Any(c => c.TryGetDevice(manufacturerId, manufacturerData, out deviceType, ref newDeviceName, ref newDeviceAddress)))
+            if(_bleDeviceManagers.Any(c => c.TryGetDevice(manufacturerId, manufacturerData, ref foundDevice)))
             {
-                return (deviceType, newDeviceName, newDeviceAddress, manufacturerData);
+                return foundDevice;
             }
 
-            return (DeviceType.Unknown, newDeviceName, newDeviceAddress, null);
+            return FoundDevice.Unknown;
         }
 
         private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceInfoByService(IDictionary<byte, byte[]> advertismentData)

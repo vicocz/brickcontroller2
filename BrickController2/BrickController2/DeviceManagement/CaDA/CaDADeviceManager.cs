@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text;
+using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using BrickController2.UI.Services.Preferences;
@@ -92,38 +92,31 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanData, IBlueto
         return rf_payload_Array;
     }
 
-    /// <summary>
-    /// Check if this manager can handle the device
-    /// </summary>
-    /// <param name="manufacturerId"></param>
-    /// <param name="manufacturerData"></param>
-    /// <param name="deviceType">device type</param>
-    /// <param name="deviceName">changable devicename</param>
-    /// <param name="deviceAddress">changable device address</param>
-    /// <returns>true: manager can handle this device</returns>
-    public bool TryGetDevice(string manufacturerId, byte[] manufacturerData, out DeviceType deviceType, ref string deviceName, ref string deviceAddress)
+    public bool TryGetDevice(string manufacturerId, byte[] manufacturerData, ref FoundDevice foundDevice)
     {
         switch (manufacturerId)
         {
             case "f0-ff":
                 if (IsCadaRaceCar(manufacturerData))
                 {
-                    deviceType = DeviceType.CaDA_RaceCar;
-
                     // the origin deviceAddress is changing on every scan-response
                     // but inside the manufacturerData are 3 bytes identifying the device
-                    deviceAddress = BitConverter.ToString(manufacturerData, 4, 3).ToLower(); // change device address
+                    string deviceAddress = BitConverter.ToString(manufacturerData, 4, 3).ToLower(); // change device address
 
-                    // an empty devicename is given so create one
-                    deviceName = $"CaDA {deviceAddress}";
+                    foundDevice = foundDevice with 
+                    {
+                        DeviceType = DeviceType.CaDA_RaceCar, 
+                        DeviceAddress = deviceAddress,        // change device address, 
+                        DeviceName = $"CaDA {deviceAddress}"  // an empty devicename is given so create one
+                    };
                     return true;
                 }
                 break;
-                // extend when needed for other CaDA devices
+
+                // extend if needed to other CaDA devices
         }
 
         // no, device not handled
-        deviceType = DeviceType.Unknown;
         return false;
     }
 

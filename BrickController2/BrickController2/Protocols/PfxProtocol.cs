@@ -1,4 +1,6 @@
 ﻿using System;
+using static Microsoft.Maui.ApplicationModel.Permissions;
+using System.Threading.Channels;
 
 namespace BrickController2.Protocols;
 
@@ -16,15 +18,15 @@ internal static class PfxProtocol
     // Motor Action IDs
     public const byte MOTOR_ACTION_EMERGENCY_STOP = 0x00;
     public const byte MOTOR_ACTION_STOP = 0x10;
-    public const byte MOTOR_ACTION_STOP_AB = 0x10 | MOTOR_OUTPUT_AB;
+    public const byte MOTOR_ACTION_STOP_ALL = 0x10 | MOTOR_OUTPUT_ALL;
     public const byte MOTOR_ACTION_SET_SPD = 0x70;
-    public const byte MOTOR_ACTION_SET_SPD_AB = 0x70 | MOTOR_OUTPUT_AB;
+    public const byte MOTOR_ACTION_SET_SPD_ALL = 0x70 | MOTOR_OUTPUT_ALL;
 
     public const byte MOTOR_OUTPUT_BASE = 0x01;
     public const byte MOTOR_OUTPUT_MASK = 0x0F;
     public const byte MOTOR_OUTPUT_A = 0x01;
     public const byte MOTOR_OUTPUT_B = 0x02;
-    public const byte MOTOR_OUTPUT_AB = MOTOR_OUTPUT_A | MOTOR_OUTPUT_B;
+    public const byte MOTOR_OUTPUT_ALL = MOTOR_OUTPUT_A | MOTOR_OUTPUT_B;
 
     public const byte MOTOR_SPEED_MASK = 0x3F;
     public const byte MOTOR_SPEED_FLAG_HIRES_REV = 0x40;
@@ -33,21 +35,46 @@ internal static class PfxProtocol
     // Light FX IDs
     public const byte EVT_LIGHTFX_SET_BRIGHTNESS = 0x04;
 
-    public static byte[] SetMotorSpeed(byte motorOutput, int speed)
+    public const byte LIGHT_OUTPUT_BASE = 0x01;
+    public const byte LIGHT_OUTPUT_1 = 0x01;
+    public const byte LIGHT_OUTPUT_2 = 0x02;
+    public const byte LIGHT_OUTPUT_3 = 0x04;
+    public const byte LIGHT_OUTPUT_4 = 0x08;
+    public const byte LIGHT_OUTPUT_5 = 0x10;
+    public const byte LIGHT_OUTPUT_6 = 0x20;
+    public const byte LIGHT_OUTPUT_7 = 0x40;
+    public const byte LIGHT_OUTPUT_8 = 0x80;
+
+    public const byte LIGHT_OUTPUT_ALL = LIGHT_OUTPUT_1 |
+        LIGHT_OUTPUT_2 |
+        LIGHT_OUTPUT_3 |
+        LIGHT_OUTPUT_4 |
+        LIGHT_OUTPUT_5 |
+        LIGHT_OUTPUT_6 |
+        LIGHT_OUTPUT_7 |
+        LIGHT_OUTPUT_8;
+
+    public static byte[] SetMotorSpeed(byte motorOutput, short speed)
         => TestEventAction(EVT_COMMAND_NONE,
             motorActionId: (byte)(MOTOR_ACTION_SET_SPD | motorOutput & MOTOR_OUTPUT_MASK),
             motorParam1: GetMotorParam(speed));
+
+    public static byte[] SetMotorSpeed(int channel, short speed)
+        => SetMotorSpeed(channel == int.MaxValue ? MOTOR_OUTPUT_ALL : (byte)(MOTOR_OUTPUT_BASE << channel), speed);
 
     public static byte[] AllOff() => TestEventAction(EVT_COMMAND_ALL_OFF);
 
     /// <summary>
     /// Set the brightness of selected <paramref name="lightChannel"/>
     /// </summary>
-    public static byte[] SetBrightness(int lightChannel, int value)
-        => TestEventAction(EVT_COMMAND_NONE,
-            lightFxId: EVT_LIGHTFX_SET_BRIGHTNESS,
-            lightOutputMask: (byte)(1 >> lightChannel),
-            lightParam1: (byte)(Math.Abs(value) & 0xFF));
+    public static byte[] SetBrightness(int lightChannel, short value)
+        => SetBrightness(lightChannel == int.MaxValue ? LIGHT_OUTPUT_ALL : (byte)(LIGHT_OUTPUT_BASE << lightChannel), value);
+
+    public static byte[] SetBrightness(byte lightOutputMask, short value)
+    => TestEventAction(EVT_COMMAND_NONE,
+        lightFxId: EVT_LIGHTFX_SET_BRIGHTNESS,
+        lightOutputMask: lightOutputMask,
+        lightParam1: (byte)(Math.Abs(value) & 0xFF));
 
     public static byte[] GetStatus()
     {

@@ -1,6 +1,8 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.DeviceManagement.IO;
+using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,24 +15,22 @@ namespace BrickController2.DeviceManagement
 {
     internal class PfxBrickDevice : BluetoothDevice
     {
-        private const int MAX_SEND_ATTEMPTS = 5;
+        private const int PF_CHANNELS = 2;
+        private const int LIGHT_CHANNELS = 8;
 
         private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
         private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
         private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
-        private readonly int[] _outputValues = new int[10];
-        private readonly int[] _lastOutputValues = new int[10];
-        private readonly object _outputLock = new object();
+        private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
+        private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
 
-        private readonly ManualResetEventSlim _characteristicNotificationResetEvent = new ManualResetEventSlim();
-
-        private volatile int _sendAttemptsLeft;
+        private readonly ManualResetEventSlim _characteristicNotificationResetEvent = new();
 
         private IGattCharacteristic? _writeCharacteristic;
         private IGattCharacteristic? _notifyCharacteristic;
 
-        public PfxBrickDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
         }
@@ -46,16 +46,18 @@ namespace BrickController2.DeviceManagement
             CheckChannel(channel);
             value = CutOutputValue(value);
 
-            // Per channel range - percent
-            var intValue = (int)(value * 100);
-
-            lock (_outputLock)
+            if (channel >= PF_CHANNELS)
             {
-                if (_outputValues[channel] != intValue)
-                {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-                }
+                // Per light channel range - percent
+                var brightnessValue = (short)(value * 255);
+                int lightChannel = channel - PF_CHANNELS;
+                _lightOutputs.SetOutput(lightChannel, brightnessValue);
+            }
+            else
+            {
+                // Per motor channel range - percent
+                var percentValue = (short)(value * 100);
+                _motorOutputs.SetOutput(channel, percentValue);
             }
         }
 
@@ -112,44 +114,49 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                lock (_outputLock)
-                {
-                    Array.Clear(_outputValues, 0, _outputValues.Length);
-                    Array.Clear(_lastOutputValues, 0, _lastOutputValues.Length);
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-                }
-
-                int[] values = new int[NumberOfChannels];
-                int sendAttemptsLeft;
+                // reset outputs
+                _motorOutputs.Initialize();
+                _lightOutputs.Initialize();
 
                 while (!token.IsCancellationRequested)
                 {
-                    lock (_outputLock)
+                    bool changed = false;
+                    // process motor outputs for change
+                    if (_motorOutputs.TryGetChanges(out var motorChanges))
                     {
-                        _outputValues.CopyTo(values, 0);
-
-                        sendAttemptsLeft = _sendAttemptsLeft;
-                        _sendAttemptsLeft = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
-                    }
-
-                    if (!values.SequenceEqual(_lastOutputValues) || sendAttemptsLeft > 0)
-                    {
-                        if (await SendOutputValuesAsync(values, token).ConfigureAwait(false))
+                        var timer = new Stopwatch();
+                        timer.Start();
+                        if (await SendOutputValuesAsync(motorChanges, token).ConfigureAwait(false))
                         {
-                            values.CopyTo(_lastOutputValues, 0);
-
-                            lock (_outputLock)
-                            {
-                                _sendAttemptsLeft = 0;
-                            }
+                            // confirm successfull sending
+                            _motorOutputs.Commmit();
+                            await Task.Delay(5, token).ConfigureAwait(false);
                         }
-                        await Task.Delay(5, token).ConfigureAwait(false);
+                        Debug.WriteLine($"SendOutputValuesAsync took {timer.ElapsedMilliseconds} ms");
+                        changed = true;
                     }
-                    else
+
+                    // process light outputs for change
+                    if (_lightOutputs.TryGetChanges(out var lightChanges))
+                    {
+                        var timer = new Stopwatch();
+                        timer.Start();
+                        if (await SendLightValuesAsync(lightChanges, token).ConfigureAwait(false))
+                        {
+                            // confirm successfull sending
+                            _lightOutputs.Commmit();
+                            await Task.Delay(5, token).ConfigureAwait(false);
+                        }
+                        Debug.WriteLine($"SendLightValuesAsync took {timer.ElapsedMilliseconds} ms");
+                        changed = true;
+                    }
+
+                    if (!changed)
                     {
                         await Task.Delay(10, token).ConfigureAwait(false);
                     }
                 }
+
                 // ensure everything is stopped in the end
                 await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
             }
@@ -158,48 +165,49 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> SendOutputValuesAsync(int[] values, CancellationToken token)
+        private async Task<bool> SendOutputValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
         {
-            try
+            bool result = true;
+            foreach (var change in changes)
             {
-                var v0 = values[0];
-                var v1 = values[1];
-
-                // optimize writes
-                if (v0 == v1)
-                {
-                    var motorCmd = PfxProtocol.SetMotorSpeed(MOTOR_OUTPUT_AB, v0);
-                    return await WriteCommandAsync(motorCmd, token).ConfigureAwait(false);
-                }
-                else
-                {
-                    var motorCmd1 = PfxProtocol.SetMotorSpeed(MOTOR_OUTPUT_A, v0);
-                    await WriteCommandAsync(motorCmd1, token).ConfigureAwait(false);
-
-                    var motorCmd2 = PfxProtocol.SetMotorSpeed(MOTOR_OUTPUT_B, v1);
-                    return await WriteCommandAsync(motorCmd2, token).ConfigureAwait(false);
-                }
+                var cmd = PfxProtocol.SetMotorSpeed(change.Key, change.Value);
+                result &= await WriteCommandAsync(cmd, token);
             }
-            catch (Exception)
+
+            // optimize writes
+            //if (v0 == v1)
+            //{
+            //    var motorCmd = PfxProtocol.SetMotorSpeed(LIGHT_OUTPUT_ALL, v0);
+            //    return await WriteCommandAsync(motorCmd, token).ConfigureAwait(false);
+            //}
+
+            return result;
+        }
+
+        private async Task<bool> SendLightValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
+        {            
+            bool result = true;
+            foreach (var change in changes)
             {
-                return false;
+                var cmd = PfxProtocol.SetBrightness(change.Key, change.Value);
+                result &= await WriteCommandAsync(cmd, token);
             }
+
+            // optimize writes
+            //if (v0 == v1)
+            //{
+            //    var motorCmd = PfxProtocol.SetBrightness(MOTOR_OUTPUT_AB, v0);
+            //    return await WriteCommandAsync(motorCmd, token).ConfigureAwait(false);
+            //}
+
+            return result;
         }
 
         private async Task<bool> WriteCommandAsync(byte[] command, CancellationToken token)
         {
             try
             {
-                _characteristicNotificationResetEvent.Reset();
-
-                // split per 20 bytes
-                foreach (var cmdChunk in command.Chunk(20))
-                {
-                    var result = await _bleDevice!.WriteNoResponseAsync(_writeCharacteristic!, cmdChunk, token);
-                }
-                Debug.WriteLine("Cmd" + Convert.ToHexString(command));
-
-                return await _characteristicNotificationResetEvent.WaitAsync(token).ConfigureAwait(false);
+                return await _bleDevice!.WriteNoResponseAsync(_writeCharacteristic!, command, token);
             }
             catch (Exception)
             {

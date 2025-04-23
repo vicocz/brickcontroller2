@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-    <RootNamespace>BrickController2</RootNamespace>
+	<TargetFramework>net9.0</TargetFramework>
+	<RootNamespace>BrickController2</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -54,6 +52,10 @@
     <PackageReference Include="SQLiteNetExtensions.Async" />
     <PackageReference Include="SQLitePCLRaw.bundle_green" />
     <PackageReference Include="ZXing.Net.Maui.Controls" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="BrickController2.Tests"/>
   </ItemGroup>
 
 </Project>

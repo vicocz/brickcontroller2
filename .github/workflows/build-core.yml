@@ -1,4 +1,4 @@
-name: Build BrickController Android 
+name: Build BrickController Core 
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
-      - 'BrickController2/BrickController2.Android/**'
+      - 'BrickController2/BrickController2.Tests/**'
   pull_request:
     branches:    
       - default
@@ -20,7 +20,7 @@ on:
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
-      - 'BrickController2/BrickController2.Android/**'
+      - 'BrickController2/BrickController2.Tests/**'
   workflow_dispatch:
 
 permissions:
@@ -28,22 +28,21 @@ permissions:
 
 jobs:
   build-android:
+#    runs-on: ubuntu-latest
     runs-on: windows-2025
-    name: BrickController Android Build
+    name: BrickController Core Build
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-            
+          
     - name: Restore Dependencies
-      run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
-    - name: Build MAUI Android
-      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net9.0-android --no-restore
-
-    - name: Upload Android Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/*Signed.a*
+      run: dotnet restore BrickController2/BrickController2/BrickController2.csproj
+    - name: Build MAUI Core
+      run: dotnet build BrickController2/BrickController2/BrickController2.csproj -c Release --no-restore
+    - name: Build MAUI Core tests
+      run: dotnet build BrickController2/BrickController2.Tests/BrickController2.Tests.csproj -c Release
+    - name: Run MAUI Core tests
+      run: dotnet test BrickController2/BrickController2.Tests/BrickController2.Tests.csproj -c Release --no-build

@@ -2,8 +2,13 @@
   <PropertyGroup>
     <SingleProject>false</SingleProject>
     <UseMaui>true</UseMaui>
+    <LangVersion>latest</LangVersion>	  
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Nullable>enable</Nullable>
     <NeutralLanguage>en-US</NeutralLanguage>
+	<AssemblyName>$(MSBuildProjectName)</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(RootNamespace)' == ''">
+    <RootNamespace>$(MSBuildProjectName)</RootNamespace>
   </PropertyGroup>
 </Project>

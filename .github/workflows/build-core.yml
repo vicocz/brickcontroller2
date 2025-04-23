@@ -29,7 +29,7 @@ permissions:
 jobs:
   build-android:
 #    runs-on: ubuntu-latest
-    runs-on: windows-latest
+    runs-on: windows-2025
     name: BrickController Core Build
     steps:
     - uses: actions/checkout@v4
@@ -37,8 +37,8 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-    - name: Install MAUI Workload
-      run: dotnet workload install maui --ignore-failed-sources
+    # - name: Install MAUI Workload
+    #   run: dotnet workload install maui --ignore-failed-sources
             
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2/BrickController2.csproj

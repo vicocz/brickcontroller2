@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   build-android:
-    runs-on: windows-2022
+    runs-on: windows-2025
     name: BrickController Android Build
     steps:
     - uses: actions/checkout@v4

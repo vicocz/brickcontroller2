@@ -27,8 +27,7 @@ permissions:
   contents: read
 
 jobs:
-  build-android:
-#    runs-on: ubuntu-latest
+  build--test-core:
     runs-on: windows-2025
     name: BrickController Core Build
     steps:

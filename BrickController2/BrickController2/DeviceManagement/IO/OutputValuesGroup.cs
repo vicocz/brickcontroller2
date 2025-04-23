@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -7,7 +6,7 @@ using System.Threading;
 
 namespace BrickController2.DeviceManagement.IO;
 
-internal class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>, INumber<TValue>
+public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>, INumber<TValue>
 {
     private const int MAX_SEND_ATTEMPTS = 5;
 
@@ -24,6 +23,7 @@ internal class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValu
         _outputValues = new TValue[channelCount];
         _commitedOutputValues = new TValue[channelCount];
         _values = new TValue[channelCount];
+        _sendAttemptsLeft = 0;
     }
 
     public void SetOutput(int channel, TValue value)

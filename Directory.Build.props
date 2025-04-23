@@ -11,7 +11,4 @@
   <PropertyGroup Condition="'$(RootNamespace)' == ''">
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
   </PropertyGroup>
-  <!--<PropertyGroup Condition="'$(TargetFrameworks)' == ''">
-    <TargetFramework>net9.0</TargetFramework>
-  </PropertyGroup>-->
 </Project>

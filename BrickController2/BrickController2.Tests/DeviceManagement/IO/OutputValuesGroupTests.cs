@@ -39,7 +39,7 @@ public class OutputValuesGroupTests
             values.ToArray().Should().AllBeEquivalentTo(0);
         }
         group.TryGetValues(out var lastValues).Should().BeFalse();
-        lastValues.ToArray().Should().NotBeNull().And.BeEmpty();
+        lastValues.ToArray().Should().AllBeEquivalentTo(0);
     }
 
     [Theory]

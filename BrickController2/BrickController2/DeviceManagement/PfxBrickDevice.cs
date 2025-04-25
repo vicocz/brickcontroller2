@@ -132,7 +132,7 @@ namespace BrickController2.DeviceManagement
                             _motorOutputs.Commmit();
                             await Task.Delay(5, token).ConfigureAwait(false);
                         }
-                        Debug.WriteLine($"SendOutputValuesAsync took {timer.ElapsedMilliseconds} ms");
+                        Debug.WriteLine($"SendOutputValuesAsync for {motorChanges.Count} change(s) took {timer.ElapsedMilliseconds} ms");
                         changed = true;
                     }
 
@@ -147,7 +147,7 @@ namespace BrickController2.DeviceManagement
                             _lightOutputs.Commmit();
                             await Task.Delay(5, token).ConfigureAwait(false);
                         }
-                        Debug.WriteLine($"SendLightValuesAsync took {timer.ElapsedMilliseconds} ms");
+                        Debug.WriteLine($"SendLightValuesAsync for {lightChanges.Count} change(s) took {timer.ElapsedMilliseconds} ms");
                         changed = true;
                     }
 

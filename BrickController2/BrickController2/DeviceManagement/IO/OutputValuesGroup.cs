@@ -69,7 +69,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         }
 
         values = _values;
-        return sendAttemptsLeft || !values.SequenceEqual(_commitedOutputValues);
+        return sendAttemptsLeft && !values.SequenceEqual(_commitedOutputValues);
     }
 
     /// <summary>

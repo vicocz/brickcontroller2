@@ -56,6 +56,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.MK_DIY:
                     return ResourceHelper.GetImageResource("mk_diy_image_small.png");
 
+                case DeviceType.PfxBrick:
+                    return ResourceHelper.GetImageResource("pfx_brick_image_small.png");
+
                 default:
                     return null;
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using static BrickController2.Protocols.BluetoothLowEnergy;
 namespace BrickController2.PlatformServices.BluetoothLE
 {
     public class ScanResult
@@ -26,5 +27,6 @@ namespace BrickController2.PlatformServices.BluetoothLE
             data = null;
             return false;
         }
+        public bool TryGetLocalName(out ReadOnlySpan<byte> localName) => TryGetData(ADTYPE_LOCAL_NAME_COMPLETE, out localName);
     }
 }

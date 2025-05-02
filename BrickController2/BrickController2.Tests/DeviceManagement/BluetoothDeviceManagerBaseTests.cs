@@ -23,7 +23,7 @@ public class BluetoothDeviceManagerBaseTests
             return false;
         }
 
-        protected override bool TryGetDeviceByManufacturerData(FoundDevice template, ushort manufacturerId, ReadOnlySpan<byte> manufacturerData, out FoundDevice device)
+        protected override bool TryGetDeviceByManufacturerData(ScanResult scanResult, FoundDevice template, ushort manufacturerId, ReadOnlySpan<byte> manufacturerData, out FoundDevice device)
         {
             if (manufacturerId == 0x0198) // Example Manufacturer ID
             {

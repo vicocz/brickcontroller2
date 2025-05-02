@@ -32,7 +32,7 @@ public class BluetoothDeviceManagerBase
             }
 
             // by well known local name
-            if (scanResult.TryGetData(ADTYPE_LOCAL_NAME_COMPLETE, out var localName))
+            if (scanResult.TryGetLocalName(out var localName))
             {
                 return TryGetDeviceByName(template, localName, out device);
             }
@@ -45,7 +45,7 @@ public class BluetoothDeviceManagerBase
             ManufacturerData = manufacturerData.ToArray()
         };
         var manufacturerId = manufacturerData.GetUInt16();
-        return TryGetDeviceByManufacturerData(template, manufacturerId, manufacturerData, out device);
+        return TryGetDeviceByManufacturerData(scanResult, template, manufacturerId, manufacturerData, out device);
     }
 
     protected virtual bool TryGetDeviceByServiceUiid(FoundDevice template, Guid serviceGuid, out FoundDevice device)
@@ -54,7 +54,7 @@ public class BluetoothDeviceManagerBase
         return false;
     }
 
-    protected virtual bool TryGetDeviceByManufacturerData(FoundDevice template, ushort manufacturerId, ReadOnlySpan<byte> manufacturerData, out FoundDevice device)
+    protected virtual bool TryGetDeviceByManufacturerData(ScanResult scanResult, FoundDevice template, ushort manufacturerId, ReadOnlySpan<byte> manufacturerData, out FoundDevice device)
     {
         device = FoundDevice.Unknown;
         return false;

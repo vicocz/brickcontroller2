@@ -1,6 +1,4 @@
-﻿using BrickController2.DeviceManagement;
-
-namespace BrickController2.Helpers;
+﻿namespace BrickController2.DeviceManagement;
 
 public record FoundDevice
 {
@@ -11,7 +9,11 @@ public record FoundDevice
     public string DeviceAddress { get; init; }
     public byte[]? ManufacturerData { get; init; }
 
-    public FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[]? manufacturerData)
+    public FoundDevice() : this(DeviceType.Unknown, string.Empty, string.Empty)
+    {
+    }
+
+    public FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[]? manufacturerData = null)
     {
         DeviceType = deviceType;
         DeviceName = deviceName;

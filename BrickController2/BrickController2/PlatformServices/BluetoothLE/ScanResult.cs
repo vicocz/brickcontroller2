@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BrickController2.PlatformServices.BluetoothLE
 {
@@ -14,5 +15,16 @@ namespace BrickController2.PlatformServices.BluetoothLE
         public string DeviceName { get; }
         public string DeviceAddress { get; }
         public IDictionary<byte, byte[]> AdvertismentData { get; }
+
+        public bool TryGetData(byte type, out ReadOnlySpan<byte> data)
+        {
+            if (AdvertismentData.TryGetValue(type, out var value))
+            {
+                data = value;
+                return true;
+            }
+            data = null;
+            return false;
+        }
     }
 }

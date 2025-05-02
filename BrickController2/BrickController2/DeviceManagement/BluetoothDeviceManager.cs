@@ -205,7 +205,7 @@ namespace BrickController2.DeviceManagement
                 case "33-ac": return foundDevice with { DeviceType = DeviceType.MK_DIY };
             }
 
-            if(_bleDeviceManagers.Any(c => c.TryGetDevice(manufacturerId, manufacturerData, ref foundDevice)))
+            if (_bleDeviceManagers.Any(c => c.TryGetDevice(scanResult, out foundDevice)))
             {
                 return foundDevice;
             }

@@ -1,5 +1,4 @@
 ﻿using System;
-using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using BrickController2.UI.Services.Preferences;
@@ -9,7 +8,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// <summary>
 /// Manager for CaDA devices
 /// </summary>
-internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
+internal class CaDADeviceManager :BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
 {
     private const string SECTION = "CaDA";
     private const string APPIDKEY = "AppID";
@@ -92,20 +91,20 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanInfo, IBlueto
         return rf_payload_Array;
     }
 
-    public bool TryGetDevice(string manufacturerId, byte[] manufacturerData, ref FoundDevice foundDevice)
+    protected override bool TryGetDeviceByManufacturerData(FoundDevice template, ushort manufacturerId, ReadOnlySpan<byte> manufacturerData, out FoundDevice device)
     {
         switch (manufacturerId)
         {
-            case "f0-ff":
+            case 0xf0ff:
                 if (IsCadaRaceCar(manufacturerData))
                 {
                     // the origin deviceAddress is changing on every scan-response
                     // but inside the manufacturerData are 3 bytes identifying the device
-                    string deviceAddress = BitConverter.ToString(manufacturerData, 4, 3).ToLower(); // change device address
+                    string deviceAddress = BitConverter.ToString(manufacturerData.ToArray(), 4, 3).ToLower(); // change device address
 
-                    foundDevice = foundDevice with 
+                    device = template with
                     {
-                        DeviceType = DeviceType.CaDA_RaceCar, 
+                        DeviceType = DeviceType.CaDA_RaceCar,
                         DeviceAddress = deviceAddress,        // change device address, 
                         DeviceName = $"CaDA {deviceAddress}"  // an empty devicename is given so create one
                     };
@@ -117,18 +116,17 @@ internal class CaDADeviceManager : IBluetoothLEAdvertiserDeviceScanInfo, IBlueto
         }
 
         // no, device not handled
-        return false;
+        device = FoundDevice.Unknown; return false;
     }
-
     /// <summary>
     /// Check if manufacturerData is a scan-response from a CaDA RaceCar
     /// </summary>
     /// <param name="manufacturerData">byte-array with manufacturer data to check</param>
     /// <returns>true, if byte-array matches</returns>
-    private bool IsCadaRaceCar(byte[] manufacturerData)
+    private bool IsCadaRaceCar(ReadOnlySpan<byte> manufacturerData)
     {
         return
-            manufacturerData?.Length == 18 &&
+            manufacturerData.Length == 18 &&
             manufacturerData[2] == 0x75 &&
             (manufacturerData[3] & 0x40) > 0 &&
             manufacturerData[7] == _appIdChecksumMaskArray[0] && // response has to have the same appId

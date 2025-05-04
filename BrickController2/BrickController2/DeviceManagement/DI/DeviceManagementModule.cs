@@ -2,6 +2,7 @@
 using Autofac;
 using BrickController2.DeviceManagement.BuWizz;
 using BrickController2.DeviceManagement.CaDA;
+using BrickController2.DeviceManagement.Lego;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
@@ -20,7 +21,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<ManualDeviceManager>().As<IManualDeviceManager>().SingleInstance();
 
             builder.RegisterType<SBrickDevice>().Keyed<Device>(DeviceType.SBrick);
-            builder.RegisterType<BuWizzDeviceManager>().As<IBluetoothLEDeviceManager>().SingleInstance();
             builder.RegisterType<BuWizzDevice>().Keyed<Device>(DeviceType.BuWizz);
             builder.RegisterType<BuWizz2Device>().Keyed<Device>(DeviceType.BuWizz2);
             builder.RegisterType<BuWizz3Device>().Keyed<Device>(DeviceType.BuWizz3);
@@ -55,6 +55,8 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>(), []);
 
             builder.RegisterType<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>().As<IBluetoothLEDeviceManager>().SingleInstance();
+            builder.RegisterType<BuWizzDeviceManager>().As<IBluetoothLEDeviceManager>().SingleInstance();
+            builder.RegisterType<LegoDeviceManager>().As<IBluetoothLEDeviceManager>().SingleInstance();
         }
     }
 }

@@ -22,9 +22,9 @@ public static class BluetoothLowEnergy
     public static Guid GetGuid(this ReadOnlySpan<byte> data, int index = 0)
     {
         return new Guid(
-            BinaryPrimitives.ReadInt32BigEndian(data[(index + 12)..]),
-            BinaryPrimitives.ReadInt16BigEndian(data[(index + 10)..]),
-            BinaryPrimitives.ReadInt16BigEndian(data[(index + 8)..]),
+            BinaryPrimitives.ReadInt32LittleEndian(data[(index + 12)..]),
+            BinaryPrimitives.ReadInt16LittleEndian(data[(index + 10)..]),
+            BinaryPrimitives.ReadInt16LittleEndian(data[(index + 8)..]),
             data[index + 7], data[index + 6], data[index + 5], data[index + 4], data[index + 3], data[index + 2], data[index + 1], data[index]);
     }
 }

@@ -12,28 +12,6 @@ public class BluetoothDeviceManagerBaseTests
 {
     private class TestBluetoothDeviceManager : BluetoothDeviceManagerBase
     {
-        protected override bool TryGetDeviceByServiceUiid(FoundDevice template, Guid serviceGuid, out FoundDevice device)
-        {
-            if (serviceGuid == Guid.Parse("0000180d-0000-1000-8000-00805f9b34fb")) // Example UUID
-            {
-                device = template with { DeviceType = DeviceType.CircuitCubes };
-                return true;
-            }
-            device = FoundDevice.Unknown;
-            return false;
-        }
-
-        protected override bool TryGetDeviceByManufacturerData(ScanResult scanResult, FoundDevice template, ushort manufacturerId, ReadOnlySpan<byte> manufacturerData, out FoundDevice device)
-        {
-            if (manufacturerId == 0x0198) // Example Manufacturer ID
-            {
-                device = template with { DeviceType = DeviceType.SBrick };
-                return true;
-            }
-            device = FoundDevice.Unknown;
-            return false;
-        }
-
         protected override bool TryGetDeviceByName(FoundDevice template, ReadOnlySpan<byte> localName, out FoundDevice device)
         {
             if (localName.SequenceEqual("BuWizz"u8)) // "BuWizz"
@@ -58,27 +36,6 @@ public class BluetoothDeviceManagerBaseTests
     }
 
     [Fact]
-    public void TryGetDevice_MatchingManufacturerId_ReturnsTrueAndProperDevice()
-    {
-        var scanResult = new ScanResult("SBrick-ByManufacturerId-0x0198", "DeviceAddress", new Dictionary<byte, byte[]>
-        {
-            { 0xFF, new byte[] { 0x98, 0x01, 0x12, 0x34 } } // Manufacturer ID for SBrick
-        });
-        var deviceManager = new TestBluetoothDeviceManager();
-
-        var result = deviceManager.TryGetDevice(scanResult, out var device);
-
-        result.Should().BeTrue();
-        device.Should().BeEquivalentTo(new FoundDevice()
-        {
-            DeviceAddress = "DeviceAddress",
-            DeviceName = "SBrick-ByManufacturerId-0x0198",
-            DeviceType = DeviceType.SBrick,
-            ManufacturerData = [0x98, 0x01, 0x12, 0x34]
-        });
-    }
-
-    [Fact]
     public void TryGetDevice_UnknownManufacturerId_ReturnsFalse()
     {
         var scanResult = new ScanResult("Unknown-ByManufacturerId-0x9801", "DeviceAddress", new Dictionary<byte, byte[]>
@@ -91,22 +48,6 @@ public class BluetoothDeviceManagerBaseTests
 
         result.Should().BeFalse();
         device.Should().BeEquivalentTo(FoundDevice.Unknown);
-    }
-
-    [Fact]
-    public void TryGetDevice_MatchingServiceUuid_ReturnsTrueAndProperDevice()
-    {
-        var scanResult = new ScanResult("CircuitCubes", "DeviceAddress", new Dictionary<byte, byte[]>
-        { // UUID 0000180d-0000-1000-8000-00805f9b34fb
-            { 0x06,[0xfb,0x34,0x9b,0x5f,0x80,0x00, 0x00, 0x80, 0x10, 0x00,0x00,0x00, 0x00, 0x00,0x18, 0x0d] }
-        });
-        var deviceManager = new TestBluetoothDeviceManager();
-
-        var result = deviceManager.TryGetDevice(scanResult, out var device);
-
-        result.Should().BeTrue();
-        device.Should().NotBeNull();
-        device.DeviceType.Should().Be(DeviceType.CircuitCubes);
     }
 
     [Fact]

@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="BrickController2.Tests"/>
+    <InternalsVisibleTo Include="BrickController2.Tests" />
   </ItemGroup>
 
 </Project>

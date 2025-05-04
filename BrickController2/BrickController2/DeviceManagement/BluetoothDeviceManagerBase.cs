@@ -6,12 +6,8 @@ using static BrickController2.Protocols.BluetoothLowEnergy;
 
 namespace BrickController2.DeviceManagement;
 
-public class BluetoothDeviceManagerBase
+public class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
 {
-    public BluetoothDeviceManagerBase()
-    {
-    }
-
     public bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
     {
         IDictionary<byte, byte[]> advertismentData = scanResult.AdvertismentData;
@@ -22,7 +18,7 @@ public class BluetoothDeviceManagerBase
         }
         var template = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress);
 
-        // if there is no manufacturer data,try other methods
+        // if there is no manufacturer data, try other methods
         if (!scanResult.TryGetData(ADTYPE_MANUFACTURER_SPECIFIC, out var manufacturerData) || manufacturerData.Length < 2)
         {
             // by exact service UUID present in advertisment data

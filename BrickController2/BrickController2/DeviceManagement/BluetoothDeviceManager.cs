@@ -149,35 +149,23 @@ namespace BrickController2.DeviceManagement
             {
                 return FoundDevice.Unknown;
             }
-
+            FoundDevice foundDevice;
             if (!advertismentData.TryGetValue(ADTYPE_MANUFACTURER_SPECIFIC, out var manufacturerData) || manufacturerData.Length < 2)
             {
                 var result = GetDeviceInfoByService(advertismentData);
-                return new FoundDevice(result.DeviceType, scanResult.DeviceName, scanResult.DeviceAddress, result.ManufacturerData);
+                foundDevice = new FoundDevice(result.DeviceType, scanResult.DeviceName, scanResult.DeviceAddress, result.ManufacturerData);
             }
-
-            var foundDevice = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress, manufacturerData);
-            var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
-            var manufacturerId = manufacturerDataString.Substring(0, 5);
-
-            switch (manufacturerId)
+            else
             {
-                case "98-01": return foundDevice with { DeviceType = DeviceType.SBrick };
-                case "97-03":
-                    if (manufacturerDataString.Length >= 11)
-                    {
-                        var pupType = manufacturerDataString.Substring(9, 2);
-                        switch (pupType)
-                        {
-                            case "40": return foundDevice with { DeviceType = DeviceType.Boost };
-                            case "41": return foundDevice with { DeviceType = DeviceType.PoweredUp };
-                            case "80": return foundDevice with { DeviceType = DeviceType.TechnicHub };
-                            case "84": return foundDevice with { DeviceType = DeviceType.TechnicMove };
-                            case "20": return foundDevice with { DeviceType = DeviceType.DuploTrainHub };
-                        }
-                    }
-                    break;
-                case "33-ac": return foundDevice with { DeviceType = DeviceType.MK_DIY };
+                foundDevice = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress, manufacturerData);
+                var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
+                var manufacturerId = manufacturerDataString.Substring(0, 5);
+
+                switch (manufacturerId)
+                {
+                    case "98-01": return foundDevice with { DeviceType = DeviceType.SBrick };
+                    case "33-ac": return foundDevice with { DeviceType = DeviceType.MK_DIY };
+                }
             }
 
             if (_bleDeviceManagers.Any(c => c.TryGetDevice(scanResult, out foundDevice)))
@@ -202,9 +190,6 @@ namespace BrickController2.DeviceManagement
             {
                 case var service when service == CircuitCubeDevice.SERVICE_UUID:
                     return (DeviceType.CircuitCubes, null);
-
-                case var service when service == Wedo2Device.SERVICE_UUID:
-                    return (DeviceType.WeDo2, null);
 
                 default:
                     return (DeviceType.Unknown, null);

@@ -8,7 +8,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// <summary>
 /// Manager for CaDA devices
 /// </summary>
-internal class CaDADeviceManager :BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
+internal class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
 {
     private const string SECTION = "CaDA";
     private const string APPIDKEY = "AppID";
@@ -116,7 +116,8 @@ internal class CaDADeviceManager :BluetoothDeviceManagerBase, IBluetoothLEAdvert
         }
 
         // no, device not handled
-        device = FoundDevice.Unknown; return false;
+        device = FoundDevice.Unknown;
+        return false;
     }
     /// <summary>
     /// Check if manufacturerData is a scan-response from a CaDA RaceCar

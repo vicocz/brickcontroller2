@@ -10,12 +10,13 @@ public class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
 {
     public bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
     {
-        IDictionary<byte, byte[]> advertismentData = scanResult.AdvertismentData;
+        var advertismentData = scanResult.AdvertismentData;
         if (advertismentData == null)
         {
             device = FoundDevice.Unknown;
             return false;
         }
+        // build device template using available data from scan
         var template = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress);
 
         // if there is no manufacturer data, try other methods
@@ -62,7 +63,7 @@ public class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
         return false;
     }
 
-    private bool TryGetDeviceInfoByService(FoundDevice template,IDictionary<byte, byte[]> advertismentData, out FoundDevice device)
+    private bool TryGetDeviceInfoByService(FoundDevice template, IReadOnlyDictionary<byte, byte[]> advertismentData, out FoundDevice device)
     {
         // 0x06: 128 bits Service UUID type
         if (advertismentData.TryGetValue(ADTYPE_SERVICE_128BIT, out byte[]? serviceData) && serviceData != null && serviceData.Length == 16)

@@ -107,7 +107,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             device.OnDeviceDisconnected();
         }
 
-        private IDictionary<byte, byte[]> ProcessAdvertisementData(NSDictionary advertisementData)
+        private Dictionary<byte, byte[]> ProcessAdvertisementData(NSDictionary advertisementData)
         {
             var result = new Dictionary<byte, byte[]>();
 

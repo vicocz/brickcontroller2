@@ -4,7 +4,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
 {
     public static class ScanRecordProcessor
     {
-        public static IDictionary<byte, byte[]> GetAdvertismentData(byte[] scanRecord)
+        public static Dictionary<byte, byte[]> GetAdvertismentData(byte[] scanRecord)
         {
             var advertismentData = new Dictionary<byte, byte[]>();
 

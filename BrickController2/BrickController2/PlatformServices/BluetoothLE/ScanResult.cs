@@ -6,7 +6,7 @@ namespace BrickController2.PlatformServices.BluetoothLE
 {
     public class ScanResult
     {
-        public ScanResult(string? deviceName, string? deviceAddress, IDictionary<byte, byte[]> advertismentData)
+        public ScanResult(string? deviceName, string? deviceAddress, IReadOnlyDictionary<byte, byte[]> advertismentData)
         {
             DeviceName = deviceName ?? string.Empty;
             DeviceAddress = deviceAddress ?? string.Empty;
@@ -15,7 +15,7 @@ namespace BrickController2.PlatformServices.BluetoothLE
 
         public string DeviceName { get; }
         public string DeviceAddress { get; }
-        public IDictionary<byte, byte[]> AdvertismentData { get; }
+        public IReadOnlyDictionary<byte, byte[]> AdvertismentData { get; }
 
         public bool TryGetData(byte type, out ReadOnlySpan<byte> data)
         {
@@ -27,6 +27,7 @@ namespace BrickController2.PlatformServices.BluetoothLE
             data = null;
             return false;
         }
+
         public bool TryGetLocalName(out ReadOnlySpan<byte> localName) => TryGetData(ADTYPE_LOCAL_NAME_COMPLETE, out localName);
     }
 }

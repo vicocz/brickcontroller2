@@ -143,29 +143,10 @@ namespace BrickController2.DeviceManagement
 
         private bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
         {
-            device = FoundDevice.Unknown;
             if (scanResult.AdvertismentData == null)
             {
+                device = FoundDevice.Unknown;
                 return false;
-            }
-
-            if (!scanResult.AdvertismentData.TryGetValue(ADTYPE_MANUFACTURER_SPECIFIC, out var manufacturerData) || manufacturerData.Length < 2)
-            {
-                var result = GetDeviceInfoByService(scanResult.AdvertismentData);
-                device = new FoundDevice(result.DeviceType, scanResult.DeviceName, scanResult.DeviceAddress, result.ManufacturerData);
-            }
-            else
-            {
-                device = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress, manufacturerData);
-                var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
-                var manufacturerId = manufacturerDataString.Substring(0, 5);
-
-                switch (manufacturerId)
-                {
-                    case "98-01":
-                        device = device with { DeviceType = DeviceType.SBrick };
-                        return true;
-                }
             }
 
             FoundDevice foundDevice = null!;
@@ -174,28 +155,8 @@ namespace BrickController2.DeviceManagement
                 device = foundDevice;
                 return true;
             }
-
-            return device.DeviceType != DeviceType.Unknown;
-        }
-
-        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceInfoByService(IReadOnlyDictionary<byte, byte[]> advertismentData)
-        {
-            // 0x06: 128 bits Service UUID type
-            if (!advertismentData.TryGetValue(ADTYPE_SERVICE_128BIT, out byte[]? serviceData) || serviceData.Length < 16)
-            {
-                return (DeviceType.Unknown, null);
-            }
-
-            var serviceGuid = serviceData.GetGuid();
-
-            switch (serviceGuid)
-            {
-                case var service when service == CircuitCubeDevice.SERVICE_UUID:
-                    return (DeviceType.CircuitCubes, null);
-
-                default:
-                    return (DeviceType.Unknown, null);
-            };
+            device = FoundDevice.Unknown;
+            return false;
         }
     }
 }

@@ -6,7 +6,7 @@ using static BrickController2.Protocols.BluetoothLowEnergy;
 
 namespace BrickController2.DeviceManagement;
 
-public class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
+public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
 {
     public bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
     {

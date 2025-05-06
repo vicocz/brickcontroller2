@@ -28,7 +28,7 @@ public class CaDADeviceManagerTests
         byte[] manufacturerData =
         {
             // manufacturerId
-            0xff, 0xf0,
+            0xf0, 0xff,
             // CADA RaceCar
             0x75, 0x49,
             // 3 bytes identifying the device
@@ -62,7 +62,7 @@ public class CaDADeviceManagerTests
         byte[] manufacturerData =
         {
             // manufacturerId
-            0xff, 0xf0,
+            0xf0, 0xff,
             // CADA RaceCar
             0x75, 0x40,
             // 3 bytes identifying the device

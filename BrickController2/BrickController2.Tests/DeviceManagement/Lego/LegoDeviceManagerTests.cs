@@ -1,26 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using BrickController2.DeviceManagement;
+﻿using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Lego;
-using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
 using FluentAssertions;
 using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.Lego;
 
-public class LegoDeviceManagerTests
+public class LegoDeviceManagerTests : DeviceManagerTestBase<LegoDeviceManager>
 {
-    private readonly LegoDeviceManager _manager = new();
-
     [Fact]
     public void TryGetDevice_WeDoServiceUuid_WeDo2DeviceReturned()
     {
-        var scanResult = new ScanResult("WeDo2", "DeviceAddress", new Dictionary<byte, byte[]>
-        {
-            // 128bit UUID 00001523-1212-efde-1523-785feabcd123
-            { 0x06, [0x23, 0xd1, 0xbc, 0xea, 0x5f, 0x78, 0x23, 0x15, 0xde, 0xef, 0x12, 0x12, 0x23, 0x15, 0x00, 0x00] }
-        });
+        // 128bit UUID 00001523-1212-efde-1523-785feabcd123
+        var scanResult = CreateScanResult("WeDo2", advertismentData: new() { { 0x06, [0x23, 0xd1, 0xbc, 0xea, 0x5f, 0x78, 0x23, 0x15, 0xde, 0xef, 0x12, 0x12, 0x23, 0x15, 0x00, 0x00] } });
 
         var result = _manager.TryGetDevice(scanResult, out var device);
 
@@ -42,10 +33,7 @@ public class LegoDeviceManagerTests
     public void TryGetDevice_LegoManufacturerIdWithDeviceId_ReturnsProperLegoDevice(byte deviceId, DeviceType deviceType)
     {
         byte[] manufacturerData = [0x97, 0x03, 0x00, deviceId];
-        var scanResult = new ScanResult("LEGO", "DeviceAddress", new Dictionary<byte, byte[]>
-        {
-            { 0xff, manufacturerData }
-        });
+        var scanResult = CreateScanResult(deviceName: default, manufacturerData: manufacturerData);
 
         var result = _manager.TryGetDevice(scanResult, out var device);
 
@@ -62,10 +50,7 @@ public class LegoDeviceManagerTests
     [Fact]
     public void TryGetDevice_UnknownLegoDeviceId_ReturnsFalse()
     {
-        var scanResult = new ScanResult("LEGO", "DeviceAddress", new Dictionary<byte, byte[]>
-        {
-            { 0xff, [0x97, 0x03, 0x00, 0xFF] }
-        });
+        var scanResult = CreateScanResult("UnknownLegoDevice", manufacturerData: [0x97, 0x03, 0x00, 0xFF]);
 
         var result = _manager.TryGetDevice(scanResult, out var device);
 

@@ -27,4 +27,18 @@ public static class BluetoothLowEnergy
             BinaryPrimitives.ReadInt16LittleEndian(data[(index + 8)..]),
             data[index + 7], data[index + 6], data[index + 5], data[index + 4], data[index + 3], data[index + 2], data[index + 1], data[index]);
     }
+
+    public static byte[] To128BitByteArray(this Guid guid)
+    {
+        Span<byte> guidBytes = stackalloc byte[16];
+        guid.TryWriteBytes(guidBytes);
+
+        // Rearrange the bytes to match the Bluetooth Low Energy specification
+        guidBytes.Reverse();
+        guidBytes.Slice(8, 2).Reverse();
+        guidBytes.Slice(10, 2).Reverse();
+        guidBytes.Slice(12, 4).Reverse();
+
+        return guidBytes.ToArray();
+    }
 }

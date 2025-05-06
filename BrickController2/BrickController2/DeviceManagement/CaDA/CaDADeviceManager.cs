@@ -100,7 +100,7 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
                 {
                     // the origin deviceAddress is changing on every scan-response
                     // but inside the manufacturerData are 3 bytes identifying the device
-                    string deviceAddress = BitConverter.ToString(manufacturerData.ToArray(), 4, 3).ToLower(); // change device address
+                    string deviceAddress = BitConverter.ToString(manufacturerData.Slice(4, 3).ToArray()).ToLower(); // change device address
 
                     device = template with
                     {

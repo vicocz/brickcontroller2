@@ -1,4 +1,7 @@
-﻿namespace BrickController2.DeviceManagement;
+﻿using BrickController2.PlatformServices.BluetoothLE;
+using System;
+
+namespace BrickController2.DeviceManagement;
 
 public readonly record struct FoundDevice
 {
@@ -21,5 +24,10 @@ public readonly record struct FoundDevice
         DeviceName = deviceName;
         DeviceAddress = deviceAddress;
         ManufacturerData = manufacturerData;
+    }
+
+    public FoundDevice(ScanResult scanResult, DeviceType deviceType, ReadOnlySpan<byte> manufacturerData)
+        : this(deviceType, scanResult.DeviceName, scanResult.DeviceAddress, manufacturerData.ToArray())
+    {
     }
 }

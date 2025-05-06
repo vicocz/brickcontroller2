@@ -6,20 +6,19 @@ namespace BrickController2.DeviceManagement;
 /// <summary>
 /// Manager for SBrick devices
 /// </summary>
-public class SBrickDeviceManager : BluetoothDeviceManagerBase
+public class SBrickDeviceManager : IBluetoothLEDeviceManager
 {
-    protected override bool TryGetDeviceByManufacturerData(ScanResult scanResult,
-        FoundDevice template,
-        ushort manufacturerId,
-        ReadOnlySpan<byte> manufacturerData,
-        out FoundDevice device)
+    private static readonly byte[] ManufacturerId = { 0x98, 0x01 };
+
+    public bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
     {
-        if (manufacturerId == 0x0198)
+        // check if there are any data and it matches Vengit prefix 0x0198
+        if (scanResult.TryGetManufacturerData(out var manufacturerData) && manufacturerData.StartsWith(ManufacturerId))
         {
-            device = template with { DeviceType = DeviceType.SBrick };
+            device = new FoundDevice(scanResult, DeviceType.SBrick, manufacturerData);
             return true;
         }
-        // no match
+
         device = default;
         return false;
     }

@@ -30,9 +30,8 @@ public class LegoDeviceManager : BluetoothDeviceManagerBase
             };
             return device.DeviceType != DeviceType.Unknown;
         }
-
-        // no, device not handled
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
 
@@ -43,7 +42,8 @@ public class LegoDeviceManager : BluetoothDeviceManagerBase
             device = template with { DeviceType = DeviceType.WeDo2 };
             return true;
         }
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
 }

@@ -19,9 +19,8 @@ public class SBrickDeviceManager : BluetoothDeviceManagerBase
             device = template with { DeviceType = DeviceType.SBrick };
             return true;
         }
-
-        // no, device not handled
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
 }

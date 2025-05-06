@@ -36,6 +36,6 @@ public class CircuitCubeDeviceManagerTests : DeviceManagerTestBase<CircuitCubeDe
         var result = _manager.TryGetDevice(scanResult, out var device);
 
         result.Should().BeFalse();
-        device.Should().BeEquivalentTo(FoundDevice.Unknown);
+        device.DeviceType.Should().Be(DeviceType.Unknown);
     }
 }

@@ -33,7 +33,6 @@ public class MouldKingDeviceManagerTests : DeviceManagerTestBase<MouldKingDevice
         var result = _manager.TryGetDevice(scanResult, out var device);
 
         result.Should().BeFalse();
-        device.Should().NotBeNull();
         device.DeviceType.Should().Be(DeviceType.Unknown);
     }
 }

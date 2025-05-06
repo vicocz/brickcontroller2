@@ -46,9 +46,8 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
                 }
                 break;
         }
-
-        // no, device not handled
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
 }

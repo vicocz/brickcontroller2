@@ -114,9 +114,8 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
 
                 // extend if needed to other CaDA devices
         }
-
-        // no, device not handled
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
     /// <summary>

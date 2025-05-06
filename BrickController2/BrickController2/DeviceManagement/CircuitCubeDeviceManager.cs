@@ -14,7 +14,8 @@ public class CircuitCubeDeviceManager : BluetoothDeviceManagerBase
             device = template with { DeviceType = DeviceType.CircuitCubes };
             return true;
         }
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
 }

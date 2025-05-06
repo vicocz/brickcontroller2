@@ -145,17 +145,17 @@ namespace BrickController2.DeviceManagement
         {
             if (scanResult.AdvertismentData == null)
             {
-                device = FoundDevice.Unknown;
+                device = default;
                 return false;
             }
 
-            FoundDevice foundDevice = null!;
+            FoundDevice foundDevice = default;
             if (_bleDeviceManagers.Any(c => c.TryGetDevice(scanResult, out foundDevice)))
             {
                 device = foundDevice;
                 return true;
             }
-            device = FoundDevice.Unknown;
+            device = default;
             return false;
         }
     }

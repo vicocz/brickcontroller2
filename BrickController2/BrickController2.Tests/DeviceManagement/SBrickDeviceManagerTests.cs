@@ -33,7 +33,6 @@ public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManage
         var result = _manager.TryGetDevice(scanResult, out var device);
 
         result.Should().BeFalse();
-        device.Should().NotBeNull();
         device.DeviceType.Should().Be(DeviceType.Unknown);
     }
 }

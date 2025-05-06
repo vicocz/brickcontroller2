@@ -20,9 +20,8 @@ public class MouldKingDeviceManager : BluetoothDeviceManagerBase
                 device = template with { DeviceType = DeviceType.MK_DIY };
                 return true;
         }
-
-        // no, device not handled
-        device = FoundDevice.Unknown;
+        // no match
+        device = default;
         return false;
     }
 }

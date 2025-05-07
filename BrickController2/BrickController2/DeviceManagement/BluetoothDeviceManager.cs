@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
-using static BrickController2.Protocols.BluetoothLowEnergy;
 
 namespace BrickController2.DeviceManagement
 {
@@ -143,18 +142,16 @@ namespace BrickController2.DeviceManagement
 
         private bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
         {
-            if (scanResult.AdvertismentData == null)
+            if (scanResult.AdvertismentData != null)
             {
-                device = default;
-                return false;
+                FoundDevice foundDevice = default;
+                if (_bleDeviceManagers.Any(c => c.TryGetDevice(scanResult, out foundDevice)))
+                {
+                    device = foundDevice;
+                    return true;
+                }
             }
 
-            FoundDevice foundDevice = default;
-            if (_bleDeviceManagers.Any(c => c.TryGetDevice(scanResult, out foundDevice)))
-            {
-                device = foundDevice;
-                return true;
-            }
             device = default;
             return false;
         }

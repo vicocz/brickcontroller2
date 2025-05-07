@@ -21,7 +21,7 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
                 return true;
 
             case 0x054e:
-                if (scanResult.TryGetLocalName(out completeLocalName))
+                if (scanResult.TryGetCompleteLocalName(out completeLocalName))
                 {
                     if (completeLocalName.SequenceEqual("BuWizz"u8)) // BuWizz
                     {
@@ -36,7 +36,7 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
                 break;
 
             case 0x4505: // BuWizz2 has new ID since firmware 1.2.30
-                if (scanResult.TryGetLocalName(out completeLocalName))
+                if (scanResult.TryGetCompleteLocalName(out completeLocalName))
                 {
                     if (completeLocalName.SequenceEqual("BuWizz2"u8)) // BuWizz2
                     {

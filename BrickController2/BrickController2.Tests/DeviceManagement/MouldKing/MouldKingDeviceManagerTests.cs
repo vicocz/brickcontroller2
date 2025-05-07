@@ -8,7 +8,7 @@ namespace BrickController2.Tests.DeviceManagement.MouldKing;
 public class MouldKingDeviceManagerTests : DeviceManagerTestBase<MouldKingDeviceManager>
 {
     [Fact]
-    public void TryGetDevice_VengitManufacturerId_ReturnsSBrickDevice()
+    public void TryGetDevice_MouldKingManufacturerId_ReturnsMouldKingDiyDevice()
     {
         byte[] manufacturerData = [0x33, 0xac];
         var scanResult = CreateScanResult(deviceName: default, manufacturerData: manufacturerData);

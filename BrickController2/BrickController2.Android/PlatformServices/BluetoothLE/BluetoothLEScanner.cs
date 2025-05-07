@@ -17,9 +17,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         public override void OnScanResult([GeneratedEnum] ScanCallbackType callbackType, ScanResult? result)
         {
             if (result is null ||
-                result.ScanRecord is null ||
-                string.IsNullOrEmpty(result?.Device?.Name) ||
-                string.IsNullOrEmpty(result?.Device?.Address))
+                result.ScanRecord is null)
             {
                 return;
             }
@@ -31,7 +29,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
 
             var advertismentData = ScanRecordProcessor.GetAdvertismentData(bytes);
-            _scanCallback(new BrickController2.PlatformServices.BluetoothLE.ScanResult(result.Device.Name, result.Device.Address, advertismentData));
+            _scanCallback(new BrickController2.PlatformServices.BluetoothLE.ScanResult(result.Device?.Name, result.Device?.Address, advertismentData));
         }
 
         public override void OnBatchScanResults(IList<ScanResult>? results)

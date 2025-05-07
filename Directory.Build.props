@@ -2,13 +2,20 @@
   <PropertyGroup>
     <SingleProject>false</SingleProject>
     <UseMaui>true</UseMaui>
-    <LangVersion>latest</LangVersion>	  
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>latest</LangVersion>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <Nullable>enable</Nullable>
     <NeutralLanguage>en-US</NeutralLanguage>
-	<AssemblyName>$(MSBuildProjectName)</AssemblyName>
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(RootNamespace)' == ''">
     <RootNamespace>$(MSBuildProjectName)</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <!-- Define properties specific to test projects -->
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 </Project>

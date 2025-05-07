@@ -27,7 +27,6 @@ public class BleService : IBluetoothLEService
     public bool IsBluetoothLESupported => CurrentBluetoothStatus.HasFlag(BluetoothStatus.LowEnergySupported);
     public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
     public bool IsBluetoothOn => CurrentBluetoothStatus.HasFlag(BluetoothStatus.ClassicSupported);
-
     private BluetoothStatus CurrentBluetoothStatus
     {
         get

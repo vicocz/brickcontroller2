@@ -102,7 +102,7 @@ public class OutputValuesGroupTests
         // Assert
         result.Should().BeTrue();
         changes.Should().NotBeNull().And.ContainSingle();
-        changes.Should().BeEquivalentTo([new KeyValuePair<int, float>(0, 3.14f)]);
+        changes.Should().BeEquivalentTo([new KeyValuePair<int, float>(1, 3.14f)]);
     }
 
     [Fact]

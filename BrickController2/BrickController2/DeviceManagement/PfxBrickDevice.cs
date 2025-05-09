@@ -173,7 +173,7 @@ internal class PfxBrickDevice : BluetoothDevice
     {
         try
         {
-            return await _bleDevice!.WriteNoResponseAsync(_writeCharacteristic!, command, token);
+            return await _bleDevice!.WriteAsync(_writeCharacteristic!, command, token);
         }
         catch (Exception)
         {

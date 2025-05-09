@@ -87,8 +87,8 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
 
         // prebuild collection of changes
         changes = [.. _values
-            .Where((value, index) => !value.Equals(_commitedOutputValues[index]))
-            .Select((value, index) => new KeyValuePair<int, TValue>(index, value))];
+            .Select((value, index) => new KeyValuePair<int, TValue>(index, value))
+            .Where(x => !x.Value.Equals(_commitedOutputValues[x.Key]))];
 
         // optimize if absolutely all values are homogenous (TODO optimize Count)
         if (changes.Count == values.Length && values.Count(values[0]) == values.Length)

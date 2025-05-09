@@ -42,7 +42,6 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     {
         lock (_outputLock)
         {
-
             // reset all values
             _outputValues.AsSpan().Clear();
             _commitedOutputValues.AsSpan().Fill(TValue.One);
@@ -90,7 +89,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
             .Select((value, index) => new KeyValuePair<int, TValue>(index, value))
             .Where(x => !x.Value.Equals(_commitedOutputValues[x.Key]))];
 
-        // optimize if absolutely all values are homogenous (TODO optimize Count)
+        // optimize if absolutely all values are homogenous
         if (changes.Count == values.Length && values.Count(values[0]) == values.Length)
         {
             changes = [new KeyValuePair<int, TValue>(int.MaxValue, values[0])];

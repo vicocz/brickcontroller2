@@ -42,14 +42,14 @@ internal class PfxBrickDevice : BluetoothDevice
 
         if (channel >= PF_CHANNELS)
         {
-            // Per light channel range - percent
+            // Per light channel range: +- [0 .. 255]
             var brightnessValue = (short)(value * 255);
             int lightChannel = channel - PF_CHANNELS;
             _lightOutputs.SetOutput(lightChannel, brightnessValue);
         }
         else
         {
-            // Per motor channel range - percent
+            // Per motor channel range: +- percent
             var percentValue = (short)(value * 100);
             _motorOutputs.SetOutput(channel, percentValue);
         }
@@ -109,7 +109,7 @@ internal class PfxBrickDevice : BluetoothDevice
             while (!token.IsCancellationRequested)
             {
                 bool changed = false;
-                // process motor outputs for change
+                // process motor outputs for a change
                 if (_motorOutputs.TryGetChanges(out var motorChanges))
                 {
                     if (await SendOutputValuesAsync(motorChanges, token).ConfigureAwait(false))
@@ -121,7 +121,7 @@ internal class PfxBrickDevice : BluetoothDevice
                     changed = true;
                 }
 
-                // process light outputs for change
+                // process light outputs for a change
                 if (_lightOutputs.TryGetChanges(out var lightChanges))
                 {
                     if (await SendLightValuesAsync(lightChanges, token).ConfigureAwait(false))

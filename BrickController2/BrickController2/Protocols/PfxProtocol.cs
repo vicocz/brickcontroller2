@@ -109,19 +109,16 @@ internal static class PfxProtocol
     /// <summary>
     /// Get the status of the device.
     /// </summary>
-    public static byte[] GetStatus()
-    {
-        return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
-            CMD_GET_STATUS, // command;
-            0xA5, // PFX_STATUS_BYTE0;
-            0x5A, // PFX_STATUS_BYTE1;
-            0x6E, // PFX_STATUS_BYTE2;
-            0x40, // PFX_STATUS_BYTE3;
-            0x54, // PFX_STATUS_BYTE4;
-            0xA4, // PFX_STATUS_BYTE5;
-            0xE5, // PFX_STATUS_BYTE6;
-            CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
-    }
+    public static byte[] GetStatus() => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+        CMD_GET_STATUS, // command;
+        0xA5, // PFX_STATUS_BYTE0;
+        0x5A, // PFX_STATUS_BYTE1;
+        0x6E, // PFX_STATUS_BYTE2;
+        0x40, // PFX_STATUS_BYTE3;
+        0x54, // PFX_STATUS_BYTE4;
+        0xA4, // PFX_STATUS_BYTE5;
+        0xE5, // PFX_STATUS_BYTE6;
+        CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
 
     /// <summary>
     /// Trigger command test
@@ -136,8 +133,7 @@ internal static class PfxProtocol
         byte lightParam2 = 0x00,
         byte lightParam3 = 0x00,
         byte lightParam4 = 0x00)
-    {
-        return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+        => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
             CMD_TEST_ACTION,
             command,          // command
             motorActionId,    // Byte 1 - MOTOR_ACTION_ID / MOTOR_MASK
@@ -156,7 +152,6 @@ internal static class PfxProtocol
             0x00,             // soundParam1;
             0x00,             // soundParam2;
             CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
-    }
 
     private static byte GetMotorParam(int speed)
     {

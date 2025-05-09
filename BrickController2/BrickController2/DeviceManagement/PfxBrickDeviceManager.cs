@@ -5,7 +5,7 @@ using BrickController2.PlatformServices.BluetoothLE;
 namespace BrickController2.DeviceManagement;
 
 /// <summary>
-/// Manager for SBrick devices
+/// Manager for PfxBrick devices
 /// </summary>
 public class PfxBrickDeviceManager : IBluetoothLEDeviceManager
 {

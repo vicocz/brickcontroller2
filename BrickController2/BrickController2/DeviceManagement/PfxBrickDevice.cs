@@ -1,224 +1,189 @@
 ﻿using BrickController2.DeviceManagement.IO;
-using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static BrickController2.Protocols.PfxProtocol;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement;
+
+internal class PfxBrickDevice : BluetoothDevice
 {
-    internal class PfxBrickDevice : BluetoothDevice
+    private const int PF_CHANNELS = 2;
+    private const int LIGHT_CHANNELS = 8;
+
+    private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
+    private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
+    private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
+
+    private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
+    private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
+
+    private IGattCharacteristic? _writeCharacteristic;
+    private IGattCharacteristic? _notifyCharacteristic;
+
+    public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        : base(name, address, deviceRepository, bleService)
     {
-        private const int PF_CHANNELS = 2;
-        private const int LIGHT_CHANNELS = 8;
+    }
 
-        private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
-        private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
-        private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
+    public override DeviceType DeviceType => DeviceType.PfxBrick;
 
-        private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
-        private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
+    public override int NumberOfChannels => 10;
 
-        private readonly ManualResetEventSlim _characteristicNotificationResetEvent = new();
+    protected override bool AutoConnectOnFirstConnect => false;
 
-        private IGattCharacteristic? _writeCharacteristic;
-        private IGattCharacteristic? _notifyCharacteristic;
+    public override void SetOutput(int channel, float value)
+    {
+        CheckChannel(channel);
+        value = CutOutputValue(value);
 
-        public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository, bleService)
+        if (channel >= PF_CHANNELS)
         {
+            // Per light channel range - percent
+            var brightnessValue = (short)(value * 255);
+            int lightChannel = channel - PF_CHANNELS;
+            _lightOutputs.SetOutput(lightChannel, brightnessValue);
+        }
+        else
+        {
+            // Per motor channel range - percent
+            var percentValue = (short)(value * 100);
+            _motorOutputs.SetOutput(channel, percentValue);
+        }
+    }
+
+    protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+    {
+        var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
+        _writeCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_WRITE);
+
+        _notifyCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_NOTIFY);
+        if (_notifyCharacteristic is not null)
+        {
+            await _bleDevice!.EnableNotificationAsync(_notifyCharacteristic, token);
         }
 
-        public override DeviceType DeviceType => DeviceType.PfxBrick;
-        public override int NumberOfChannels => 10;
+        return _writeCharacteristic is not null;
+    }
 
-        public override string BatteryVoltageSign => "V";
-        protected override bool AutoConnectOnFirstConnect => false;
+    protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
+    {
+        if (characteristicGuid != _notifyCharacteristic!.Uuid || data.Length == 0)
+            return;
 
-        public override void SetOutput(int channel, float value)
+        if (data.Length == 1) // notification
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
+        }
+        else if (data.Length == 48) // status
+        {
+            HardwareVersion = $"{data[7]:X2}{data[8]:X2}"; // product_id
+            FirmwareVersion = $"{data[37]:x2}.{data[38]:x2}"; // firmware_ver
+        }
+    }
 
-            if (channel >= PF_CHANNELS)
+    protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
+    {
+        try
+        {
+            if (requestDeviceInformation)
             {
-                // Per light channel range - percent
-                var brightnessValue = (short)(value * 255);
-                int lightChannel = channel - PF_CHANNELS;
-                _lightOutputs.SetOutput(lightChannel, brightnessValue);
-            }
-            else
-            {
-                // Per motor channel range - percent
-                var percentValue = (short)(value * 100);
-                _motorOutputs.SetOutput(channel, percentValue);
+                await ReadDeviceInfo(token);
             }
         }
+        catch { }
 
-        protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+        return true;
+    }
+
+    protected override async Task ProcessOutputsAsync(CancellationToken token)
+    {
+        try
         {
-            var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
-            _writeCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_WRITE);
+            // reset outputs
+            _motorOutputs.Initialize();
+            _lightOutputs.Initialize();
 
-            _notifyCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_NOTIFY);
-            if (_notifyCharacteristic is not null)
+            while (!token.IsCancellationRequested)
             {
-                await _bleDevice!.EnableNotificationAsync(_notifyCharacteristic, token);
-            }
-
-            return _writeCharacteristic is not null;
-        }
-
-        protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
-        {
-            if (characteristicGuid != _notifyCharacteristic!.Uuid || data.Length == 0)
-                return;
-
-            if (data.Length == 1) // notification
-            {
-                Debug.WriteLine("Notification: " + data[0]);
-                _characteristicNotificationResetEvent.Set();
-            }
-            else if (data.Length == 48) // status
-            {
-
-                var status = data[1];
-                var error = data[2];
-
-                HardwareVersion = $"{data[7]:X2}{data[8]:X2}"; // product_id
-                FirmwareVersion = $"{data[37]:x2}.{data[38]:x2}"; // firmware_ver
-            }
-        }
-
-        protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
-        {
-            try
-            {
-                if (requestDeviceInformation)
+                bool changed = false;
+                // process motor outputs for change
+                if (_motorOutputs.TryGetChanges(out var motorChanges))
                 {
-                    await ReadDeviceInfo(token);
-                }
-            }
-            catch { }
-
-            return true;
-        }
-
-        protected override async Task ProcessOutputsAsync(CancellationToken token)
-        {
-            try
-            {
-                // reset outputs
-                _motorOutputs.Initialize();
-                _lightOutputs.Initialize();
-
-                while (!token.IsCancellationRequested)
-                {
-                    bool changed = false;
-                    // process motor outputs for change
-                    if (_motorOutputs.TryGetChanges(out var motorChanges))
+                    if (await SendOutputValuesAsync(motorChanges, token).ConfigureAwait(false))
                     {
-                        var timer = new Stopwatch();
-                        timer.Start();
-                        if (await SendOutputValuesAsync(motorChanges, token).ConfigureAwait(false))
-                        {
-                            // confirm successfull sending
-                            _motorOutputs.Commmit();
-                            await Task.Delay(5, token).ConfigureAwait(false);
-                        }
-                        Debug.WriteLine($"SendOutputValuesAsync for {motorChanges.Count} change(s) took {timer.ElapsedMilliseconds} ms");
-                        changed = true;
+                        // confirm successfull sending
+                        _motorOutputs.Commmit();
+                        await Task.Delay(5, token).ConfigureAwait(false);
                     }
-
-                    // process light outputs for change
-                    if (_lightOutputs.TryGetChanges(out var lightChanges))
-                    {
-                        var timer = new Stopwatch();
-                        timer.Start();
-                        if (await SendLightValuesAsync(lightChanges, token).ConfigureAwait(false))
-                        {
-                            // confirm successfull sending
-                            _lightOutputs.Commmit();
-                            await Task.Delay(5, token).ConfigureAwait(false);
-                        }
-                        Debug.WriteLine($"SendLightValuesAsync for {lightChanges.Count} change(s) took {timer.ElapsedMilliseconds} ms");
-                        changed = true;
-                    }
-
-                    if (!changed)
-                    {
-                        await Task.Delay(10, token).ConfigureAwait(false);
-                    }
+                    changed = true;
                 }
 
-                // ensure everything is stopped in the end
-                await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
+                // process light outputs for change
+                if (_lightOutputs.TryGetChanges(out var lightChanges))
+                {
+                    if (await SendLightValuesAsync(lightChanges, token).ConfigureAwait(false))
+                    {
+                        // confirm successfull sending
+                        _lightOutputs.Commmit();
+                        await Task.Delay(5, token).ConfigureAwait(false);
+                    }
+                    changed = true;
+                }
 
-        private async Task<bool> SendOutputValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
+                if (!changed)
+                {
+                    await Task.Delay(10, token).ConfigureAwait(false);
+                }
+            }
+
+            // ensure everything is stopped in the end
+            await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
+        }
+        catch
         {
-            bool result = true;
-            foreach (var change in changes)
-            {
-                var cmd = PfxProtocol.SetMotorSpeed(change.Key, change.Value);
-                result &= await WriteCommandAsync(cmd, token);
-            }
-
-            // optimize writes
-            //if (v0 == v1)
-            //{
-            //    var motorCmd = PfxProtocol.SetMotorSpeed(LIGHT_OUTPUT_ALL, v0);
-            //    return await WriteCommandAsync(motorCmd, token).ConfigureAwait(false);
-            //}
-
-            return result;
         }
+    }
 
-        private async Task<bool> SendLightValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
-        {            
-            bool result = true;
-            foreach (var change in changes)
-            {
-                var cmd = PfxProtocol.SetBrightness(change.Key, change.Value);
-                result &= await WriteCommandAsync(cmd, token);
-            }
-
-            // optimize writes
-            //if (v0 == v1)
-            //{
-            //    var motorCmd = PfxProtocol.SetBrightness(MOTOR_OUTPUT_AB, v0);
-            //    return await WriteCommandAsync(motorCmd, token).ConfigureAwait(false);
-            //}
-
-            return result;
-        }
-
-        private async Task<bool> WriteCommandAsync(byte[] command, CancellationToken token)
+    private async Task<bool> SendOutputValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
+    {
+        bool result = true;
+        foreach (var change in changes)
         {
-            try
-            {
-                return await _bleDevice!.WriteNoResponseAsync(_writeCharacteristic!, command, token);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            var cmd = PfxProtocol.SetMotorSpeed(change.Key, change.Value);
+            result &= await WriteCommandAsync(cmd, token);
         }
+        return result;
+    }
 
-        private async Task ReadDeviceInfo(CancellationToken token)
+    private async Task<bool> SendLightValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
+    {            
+        bool result = true;
+        foreach (var change in changes)
         {
-            // request status update
-            await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
+            var cmd = PfxProtocol.SetBrightness(change.Key, change.Value);
+            result &= await WriteCommandAsync(cmd, token);
         }
+        return result;
+    }
+
+    private async Task<bool> WriteCommandAsync(byte[] command, CancellationToken token)
+    {
+        try
+        {
+            return await _bleDevice!.WriteNoResponseAsync(_writeCharacteristic!, command, token);
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private async Task ReadDeviceInfo(CancellationToken token)
+    {
+        // request status update
+        await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
     }
 }

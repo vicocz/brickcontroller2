@@ -31,6 +31,7 @@ internal static class PfxProtocol
     public const byte MOTOR_SPEED_FLAG_HIRES = 0x80;
 
     // Light FX IDs
+    public const byte EVT_LIGHTFX_ON_OFF_TOGGLE = 0x01;
     public const byte EVT_LIGHTFX_SET_BRIGHTNESS = 0x04;
 
     public const byte LIGHT_OUTPUT_BASE = 0x01;
@@ -52,28 +53,62 @@ internal static class PfxProtocol
         LIGHT_OUTPUT_7 |
         LIGHT_OUTPUT_8;
 
+    public const byte EVT_LIGHTFX_TRANSITION_TOGGLE = 0x00;
+    public const byte EVT_LIGHTFX_TRANSITION_ON = 0x01;
+    public const byte EVT_LIGHTFX_TRANSITION_OFF = 0x02;
+
+    /// <summary>
+    /// Set speed of the selected <paramref name="motorOutput"/> channel
+    /// </summary>
+    public static byte[] SetMotorSpeed(int channel, short speed)
+        => SetMotorSpeed(channel == int.MaxValue ? MOTOR_OUTPUT_ALL : (byte)(MOTOR_OUTPUT_BASE << channel), speed);
+
+    /// <summary>
+    /// Set speed of the provided <paramref name="motorOutput"/> channel bit mask
+    /// </summary>
     public static byte[] SetMotorSpeed(byte motorOutput, short speed)
         => TestEventAction(EVT_COMMAND_NONE,
             motorActionId: (byte)(MOTOR_ACTION_SET_SPD | motorOutput & MOTOR_OUTPUT_MASK),
             motorParam1: GetMotorParam(speed));
 
-    public static byte[] SetMotorSpeed(int channel, short speed)
-        => SetMotorSpeed(channel == int.MaxValue ? MOTOR_OUTPUT_ALL : (byte)(MOTOR_OUTPUT_BASE << channel), speed);
-
+    /// <summary>
+    /// Turn off all motors, lights, and sound.
+    /// </summary>
     public static byte[] AllOff() => TestEventAction(EVT_COMMAND_ALL_OFF);
 
     /// <summary>
-    /// Set the brightness of selected <paramref name="lightChannel"/>
+    /// Set the brightness of the selected <paramref name="lightChannel"/> channel
     /// </summary>
     public static byte[] SetBrightness(int lightChannel, short value)
-        => SetBrightness(lightChannel == int.MaxValue ? LIGHT_OUTPUT_ALL : (byte)(LIGHT_OUTPUT_BASE << lightChannel), value);
+        => SetBrightness(lightChannel == int.MaxValue ? LIGHT_OUTPUT_ALL : (byte)(LIGHT_OUTPUT_BASE << lightChannel), (byte)(Math.Abs(value) & 0xFF));
 
-    public static byte[] SetBrightness(byte lightOutputMask, short value)
-    => TestEventAction(EVT_COMMAND_NONE,
-        lightFxId: EVT_LIGHTFX_SET_BRIGHTNESS,
-        lightOutputMask: lightOutputMask,
-        lightParam1: (byte)(Math.Abs(value) & 0xFF));
+    /// <summary>
+    /// Set the brightness of the provided <paramref name="lightChannel"/> channel bit mask
+    /// </summary>
+    public static byte[] SetBrightness(byte lightOutputMask, byte value)
+        => TestEventAction(EVT_COMMAND_NONE,
+            lightFxId: EVT_LIGHTFX_SET_BRIGHTNESS,
+            lightOutputMask: lightOutputMask,
+            lightParam1: value);
 
+    /// <summary>
+    /// Set the light of the selected <paramref name="lightChannel"/> ON / OFF based on the provided value
+    /// </summary>
+    public static byte[] SetLight(int lightChannel, short value)
+        => SetLight(lightChannel == int.MaxValue ? LIGHT_OUTPUT_ALL : (byte)(LIGHT_OUTPUT_BASE << lightChannel), value == 0 ? EVT_LIGHTFX_TRANSITION_OFF : EVT_LIGHTFX_TRANSITION_ON);
+
+    /// <summary>
+    /// Set the light of selected <paramref name="lightChannel"/> channel bit mask ON / OFF
+    /// </summary>
+    public static byte[] SetLight(byte lightOutputMask, byte value)
+        => TestEventAction(EVT_COMMAND_NONE,
+            lightFxId: EVT_LIGHTFX_ON_OFF_TOGGLE,
+            lightOutputMask: lightOutputMask,
+            lightParam4: value);
+
+    /// <summary>
+    /// Get the status of the device.
+    /// </summary>
     public static byte[] GetStatus()
     {
         return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
@@ -88,13 +123,19 @@ internal static class PfxProtocol
             CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
     }
 
+    /// <summary>
+    /// Trigger command test
+    /// </summary>
     public static byte[] TestEventAction(byte command,
         byte motorActionId = 0x00,
         byte motorParam1 = 0x00,
         byte motorParam2 = 0x00,
         byte lightFxId = 0x00,
         byte lightOutputMask = 0x00,
-        byte lightParam1 = 0x00)
+        byte lightParam1 = 0x00,
+        byte lightParam2 = 0x00,
+        byte lightParam3 = 0x00,
+        byte lightParam4 = 0x00)
     {
         return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
             CMD_TEST_ACTION,
@@ -106,9 +147,9 @@ internal static class PfxProtocol
             lightOutputMask,  // lightOutputMask;
             0x00,             // lightPFOutputMask;
             lightParam1,      // lightParam1;
-            0x00,             // lightParam2;
-            0x00,             // lightParam3;
-            0x00,             // lightParam4;
+            lightParam2,      // lightParam2;
+            lightParam3,      // lightParam3;
+            lightParam4,      // lightParam4;
             0x00,             // lightParam5;
             0x00,             // soundFxId;
             0x00,             // soundFileId;

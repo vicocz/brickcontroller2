@@ -163,8 +163,15 @@ internal class PfxBrickDevice : BluetoothDevice
         bool result = true;
         foreach (var change in changes)
         {
-            var cmd = PfxProtocol.SetBrightness(change.Key, change.Value);
-            result &= await WriteCommandAsync(cmd, token);
+            // apply brightness (if needed)
+            if (change.Value != 0)
+            {
+                var cmd = PfxProtocol.SetBrightness(change.Key, change.Value);
+                result &= await WriteCommandAsync(cmd, token);
+            }
+            // apply toggle ON / OFF based on value
+            var toggleCmd = PfxProtocol.SetLight(change.Key, change.Value);
+            result &= await WriteCommandAsync(toggleCmd, token);
         }
         return result;
     }

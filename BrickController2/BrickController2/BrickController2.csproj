@@ -12,6 +12,7 @@
     <EmbeddedResource Include="UI\Images\buwizz3_image_small.png" />
     <EmbeddedResource Include="UI\Images\buwizz_image.png" />
     <EmbeddedResource Include="UI\Images\buwizz_image_small.png" />
+    <EmbeddedResource Include="UI\Images\cada_racecar_image.png" />
     <EmbeddedResource Include="UI\Images\cada_racecar_image_small.png" />
     <EmbeddedResource Include="UI\Images\circuitcubes_image.png" />
     <EmbeddedResource Include="UI\Images\circuitcubes_image_small.png" />
@@ -28,16 +29,16 @@
     <EmbeddedResource Include="UI\Images\rc_up_down_image.png" />
     <EmbeddedResource Include="UI\Images\technichub_image.png" />
     <EmbeddedResource Include="UI\Images\technichub_image_small.png" />
-    <EmbeddedResource Include="UI\Images\infra_image.png" />
-    <EmbeddedResource Include="UI\Images\infra_image_small.png" />
+    <EmbeddedResource Include="UI\Images\infrared_image.png" />
+    <EmbeddedResource Include="UI\Images\infrared_image_small.png" />
     <EmbeddedResource Include="UI\Images\poweredup_image.png" />
     <EmbeddedResource Include="UI\Images\poweredup_image_small.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image_small.png" />
-    <EmbeddedResource Include="UI\Images\technic_move.png" />
-    <EmbeddedResource Include="UI\Images\technic_move_small.png" />
-    <EmbeddedResource Include="UI\Images\wedo2hub_image.png" />
-    <EmbeddedResource Include="UI\Images\wedo2hub_image_small.png" />
+    <EmbeddedResource Include="UI\Images\technicmove_image.png" />
+    <EmbeddedResource Include="UI\Images\technicmove_image_small.png" />
+    <EmbeddedResource Include="UI\Images\wedo2_image.png" />
+    <EmbeddedResource Include="UI\Images\wedo2_image_small.png" />
   </ItemGroup>
 
   <ItemGroup>

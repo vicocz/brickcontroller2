@@ -26,7 +26,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Mould King 4.0 Powered Module (Android only)
 - Mould King 6.0 Powered Module (Android only)
 - CaDA Race Car (Android only)
-- PFx Brick
+- PFx Brick (lights & Power Functions ports only)
 
 ## Project details
 

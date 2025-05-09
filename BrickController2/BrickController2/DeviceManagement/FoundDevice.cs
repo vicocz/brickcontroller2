@@ -26,7 +26,7 @@ public readonly record struct FoundDevice
         ManufacturerData = manufacturerData;
     }
 
-    public FoundDevice(ScanResult scanResult, DeviceType deviceType, ReadOnlySpan<byte> manufacturerData = default)
+    public FoundDevice(ScanResult scanResult, DeviceType deviceType, ReadOnlySpan<byte> manufacturerData)
         : this(deviceType, scanResult.DeviceName, scanResult.DeviceAddress, manufacturerData.ToArray())
     {
     }

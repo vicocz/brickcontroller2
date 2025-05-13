@@ -126,7 +126,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             var serviceUuid = GetServiceUuidForKey(advertisementData, CBAdvertisement.DataServiceUUIDsKey);
             if (serviceUuid is not null)
             {
-                result[ADTYPE_SERVICE_128BIT] = serviceUuid;
+                result[ADTYPE_INCOMPLETE_SERVICE_128BIT] = serviceUuid;
             }
 
             // TODO: add the rest of the advertisementdata...

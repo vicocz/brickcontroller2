@@ -30,7 +30,7 @@ namespace BrickController2.DeviceManagement
         private const double DefaultPoweredUpCurrentLimit = 1050;
         private const double DefaultPowerFunctionsCurrentLimit = 2100;
 
-        private static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
+        internal static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("50052901-74fb-4481-88b3-9919b1676e93");
 
         private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");

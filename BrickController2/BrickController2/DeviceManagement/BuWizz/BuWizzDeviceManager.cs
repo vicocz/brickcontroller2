@@ -50,4 +50,17 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
         device = default;
         return false;
     }
+    
+    protected override bool TryGetDeviceByServiceUiid(FoundDevice template, Guid serviceGuid, out FoundDevice device)
+    {
+        // detect BuWizz2 (firmware 1.2.30+) and BuWizz3 by service UUID
+        device = serviceGuid switch
+        {
+            {} when serviceGuid == BuWizz2Device.SERVICE_UUID => template with { DeviceType = DeviceType.BuWizz2 },
+            {} when serviceGuid == BuWizz3Device.SERVICE_UUID => template with { DeviceType = DeviceType.BuWizz3 },
+            _ => default
+        };
+
+        return device.DeviceType != DeviceType.Unknown;
+    }
 }

@@ -8,12 +8,15 @@ namespace BrickController2.DeviceManagement.BuWizz;
 /// </summary>
 public class BuWizzDeviceManager : BluetoothDeviceManagerBase
 {
+    //  05:4E:’B’:’W’:’x’:’y’ where x and y are firmware version
+    private static readonly byte[] BuWizz3Prefix = [0x4e, 0x05, 0x42, 0x57, 0x03];
+    private static readonly byte[] BuWizz2Prefix = [0x05, 0x45, 0x42, 0x57, 0x02];
+
     protected override bool TryGetDeviceByManufacturerData(ScanResult scanResult,
         FoundDevice template, ushort manufacturerId,
         ReadOnlySpan<byte> manufacturerData,
         out FoundDevice device)
     {
-        ReadOnlySpan<byte> completeLocalName;
         switch (manufacturerId)
         {
             case 0x4d48:
@@ -21,28 +24,21 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
                 return true;
 
             case 0x054e:
-                if (scanResult.TryGetCompleteLocalName(out completeLocalName))
+                if (manufacturerData.StartsWith(BuWizz3Prefix))
                 {
-                    if (completeLocalName.SequenceEqual("BuWizz"u8)) // BuWizz
-                    {
-                        device = template with { DeviceType = DeviceType.BuWizz2 };
-                    }
-                    else
-                    {
-                        device = template with { DeviceType = DeviceType.BuWizz3 };
-                    }
-                    return true;
+                    device = template with { DeviceType = DeviceType.BuWizz3 };
                 }
-                break;
+                else
+                {
+                    device = template with { DeviceType = DeviceType.BuWizz2 };
+                }
+                return true;
 
             case 0x4505: // BuWizz2 has new ID since firmware 1.2.30
-                if (scanResult.TryGetCompleteLocalName(out completeLocalName))
+                if (manufacturerData.StartsWith(BuWizz2Prefix))
                 {
-                    if (completeLocalName.SequenceEqual("BuWizz2"u8)) // BuWizz2
-                    {
-                        device = template with { DeviceType = DeviceType.BuWizz2 };
-                        return true;
-                    }
+                    device = template with { DeviceType = DeviceType.BuWizz2 };
+                    return true;
                 }
                 break;
         }

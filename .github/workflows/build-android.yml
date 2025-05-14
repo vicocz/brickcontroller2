@@ -62,9 +62,9 @@ jobs:
 
         # Upload the artifact
         curl -X POST \
-          --header "Authorization: token $GITHUB_TOKEN" \
-          --header "Content-Type: application/vnd.android.package-archive" \
-          --data-binary @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Content-Type: application/vnd.android.package-archive" \
+          -D @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
           "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$RELEASE_ID/assets?name=com.scn.BrickController2-Signed.apk"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

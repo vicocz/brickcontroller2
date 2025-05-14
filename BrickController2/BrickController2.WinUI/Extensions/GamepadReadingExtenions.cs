@@ -3,26 +3,21 @@ using System;
 using System.Collections.Generic;
 using Windows.Gaming.Input;
 
+using static BrickController2.PlatformServices.GameController.GameControllers;
+
 namespace BrickController2.Windows.Extensions;
 
 internal static class GamepadReadingExtenions
 {
-    public const float Zero = 0.0f;
-    public const float Positive = 1.0f;
-    public const float Negative = -1.0f;
-
-    public const float Delta = 0.05f;
-    public const float Limit = Positive - Delta;
-
     public static IEnumerable<(string Name, GameControllerEventType EventType, float Value)> Enumerate(this GamepadReading readings)
     {
         // native axes
-        yield return GetAxis("X", readings.LeftThumbstickX, Positive);
-        yield return GetAxis("Y", readings.LeftThumbstickY, Negative);
-        yield return GetAxis("Brake", readings.LeftTrigger, Positive);
-        yield return GetAxis("Z", readings.RightThumbstickX, Positive);
-        yield return GetAxis("Rz", readings.RightThumbstickY, Negative);
-        yield return GetAxis("Gas", readings.RightTrigger, Positive);
+        yield return GetAxis("X", readings.LeftThumbstickX, AXIS_MAX_VALUE);
+        yield return GetAxis("Y", readings.LeftThumbstickY, AXIS_MIN_VALUE);
+        yield return GetAxis("Brake", readings.LeftTrigger, AXIS_MAX_VALUE);
+        yield return GetAxis("Z", readings.RightThumbstickX, AXIS_MAX_VALUE);
+        yield return GetAxis("Rz", readings.RightThumbstickY, AXIS_MIN_VALUE);
+        yield return GetAxis("Gas", readings.RightTrigger, AXIS_MAX_VALUE);
 
         // buttons treated as axis
         yield return GetHybridButton(readings, GamepadButtons.DPadDown, GamepadButtons.DPadUp, "HatY");
@@ -54,13 +49,13 @@ internal static class GamepadReadingExtenions
         // get primary button
         if (readings.Buttons.HasFlag(button))
         {
-            return new(name, GameControllerEventType.Axis, Positive);
+            return new(name, GameControllerEventType.Axis, AXIS_MAX_VALUE);
         }
         if (readings.Buttons.HasFlag(opositeButton))
         {
-            return new(name, GameControllerEventType.Axis, Negative);
+            return new(name, GameControllerEventType.Axis, AXIS_MIN_VALUE);
         }
-        return new(name, GameControllerEventType.Axis, Zero);
+        return new(name, GameControllerEventType.Axis, AXIS_ZERO_VALUE);
     }
 
     private static (string Name, GameControllerEventType Type, float value) GetButton(this GamepadReading readings, GamepadButtons button, string name)
@@ -68,16 +63,16 @@ internal static class GamepadReadingExtenions
         // get primary button
         if (readings.Buttons.HasFlag(button))
         {
-            return new(name, GameControllerEventType.Button, Positive);
+            return new(name, GameControllerEventType.Button, BUTTON_PRESSED);
         }
-        return new(name, GameControllerEventType.Button, Zero);
+        return new(name, GameControllerEventType.Button, BUTTON_RELEASED);
     }
 
     private static (string Name, GameControllerEventType Type, float value) GetAxis(string name, double value, float maxValue)
     {
-        if (Math.Abs(value) < Delta)
+        if (Math.Abs(value) < AXIS_DELTA_VALUE)
         {
-            return (name, GameControllerEventType.Axis, Zero);
+            return (name, GameControllerEventType.Axis, AXIS_ZERO_VALUE);
         }
         if (value > 0.95)
         {

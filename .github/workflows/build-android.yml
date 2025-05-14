@@ -47,7 +47,7 @@ jobs:
         $ErrorActionPreference = "Stop"
 
         # Required inputs
-        $tag = "v1.2.3"  # <-- Replace with your actual tag or make it an input/env var
+        $tag = "2025.03-alfa2"  # <-- Replace with your actual tag or make it an input/env var
         $repo = "${{ github.repository }}"
         $token = "${{ secrets.GITHUB_TOKEN }}"
 

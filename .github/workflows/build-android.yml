@@ -39,6 +39,36 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+
+    - name: Get Release ID by tag
+      id: get_release_id
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = "Stop"
+
+        # Required inputs
+        $tag = "v1.2.3"  # <-- Replace with your actual tag or make it an input/env var
+        $repo = "${{ github.repository }}"
+        $token = "${{ secrets.GITHUB_TOKEN }}"
+
+        # GitHub API URL
+        $url = "https://api.github.com/repos/$repo/releases/tags/$tag"
+
+        # Fetch the release data
+        $response = Invoke-RestMethod -Uri $url -Headers @{ Authorization = "Bearer $token"; "User-Agent" = "powershell-script" }
+
+        # Extract release ID
+        $releaseId = $response.id
+
+        Write-Host "Release ID: $releaseId"
+
+        # Set output
+        echo "release_id=$releaseId" >> $env:GITHUB_OUTPUT
+
+    - name: Use Release ID
+      run: echo "Release ID is ${{ steps.get_release_id.outputs.release_id }}"
+
+
             
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj

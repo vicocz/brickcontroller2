@@ -2,6 +2,7 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ namespace BrickController2.DeviceManagement
         private readonly bool[] _positionsUpdated;
         private readonly DateTime[] _positionUpdateTimes;
         private readonly object _positionLock = new object();
+        private readonly Stopwatch _lastSent_NormalMotor = new Stopwatch();
 
         private IGattCharacteristic? _characteristic;
 
@@ -66,6 +68,12 @@ namespace BrickController2.DeviceManagement
         public override bool CanChangeOutputType(int channel) => true;
 
         protected override bool AutoConnectOnFirstConnect => true;
+
+        /// <summary>
+        /// After this time period has elapsed since the last transmission, the output values ​​are sent again.
+        /// A value of TimeSpan.MaxValue disables the resending.
+        /// </summary>
+        protected virtual TimeSpan ResendDelay_NormalMotor => TimeSpan.MaxValue;
 
         public async override Task<DeviceConnectionResult> ConnectAsync(
             bool reconnect,
@@ -380,6 +388,7 @@ namespace BrickController2.DeviceManagement
                         InitializeChannelInfo(channel);
                     }
                 }
+                _lastSent_NormalMotor.Reset();
 
                 while (!token.IsCancellationRequested)
                 {
@@ -482,11 +491,15 @@ namespace BrickController2.DeviceManagement
                     _sendAttemptsLeft[channel] = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
                 }
 
-                if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
+                if (v != _lastOutputValues[channel] || 
+                    sendAttemptsLeft > 0 ||
+                    _lastSent_NormalMotor.Elapsed > ResendDelay_NormalMotor)
                 {
                     var outputCmd = GetOutputCommand(channel, v);
                     if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, outputCmd, token))
                     {
+                        _lastSent_NormalMotor.Restart();
+
                         _lastOutputValues[channel] = v;
                         ResetSendAttemps(channel, 0);
                         await Task.Delay(SEND_DELAY, token);

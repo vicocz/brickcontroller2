@@ -22,7 +22,7 @@ public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
         // build device template using available data from scan
         var template = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress);
 
-        // adjust device template
+        // adjust device template if there is manufacturer data present
         if (scanResult.TryGetManufacturerData(out var manufacturerData) && manufacturerData.Length > 0)
         {
             template = template with
@@ -37,7 +37,7 @@ public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
             return true;
         }
 
-        // if there is manufacturer data, prefer it
+        // if there is manufacturer data, try to apply it
         if (manufacturerData.Length >= 2)
         {
             var manufacturerId = manufacturerData.GetUInt16();

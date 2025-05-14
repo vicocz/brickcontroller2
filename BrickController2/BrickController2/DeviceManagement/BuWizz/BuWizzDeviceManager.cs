@@ -8,7 +8,8 @@ namespace BrickController2.DeviceManagement.BuWizz;
 /// </summary>
 public class BuWizzDeviceManager : BluetoothDeviceManagerBase
 {
-    //  05:4E:’B’:’W’:’x’:’y’ where x and y are firmware version
+    // Discovering BuWizz device is based on the following information:
+    // 4E:05:’B’:’W’:’x’:’y’ where x and y are firmware version
     private static readonly byte[] BuWizz3Prefix = [0x4e, 0x05, 0x42, 0x57, 0x03];
     private static readonly byte[] BuWizz2Prefix = [0x05, 0x45, 0x42, 0x57, 0x02];
 
@@ -24,6 +25,7 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
                 return true;
 
             case 0x054e:
+                // check if there is well known BuWizz3 manufacturer data prefix
                 if (manufacturerData.StartsWith(BuWizz3Prefix))
                 {
                     device = template with { DeviceType = DeviceType.BuWizz3 };

@@ -51,8 +51,6 @@ jobs:
         name: brickcontroller-android-ci-build
         path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
 
-    - name: Upload Artifact to Release - install tooling
-      run: choco install jq
     - name: Upload Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
       run: |

@@ -53,15 +53,11 @@ jobs:
 
         # GitHub API URL
         $url = "https://api.github.com/repos/$repo/releases/tags/$tag"
-
         # Fetch the release data
         $response = Invoke-RestMethod -Uri $url -Headers @{ Authorization = "Bearer $token"; "User-Agent" = "powershell-script" }
-
         # Extract release ID
         $releaseId = $response.id
-
         Write-Host "Release ID: $releaseId"
-
         # Set output
         echo "release_id=$releaseId" >> $env:GITHUB_OUTPUT
 
@@ -84,17 +80,10 @@ jobs:
     - name: Upload Artifact to Release
       #if: github.event_name == 'release' && github.event.action == 'published'
       run: |
-        gh release upload 2025.03-alfa2 BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
-
-        # Get the release ID
-        RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/2025.03-alfa2 | jq -r '.id')
-
-        # Upload the artifact
-        curl -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Content-Type: application/vnd.android.package-archive" \
-          -D @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
-          "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$RELEASE_ID/assets?name=com.scn.BrickController2-Signed.apk"
+        # Authenticate GitHub CLI
+        gh auth setup-git
+        gh auth login --with-token <<< "$env:GITHUB_TOKEN"
+        # Upload file to release
+        gh release upload 2025.03-alfa2 BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk --repo ${{ github.repository }} --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

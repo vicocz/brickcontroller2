@@ -52,7 +52,6 @@ namespace BrickController2.UI.ViewModels
             SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !_dialogService.IsDialogOpen);
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
             ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => CanResetChannelOutput);
-            ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
             StepperTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: true));
         }
 
@@ -82,7 +81,6 @@ namespace BrickController2.UI.ViewModels
         public ICommand SaveChannelSettingsCommand { get; }
         public ICommand AutoCalibrateServoCommand { get; }
         public ICommand ResetServoBaseCommand { get; }
-        public ICommand ServoTestCommand { get; }
         public ICommand StepperTestCommand { get; }
 
         public override async void OnAppearing()
@@ -304,7 +302,7 @@ namespace BrickController2.UI.ViewModels
         {
             // simulate triggering of button
             Device.SetOutput(Action.Channel, value);
-            await Task.Delay(400, DisappearingToken);
+            await Task.Delay(500, DisappearingToken);
             if (reset)
             {
                 Device.SetOutput(Action.Channel, GameControllers.BUTTON_RELEASED);

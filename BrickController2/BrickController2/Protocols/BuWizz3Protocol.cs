@@ -4,6 +4,7 @@ internal static class BuWizz3Protocol
 {
     public const double CurrentLimitStep = 35;
 
+    public const byte CMD_SET_LED_STATUS = 0x36;
     public const byte CMD_SET_CURRENT_LIMITS = 0x38;
     public const byte CMD_SET_PID_PARAMS = 0x53;
 
@@ -15,6 +16,9 @@ internal static class BuWizz3Protocol
     public const byte PU_PORT_SPEED_SERVO = 0x14;
     public const byte PU_PORT_POSITION_SERVO = 0x15;
     public const byte PU_PORT_ABSOLUTE_SERVO = 0x16;
+
+    public const byte LED_STATUS_OFF = 0x00;
+    public const byte LED_STATUS_SOLID_ON = 0xff;
 
     public static byte[] ActivteShelfMode() => [ 0xA1 ];
 

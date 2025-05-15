@@ -18,6 +18,7 @@ namespace BrickController2.DeviceManagement
         private const int MAX_SEND_ATTEMPTS = 10;
         private const int NUMBER_OF_PU_PORTS = 4;
 
+        private const string GeneralGroupName = "BuWizz3General";
         private const string PoweredUpGroupName = "BuWizz3CurentLimitPoweredUp";
         private const string PowerFunctionsGroupName = "BuWizz3CurentLimitPowerFunctions";
         private const string Channel0SettingName = "BuWizz3Channel0";
@@ -26,9 +27,12 @@ namespace BrickController2.DeviceManagement
         private const string Channel3SettingName = "BuWizz3Channel3";
         private const string ChannelASettingName = "BuWizz3ChannelA";
         private const string ChannelBSettingName = "BuWizz3ChannelB";
+        private const string AllowStatusLedsSettingName = "BuWizz3AllowStatusLeds";
+
         // defaults applied by BuWizz app
         private const double DefaultPoweredUpCurrentLimit = 1050;
         private const double DefaultPowerFunctionsCurrentLimit = 2100;
+        private const bool DefaultAllowStatusLeds = false;
 
         private static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("50052901-74fb-4481-88b3-9919b1676e93");
@@ -71,6 +75,8 @@ namespace BrickController2.DeviceManagement
         public BuWizz3Device(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            // LED status
+            SetSettingValue(AllowStatusLedsSettingName, settings, GeneralGroupName, DefaultAllowStatusLeds);
             // apply current limit for PU ports
             SetSettingValue(Channel0SettingName, settings, PoweredUpGroupName, DefaultPoweredUpCurrentLimit);
             SetSettingValue(Channel1SettingName, settings, PoweredUpGroupName, DefaultPoweredUpCurrentLimit);
@@ -278,7 +284,9 @@ namespace BrickController2.DeviceManagement
                     _relativePositions.CopyTo(_servoBiasAngles, 0);
                     _relativePositions.CopyTo(_currentStepperAngles, 0);
                 }
-                result = result && await SetLEDStatusAsync(token).ConfigureAwait(false);
+
+                bool enableLed = GetSettingValue(AllowStatusLedsSettingName, DefaultAllowStatusLeds);
+                result = result && await SetLEDStatusAsync(enableLed, token).ConfigureAwait(false);
 
                 return result;
             }
@@ -598,9 +606,16 @@ namespace BrickController2.DeviceManagement
             return result;
         }
 
-        private async Task<bool> SetLEDStatusAsync(CancellationToken token)
+        private async Task<bool> SetLEDStatusAsync(bool enable, CancellationToken token)
         {
-            var buffer = new byte[] { 0x36, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 0, 0, 0 };
+            byte ledBlink = enable ? LED_STATUS_SOLID_ON : LED_STATUS_OFF;
+//            var buffer = new byte[] { CMD_SET_LED_STATUS, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, ledBlink, ledBlink, ledBlink, ledBlink };
+
+            byte[] buffer = enable ? [CMD_SET_LED_STATUS, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0] :
+                    [CMD_SET_LED_STATUS, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, ledBlink, ledBlink, ledBlink, ledBlink];
+
+
+
 
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);

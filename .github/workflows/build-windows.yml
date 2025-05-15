@@ -1,0 +1,89 @@
+name: Build BrickController WinUI 
+
+on:
+  push:
+    branches:
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.WinUI/**'
+  pull_request:
+    branches:    
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.WinUI/**'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    runs-on: windows-2025
+    name: BrickController WinUI Build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+            
+    - name: Restore Dependencies
+      run: dotnet restore BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj
+    - name: Build MAUI WinUI
+      run: dotnet publish BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win-x64 -f:net9.0-windows10.0.19041.0 /p:PublishProfile=win10-x64 /p:GenerateAppxPackageOnBuild=true
+
+    - name: Upload WinUI Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brickcontroller-winui-ci-build
+        path: .\**\AppPackages\**\*.*
+
+    - name: Get Release ID by tag
+      id: get_release_id
+      shell: pwsh
+      run: |
+        $ErrorActionPreference = "Stop"
+
+        # Required inputs
+        $tag = "2025.03-alfa2"  # <-- Replace with your actual tag or make it an input/env var
+        $repo = "${{ github.repository }}"
+        $token = "${{ secrets.GITHUB_TOKEN }}"
+
+        # GitHub API URL
+        $url = "https://api.github.com/repos/$repo/releases/tags/$tag"
+        # Fetch the release data
+        $response = Invoke-RestMethod -Uri $url -Headers @{ Authorization = "Bearer $token"; "User-Agent" = "powershell-script" }
+        # Extract release ID
+        $releaseId = $response.id
+        Write-Host "Release ID: $releaseId"
+        # Set output
+        echo "release_id=$releaseId" >> $env:GITHUB_OUTPUT
+
+    - name: Upload Artifact to Release
+      #if: github.event_name == 'release' && github.event.action == 'published'
+      run: |
+        # Get the release ID
+        RELEASE_ID=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+          https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME} | jq -r '.id')
+
+        # Upload the artifact
+        curl -X POST \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Content-Type: application/vnd.android.package-archive" \
+          -D @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
+          "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$RELEASE_ID/assets?name=com.scn.BrickController2-Signed.apk"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

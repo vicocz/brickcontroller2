@@ -32,11 +32,11 @@ public class BuWizzDeviceManagerTests : DeviceManagerTestBase<BuWizzDeviceManage
     [InlineData(new byte[] { 0x4e, 0x05, 0x42, 0x57, 0x02, 0x01 }, DeviceType.BuWizz2)] // legacy BW2
     [InlineData(new byte[] { 0x05, 0x45, 0x42, 0x57, 0x02, 0x03 }, DeviceType.BuWizz2)] // new BW2
     [InlineData(new byte[] { 0x4e, 0x05, 0x42, 0x57, 0x03, 0x22 }, DeviceType.BuWizz3)] // BW3
-    public void TryGetDevice_BuWizzManufacturerIdWithLocalName_ReturnsProperBuWizzDevice(byte[] manufacturerId, DeviceType deviceType)
+    public void TryGetDevice_BuWizzManufacturerData_ReturnsProperBuWizzDevice(byte[] manufacturerData, DeviceType deviceType)
     {
         var scanResult = CreateScanResult("BuWizz", new Dictionary<byte, byte[]>
         {
-            { 0xff, manufacturerId }
+            { 0xff, manufacturerData }
         });
 
         var result = _manager.TryGetDevice(scanResult, out var device);
@@ -47,7 +47,7 @@ public class BuWizzDeviceManagerTests : DeviceManagerTestBase<BuWizzDeviceManage
             DeviceAddress = scanResult.DeviceAddress,
             DeviceName = scanResult.DeviceName,
             DeviceType = deviceType,
-            ManufacturerData = manufacturerId
+            ManufacturerData = manufacturerData
         });
     }
 

@@ -141,3 +141,4 @@ public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
         return false;
     }
 }
+

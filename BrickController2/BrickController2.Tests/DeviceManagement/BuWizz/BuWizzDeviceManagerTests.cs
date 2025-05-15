@@ -93,4 +93,24 @@ public class BuWizzDeviceManagerTests : DeviceManagerTestBase<BuWizzDeviceManage
             ManufacturerData = BitConverter.GetBytes(0x054e)
         });
     }
+
+    [Fact]
+    public void TryGetDevice_BuWizz3ServiceUuidWithOtherOne_ReturnsProperBuWizz3Device()
+    {
+        var scanResult = CreateScanResult("BuWizz3-ByUuid", new Dictionary<byte, byte[]>
+        {
+            { 0x06, [0x03, 0x0E, 0x07, 0x01, 0x09, 0x09, 0x03, 0x08, 0x01, 0x04, 0x0B, 0x04, 0x01, 0x02, 0x05, 0x00,
+                     0x93, 0x6E, 0x67, 0xB1, 0x19, 0x99, 0xB3, 0x88, 0x81, 0x44, 0xFB, 0x74, 0xD1, 0x92, 0x05, 0x50] }
+        });
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeTrue();
+        device.Should().BeEquivalentTo(new FoundDevice()
+        {
+            DeviceAddress = scanResult.DeviceAddress,
+            DeviceName = scanResult.DeviceName,
+            DeviceType = DeviceType.BuWizz3
+        });
+    }
 }

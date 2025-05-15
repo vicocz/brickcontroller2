@@ -5,7 +5,6 @@ using Android.Bluetooth;
 using Android.Bluetooth.LE;
 using Android.Content;
 using Android.Content.PM;
-using Android.OS;
 using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.Droid.PlatformServices.BluetoothLE
@@ -46,14 +45,9 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             try
             {
                 _isScanning = true;
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
-                {
-                    return await NewScanAsync(scanCallback, token);
-                }
-                else
-                {
-                    return await OldScanAsync(scanCallback, token);
-                }
+
+                return await ScanAsync(scanCallback, token);
+
             }
             catch (Exception)
             {
@@ -75,41 +69,11 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             return new BluetoothLEDevice(_context, _bluetoothAdapter, address);
         }
 
-        private async Task<bool> OldScanAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
+        private async Task<bool> ScanAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
         {
             try
             {
-                var leScanner = new BluetoothLEOldScanner(scanCallback);
-#pragma warning disable CS0618 // Type or member is obsolete
-                if (!(_bluetoothAdapter?.StartLeScan(leScanner) ?? false))
-#pragma warning restore CS0618 // Type or member is obsolete
-                {
-                    return false;
-                }
-
-                var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-                using (token.Register(() =>
-                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                    _bluetoothAdapter?.StopLeScan(leScanner);
-#pragma warning restore CS0618 // Type or member is obsolete
-                    tcs.TrySetResult(true);
-                }))
-                {
-                    return await tcs.Task;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        private async Task<bool> NewScanAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
-        {
-            try
-            {
-                var leScanner = new BluetoothLENewScanner(scanCallback);
+                var leScanner = new BluetoothLEScanner(scanCallback);
                 var settingsBuilder = new ScanSettings.Builder()?
                     .SetCallbackType(ScanCallbackType.AllMatches)?
                     .SetScanMode(global::Android.Bluetooth.LE.ScanMode.LowLatency);

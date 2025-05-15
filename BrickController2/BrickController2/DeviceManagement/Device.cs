@@ -34,7 +34,7 @@ namespace BrickController2.DeviceManagement
 
         public abstract DeviceType DeviceType { get; }
         public string Address { get; }
-        public string Id => $"{DeviceType}#{Address}";
+        public string Id => DeviceId.Get(DeviceType, Address);
 
         public string Name
         {

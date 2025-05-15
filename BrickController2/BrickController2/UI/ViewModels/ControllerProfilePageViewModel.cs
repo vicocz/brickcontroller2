@@ -60,7 +60,7 @@ namespace BrickController2.UI.ViewModels
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false));
             AddControllerEventForSpecificControllerIdCommand = new SafeCommand(async () => await AddControllerEventAsync(true));
             PlayCommand = new SafeCommand(async () => await PlayAsync());
-            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(async controllerActionViewModel => await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction))));
+            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             AddAnotherActionCommand = new SafeCommand<ControllerEvent>(AddAnotherActionAsync);
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
@@ -244,6 +244,27 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private async Task ShowActionAsync(ControllerActionViewModel controllerActionViewModel)
+        {
+            try
+            {
+                if (_deviceManager.Devices.Count == 0)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("MissingDevices"),
+                        Translate("Ok"),
+                        DisappearingToken);
+                    return;
+                }
+
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new (controllerActionViewModel.ControllerAction, "controlleraction"));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
         private async Task PlayAsync()
         {
             var validationResult = _playLogic.ValidateCreation(ControllerProfile.Creation!);
@@ -380,7 +401,9 @@ namespace BrickController2.UI.ViewModels
 
                 ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
                 DeviceName = device != null ? device.Name : translationService.Translate("Missing");
-                DeviceType = device != null ? device.DeviceType : DeviceType.Unknown;
+                // primary take type from existing device or try to parse DeviceId
+                DeviceType = device != null ? device.DeviceType :
+                    (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
                 Channel = controllerAction.Channel;
                 InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
             }

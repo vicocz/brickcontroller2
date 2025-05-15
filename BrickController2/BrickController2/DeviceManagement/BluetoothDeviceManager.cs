@@ -1,23 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
-
-using static BrickController2.Protocols.BluetoothLowEnergy;
 
 namespace BrickController2.DeviceManagement
 {
     internal class BluetoothDeviceManager : IBluetoothDeviceManager
     {
         private readonly IBluetoothLEService _bleService;
+        private readonly IEnumerable<IBluetoothLEDeviceManager> _bleDeviceManagers;
+        private readonly IEnumerable<IBluetoothLEAdvertiserDeviceScanInfo> _bluetoothLEAdvertiserDeviceScanInfoList;
         private readonly AsyncLock _asyncLock = new AsyncLock();
 
-        public BluetoothDeviceManager(IBluetoothLEService bleService)
+        public BluetoothDeviceManager(
+            IBluetoothLEService bleService,
+            IEnumerable<IBluetoothLEDeviceManager> bleDeviceManagers,
+            IEnumerable<IBluetoothLEAdvertiserDeviceScanInfo> bluetoothLEAdvertiserDeviceScanInfoList)
         {
             _bleService = bleService;
+            _bleDeviceManagers = bleDeviceManagers;
+            _bluetoothLEAdvertiserDeviceScanInfoList = bluetoothLEAdvertiserDeviceScanInfoList;
         }
 
         public bool IsBluetoothLESupported => _bleService.IsBluetoothLESupported;
@@ -34,16 +39,17 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    return await _bleService.ScanDevicesAsync(
-                        async scanResult =>
-                        {
-                            var deviceInfo = GetDeviceIfo(scanResult.AdvertismentData);
-                            if (deviceInfo.DeviceType != DeviceType.Unknown)
-                            {
-                                await deviceFoundCallback(deviceInfo.DeviceType, scanResult.DeviceName, scanResult.DeviceAddress, deviceInfo.ManufacturerData);
-                            }
-                        },
-                        token);
+                    var scanTaskList = new List<Task<bool>>();
+                    
+                    scanTaskList.Add(ScanDeviceAsync(deviceFoundCallback, token));
+
+                    if (_bleService.IsBluetoothLEAdvertisingSupported)
+                    {
+                        scanTaskList.Add(ScanAdvertisingDeviceAsync(token));
+                    }
+
+                    await Task.WhenAll(scanTaskList);
+                    return scanTaskList.All(scanTask => scanTask.Result);
                 }
                 catch (OperationCanceledException)
                 {
@@ -55,80 +61,99 @@ namespace BrickController2.DeviceManagement
                 }
             }
         }
-
-        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceIfo(IDictionary<byte, byte[]> advertismentData)
+        private async Task<bool> ScanDeviceAsync(Func<DeviceType, string, string, byte[]?, Task> deviceFoundCallback, CancellationToken token)
         {
-            if (advertismentData == null)
+            try
             {
-                return (DeviceType.Unknown, null);
-            }
-
-            if (!advertismentData.TryGetValue(ADTYPE_MANUFACTURER_SPECIFIC, out var manufacturerData) || manufacturerData.Length < 2)
-            {
-                return GetDeviceInfoByService(advertismentData);
-            }
-
-            var manufacturerDataString = BitConverter.ToString(manufacturerData).ToLower();
-            var manufacturerId = manufacturerDataString.Substring(0, 5);
-
-            switch (manufacturerId)
-            {
-                case "98-01": return (DeviceType.SBrick, manufacturerData);
-                case "48-4d": return (DeviceType.BuWizz, manufacturerData);
-                case "4e-05":
-                    if (advertismentData.TryGetValue(ADTYPE_LOCAL_NAME_COMPLETE, out byte[]? completeLocalName))
+                return await _bleService.ScanDevicesAsync(
+                    async scanResult =>
                     {
-                        var completeLocalNameString = BitConverter.ToString(completeLocalName).ToLower();
-                        if (completeLocalNameString == "42-75-57-69-7a-7a") // BuWizz
+                        if (TryGetDevice(scanResult, out var deviceInfo))
                         {
-                            return (DeviceType.BuWizz2, manufacturerData);
+                            await deviceFoundCallback(deviceInfo.DeviceType, deviceInfo.DeviceName, deviceInfo.DeviceAddress, deviceInfo.ManufacturerData);
                         }
                         else
                         {
-                            return (DeviceType.BuWizz3, manufacturerData);
-                        }
-                    }
-                    break;
-                case "97-03":
-                    if (manufacturerDataString.Length >= 11)
-                    {
-                        var pupType = manufacturerDataString.Substring(9, 2);
-                        switch (pupType)
-                        {
-                            case "40": return (DeviceType.Boost, manufacturerData);
-                            case "41": return (DeviceType.PoweredUp, manufacturerData);
-                            case "80": return (DeviceType.TechnicHub, manufacturerData);
-                            case "84": return (DeviceType.TechnicMove, manufacturerData);
-                            //case "20": return (DeviceType.DuploTrainHub, manufacturerData);
-                        }
-                    }
-                    break;
-            }
 
-            return (DeviceType.Unknown, null);
+                        }
+                    },
+                    token);
+            }
+            catch (OperationCanceledException)
+            {
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
-        private (DeviceType DeviceType, byte[]? ManufacturerData) GetDeviceInfoByService(IDictionary<byte, byte[]> advertismentData)
+        private async Task<bool> ScanAdvertisingDeviceAsync(CancellationToken token)
         {
-            // 0x06: 128 bits Service UUID type
-            if (!advertismentData.TryGetValue(ADTYPE_SERVICE_128BIT, out byte[]? serviceData) || serviceData.Length < 16)
+            var scanTaskList = new List<Task<bool>>();
+
+            foreach (var currentEntry in _bluetoothLEAdvertiserDeviceScanInfoList)
             {
-                return (DeviceType.Unknown, null);
+                scanTaskList.Add(Task.Run(async () =>
+                {
+                    IBluetoothLEAdvertiserDevice? advertiserDevice = null;
+                    try
+                    {
+                        if ((advertiserDevice = _bleService.CreateBluetoothLEAdvertiserDevice()) != null)
+                        {
+                            await advertiserDevice.StartAdvertiseAsync(currentEntry.AdvertisingIterval, currentEntry.TXPowerLevel, currentEntry.ManufacturerId, currentEntry.CreateScanData());
+
+                            var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                            using (token.Register(async () =>
+                            {
+                                await advertiserDevice.StopAdvertiseAsync();
+
+                                tcs.TrySetResult(true);
+                            }))
+                            {
+                                return await tcs.Task;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
+                    finally
+                    {
+                        advertiserDevice?.Dispose();
+                    }
+                }));
             }
 
-            var serviceGuid = serviceData.GetGuid();
+            await Task.WhenAll(scanTaskList);
+            return scanTaskList.All(scanTask => scanTask.Result);
+        }
 
-            switch (serviceGuid)
+        private bool TryGetDevice(ScanResult scanResult, out FoundDevice device)
+        {
+            if (scanResult.AdvertismentData != null)
             {
-                case var service when service == CircuitCubeDevice.SERVICE_UUID:
-                    return (DeviceType.CircuitCubes, null);
+                FoundDevice foundDevice = default;
+                if (_bleDeviceManagers.Any(c => c.TryGetDevice(scanResult, out foundDevice)))
+                {
+                    device = foundDevice;
+                    return true;
+                }
+            }
 
-                case var service when service == Wedo2Device.SERVICE_UUID:
-                    return (DeviceType.WeDo2, null);
-
-                default:
-                    return (DeviceType.Unknown, null);
-            };
+            device = default;
+            return false;
         }
     }
 }

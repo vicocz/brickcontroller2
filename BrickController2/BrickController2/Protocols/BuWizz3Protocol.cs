@@ -5,9 +5,16 @@ internal static class BuWizz3Protocol
     public const double CurrentLimitStep = 35;
 
     public const byte CMD_SET_CURRENT_LIMITS = 0x38;
+    public const byte CMD_SET_PID_PARAMS = 0x53;
 
     public const byte MOTOR_BREAKS_NONE = 0x00;
     public const byte MOTOR_LUT_DISABLE_ALL = 0x3f;
+
+    public const byte PU_PORT_GENERIC_PWM = 0x00;
+    public const byte PU_PORT_SIMPLE_PWM = 0x10;
+    public const byte PU_PORT_SPEED_SERVO = 0x14;
+    public const byte PU_PORT_POSITION_SERVO = 0x15;
+    public const byte PU_PORT_ABSOLUTE_SERVO = 0x16;
 
     public static byte[] ActivteShelfMode() => [ 0xA1 ];
 

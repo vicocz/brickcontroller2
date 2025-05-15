@@ -14,6 +14,11 @@
         BuWizz3,
         CircuitCubes,
         WeDo2,
-        TechnicMove
+        TechnicMove,
+        MK4,
+        MK6,
+        MK_DIY,
+        CaDA_RaceCar,
+        PfxBrick,
     }
 }

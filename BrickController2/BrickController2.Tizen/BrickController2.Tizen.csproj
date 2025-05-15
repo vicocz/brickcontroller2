@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0-tizen</TargetFrameworks>
+    <TargetFrameworks>net9.0-tizen</TargetFrameworks>
     <OutputType>Exe</OutputType>
     
     <SupportedOSPlatformVersion>6.5</SupportedOSPlatformVersion>

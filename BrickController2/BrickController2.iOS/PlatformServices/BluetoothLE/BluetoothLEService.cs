@@ -29,8 +29,8 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         }
 
         public bool IsBluetoothLESupported => true;
+        public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
         public bool IsBluetoothOn => _centralManager.State == CBManagerState.PoweredOn;
-
         public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
         {
             if (!IsBluetoothLESupported || !IsBluetoothOn || _centralManager.IsScanning)
@@ -107,7 +107,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             device.OnDeviceDisconnected();
         }
 
-        private IDictionary<byte, byte[]> ProcessAdvertisementData(NSDictionary advertisementData)
+        private Dictionary<byte, byte[]> ProcessAdvertisementData(NSDictionary advertisementData)
         {
             var result = new Dictionary<byte, byte[]>();
 
@@ -126,7 +126,8 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             var serviceUuid = GetServiceUuidForKey(advertisementData, CBAdvertisement.DataServiceUUIDsKey);
             if (serviceUuid is not null)
             {
-                result[ADTYPE_SERVICE_128BIT] = serviceUuid;
+                // set it as incomplete service UUID (even though it might be the complete list)
+                result[ADTYPE_INCOMPLETE_SERVICE_128BIT] = serviceUuid;
             }
 
             // TODO: add the rest of the advertisementdata...
@@ -174,6 +175,11 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
                 }
             }
             return null;
+        }
+
+        public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
+        {
+            return null; // Not supported yet - has to be implemented
         }
     }
 }

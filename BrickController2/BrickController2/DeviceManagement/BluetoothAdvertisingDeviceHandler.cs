@@ -1,0 +1,329 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Helpers;
+
+namespace BrickController2.DeviceManagement
+{
+    /// <summary>
+    /// An instance of BluetoothAdvertisingDeviceHandler is coordinating the BluetoothAdvertising 
+    /// of one or multiple BluetoothAdvertisingDevices.
+    /// BluetoothAdvertisingDevices have to be connected/disconnected and are requesting the 
+    /// starting/stopping of the output loop.
+    /// If a change of the output data is signalled BluetoothAdvertisingDeviceHandler tries to get
+    /// the new data and updates the output of the data being advertised.
+    /// </summary>
+    internal class BluetoothAdvertisingDeviceHandler
+    {
+        /// <summary>
+        /// Definition of a delegate to get telegram data
+        /// </summary>
+        public delegate bool TryGetTelegramHandler(bool getConnectTelegram, out byte[] telegramData);
+
+        /// <summary>
+        /// object to lock the list handling
+        /// </summary>
+        private readonly AsyncLock _asyncLock = new AsyncLock();
+
+        /// <summary>
+        /// List containing all connected devices
+        /// </summary>
+        private readonly List<BluetoothAdvertisingDevice> _connectedDeviceList = new List<BluetoothAdvertisingDevice>();
+
+        /// <summary>
+        /// List containing all devices in advertising state
+        /// </summary>
+        private readonly List<BluetoothAdvertisingDevice> _advertisingDeviceList = new List<BluetoothAdvertisingDevice>();
+
+        /// <summary>
+        /// reference to bleService object
+        /// </summary>
+        protected readonly IBluetoothLEService _bleService;
+
+        /// <summary>
+        /// timespan to wait after each output loop
+        /// </summary>
+        private readonly TimeSpan _cyclicLoopWaitTimeSpan = TimeSpan.FromMilliseconds(100);
+
+        /// <summary>
+        /// timespan after TryGetTelegram is called from output loop to refresh data
+        /// </summary>
+        private readonly TimeSpan _cyclicDataRefreshTimeSpan = TimeSpan.FromSeconds(2);
+
+        /// <summary>
+        /// after this timespan and all channel's values equal to zero the connect telegram is sent
+        /// </summary>
+        private readonly TimeSpan _reconnectTimeSpan;
+
+        /// <summary>
+        /// manufacturerId to advertise
+        /// </summary>
+        private readonly ushort _manufacturerId;
+
+        /// <summary>
+        /// callback to get data
+        /// </summary>
+        private readonly TryGetTelegramHandler _tryGetTelegram;
+
+        /// <summary>
+        /// stopwatch to measure timespan since _allChannelsZero is set to true
+        /// </summary>
+        private readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
+
+        /// <summary>
+        /// task running the cyclic output loop
+        /// </summary>
+        private Task? _outputTask;
+
+        /// <summary>
+        /// CancellationToken to stop the output task
+        /// </summary>
+        private CancellationTokenSource? _outputTaskTokenSource;
+
+        /// <summary>
+        /// BluetoothLEAdvertiserDevice created in ConnectAsync
+        /// </summary>
+        private IBluetoothLEAdvertiserDevice? _bleAdvertiserDevice;
+
+        /// <summary>
+        /// AutoResetEvent to signal changes of values immediately
+        /// </summary>
+        private AutoResetEvent? _waitForNewData;
+
+        /// <summary>
+        /// True if all channels are zero
+        /// </summary>
+        private bool _allChannelsZero = true;
+
+        public BluetoothAdvertisingDeviceHandler(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram, TimeSpan reconnectTimespan)
+        {
+            _bleService = bleService;
+            _manufacturerId = manufacturerId;
+            _tryGetTelegram = tryGetTelegram;
+            _reconnectTimeSpan = reconnectTimespan;
+        }
+
+        public AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
+        public TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
+
+        public void NotifyDataChanged(bool allChannelsZero)
+        {
+            if (allChannelsZero)
+            {
+                // _allChannelsZero will change to true
+                if (!_allChannelsZero)
+                {
+                    _allChannelsZero = true;
+                    _allZeroStopwatch.Restart();
+
+                    // signal _waitForNewData to immediately run next loop in ProcessOutputs
+                    _waitForNewData?.Set();
+                }
+                //else {} // no change, no signalling
+            }
+            else
+            {
+                _allChannelsZero = false;
+
+                // signal _waitForNewData to immediately run next loop in ProcessOutputs
+                _waitForNewData?.Set();
+            }
+        }
+
+        public async Task<bool> TryConnectAsync(BluetoothAdvertisingDevice requestingDevice)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                // check if device is connected already
+                if (_connectedDeviceList.Contains(requestingDevice))
+                {
+                    return true;
+                }
+
+                _connectedDeviceList.Add(requestingDevice);
+
+                // on first connected device
+                if (_connectedDeviceList.Count == 1)
+                {
+                    // get advertiserdevice from BLEService
+                    _bleAdvertiserDevice = _bleService?.CreateBluetoothLEAdvertiserDevice();
+                }
+
+                return _bleAdvertiserDevice != null;
+            }
+        }
+
+        public async Task<bool> TryDisconnectAsync(BluetoothAdvertisingDevice requestingDevice)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                // remove device
+                if (!_connectedDeviceList.Remove(requestingDevice))
+                {
+                    // devices wasn't in list - nothing further to do
+                    return false;
+                }
+
+                _advertisingDeviceList.Remove(requestingDevice);
+
+                // on last remove
+                if (_connectedDeviceList.Count == 0)
+                {
+                    if (_outputTaskTokenSource != null)
+                    {
+                        await StopOutputTaskInternalAsync();
+                    }
+
+                    _bleAdvertiserDevice?.Dispose();
+                    _bleAdvertiserDevice = null;
+                }
+
+                return true;
+            }
+        }
+
+        public async Task StartOutputTaskAsync(BluetoothAdvertisingDevice requestingDevice)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                if (!_connectedDeviceList.Contains(requestingDevice) || // requestingDevice is not connected
+                  _advertisingDeviceList.Contains(requestingDevice))    // requestingDevice is added to _advertisingDeviceList already
+                {
+                    return; // nothing to do
+                }
+
+                // add requestingDevice to _advertisingDeviceList
+                _advertisingDeviceList.Add(requestingDevice);
+
+                // on first device added
+                if (_advertisingDeviceList.Count == 1)
+                {
+                    StartOutputTaskInternal();
+                }
+            }
+        }
+
+        /// <summary>
+        /// stop output loop
+        /// </summary>
+        public async Task StopOutputTaskAsync(BluetoothAdvertisingDevice requestingDevice)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                if (!_connectedDeviceList.Contains(requestingDevice) || // requestingDevice is not connected
+                  !_advertisingDeviceList.Contains(requestingDevice))   // requestingDevice is not added to _advertisingDeviceList
+                {
+                    return; // nothing to do
+                }
+
+                // remove requestingDevice from _advertisingDeviceList
+                _advertisingDeviceList.Remove(requestingDevice);
+
+                // after last device removed
+                if (_advertisingDeviceList.Count == 0)
+                {
+                    await StopOutputTaskInternalAsync();
+
+                }
+            }
+        }
+
+        /// <summary>
+        /// start output loop
+        /// </summary>
+        private void StartOutputTaskInternal()
+        {
+            _outputTaskTokenSource = new CancellationTokenSource();
+            CancellationToken token = _outputTaskTokenSource.Token;
+
+            _outputTask = Task.Run(async () =>
+            {
+                try
+                {
+                    if (_bleAdvertiserDevice != null &&
+                       _tryGetTelegram(true, out byte[] currentData))
+                    {
+                        await _bleAdvertiserDevice.StartAdvertiseAsync(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
+
+                        _waitForNewData = new(false);
+
+                        await ProcessOutputsAsync(token);
+                    }
+                }
+                catch (TaskCanceledException) // catch this valid exception thrown on cancellation
+                {
+                }
+            });
+        }
+
+        /// <summary>
+        /// stop output loop
+        /// </summary>
+        private async Task StopOutputTaskInternalAsync()
+        {
+            if (_outputTaskTokenSource != null &&
+                _outputTask != null)
+            {
+                _outputTaskTokenSource.Cancel();
+
+                // signal _waitForNewData to immediately run next loop in ProcessOutputs and check token.IsCancellationRequested
+                _waitForNewData?.Set();
+
+                await _outputTask;
+
+                _outputTaskTokenSource.Dispose();
+                _outputTaskTokenSource = null;
+
+                _waitForNewData?.Dispose();
+                _waitForNewData = null;
+
+                _outputTask = null;
+            }
+
+            if (_bleAdvertiserDevice != null)
+            {
+                await _bleAdvertiserDevice.StopAdvertiseAsync();
+            }
+        }
+
+        /// <summary>
+        /// process output loop to check for new data
+        /// </summary>
+        /// <param name="token">CancellationToken</param>
+        private async Task ProcessOutputsAsync(CancellationToken token)
+        {
+            bool newDataSignalled = true;
+            bool inConnectMode = true;
+            bool inConnectModePrevious = false;
+
+            while (!token.IsCancellationRequested)
+            {
+                if (_bleAdvertiserDevice != null &&
+                    newDataSignalled && // different data is needed
+                    _tryGetTelegram(inConnectMode, out byte[] currentData))
+                {
+                    await _bleAdvertiserDevice.UpdateAdvertisedDataAsync(_manufacturerId, currentData);
+                    inConnectModePrevious = inConnectMode;
+                }
+
+                await Task.Delay(_cyclicLoopWaitTimeSpan, token).ConfigureAwait(false); // prevent loop without sleep
+
+                // wait till _newData is signalled or _cyclicDataRefreshTimeSpan has passed
+                newDataSignalled = _waitForNewData?.WaitOne(_cyclicDataRefreshTimeSpan) ?? false;
+
+                // if all channels are zero and _reconnectTimeSpan has elapsed
+                // then the connect telegram should be sent
+                inConnectMode = _allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
+
+                // if connectMode is requested and if previous was not a connect telegram
+                if (inConnectMode && !inConnectModePrevious)
+                {
+                    newDataSignalled = true;    // force newDataSignalled
+                }
+            }
+        }
+    }
+}

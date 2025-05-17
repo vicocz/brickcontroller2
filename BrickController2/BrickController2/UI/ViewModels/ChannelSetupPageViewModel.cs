@@ -141,7 +141,7 @@ namespace BrickController2.UI.ViewModels
                                 await Device.ConnectAsync(
                                     false,
                                     OnDeviceDisconnected,
-                                    _startOutputProcessing ? new[] { _channelConfig } : [],
+                                    _startOutputProcessing ? [_channelConfig] : [],
                                     _startOutputProcessing,
                                     false,
                                     token);
@@ -258,7 +258,7 @@ namespace BrickController2.UI.ViewModels
         private async Task TestChannelAsync(string parameter, bool reset = true)
         {
             var value = Convert.ToSingle(parameter, CultureInfo.InvariantCulture);
-            // ensure stepper / servo settings are uptodate and output processing is set
+            // ensure stepper / servo settings are up-to-date and output processing is set
             if (MaxServoAngle != _channelConfig.MaxServoAngle ||
                 ServoBaseAngle != _channelConfig.ServoBaseAngle ||
                 StepperAngle != _channelConfig.StepperAngle ||

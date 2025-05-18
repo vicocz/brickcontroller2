@@ -8,6 +8,7 @@ using Device = BrickController2.DeviceManagement.Device;
 using BrickController2.UI.Commands;
 using System.Threading;
 using BrickController2.UI.Services.Translation;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -20,6 +21,7 @@ namespace BrickController2.UI.ViewModels
         public DeviceListPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
+            IBluetoothLEService bluetoothLEService,
             IDeviceManager deviceManager,
             IDialogService dialogService) 
             : base(navigationService, translationService)
@@ -27,7 +29,16 @@ namespace BrickController2.UI.ViewModels
             DeviceManager = deviceManager;
             _dialogService = dialogService;
 
+#if DEBUG
+            // JK: to allow development on windows this is enabled
+            IsBLEAdvertisingSupported = true;
+#else
+            IsBLEAdvertisingSupported = bluetoothLEService.IsBluetoothLEAdvertisingSupported;
+#endif
+
+
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
+            ShowManualDeviceListPageCommand = new SafeCommand(async () => await ShowManualDeviceListPageAsync(), () => !DeviceManager.IsScanning);
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
             DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
@@ -36,9 +47,12 @@ namespace BrickController2.UI.ViewModels
         public IDeviceManager DeviceManager { get; }
 
         public ICommand ScanCommand { get; }
+        public ICommand ShowManualDeviceListPageCommand { get; }
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
+
+        public bool IsBLEAdvertisingSupported { get; }
 
         public override void OnAppearing()
         {
@@ -79,6 +93,17 @@ namespace BrickController2.UI.ViewModels
             try
             {
                 await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (device));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task ShowManualDeviceListPageAsync()
+        {
+            try
+            {
+                await NavigationService.NavigateToAsync<ManualDeviceListPageViewModel>(new());
             }
             catch (OperationCanceledException)
             {

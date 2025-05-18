@@ -10,6 +10,8 @@ using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using BrickController2.Droid.PlatformServices.GameController;
 
+using static BrickController2.PlatformServices.GameController.GameControllers;
+
 namespace BrickController2.Droid
 {
     [Activity(
@@ -39,7 +41,6 @@ namespace BrickController2.Droid
 
             _inputManager = (InputManager?)GetSystemService(Context.InputService);
 
-            _gameControllerService?.MainActivityOnCreate();
             _inputManager?.RegisterInputDeviceListener(this, null);
         }
 
@@ -67,31 +68,37 @@ namespace BrickController2.Droid
 
         public override bool OnKeyDown([GeneratedEnum] global::Android.Views.Keycode keyCode, KeyEvent? e)
         {
-            if (_gameControllerService is not null && e is not null)
+            if (_gameControllerService is not null &&
+                e.IsGameControllerButtonEvent() &&
+                _gameControllerService.OnGameControllerButtonEvent(e!, BUTTON_PRESSED))
             {
-                return _gameControllerService.OnKeyDown(keyCode, e) || base.OnKeyDown(keyCode, e);
+                // event processed as gamepad button down event
+                return true;
             }
-
             return base.OnKeyDown(keyCode, e);
         }
 
         public override bool OnKeyUp([GeneratedEnum] global::Android.Views.Keycode keyCode, KeyEvent? e)
         {
-            if (_gameControllerService is not null && e is not null)
+            if (_gameControllerService is not null &&
+                e.IsGameControllerButtonEvent() &&
+                _gameControllerService.OnGameControllerButtonEvent(e!, 0.0f))
             {
-                return _gameControllerService.OnKeyUp(keyCode, e) || base.OnKeyUp(keyCode, e);
+                // event processed as gamepad button up event
+                return true;
             }
-
             return base.OnKeyUp(keyCode, e);
         }
 
         public override bool OnGenericMotionEvent(MotionEvent? e)
         {
-            if (_gameControllerService is not null && e is not null)
+            if (_gameControllerService is not null &&
+                e.IsGameControllerAxisEvent() &&
+                _gameControllerService.OnGameControllerAxisEvent(e!))
             {
-                return _gameControllerService.OnGenericMotionEvent(e) || base.OnGenericMotionEvent(e);
+                // event processed as gamepad axis event(s)
+                return true;
             }
-
             return base.OnGenericMotionEvent(e);
         }
 

@@ -12,6 +12,7 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
+using BrickController2.CreationManagement;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -41,7 +42,7 @@ namespace BrickController2.UI.ViewModels
             BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs =  Enumerable
                 .Range(0, Device.NumberOfChannels)
-                .Select(channel => new DeviceOutputViewModel(Device, channel))
+                .Select(channel => new DeviceOutputViewModel(navigationService, Device, channel))
                 .ToArray();
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
@@ -347,15 +348,18 @@ namespace BrickController2.UI.ViewModels
 
         public class DeviceOutputViewModel : NotifyPropertyChangedSource
         {
+            private readonly INavigationService _navigationService;
             private int _output;
 
-            public DeviceOutputViewModel(Device device, int channel)
+            public DeviceOutputViewModel(INavigationService navigationService, Device device, int channel)
             {
+                _navigationService= navigationService;
                 Device = device;
                 Channel = channel;
                 Output = 0;
 
                 TouchUpCommand = new Command(() => Output = 0);
+                TestServeStepperCommand = new SafeCommand(OpenChannelSetupAsync);
             }
 
             public Device Device { get; }
@@ -374,8 +378,24 @@ namespace BrickController2.UI.ViewModels
                     RaisePropertyChanged();
                 }
             }
+            public bool IsServoOrStepperSupported => true;//todo
 
             public ICommand TouchUpCommand { get; }
+            public ICommand TestServeStepperCommand { get; }
+
+            private async Task OpenChannelSetupAsync()
+            {
+                var action = new ControllerAction
+                {
+                    DeviceId = Device.Id,
+                    Channel = Channel,
+
+                    ChannelOutputType= ChannelOutputType.ServoMotor,//todo
+
+
+                };
+                await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device), ("controlleraction", action)));
+            }
         }
     }
 }

@@ -268,7 +268,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         private async Task ScanAsync()
-        {   
+        {
             if (!await _deviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(

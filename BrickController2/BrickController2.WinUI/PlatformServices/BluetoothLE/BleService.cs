@@ -38,7 +38,7 @@ public class BleService : IBluetoothLEService
 
     public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
     {
-        if (_isScanning || await IsBluetoothLESupportedAsync() == false)
+        if (_isScanning || await IsBluetoothOnAsync() == false || await IsBluetoothLESupportedAsync() == false)
         {
             return false;
         }

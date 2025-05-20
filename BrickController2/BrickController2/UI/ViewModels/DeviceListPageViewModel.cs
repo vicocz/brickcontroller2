@@ -14,6 +14,7 @@ namespace BrickController2.UI.ViewModels
 {
     public class DeviceListPageViewModel : PageViewModelBase
     {
+        private readonly IBluetoothLEService _bluetoothLEService;
         private readonly IDialogService _dialogService;
 
         private bool _isDisappearing = false;
@@ -27,15 +28,8 @@ namespace BrickController2.UI.ViewModels
             : base(navigationService, translationService)
         {
             DeviceManager = deviceManager;
+            _bluetoothLEService = bluetoothLEService;
             _dialogService = dialogService;
-
-#if DEBUG
-            // JK: to allow development on windows this is enabled
-            IsBLEAdvertisingSupported = true;
-#else
-            IsBLEAdvertisingSupported = bluetoothLEService.IsBluetoothLEAdvertisingSupported;
-#endif
-
 
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
             ShowManualDeviceListPageCommand = new SafeCommand(async () => await ShowManualDeviceListPageAsync(), () => !DeviceManager.IsScanning);
@@ -52,12 +46,15 @@ namespace BrickController2.UI.ViewModels
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
 
-        public bool IsBLEAdvertisingSupported { get; }
+        public bool IsBLEAdvertisingSupported { get; private set; }
 
-        public override void OnAppearing()
+        public override async void OnAppearing()
         {
             _isDisappearing = false;
             base.OnAppearing();
+
+            IsBLEAdvertisingSupported = await _bluetoothLEService.IsBluetoothLEAdvertisingSupportedAsync();
+            RaisePropertyChanged(nameof(IsBLEAdvertisingSupported));
         }
 
         public override void OnDisappearing()
@@ -112,7 +109,7 @@ namespace BrickController2.UI.ViewModels
 
         private async Task ScanAsync()
         {
-            if (!DeviceManager.IsBluetoothOn)
+            if (!await DeviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),

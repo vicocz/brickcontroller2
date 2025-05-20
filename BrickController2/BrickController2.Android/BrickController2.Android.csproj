@@ -3,17 +3,14 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android</TargetFrameworks>
-		<LangVersion>latest</LangVersion>
     <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
     <TargetPlatformVersion>35.0</TargetPlatformVersion>
     <OutputType>Exe</OutputType>
-		<Nullable>enable</Nullable>
 		<RootNamespace>BrickController2.Droid</RootNamespace>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<AndroidResgenClass>Resource</AndroidResgenClass>
 		<AndroidKeyStore>false</AndroidKeyStore>
 		<AndroidSigningKeyStore>C:\Users\imurv\AppData\Local\Xamarin\Mono for Android\Keystore\keystore\keystore.keystore</AndroidSigningKeyStore>
-    <UseMaui>true</UseMaui>
   </PropertyGroup>
 
   <ItemGroup>

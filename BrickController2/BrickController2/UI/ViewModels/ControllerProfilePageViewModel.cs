@@ -60,10 +60,11 @@ namespace BrickController2.UI.ViewModels
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false));
             AddControllerEventForSpecificControllerIdCommand = new SafeCommand(async () => await AddControllerEventAsync(true));
             PlayCommand = new SafeCommand(async () => await PlayAsync());
-            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(async controllerActionViewModel => await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction))));
+            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             AddAnotherActionCommand = new SafeCommand<ControllerEvent>(AddAnotherActionAsync);
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
+            OpenControllerActionSetupCommand = new SafeCommand<ControllerAction>(OpenControllerActionChannelSetupAsync, ValidateControllerActionChannelSetup);
 
             PopulateControllerEvents();
         }
@@ -96,8 +97,9 @@ namespace BrickController2.UI.ViewModels
         public ICommand ControllerActionTappedCommand { get; }
         public ICommand DeleteControllerEventCommand { get; }
         public ICommand AddAnotherActionCommand { get; }
-        
+
         public ICommand DeleteControllerActionCommand { get; }
+        public ICommand OpenControllerActionSetupCommand { get; }
 
         private void PopulateControllerEvents()
         {
@@ -244,6 +246,27 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private async Task ShowActionAsync(ControllerActionViewModel controllerActionViewModel)
+        {
+            try
+            {
+                if (_deviceManager.Devices.Count == 0)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("MissingDevices"),
+                        Translate("Ok"),
+                        DisappearingToken);
+                    return;
+                }
+
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new (controllerActionViewModel.ControllerAction, "controlleraction"));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
         private async Task PlayAsync()
         {
             var validationResult = _playLogic.ValidateCreation(ControllerProfile.Creation!);
@@ -365,6 +388,25 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private Task OpenControllerActionChannelSetupAsync(ControllerAction controllerAction)
+        {
+            var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+            return NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", device!),
+                        ("controlleraction", controllerAction)));
+        }
+
+        private bool ValidateControllerActionChannelSetup(object? cmdParam)
+        {
+            if (cmdParam is not ControllerAction controllerAction ||
+                (controllerAction.ChannelOutputType != ChannelOutputType.ServoMotor &&
+                controllerAction.ChannelOutputType != ChannelOutputType.StepperMotor))
+            {
+                return false;
+            }
+            var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+            return device != null;
         }
 
         public class ControllerActionViewModel

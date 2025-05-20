@@ -35,7 +35,7 @@
                     <StackLayout Orientation="Vertical" Padding="10">
 
                         <!-- Device info -->
-                        <Grid>
+                        <Grid ColumnSpacing="10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -53,7 +53,6 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
                                 <Label Grid.Column="0" Grid.Row="0" Text="{extensions:Translate DeviceName}" FontSize="Small"/>
@@ -62,33 +61,52 @@
                                 <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small"/>
                                 <Label Grid.Column="1" Grid.Row="1" Text="{Binding Device.DeviceType}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Channel}" FontSize="Small"/>
-                                <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
+                                <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Channel}" FontSize="Small"/>
+                                <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
+
+                                <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
+                                <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold"/>
                             </Grid>
                         </Grid>
 
-                        <!-- Auto servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10">
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
 
-                            <Button Text="{extensions:Translate AutoCalibrate}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
+                        <!-- Stepper test controls -->
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
+                            <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 0, 10"/>
+                            <StackLayout Orientation="Horizontal">
+                                <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5"
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
+                                <Label Text="{Binding StepperAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
+                                <Label Text="°"/>
+                            </StackLayout>
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
+                                <Button Grid.Column="0" Text="{extensions:Translate StepBack}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperTestCommand}" CommandParameter="-1.0"/>
+                                <Button Grid.Column="1" Text="{extensions:Translate StepForward}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperTestCommand}" CommandParameter="1.0"/>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Auto servo calibration -->
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+
+                            <Button Text="{extensions:Translate AutoCalibrate}" Style="{StaticResource TextButtonStyle}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
 
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                         </StackLayout>
 
                         <!-- Manual servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10">
-                            <Label Grid.Column="0" Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
-                            <StackLayout Grid.Column="1" Orientation="Horizontal">
-                                <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5" HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+                            <Label Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
+                            <StackLayout Orientation="Horizontal">
+                                <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5"
+                                                         IsEnabled="{Binding CanResetChannelOutput, Mode=OneTime}"
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
                                 <Label Text="{Binding ServoBaseAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
                                 <Label Text="°"/>
                             </StackLayout>
-                            <Button Text="{extensions:Translate Reset}" Command="{Binding ResetServoBaseCommand}" Margin="0, 30, 0, 0"/>
-
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
-                        </StackLayout>
-
+                            <Button Text="{extensions:Translate Reset}" Style="{StaticResource TextButtonStyle}" Command="{Binding ResetServoBaseCommand}"/>
+                        </VerticalStackLayout>
+                        
                     </StackLayout>
                 </ScrollView>
             </Grid>

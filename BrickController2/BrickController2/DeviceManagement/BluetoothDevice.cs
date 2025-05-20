@@ -45,7 +45,7 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    _bleDevice = _bleService.GetKnownDevice(Address);
+                    _bleDevice = await _bleService.GetKnownDeviceAsync(Address);
                     if (_bleDevice == null)
                     {
                         return DeviceConnectionResult.Error;

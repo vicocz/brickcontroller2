@@ -55,6 +55,16 @@ namespace BrickController2.UI.Controls
             TechnicMoveChannel4.Command = new SafeCommand(() => SelectedChannel = 6);
             TechnicMoveChannel5.Command = new SafeCommand(() => SelectedChannel = 7);
             TechnicMoveChannel6.Command = new SafeCommand(() => SelectedChannel = 8);
+            PfxBrickChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
+            PfxBrickChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
+            PfxBrickChannel1.Command = new SafeCommand(() => SelectedChannel = 2);
+            PfxBrickChannel2.Command = new SafeCommand(() => SelectedChannel = 3);
+            PfxBrickChannel3.Command = new SafeCommand(() => SelectedChannel = 4);
+            PfxBrickChannel4.Command = new SafeCommand(() => SelectedChannel = 5);
+            PfxBrickChannel5.Command = new SafeCommand(() => SelectedChannel = 6);
+            PfxBrickChannel6.Command = new SafeCommand(() => SelectedChannel = 7);
+            PfxBrickChannel7.Command = new SafeCommand(() => SelectedChannel = 8);
+            PfxBrickChannel8.Command = new SafeCommand(() => SelectedChannel = 9);
             MK4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
@@ -65,6 +75,9 @@ namespace BrickController2.UI.Controls
             MK6Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             MK6Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             MK6Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
+            CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);
@@ -103,8 +116,11 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannelA.IsVisible = !isPlayVm;
                 dcs.TechnicMoveChannelB.IsVisible = !isPlayVm;
                 dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
+                dcs.PfxBrickSection.IsVisible = deviceType == DeviceType.PfxBrick;
                 dcs.MK4Section.IsVisible = deviceType == DeviceType.MK4;
                 dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
+                dcs.MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
+                dcs.CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
             }
         }
 
@@ -155,6 +171,16 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannel4.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannel5.SelectedChannel = selectedChannel;
                 dcs.TechnicMoveChannel6.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannelA.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannelB.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel1.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel2.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel3.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel4.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel5.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel6.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel7.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel8.SelectedChannel = selectedChannel;
                 dcs.MK4Channel0.SelectedChannel = selectedChannel;
                 dcs.MK4Channel1.SelectedChannel = selectedChannel;
                 dcs.MK4Channel2.SelectedChannel = selectedChannel;
@@ -165,6 +191,13 @@ namespace BrickController2.UI.Controls
                 dcs.MK6Channel3.SelectedChannel = selectedChannel;
                 dcs.MK6Channel4.SelectedChannel = selectedChannel;
                 dcs.MK6Channel5.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel0.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel1.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel2.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel3.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel0.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel1.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel2.SelectedChannel = selectedChannel;
             }
         }
     }

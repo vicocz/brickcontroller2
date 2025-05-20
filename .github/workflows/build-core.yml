@@ -1,0 +1,47 @@
+name: Build BrickController Core 
+
+on:
+  push:
+    branches:
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.Tests/**'
+  pull_request:
+    branches:    
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.Tests/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build--test-core:
+    runs-on: windows-2025
+    name: BrickController Core Build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+          
+    - name: Restore Dependencies
+      run: dotnet restore BrickController2/BrickController2/BrickController2.csproj
+    - name: Build MAUI Core
+      run: dotnet build BrickController2/BrickController2/BrickController2.csproj -c Release --no-restore
+    - name: Build MAUI Core tests
+      run: dotnet build BrickController2/BrickController2.Tests/BrickController2.Tests.csproj -c Release
+    - name: Run MAUI Core tests
+      run: dotnet test BrickController2/BrickController2.Tests/BrickController2.Tests.csproj -c Release --no-build

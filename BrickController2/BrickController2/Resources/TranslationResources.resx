@@ -705,4 +705,10 @@
   <data name="AddDevice" xml:space="preserve">
     <value>Add device</value>
   </data>
+  <data name="StepBack" xml:space="preserve">
+    <value>Step back</value>
+  </data>
+  <data name="StepForward" xml:space="preserve">
+    <value>Next step</value>
+  </data>
 </root>

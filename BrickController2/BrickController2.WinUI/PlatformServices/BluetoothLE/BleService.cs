@@ -21,7 +21,13 @@ public class BleService : IBluetoothLEService
         return adapter?.IsLowEnergySupported ?? false;
     }
 
-    public Task<bool> IsBluetoothLEAdvertisingSupportedAsync() => Task.FromResult(false); // Not supported yet - has to be implemented
+    public Task<bool> IsBluetoothLEAdvertisingSupportedAsync()
+#if DEBUG
+        // JK: to allow development on windows this is enabled
+        => Task.FromResult(true);
+#else
+        => Task.FromResult(false); // Not supported yet - has to be implemented
+#endif
  
     public async Task<bool> IsBluetoothOnAsync()
     {

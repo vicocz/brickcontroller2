@@ -13,6 +13,8 @@ using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.PlatformServices.Localization;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.PlatformServices.Permission;
+using BrickController2.Windows.DeviceManagement.DI;
+using BrickController2.DeviceManagement;
 
 namespace BrickController2.Windows.PlatformServices.DI;
 
@@ -28,5 +30,6 @@ public class PlatformServicesModule : Module
         builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
         builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
         builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
+        builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
     }
 }

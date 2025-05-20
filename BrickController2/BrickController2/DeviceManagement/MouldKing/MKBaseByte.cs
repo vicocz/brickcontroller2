@@ -1,6 +1,5 @@
 ﻿using System;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
 
 namespace BrickController2.DeviceManagement
 {
@@ -9,6 +8,11 @@ namespace BrickController2.DeviceManagement
     /// </summary>
     internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     {
+        /// <summary>
+        /// platform specific MouldKing stuff
+        /// </summary>
+        protected readonly IMKPlatformService _mkPlatformService;
+
         /// <summary>
         /// Telegram to connect to the device
         /// This telegram is sent on init and on reconnect conditions matching
@@ -26,12 +30,13 @@ namespace BrickController2.DeviceManagement
         protected readonly int _channelStartOffset;
 
 
-        protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
+        protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base, IMKPlatformService mkPlatformService)
             : base(name, address, deviceData, deviceRepository, bleService)
         {
             _channelStartOffset = channelStartOffset;
             _telegram_Connect = telegram_Connect;
             _telegram_Base = telegram_Base;
+            _mkPlatformService = mkPlatformService;
         }
 
         /// <summary>
@@ -108,19 +113,14 @@ namespace BrickController2.DeviceManagement
 
         protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
         {
-            byte[] rawData;
-
             if (getConnectTelegram)
             {
-                rawData = _telegram_Connect;
+                return _mkPlatformService.TryGetRfPayload(_telegram_Connect, out payload);
             }
             else
             {
-                rawData = _telegram_Base;
+                return _mkPlatformService.TryGetRfPayload(_telegram_Base, out payload);
             }
-
-            MKProtocol.GetRfPayload(MKProtocol.AddressArray, rawData, MKProtocol.CTXValue, out payload);
-            return true;
         }
 
         private bool CheckAllChannelsZero()

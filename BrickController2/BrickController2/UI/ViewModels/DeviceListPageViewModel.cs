@@ -112,7 +112,7 @@ namespace BrickController2.UI.ViewModels
 
         private async Task ScanAsync()
         {
-            if (!DeviceManager.IsBluetoothOn)
+            if (!await DeviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),

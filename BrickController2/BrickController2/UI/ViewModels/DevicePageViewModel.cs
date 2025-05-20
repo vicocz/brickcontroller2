@@ -85,7 +85,7 @@ namespace BrickController2.UI.ViewModels
 
             if (Device.DeviceType != DeviceType.Infrared)
             {
-                if (!_deviceManager.IsBluetoothOn)
+                if (!await _deviceManager.IsBluetoothOnAsync())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -268,8 +268,8 @@ namespace BrickController2.UI.ViewModels
         }
 
         private async Task ScanAsync()
-        {
-            if (!_deviceManager.IsBluetoothOn)
+        {   
+            if (!await _deviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),

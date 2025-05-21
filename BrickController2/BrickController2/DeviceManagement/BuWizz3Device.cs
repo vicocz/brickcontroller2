@@ -89,7 +89,11 @@ namespace BrickController2.DeviceManagement
 
         public override string BatteryVoltageSign => "V";
 
-        public override bool CanChangeOutputType(int channel) => channel < NUMBER_OF_PU_PORTS;
+        public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType) =>
+            // allow motor output type for all channels 
+            outputType == ChannelOutputType.NormalMotor ||
+            // servo / stepper for PoweredUp channels only
+            channel < NUMBER_OF_PU_PORTS;
 
         public override bool CanChangeMaxServoAngle(int channel) => true;
 

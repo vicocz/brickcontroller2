@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.CreationManagement;
+using BrickController2.Helpers;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -74,7 +75,13 @@ namespace BrickController2.DeviceManagement
         public virtual int NumberOfOutputLevels => 1;
         public virtual int DefaultOutputLevel => 1;
 
-        public virtual bool CanChangeOutputType(int channel) => false;
+        /// <summary>
+        /// Check whether the output type specified in <paramref name="outputType"/> is supported
+        /// for given channel <paramref name="channel"/> 
+        /// </summary>
+        public virtual bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
+            // by default support motor output type only
+            => outputType == ChannelOutputType.NormalMotor;
 
         public abstract Task<DeviceConnectionResult> ConnectAsync(
             bool reconnect,

@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using BrickController2.DeviceManagement;
+using BrickController2.Droid.PlatformServices.DeviceManagement;
 using BrickController2.Droid.PlatformServices.BluetoothLE;
 using BrickController2.Droid.PlatformServices.GameController;
 using BrickController2.Droid.PlatformServices.Infrared;
@@ -29,6 +31,7 @@ namespace BrickController2.Droid.PlatformServices.DI
             builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
             builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
+            builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
         }
     }
 }

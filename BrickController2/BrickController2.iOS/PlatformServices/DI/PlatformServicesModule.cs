@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using BrickController2.DeviceManagement;
+using BrickController2.iOS.PlatformServices.DeviceManagement;
 using BrickController2.iOS.PlatformServices.BluetoothLE;
 using BrickController2.iOS.PlatformServices.GameController;
 using BrickController2.iOS.PlatformServices.Infrared;
@@ -14,7 +15,6 @@ using BrickController2.PlatformServices.Localization;
 using BrickController2.PlatformServices.Permission;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.PlatformServices.Versioning;
-using BrickController2.Windows.DeviceManagement.DI;
 
 namespace BrickController2.iOS.PlatformServices.DI
 {

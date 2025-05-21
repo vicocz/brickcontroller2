@@ -114,20 +114,19 @@
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding DeviceOutputs}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <VerticalStackLayout>
-                                            <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="10,4,10,4">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="30"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <controls:DeviceChannelLabel Grid.Column="0" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Channel}"/>
-                                                <controls:ExtendedSlider Grid.Column="1" Minimum="-100" Maximum="100" IsEnabled="{Binding Device.DeviceState, Converter={StaticResource DeviceConnectedToBool}}" Value="{Binding Output}" TouchUpCommand="{Binding TouchUpCommand}"/>
-                                                <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate TestServeStepperCommand}"
-                                                                               Command="{Binding TestServeStepperCommand}" IsVisible="{Binding IsServoOrStepperSupported}"/>
-                                            </Grid>
-                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
-                                        </VerticalStackLayout>
+                                        <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="10,0,10,0" RowDefinitions="*,*">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="30"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <controls:DeviceChannelLabel Grid.Column="0" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Channel}" VerticalOptions="Center" />
+                                            <controls:ExtendedSlider Grid.Column="1" Minimum="-100" Maximum="100" IsEnabled="{Binding Device.DeviceState, Converter={StaticResource DeviceConnectedToBool}}" Value="{Binding Output}" TouchUpCommand="{Binding TouchUpCommand}" VerticalOptions="Center"/>
+                                            <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate TestServeStepperCommand}"
+                                                                           Command="{Binding TestServoStepperCommand}" Margin="10,0,0,0"
+                                                                           IsVisible="{Binding x:DataType='bool', Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.IsServoOrStepperSupported}"/>
+                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,4,6,0"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>

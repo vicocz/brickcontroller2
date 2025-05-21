@@ -19,6 +19,7 @@
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
             <converters:ChannelToDisplayChannelConverter x:Key="ChannelToDisplayChannel"/>
+            <converters:InverseBoolConverter x:Key="InverseBool"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -65,14 +66,15 @@
                                 <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
 
                                 <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
-                                <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold"/>
+                                <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold" IsVisible="{Binding IsChannelTest, Converter={StaticResource InverseBool}, Mode=OneTime}"/>
+                                <Button Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" Command="{Binding SelectChannelOutputTypeCommand}" Style="{StaticResource PickerButtonStyle}" IsVisible="{Binding IsChannelTest, Mode=OneTime}"/>
                             </Grid>
                         </Grid>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
 
                         <!-- Stepper test controls -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneWay}">
                             <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5"
@@ -87,7 +89,7 @@
                         </VerticalStackLayout>
 
                         <!-- Auto servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneWay}">
 
                             <Button Text="{extensions:Translate AutoCalibrate}" Style="{StaticResource TextButtonStyle}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
 
@@ -95,7 +97,7 @@
                         </StackLayout>
 
                         <!-- Manual servo calibration -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneWay}">
                             <Label Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5"

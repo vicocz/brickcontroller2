@@ -67,6 +67,8 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
+
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
@@ -359,7 +361,7 @@ namespace BrickController2.UI.ViewModels
                 Output = 0;
 
                 TouchUpCommand = new Command(() => Output = 0);
-                TestServeStepperCommand = new SafeCommand(OpenChannelSetupAsync);
+                TestServoStepperCommand = new SafeCommand(OpenChannelSetupAsync, () => IsServoOrStepperSupported);
             }
 
             public Device Device { get; }
@@ -378,10 +380,13 @@ namespace BrickController2.UI.ViewModels
                     RaisePropertyChanged();
                 }
             }
-            public bool IsServoOrStepperSupported => true;//todo
+
+            public bool IsServoOrStepperSupported =>
+                Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) ||
+                Device.IsOutputTypeSupported(Channel, ChannelOutputType.StepperMotor);
 
             public ICommand TouchUpCommand { get; }
-            public ICommand TestServeStepperCommand { get; }
+            public ICommand TestServoStepperCommand { get; }
 
             private async Task OpenChannelSetupAsync()
             {
@@ -389,12 +394,17 @@ namespace BrickController2.UI.ViewModels
                 {
                     DeviceId = Device.Id,
                     Channel = Channel,
-
-                    ChannelOutputType= ChannelOutputType.ServoMotor,//todo
-
-
+                    MaxServoAngle = 90,
+                    ServoBaseAngle = 0,
+                    StepperAngle = 90,
+                    // choose first supported output type
+                    ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) 
+                        ? ChannelOutputType.ServoMotor
+                        : ChannelOutputType.StepperMotor,
                 };
-                await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device), ("controlleraction", action)));
+                await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
+                    ("controlleraction", action),
+                    ("ischanneltest", true)));
             }
         }
     }

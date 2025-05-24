@@ -176,6 +176,28 @@
             <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
 
+        <!-- Text button styles -->
+        <Style x:Key="TextButtonStyle" TargetType="Button">
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Margin" Value="0, 30, 0, 30"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource InlineButtonColor}"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="TextColor" Value="{DynamicResource SecondaryColor}" />
+                                <Setter Property="BackgroundColor" Value="{DynamicResource TertiaryTextColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver" />
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>        
+        
         <!-- Floating button styles -->
         <Style x:Key="FloatingActionButtonStyle" TargetType="controls:FloatingActionButton">
             <Setter Property="BackgroundColor" Value="{DynamicResource FloatingButtonColor}"/>

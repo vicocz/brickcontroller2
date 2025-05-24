@@ -53,8 +53,8 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected override int BaseTelegram_ChannelStartOffset => 3;
 
-        public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-          : base(name, address, deviceData, deviceRepository, bleService, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
+        public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
+          : base(name, address, deviceData, deviceRepository, bleService, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address), mkPlatformService)
         {
         }
 

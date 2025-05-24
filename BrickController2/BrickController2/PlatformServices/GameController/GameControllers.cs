@@ -5,6 +5,7 @@ namespace BrickController2.PlatformServices.GameController;
 public static class GameControllers
 {
     public const float BUTTON_PRESSED = 1.0f;
+    public const float BUTTON_PRESSED_INV = -1.0f;
     public const float BUTTON_RELEASED = 0.0f;
 
     public const float AXIS_DELTA_VALUE = 0.05f;

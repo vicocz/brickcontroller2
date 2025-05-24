@@ -4,13 +4,10 @@
 	<PropertyGroup>
     <TargetFrameworks>net9.0-ios</TargetFrameworks>
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-		<LangVersion>latest</LangVersion>
 		<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-		<Nullable>enable</Nullable>
 		<ApplicationId>com.scn.BrickController2</ApplicationId>
 		<RootNamespace>BrickController2.iOS</RootNamespace>
-    <UseMaui>true</UseMaui>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 

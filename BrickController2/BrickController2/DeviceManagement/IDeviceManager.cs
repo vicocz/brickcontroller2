@@ -9,7 +9,7 @@ namespace BrickController2.DeviceManagement
     {
         ObservableCollection<Device> Devices { get; }
         bool IsScanning { get; }
-        bool IsBluetoothOn { get; }
+        Task<bool> IsBluetoothOnAsync();
 
         Task LoadDevicesAsync();
         Task<bool> ScanAsync(CancellationToken token);

@@ -43,9 +43,9 @@ namespace BrickController2.UI.ViewModels
             Device = parameters.Get<Device>("device");
             Action = parameters.Get<ControllerAction>("controlleraction");
             IsChannelTest = parameters.Get("ischanneltest", false);
-            MaxServoAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? Action.MaxServoAngle : 0;
-            ServoBaseAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? Action.ServoBaseAngle : 0;
-            StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? Action.StepperAngle : 0;
+            MaxServoAngle = Action.MaxServoAngle;
+            ServoBaseAngle = Action.ServoBaseAngle;
+            StepperAngle = Action.StepperAngle;
 
             // setup channel config for testing
             UpdateChannelConfig();
@@ -60,9 +60,6 @@ namespace BrickController2.UI.ViewModels
 
         public Device Device { get; }
         public ControllerAction Action { get; }
-
-        public bool IsServoChannelOutputType => Action.ChannelOutputType == ChannelOutputType.ServoMotor;
-        public bool IsStepperChannelOutputType => Action.ChannelOutputType == ChannelOutputType.StepperMotor;
         public bool CanResetChannelOutput => Device.CanResetOutput(Action.Channel);
 
         public bool IsChannelTest { get; }
@@ -255,9 +252,9 @@ namespace BrickController2.UI.ViewModels
                 Channel = Action.Channel,
                 ChannelOutputType = Action.ChannelOutputType,
                 // current settings
-                MaxServoAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? MaxServoAngle : 0,
+                MaxServoAngle = MaxServoAngle,
                 ServoBaseAngle = ServoBaseAngle, // for testing applied both servo and stepper
-                StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? StepperAngle : 0
+                StepperAngle = StepperAngle
             };
         }
 
@@ -273,17 +270,27 @@ namespace BrickController2.UI.ViewModels
             {
                 // update prerequsities for servo/stepper testing
                 UpdateChannelConfig();
-                _startOutputProcessing = true;
-                // force reconnection
-                await ReconnectDeviceAsync();
+                // force reconnection with processing enabled
+                await EnforceEnabledChannelOutputProcessing(true);
             }
             // simulate triggering of servo/stepper button
             await TestButtonAsync(value, reset).ConfigureAwait(false);
         }
 
+        private async Task EnforceEnabledChannelOutputProcessing(bool force = false)
+        {
+            if (!_startOutputProcessing|| force)
+            {
+                // update prerequisites for servo/stepper calibration/reset
+                _startOutputProcessing = true;
+                // force reconnection
+                await ReconnectDeviceAsync();
+            }
+        }
+
         private async Task EnforceDisabledChannelOutputProcessing()
         {
-            // if stepper angle has changed, we need to reconnect to apply it
+            // if output processing was required, reset it now
             if (_startOutputProcessing)
             {
                 // update prerequisites for servo/stepper calibration/reset
@@ -333,10 +340,21 @@ namespace BrickController2.UI.ViewModels
                 Enum.TryParse<ChannelOutputType>(result.SelectedItem, out var newChannelType) &&
                 newChannelType != Action.ChannelOutputType)
             {
+                // update channel output type and trigger UI update
                 Action.ChannelOutputType = newChannelType;
-                // trigger update
-                RaisePropertyChanged(nameof(IsServoChannelOutputType));
-                RaisePropertyChanged(nameof(IsStepperChannelOutputType));
+                // update prerequsities for servo/stepper testing
+                UpdateChannelConfig();
+
+                if (newChannelType == ChannelOutputType.ServoMotor)
+                {
+                    // prepare servo for calibration/reset (no proutput processing)
+                    await EnforceDisabledChannelOutputProcessing();
+                }
+                else if (newChannelType == ChannelOutputType.StepperMotor)
+                {
+                    // prepare stepper for testing (requires processing enabled
+                    await EnforceEnabledChannelOutputProcessing();
+                }
             }
         }
     }

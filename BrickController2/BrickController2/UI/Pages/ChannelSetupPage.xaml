@@ -20,6 +20,8 @@
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
             <converters:ChannelToDisplayChannelConverter x:Key="ChannelToDisplayChannel"/>
             <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <converters:StepperOutputTypeToVisibleConverter x:Key="StepperVisibility"/>
+            <converters:ServoOutputTypeToVisibleConverter x:Key="ServoVisibility"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -74,7 +76,7 @@
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
 
                         <!-- Stepper test controls -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneWay}">
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource StepperVisibility}}">
                             <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5"
@@ -89,7 +91,7 @@
                         </VerticalStackLayout>
 
                         <!-- Auto servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneWay}">
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource ServoVisibility}}">
 
                             <Button Text="{extensions:Translate AutoCalibrate}" Style="{StaticResource TextButtonStyle}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
 
@@ -97,7 +99,7 @@
                         </StackLayout>
 
                         <!-- Manual servo calibration -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneWay}">
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource ServoVisibility}}">
                             <Label Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5"

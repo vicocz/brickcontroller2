@@ -23,8 +23,8 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Lego Duplo Train Hub
 - Circuit Cubes
 - Mould King DIY Module
-- Mould King 4.0 Powered Module (Android only)
-- Mould King 6.0 Powered Module (Android only)
+- Mould King 4.0 Powered Module
+- Mould King 6.0 Powered Module
 - CaDA Race Car (Android only)
 - PFx Brick (lights & Power Functions ports only)
 

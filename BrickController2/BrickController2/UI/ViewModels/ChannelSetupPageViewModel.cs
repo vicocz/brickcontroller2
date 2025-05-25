@@ -260,21 +260,28 @@ namespace BrickController2.UI.ViewModels
 
         private async Task TestChannelAsync(string parameter, bool reset = true)
         {
-            var value = Convert.ToSingle(parameter, CultureInfo.InvariantCulture);
-            // ensure stepper / servo settings are up-to-date and output processing is set
-            if (MaxServoAngle != _channelConfig.MaxServoAngle ||
-                ServoBaseAngle != _channelConfig.ServoBaseAngle ||
-                StepperAngle != _channelConfig.StepperAngle ||
-                Action.ChannelOutputType != _channelConfig.ChannelOutputType ||
-                !_startOutputProcessing)
+            try
             {
-                // update prerequsities for servo/stepper testing
-                UpdateChannelConfig();
-                // force reconnection with processing enabled
-                await EnforceEnabledChannelOutputProcessing(true);
+                var value = Convert.ToSingle(parameter, CultureInfo.InvariantCulture);
+                // ensure stepper / servo settings are up-to-date and output processing is set
+                if (MaxServoAngle != _channelConfig.MaxServoAngle ||
+                    ServoBaseAngle != _channelConfig.ServoBaseAngle ||
+                    StepperAngle != _channelConfig.StepperAngle ||
+                    Action.ChannelOutputType != _channelConfig.ChannelOutputType ||
+                    !_startOutputProcessing)
+                {
+                    // update prerequsities for servo/stepper testing
+                    UpdateChannelConfig();
+                    // force reconnection with processing enabled
+                    await EnforceEnabledChannelOutputProcessing(true);
+                }
+                // simulate triggering of servo/stepper button
+                await TestButtonAsync(value, reset).ConfigureAwait(false);
             }
-            // simulate triggering of servo/stepper button
-            await TestButtonAsync(value, reset).ConfigureAwait(false);
+            catch (TaskCanceledException)
+            {
+                // ignore cancellation
+            }
         }
 
         private async Task EnforceEnabledChannelOutputProcessing(bool force = false)
@@ -322,6 +329,7 @@ namespace BrickController2.UI.ViewModels
                 Device.SetOutput(Action.Channel, GameControllers.BUTTON_RELEASED);
             }
         }
+
         private async Task SelectChannelOutputTypeAsync()
         {
             // do filtering based on device capabilities
@@ -347,12 +355,12 @@ namespace BrickController2.UI.ViewModels
 
                 if (newChannelType == ChannelOutputType.ServoMotor)
                 {
-                    // prepare servo for calibration/reset (no proutput processing)
+                    // prepare servo for calibration/reset (no output processing)
                     await EnforceDisabledChannelOutputProcessing();
                 }
                 else if (newChannelType == ChannelOutputType.StepperMotor)
                 {
-                    // prepare stepper for testing (requires processing enabled
+                    // prepare stepper for testing (requires output processing enabled
                     await EnforceEnabledChannelOutputProcessing();
                 }
             }

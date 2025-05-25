@@ -69,7 +69,8 @@
 
                                 <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
                                 <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold" IsVisible="{Binding IsChannelTest, Converter={StaticResource InverseBool}, Mode=OneTime}"/>
-                                <Button Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" Command="{Binding SelectChannelOutputTypeCommand}" Style="{StaticResource PickerButtonStyle}" IsVisible="{Binding IsChannelTest, Mode=OneTime}"/>
+                                <Button Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" Command="{Binding SelectChannelOutputTypeCommand}"
+                                        Style="{StaticResource PickerButtonStyle}" HorizontalOptions="Start" MaximumWidthRequest="360" IsVisible="{Binding IsChannelTest, Mode=OneTime}"/>
                             </Grid>
                         </Grid>
 

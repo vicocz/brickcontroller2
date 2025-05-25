@@ -55,6 +55,7 @@ namespace BrickController2.UI.ViewModels
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
             ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => CanResetChannelOutput);
             StepperTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: true));
+            ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
             SelectChannelOutputTypeCommand = new SafeCommand(SelectChannelOutputTypeAsync, () => IsChannelTest);
         }
 
@@ -84,6 +85,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand AutoCalibrateServoCommand { get; }
         public ICommand ResetServoBaseCommand { get; }
         public ICommand StepperTestCommand { get; }
+        public ICommand ServoTestCommand { get; }
         public ICommand SelectChannelOutputTypeCommand { get; }
 
         public override async void OnAppearing()

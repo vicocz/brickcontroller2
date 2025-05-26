@@ -57,6 +57,9 @@ namespace BrickController2.UI.ViewModels
             StepperTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: true));
             ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
             SelectChannelOutputTypeCommand = new SafeCommand(SelectChannelOutputTypeAsync, () => IsChannelTest);
+            ResetMaxServoAngleCommand = new SafeCommand(() => MaxServoAngle = 90);
+            ResetServoBaseAngleCommand = new SafeCommand(() => ServoBaseAngle = 0);
+            ResetStepperAngleCommand = new SafeCommand(() => StepperAngle = 90);
         }
 
         public Device Device { get; }
@@ -87,6 +90,9 @@ namespace BrickController2.UI.ViewModels
         public ICommand StepperTestCommand { get; }
         public ICommand ServoTestCommand { get; }
         public ICommand SelectChannelOutputTypeCommand { get; }
+        public ICommand ResetStepperAngleCommand { get; }
+        public ICommand ResetMaxServoAngleCommand { get; }
+        public ICommand ResetServoBaseAngleCommand { get; }
 
         public override async void OnAppearing()
         {
@@ -314,8 +320,9 @@ namespace BrickController2.UI.ViewModels
             // disconnect 
             await Device.DisconnectAsync();
 
-            // await reconnection
-            while (!DisappearingToken.IsCancellationRequested && Device.DeviceState != DeviceState.Connected)
+            // await reconnection (and closing of dialog if any)
+            while (!DisappearingToken.IsCancellationRequested &&
+                (Device.DeviceState != DeviceState.Connected || _dialogService.IsDialogOpen))
             {
                 await Task.Delay(100, DisappearingToken);
             }
@@ -355,16 +362,8 @@ namespace BrickController2.UI.ViewModels
                 // update prerequsities for servo/stepper testing
                 UpdateChannelConfig();
 
-                if (newChannelType == ChannelOutputType.ServoMotor)
-                {
-                    // prepare servo for calibration/reset (no output processing)
-                    await EnforceDisabledChannelOutputProcessing();
-                }
-                else if (newChannelType == ChannelOutputType.StepperMotor)
-                {
-                    // prepare stepper for testing (requires output processing enabled
-                    await EnforceEnabledChannelOutputProcessing();
-                }
+                // by default enable output processing for testing servo/stepper motor
+                await EnforceEnabledChannelOutputProcessing(true);
             }
         }
     }

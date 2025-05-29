@@ -14,6 +14,9 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 public class BleDevice : IBluetoothLEDevice
 {
+    private const string AqsFilter = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+    private const string DeviceAddressPropertyKey = "System.Devices.Aep.DeviceAddress";
+    // Default timeout for finding a Bluetooth LE device if not present in Windows cache
     private static readonly TimeSpan DefaultDeviceFindTimeout = TimeSpan.FromSeconds(8);
 
     private readonly AsyncLock _lock = new();
@@ -324,19 +327,19 @@ public class BleDevice : IBluetoothLEDevice
         }
         // otherwise look via watcher using AQS filter for BLE devices
         var watcher = DeviceInformation.CreateWatcher(
-            "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")",
-            ["System.Devices.Aep.DeviceAddress"],
+            AqsFilter,
+            [DeviceAddressPropertyKey],
             DeviceInformationKind.AssociationEndpoint);
 
         var findDeviceIdSource = new TaskCompletionSource<string>();
         watcher.Added += (DeviceWatcher sender, DeviceInformation info) =>
         {
             // Check if the device matches the address
-            if (info.Properties.TryGetValue("System.Devices.Aep.DeviceAddress", out var value))
+            if (info.Properties.TryGetValue(DeviceAddressPropertyKey, out var value))
             {
                 if (value is string deviceAddress && deviceAddress.Equals(address, StringComparison.OrdinalIgnoreCase))
                 {
-                    findDeviceIdSource.SetResult(info.Id); // Found the device
+                    findDeviceIdSource.TrySetResult(info.Id); // Found the device
                 }
             }
         };

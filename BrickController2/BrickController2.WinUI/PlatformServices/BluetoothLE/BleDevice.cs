@@ -331,7 +331,7 @@ public class BleDevice : IBluetoothLEDevice
             [DeviceAddressPropertyKey],
             DeviceInformationKind.AssociationEndpoint);
 
-        var findDeviceIdSource = new TaskCompletionSource<string>();
+        var findDeviceIdSource = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
         watcher.Added += (DeviceWatcher sender, DeviceInformation info) =>
         {
             // Check if the device matches the address
@@ -344,10 +344,16 @@ public class BleDevice : IBluetoothLEDevice
             }
         };
 
-        watcher.Start();
-        // Wait for the watcher to find the device or timeout
-        await Task.WhenAny(findDeviceIdSource.Task, Task.Delay(timeout, token));
-        watcher.Stop();
+        try
+        {
+            watcher.Start();
+            // Wait for the watcher to find the device or timeout
+            await Task.WhenAny(findDeviceIdSource.Task, Task.Delay(timeout, token));
+        }
+        finally
+        {
+            watcher.Stop();
+        }
 
         if (findDeviceIdSource.Task.IsCompletedSuccessfully)
         {

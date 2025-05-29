@@ -18,7 +18,7 @@ public class BleService : IBluetoothLEService
     public async Task<bool> IsBluetoothLESupportedAsync()
     {
         var adapter = await BluetoothAdapter.GetDefaultAsync();
-        return adapter.IsLowEnergySupported;
+        return adapter != null && adapter.IsLowEnergySupported;
     }
 
     public Task<bool> IsBluetoothLEAdvertisingSupportedAsync()
@@ -32,8 +32,12 @@ public class BleService : IBluetoothLEService
     public async Task<bool> IsBluetoothOnAsync()
     {
         var adapter = await BluetoothAdapter.GetDefaultAsync();
+        if (adapter == null)
+        {
+            return false; // No Bluetooth adapter found
+        }
         var radio = await adapter.GetRadioAsync();
-        return radio.State == RadioState.On;
+        return radio != null && radio.State == RadioState.On;
     }
 
     public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)

@@ -321,34 +321,34 @@ public class BleDevice : IBluetoothLEDevice
             {
                 return device;
             }
-            // otherwise look via watcher using AQS filter for BLE devices
-            var watcher = DeviceInformation.CreateWatcher(
-                "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")",
-                ["System.Devices.Aep.DeviceAddress"],
-                DeviceInformationKind.AssociationEndpoint);
+        }
+        // otherwise look via watcher using AQS filter for BLE devices
+        var watcher = DeviceInformation.CreateWatcher(
+            "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")",
+            ["System.Devices.Aep.DeviceAddress"],
+            DeviceInformationKind.AssociationEndpoint);
 
-            var findDeviceSource = new TaskCompletionSource<string>();
-            watcher.Added += (DeviceWatcher sender, DeviceInformation info) =>
+        var findDeviceIdSource = new TaskCompletionSource<string>();
+        watcher.Added += (DeviceWatcher sender, DeviceInformation info) =>
+        {
+            // Check if the device matches the address
+            if (info.Properties.TryGetValue("System.Devices.Aep.DeviceAddress", out var value))
             {
-                // Check if the device matches the address
-                if (info.Properties.TryGetValue("System.Devices.Aep.DeviceAddress", out var value))
+                if (value is string deviceAddress && deviceAddress.Equals(address, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (value is string deviceAddress && deviceAddress.Equals(address, StringComparison.OrdinalIgnoreCase))
-                    {
-                        findDeviceSource.SetResult(info.Id); // Found the device
-                    }
+                    findDeviceIdSource.SetResult(info.Id); // Found the device
                 }
-            };
-
-            watcher.Start();
-            // Wait for the watcher to find the device or timeout
-            await Task.WhenAny(findDeviceSource.Task, Task.Delay(timeout, token));
-            watcher.Stop();
-
-            if (findDeviceSource.Task.IsCompletedSuccessfully)
-            {
-                return await BluetoothLEDevice.FromIdAsync(findDeviceSource.Task.Result);
             }
+        };
+
+        watcher.Start();
+        // Wait for the watcher to find the device or timeout
+        await Task.WhenAny(findDeviceIdSource.Task, Task.Delay(timeout, token));
+        watcher.Stop();
+
+        if (findDeviceIdSource.Task.IsCompletedSuccessfully)
+        {
+            return await BluetoothLEDevice.FromIdAsync(findDeviceIdSource.Task.Result);
         }
         return null;
     }

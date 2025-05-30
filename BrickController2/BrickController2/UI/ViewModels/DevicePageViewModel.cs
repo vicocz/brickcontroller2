@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
+using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
 using BrickController2.UI.Commands;
@@ -12,7 +13,7 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
-using BrickController2.CreationManagement;
+using static BrickController2.CreationManagement.ControllerDefaults;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -394,9 +395,9 @@ namespace BrickController2.UI.ViewModels
                 {
                     DeviceId = Device.Id,
                     Channel = Channel,
-                    MaxServoAngle = 90,
-                    ServoBaseAngle = 0,
-                    StepperAngle = 90,
+                    MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE,
+                    ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE,
+                    StepperAngle = DEFAULT_STEPPER_ANGLE,
                     // choose first supported output type
                     ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) 
                         ? ChannelOutputType.ServoMotor

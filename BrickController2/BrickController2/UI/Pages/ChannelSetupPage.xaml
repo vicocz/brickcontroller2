@@ -59,16 +59,16 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <Label Grid.Column="0" Grid.Row="0" Text="{extensions:Translate DeviceName}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="0" Text="{extensions:Translate DeviceName}" FontSize="Small" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Grid.Row="0" Text="{Binding Device.Name}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Grid.Row="1" Text="{Binding Device.DeviceType}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Channel}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Channel}" FontSize="Small" VerticalOptions="Center"/>
                                 <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold" IsVisible="{Binding IsChannelTest, Converter={StaticResource InverseBool}, Mode=OneTime}"/>
                                 <Button Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" Command="{Binding SelectChannelOutputTypeCommand}"
                                         Style="{StaticResource PickerButtonStyle}" HorizontalOptions="Start" MaximumWidthRequest="360" IsVisible="{Binding IsChannelTest, Mode=OneTime}"/>
@@ -103,12 +103,12 @@
                                 <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="settings_backup_restore" ToolTipProperties.Text="{extensions:Translate Reset}"
                                                                Command="{Binding ResetMaxServoAngleCommand}" Margin="10,0,0,0" VerticalOptions="Center"/>
                             </StackLayout>
-                            <Grid ColumnDefinitions="*,*,*,*,*" ColumnSpacing="{OnIdiom 10, Desktop=25}" >
-                                <Button Grid.Column="0" Text="-100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-1.0"/>
+                            <Grid ColumnDefinitions="3*,3*,2*,3*,3*" ColumnSpacing="{OnIdiom 8, Desktop=25}" >
+                                <Button Grid.Column="0" Text="-100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-1.0" Padding="0"/>
                                 <Button Grid.Column="1" Text="-50%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-0.5"/>
-                                <Button Grid.Column="2" Text="0%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.0"/>
+                                <Button Grid.Column="2" Text="0%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.0" Padding="0"/>
                                 <Button Grid.Column="3" Text="50%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.5"/>
-                                <Button Grid.Column="4" Text="100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="1.0"/>
+                                <Button Grid.Column="4" Text="100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="1.0" Padding="0"/>
                             </Grid>
                         </VerticalStackLayout>
 

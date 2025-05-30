@@ -12,6 +12,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using static BrickController2.CreationManagement.ControllerDefaults;
+
 namespace BrickController2.UI.ViewModels
 {
     public class ChannelSetupPageViewModel : PageViewModelBase
@@ -57,9 +59,9 @@ namespace BrickController2.UI.ViewModels
             StepperTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: true));
             ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
             SelectChannelOutputTypeCommand = new SafeCommand(SelectChannelOutputTypeAsync, () => IsChannelTest);
-            ResetMaxServoAngleCommand = new SafeCommand(() => MaxServoAngle = 90);
-            ResetServoBaseAngleCommand = new SafeCommand(() => ServoBaseAngle = 0);
-            ResetStepperAngleCommand = new SafeCommand(() => StepperAngle = 90);
+            ResetMaxServoAngleCommand = new SafeCommand(() => MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE, () => MaxServoAngle != DEFAULT_MAX_SERVO_ANGLE);
+            ResetServoBaseAngleCommand = new SafeCommand(() => ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE, () => ServoBaseAngle != DEFAULT_SERVO_BASE_ANGLE);
+            ResetStepperAngleCommand = new SafeCommand(() => StepperAngle = DEFAULT_STEPPER_ANGLE, () => StepperAngle != DEFAULT_STEPPER_ANGLE);
         }
 
         public Device Device { get; }
@@ -71,17 +73,17 @@ namespace BrickController2.UI.ViewModels
         public int ServoBaseAngle
         {
             get { return _servoBaseAngle; }
-            set { _servoBaseAngle = value; RaisePropertyChanged(); }
+            set { _servoBaseAngle = value; RaisePropertyChanged(); ResetServoBaseAngleCommand.RaiseCanExecuteChanged(); }
         }
         public int MaxServoAngle
         {
             get { return _maxServoAngle; }
-            set { _maxServoAngle = value; RaisePropertyChanged(); }
+            set { _maxServoAngle = value; RaisePropertyChanged(); ResetMaxServoAngleCommand.RaiseCanExecuteChanged(); }
         }
         public int StepperAngle
         {
             get { return _stepperAngle; }
-            set { _stepperAngle = value; RaisePropertyChanged(); }
+            set { _stepperAngle = value; RaisePropertyChanged(); ResetStepperAngleCommand.RaiseCanExecuteChanged(); }
         }
 
         public ICommand SaveChannelSettingsCommand { get; }

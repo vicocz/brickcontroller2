@@ -5,7 +5,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 ## Supported platforms
 
 - Android 5.0+
-- iOS 11+
+- iOS 12.2+
 - Windows 10 (experimental)
 
 ## Supported receivers
@@ -19,7 +19,14 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Lego Boost Hub
 - Lego Technic Hub
 - Lego WeDo 2.0 Smart Hub
+- Lego Technic Move Hub (PLAYVM mode)
+- Lego Duplo Train Hub
 - Circuit Cubes
+- Mould King DIY Module
+- Mould King 4.0 Powered Module
+- Mould King 6.0 Powered Module
+- CaDA Race Car (Android only)
+- PFx Brick (lights & Power Functions ports only)
 
 ## Project details
 

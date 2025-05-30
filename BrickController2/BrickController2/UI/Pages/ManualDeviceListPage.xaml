@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<local:PageBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:converters="clr-namespace:BrickController2.UI.Converters"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    x:Class="BrickController2.UI.Pages.ManualDeviceListPage"
+    x:Name="Page"
+    Title="{extensions:Translate AddDevicesManually}"
+    ios:Page.UseSafeArea="True"
+    BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <local:PageBase.Resources>
+        <ResourceDictionary>
+            <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
+            <converters:DeviceTypeToGroupNameConverter x:Key="DeviceTypeToGroupName" />
+        </ResourceDictionary>
+    </local:PageBase.Resources>
+
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding ApplyChangesCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <local:PageBase.Content>
+        <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
+
+                <!-- Device list -->
+                <CollectionView ItemsSource="{Binding GroupedFactoryDatas}" IsGrouped="True">
+                    <CollectionView.GroupHeaderTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout>
+                                <Grid Style="{StaticResource CollectionItemGridStyle}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
+                                    <VerticalStackLayout Grid.Column="1">
+                                        <Label Text="{Binding DeviceType, Converter={StaticResource DeviceTypeToGroupName}}" FontSize="Large" FontAttributes="Bold"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.GroupHeaderTemplate>
+                    <CollectionView.GroupFooterTemplate>
+                        <DataTemplate>
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
+                        </DataTemplate>
+                    </CollectionView.GroupFooterTemplate>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <VerticalStackLayout>
+                                <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="50"/>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Grid.Column="1" Text="{Binding DeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
+                                    <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>
+
+        </AbsoluteLayout>
+    </local:PageBase.Content>
+</local:PageBase>

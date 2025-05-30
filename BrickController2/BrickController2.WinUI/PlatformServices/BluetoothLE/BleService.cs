@@ -3,52 +3,46 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Radios;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 public class BleService : IBluetoothLEService
 {
-    [Flags]
-    private enum BluetoothStatus
-    {
-        None = 0x00,
-        ClassicSupported = 0x01,
-        LowEnergySupported = 0x02,
-
-        AllFeatures = ClassicSupported | LowEnergySupported
-    }
-
     private bool _isScanning;
 
     public BleService()
     {
     }
 
-    public bool IsBluetoothLESupported => CurrentBluetoothStatus.HasFlag(BluetoothStatus.LowEnergySupported);
-    public bool IsBluetoothOn => CurrentBluetoothStatus.HasFlag(BluetoothStatus.ClassicSupported);
-
-    private BluetoothStatus CurrentBluetoothStatus
+    public async Task<bool> IsBluetoothLESupportedAsync()
     {
-        get
-        {
-            // synchroniously wait
-            var adapterTask = GetBluetoothAdapter();
-            adapterTask.Wait(1000);
-
-            BluetoothStatus status = (adapterTask.Result?.IsClassicSupported ?? false) ? BluetoothStatus.ClassicSupported : BluetoothStatus.None;
-            status |= (adapterTask.Result?.IsLowEnergySupported ?? false) ? BluetoothStatus.LowEnergySupported : BluetoothStatus.None;
-
-            return status;
-        }
+        var adapter = await BluetoothAdapter.GetDefaultAsync();
+        return adapter != null && adapter.IsLowEnergySupported;
     }
 
-    private static async Task<BluetoothAdapter> GetBluetoothAdapter() => await BluetoothAdapter.GetDefaultAsync()
-        .AsTask()
-        .ConfigureAwait(false);
+    public Task<bool> IsBluetoothLEAdvertisingSupportedAsync()
+#if DEBUG
+        // JK: to allow development on windows this is enabled
+        => Task.FromResult(true);
+#else
+        => Task.FromResult(false); // Not supported yet - has to be implemented
+#endif
+ 
+    public async Task<bool> IsBluetoothOnAsync()
+    {
+        var adapter = await BluetoothAdapter.GetDefaultAsync();
+        if (adapter == null)
+        {
+            return false; // No Bluetooth adapter found
+        }
+        var radio = await adapter.GetRadioAsync();
+        return radio != null && radio.State == RadioState.On;
+    }
 
     public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
     {
-        if (_isScanning || CurrentBluetoothStatus != BluetoothStatus.AllFeatures)
+        if (_isScanning || await IsBluetoothOnAsync() == false || await IsBluetoothLESupportedAsync() == false)
         {
             return false;
         }
@@ -68,9 +62,9 @@ public class BleService : IBluetoothLEService
         }
     }
 
-    public IBluetoothLEDevice? GetKnownDevice(string address)
+    public async Task<IBluetoothLEDevice?> GetKnownDeviceAsync(string address)
     {
-        if (!IsBluetoothLESupported)
+        if (!await IsBluetoothLESupportedAsync())
         {
             return null;
         }
@@ -99,5 +93,10 @@ public class BleService : IBluetoothLEService
         {
             return false;
         }
+    }
+
+    public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
+    {
+        return null; // Not supported yet - has to be implemented
     }
 }

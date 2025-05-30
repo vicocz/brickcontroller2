@@ -8,8 +8,11 @@ namespace BrickController2.UI.Controls
     public class DeviceChannelLabel : Label
     {
         private readonly static string[] _controlPlusChannelLetters = new[] { "A", "B", "C", "D" };
+        private readonly static string[] _technicMove = ["A", "B", "C", "1", "2", "3", "4", "5", "6"];
+        private readonly static string[] _pfxBricks = ["A", "B", "1", "2", "3", "4", "5", "6", "7", "8"];
         private readonly static string[] _circuitCubesChannelLetters = new[] { "A", "B", "C" };
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
+        private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
 
         public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
         public static BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
@@ -51,15 +54,25 @@ namespace BrickController2.UI.Controls
                 case DeviceType.PoweredUp:
                 case DeviceType.TechnicHub:
                 case DeviceType.WeDo2:
-                    Text = _controlPlusChannelLetters[Math.Min(Math.Max(Channel, 0), 3)];
+                    SetChannelText(_controlPlusChannelLetters);
+                    break;
+                case DeviceType.TechnicMove:
+                    if (Channel == TechnicMoveDevice.CHANNEL_VM)
+                        Text = "AB";
+                    else
+                        SetChannelText(_technicMove);
+                    break;
+
+                case DeviceType.PfxBrick:
+                    SetChannelText(_pfxBricks);
                     break;
 
                 case DeviceType.CircuitCubes:
-                    Text = _circuitCubesChannelLetters[Math.Min(Math.Max(Channel, 0), 2)];
+                    SetChannelText(_circuitCubesChannelLetters);
                     break;
 
                 case DeviceType.BuWizz3:
-                    Text = _buwizz3ChannelLetters[Math.Min(Math.Max(Channel, 0), 6)];
+                    SetChannelText(_buwizz3ChannelLetters);
                     break;
 
                 case DeviceType.Infrared:
@@ -68,10 +81,19 @@ namespace BrickController2.UI.Controls
                         TranslationHelper.Translate("Red");
                     break;
 
+                case DeviceType.MK4:
+                case DeviceType.MK6:
+                case DeviceType.MK_DIY:
+                    SetChannelText(_mk6ChannelLetters);
+                    break;
+
                 default:
                     Text = $"{Channel + 1}";
                     break;
             }
         }
+
+        private void SetChannelText(string[] labels)
+            => Text = labels[Math.Min(Math.Max(Channel, 0), labels.Length - 1)];
     }
 }

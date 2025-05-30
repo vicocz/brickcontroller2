@@ -1,4 +1,5 @@
-﻿using BrickController2.Windows.PlatformServices.BluetoothLE;
+﻿using BrickController2.Windows.PlatformServices.DeviceManagement;
+using BrickController2.Windows.PlatformServices.BluetoothLE;
 using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Versioning;
 using BrickController2.Windows.PlatformServices.Localization;
@@ -6,6 +7,7 @@ using BrickController2.Windows.PlatformServices.GameController;
 using BrickController2.Windows.PlatformServices.SharedFileStorage;
 using BrickController2.Windows.PlatformServices.Permission;
 using Autofac;
+using BrickController2.DeviceManagement;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.PlatformServices.Versioning;
@@ -28,5 +30,6 @@ public class PlatformServicesModule : Module
         builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
         builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
         builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
+        builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
     }
 }

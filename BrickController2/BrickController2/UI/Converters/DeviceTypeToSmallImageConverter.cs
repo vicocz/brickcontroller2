@@ -44,6 +44,24 @@ namespace BrickController2.UI.Converters
                 case DeviceType.WeDo2:
                     return ResourceHelper.GetImageResource("wedo2hub_image_small.png");
 
+                case DeviceType.TechnicMove:
+                    return ResourceHelper.GetImageResource("technic_move_small.png");
+
+                case DeviceType.MK4:
+                    return ResourceHelper.GetImageResource("mk4_image_small.png");
+
+                case DeviceType.MK6:
+                    return ResourceHelper.GetImageResource("mk6_image_small.png");
+
+                case DeviceType.MK_DIY:
+                    return ResourceHelper.GetImageResource("mk_diy_image_small.png");
+
+                case DeviceType.CaDA_RaceCar:
+                    return ResourceHelper.GetImageResource("cada_racecar_image_small.png");
+
+                case DeviceType.PfxBrick:
+                    return ResourceHelper.GetImageResource("pfx_brick_image_small.png");
+
                 default:
                     return null;
             }

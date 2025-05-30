@@ -60,7 +60,7 @@ namespace BrickController2.UI.ViewModels
             ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
             SelectChannelOutputTypeCommand = new SafeCommand(SelectChannelOutputTypeAsync, () => IsChannelTest);
             ResetMaxServoAngleCommand = new SafeCommand(() => MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE, () => MaxServoAngle != DEFAULT_MAX_SERVO_ANGLE);
-            ResetServoBaseAngleCommand = new SafeCommand(() => ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE, () => ServoBaseAngle != DEFAULT_SERVO_BASE_ANGLE);
+            ResetServoBaseAngleCommand = new SafeCommand(() => ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE, () => ServoBaseAngle != DEFAULT_SERVO_BASE_ANGLE && CanResetChannelOutput);
             ResetStepperAngleCommand = new SafeCommand(() => StepperAngle = DEFAULT_STEPPER_ANGLE, () => StepperAngle != DEFAULT_STEPPER_ANGLE);
         }
 

@@ -43,7 +43,7 @@ namespace BrickController2.DeviceManagement
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
-                // motor if not PLAYVM for all channles, if PLAYVM only others than C channel
+                // motor if not PLAYVM for all channels, if PLAYVM only others than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
                 // servo only for PLAYVM and C channel
                 ChannelOutputType.ServoMotor => EnablePlayVmMode && channel == CHANNEL_C,
@@ -55,7 +55,7 @@ namespace BrickController2.DeviceManagement
         {
             // autodetect PLAYVM mode for A / B channels (as testing page should not be affected)
             _applyPlayVmMode = startOutputProcessing &&
-                channelConfigurations.Any(c => c.Channel == CHANNEL_VM);
+                channelConfigurations.Any(c => c.Channel == CHANNEL_VM || (c.Channel == CHANNEL_C && c.ChannelOutputType == ChannelOutputType.ServoMotor));
 
             // filter out non standard channels
             var filteredConfigurtions = channelConfigurations

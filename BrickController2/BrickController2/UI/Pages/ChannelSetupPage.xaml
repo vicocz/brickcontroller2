@@ -23,6 +23,7 @@
             <converters:InverseBoolConverter x:Key="InverseBool"/>
             <converters:StepperOutputTypeToVisibleConverter x:Key="StepperVisibility"/>
             <converters:ServoOutputTypeToVisibleConverter x:Key="ServoVisibility"/>
+            <converters:DeviceAndChannelOutputTypeToMaxServoAngleVisibleConverter x:Key="DeviceAndChannelOutputTypeToMaxServoAngleVisible"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -97,6 +98,13 @@
                         <VerticalStackLayout Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource ServoVisibility}}">
                             <Label Text="{extensions:Translate ServoAngle}" Margin="0, 0, 0, 5"/>
                             <StackLayout Orientation="Horizontal">
+                                <StackLayout.IsEnabled>
+                                    <MultiBinding Converter="{StaticResource DeviceAndChannelOutputTypeToMaxServoAngleVisible}">
+                                        <Binding Path="Device" />
+                                        <Binding Path="Action.ChannelOutputType" />
+                                        <Binding Path="Action.Channel" />
+                                    </MultiBinding>
+                                </StackLayout.IsEnabled>
                                 <controls:ExtendedSlider Value="{Binding MaxServoAngle}" Minimum="0" Maximum="180" Step="5"
                                                          HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray" VerticalOptions="Center"/>
                                 <Label Text="{Binding MaxServoAngle, Converter={StaticResource IntValueToDegreeString}}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End" VerticalOptions="Center"/>

@@ -342,6 +342,8 @@ namespace BrickController2.UI.ViewModels
             ScanCommand.RaiseCanExecuteChanged();
             ActivateShelfModeCommand.RaiseCanExecuteChanged();
             OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
+            // to ensure that servo/stepper commands are enabled / disabled properly
+            RaisePropertyChanged(nameof(IsServoOrStepperSupported));
         }
 
         private void SetBuWizzOutputLevel(int level)

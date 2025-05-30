@@ -8,11 +8,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 public class BleDevice : IBluetoothLEDevice
 {
+    private const string AqsFilter = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
+    private const string DeviceAddressPropertyKey = "System.Devices.Aep.DeviceAddress";
+    // Default timeout for finding a Bluetooth LE device if not present in Windows cache
+    private static readonly TimeSpan DefaultDeviceFindTimeout = TimeSpan.FromSeconds(8);
+
     private readonly AsyncLock _lock = new();
 
     private BluetoothLEDevice? _bluetoothDevice;
@@ -46,16 +52,17 @@ public class BleDevice : IBluetoothLEDevice
             }
         }))
         {
-            _services = await ConnectAsync(onCharacteristicChanged, onDeviceDisconnected);
+            _services = await ConnectAsync(onCharacteristicChanged, onDeviceDisconnected, token);
             return _services;
         }
     }
 
     private async Task<ICollection<BleGattService>?> ConnectAsync(
         Action<Guid, byte[]> onCharacteristicChanged,
-        Action<IBluetoothLEDevice> onDeviceDisconnected)
+        Action<IBluetoothLEDevice> onDeviceDisconnected,
+        CancellationToken token)
     {
-        using (await _lock.LockAsync())
+        using (await _lock.LockAsync(token))
         {
             if (State != BluetoothLEDeviceState.Disconnected)
             {
@@ -66,11 +73,8 @@ public class BleDevice : IBluetoothLEDevice
 
             State = BluetoothLEDeviceState.Connecting;
 
-            if (Address.TryParseBluetoothAddressString(out var bluetoothAddress))
-            {
-                _bluetoothDevice?.Dispose();
-                _bluetoothDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
-            }
+            _bluetoothDevice?.Dispose();
+            _bluetoothDevice = await FindDeviceAsync(Address, DefaultDeviceFindTimeout, token);
 
             if (_bluetoothDevice == null)
             {
@@ -308,5 +312,53 @@ public class BleDevice : IBluetoothLEDevice
         InternalDisconnect();
         _connectCompletionSource?.SetResult(null);
         return false;
+    }
+
+    private static async Task<BluetoothLEDevice?> FindDeviceAsync(string address, TimeSpan timeout, CancellationToken token)
+    {
+        if (address.TryParseBluetoothAddressString(out var bluetoothAddress))
+        {
+            // try Windows device cache first
+            var device = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
+            if (device != null)
+            {
+                return device;
+            }
+        }
+        // otherwise look via watcher using AQS filter for BLE devices
+        var watcher = DeviceInformation.CreateWatcher(
+            AqsFilter,
+            [DeviceAddressPropertyKey],
+            DeviceInformationKind.AssociationEndpoint);
+
+        var findDeviceIdSource = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        watcher.Added += (DeviceWatcher sender, DeviceInformation info) =>
+        {
+            // Check if the device matches the address
+            if (info.Properties.TryGetValue(DeviceAddressPropertyKey, out var value))
+            {
+                if (value is string deviceAddress && deviceAddress.Equals(address, StringComparison.OrdinalIgnoreCase))
+                {
+                    findDeviceIdSource.TrySetResult(info.Id); // Found the device
+                }
+            }
+        };
+
+        try
+        {
+            watcher.Start();
+            // Wait for the watcher to find the device or timeout
+            await Task.WhenAny(findDeviceIdSource.Task, Task.Delay(timeout, token));
+        }
+        finally
+        {
+            watcher.Stop();
+        }
+
+        if (findDeviceIdSource.Task.IsCompletedSuccessfully)
+        {
+            return await BluetoothLEDevice.FromIdAsync(findDeviceIdSource.Task.Result);
+        }
+        return null;
     }
 }

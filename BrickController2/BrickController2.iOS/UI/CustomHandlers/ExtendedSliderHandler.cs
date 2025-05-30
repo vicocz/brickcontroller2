@@ -27,6 +27,8 @@ namespace BrickController2.iOS.UI.CustomHandlers
             platformView.TouchDown += StartTrackingTouch;
             platformView.TouchUpInside += StopTrackingTouch;
             platformView.TouchUpOutside += StopTrackingTouch;
+
+            platformView.ValueChanged += OnControlValueChanged;
         }
 
         protected override void DisconnectHandler(UISlider platformView)
@@ -34,6 +36,8 @@ namespace BrickController2.iOS.UI.CustomHandlers
             platformView.TouchDown -= StartTrackingTouch;
             platformView.TouchUpInside -= StopTrackingTouch;
             platformView.TouchUpOutside -= StopTrackingTouch;
+
+            platformView.ValueChanged -= OnControlValueChanged;
 
             platformView.Dispose();
             base.DisconnectHandler(platformView);
@@ -47,6 +51,14 @@ namespace BrickController2.iOS.UI.CustomHandlers
         private void StopTrackingTouch(object? sender, EventArgs e)
         {
             Slider?.TouchUp();
+        }
+
+        void OnControlValueChanged(object? sender, EventArgs eventArgs)
+        {
+            if (sender is UISlider platformView)
+            {
+                Slider?.SetAndRoundNewValue(platformView.Value);
+            }
         }
     }
 }

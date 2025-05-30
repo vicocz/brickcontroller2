@@ -25,25 +25,25 @@ namespace BrickController2.DeviceManagement
             _bluetoothLEAdvertiserDeviceScanInfoList = bluetoothLEAdvertiserDeviceScanInfoList;
         }
 
-        public bool IsBluetoothLESupported => _bleService.IsBluetoothLESupported;
-        public bool IsBluetoothOn => _bleService.IsBluetoothOn;
+        public Task<bool> IsBluetoothOnAsync() => _bleService.IsBluetoothOnAsync();
 
         public async Task<bool> ScanAsync(Func<DeviceType, string, string, byte[]?, Task> deviceFoundCallback, CancellationToken token)
         {
             using (await _asyncLock.LockAsync())
             {
-                if (!IsBluetoothOn)
+                if (!await IsBluetoothOnAsync())
                 {
                     return true;
                 }
 
                 try
                 {
-                    var scanTaskList = new List<Task<bool>>();
-                    
-                    scanTaskList.Add(ScanDeviceAsync(deviceFoundCallback, token));
+                    var scanTaskList = new List<Task<bool>>
+                    {
+                        ScanDeviceAsync(deviceFoundCallback, token)
+                    };
 
-                    if (_bleService.IsBluetoothLEAdvertisingSupported)
+                    if (await _bleService.IsBluetoothLEAdvertisingSupportedAsync())
                     {
                         scanTaskList.Add(ScanAdvertisingDeviceAsync(token));
                     }

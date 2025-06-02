@@ -9,9 +9,9 @@ namespace BrickController2.Extensions;
 
 public static class ContainerBuilderExtensions
 {
-    public static void RegisterDeviceFactory(this ContainerBuilder builder, DeviceType deviceType, string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings)
+    public static void RegisterDeviceFactory(this ContainerBuilder builder, DeviceType deviceType, string name, string address, byte[]? deviceData = null, IEnumerable<NamedSetting>? settings = null)
     {
-        builder.Register(c => new DeviceFactoryData(deviceType, name, address, deviceData, settings)).As<IDeviceFactoryData>();
+        builder.Register(c => new DeviceFactoryData(deviceType, name, address, deviceData ?? [], settings ?? [])).As<IDeviceFactoryData>();
     }
 
     /// <summary>

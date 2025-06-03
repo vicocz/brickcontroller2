@@ -20,7 +20,12 @@ public class CaDADeviceManagerTests
         _preferencesService.Setup(x => x.ContainsKey("AppID", "CaDA")).Returns(true);
         _preferencesService.Setup(x => x.Get("AppID", "", "CaDA")).Returns("YWJj");
 
-        _cadaPlatformService.Setup(x => x.TryGetRfPayload(It.IsAny<byte[]>(), out It.Ref<byte[]>.IsAny)).Returns(true);
+        _cadaPlatformService.Setup(x => x.TryGetRfPayload(It.IsAny<byte[]>(), out It.Ref<byte[]>.IsAny))
+            .Callback((byte[] input, out byte[] rfPayload) =>
+            {
+                rfPayload = new byte[] { 0x61, 0x62, 0x63 }; // Example AppID bytes
+            })
+            .Returns(true);
 
         _manager = new CaDADeviceManager(_preferencesService.Object, _cadaPlatformService.Object);
     }

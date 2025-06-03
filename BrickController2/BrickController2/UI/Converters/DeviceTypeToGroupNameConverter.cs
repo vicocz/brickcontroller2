@@ -15,6 +15,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.MK4:
                     return "Mould King - MK 4.0";
 
+                case DeviceType.MK5:
+                    return "Mould King - MK 5.0";
+
                 case DeviceType.MK6:
                     return "Mould King - MK 6.0";
 

@@ -21,7 +21,7 @@ internal class MK5 : MKBaseNible
     /// <summary>
     /// Base Telegram
     /// </summary>
-    private static readonly byte[] Telegram_Base = [0x7d, 0x3f, 0x4d, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x82];
+    private static readonly byte[] Telegram_Base = [0x7d, 0x3f, 0x4d, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82];
 
     /// <summary>
     /// After this timespan and all channel's values equal to zero the connect telegram is sent

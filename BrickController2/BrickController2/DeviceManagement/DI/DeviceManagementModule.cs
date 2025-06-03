@@ -34,11 +34,13 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<Wedo2Device>().Keyed<Device>(DeviceType.WeDo2);
             builder.RegisterType<TechnicMoveDevice>().Keyed<Device>(DeviceType.TechnicMove);
             builder.RegisterType<MK4>().Keyed<Device>(DeviceType.MK4);
-            builder.RegisterType<MK5>().Keyed<Device>(DeviceType.MK5);
             builder.RegisterType<MK6>().Keyed<Device>(DeviceType.MK6);
             builder.RegisterType<MK_DIY>().Keyed<Device>(DeviceType.MK_DIY);
             builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
+
+            builder.RegisterDevice<MK5>(DeviceType.MK5)
+                .WithDeviceFactory("MK5.0", MK5.Device);
 
             builder.Register<DeviceFactory>(c =>
             {
@@ -53,7 +55,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceFactory(DeviceType.MK4, "MK4.0 Device 1", MK4.Device1, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK4, "MK4.0 Device 2", MK4.Device2, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK4, "MK4.0 Device 3", MK4.Device3, Array.Empty<byte>(), []);
-            builder.RegisterDeviceFactory(DeviceType.MK5, "MK5.0", MK5.Device);
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 1", MK6.Device1, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 2", MK6.Device2, Array.Empty<byte>(), []);
             builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>(), []);

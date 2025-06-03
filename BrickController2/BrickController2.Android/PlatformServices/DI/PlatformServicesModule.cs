@@ -32,6 +32,7 @@ namespace BrickController2.Droid.PlatformServices.DI
             builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
             builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
+            builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
         }
     }
 }

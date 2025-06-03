@@ -3,7 +3,7 @@ using BrickController2.Protocols;
 
 namespace BrickController2.Droid.PlatformServices.DeviceManagement;
 
-public class MKPlatformService : IMKPlatformService
+public class CaDAPlatformService : ICaDAPlatformService
 {
     private const int HeaderOffset = 15;
     private const int PayloadLength = 24;
@@ -11,13 +11,8 @@ public class MKPlatformService : IMKPlatformService
     public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
     {
         rfPayload = new byte[PayloadLength];
-        int payloadLength = CryptTools.GetRfPayload(MKProtocol.SeedArray, rawData, HeaderOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload);
 
-        // fill rest of array
-        for (int index = payloadLength; index < PayloadLength; index++)
-        {
-            rfPayload[index] = (byte)(index + 1);
-        }
+        int payloadLength = CryptTools.GetRfPayload(CaDAProtocol.SeedArray, rawData, HeaderOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload);
 
         return true;
     }

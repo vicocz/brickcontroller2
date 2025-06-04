@@ -223,36 +223,50 @@ namespace BrickController2.UI.ViewModels
 
         private async Task AutoCalibrateServoAsync()
         {
-            await EnforceDisabledChannelOutputProcessing();
-            await _dialogService.ShowProgressDialogAsync(
-                false,
-                async (progressDialog, token) =>
-                {
-                    var result = await Device.AutoCalibrateOutputAsync(Action.Channel, token);
-                    if (result.Success)
+            try
+            {
+                await EnforceDisabledChannelOutputProcessing();
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) =>
                     {
-                        ServoBaseAngle = (int)(result.BaseServoAngle * 180);
-                    }
-                },
-                Translate("Calibrating"),
-                null,
-                Translate("Cancel"),
-                DisappearingToken);
+                        var result = await Device.AutoCalibrateOutputAsync(Action.Channel, token);
+                        if (result.Success)
+                        {
+                            ServoBaseAngle = (int)(result.BaseServoAngle * 180);
+                        }
+                    },
+                    Translate("Calibrating"),
+                    null,
+                    Translate("Cancel"),
+                    DisappearingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
+            }
         }
 
         private async Task ResetServoBaseAngleAsync()
         {
-            await EnforceDisabledChannelOutputProcessing();
-            await _dialogService.ShowProgressDialogAsync(
-                false,
-                async (progressDialog, token) =>
-                {
-                    await Device.ResetOutputAsync(Action.Channel, ServoBaseAngle / 180F, token);
-                },
-                Translate("Reseting"),
-                null,
-                Translate("Cancel"),
-                DisappearingToken);
+            try
+            {
+                await EnforceDisabledChannelOutputProcessing();
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) =>
+                    {
+                        await Device.ResetOutputAsync(Action.Channel, ServoBaseAngle / 180F, token);
+                    },
+                    Translate("Reseting"),
+                    null,
+                    Translate("Cancel"),
+                    DisappearingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
+            }
         }
 
         private void UpdateChannelConfig()
@@ -288,7 +302,7 @@ namespace BrickController2.UI.ViewModels
                 // simulate triggering of servo/stepper button
                 await TestButtonAsync(value, reset).ConfigureAwait(false);
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException)
             {
                 // ignore cancellation
             }
@@ -326,7 +340,7 @@ namespace BrickController2.UI.ViewModels
             while (!DisappearingToken.IsCancellationRequested &&
                 (Device.DeviceState != DeviceState.Connected || _dialogService.IsDialogOpen))
             {
-                await Task.Delay(100, DisappearingToken);
+                await Task.Delay(50, DisappearingToken);
             }
         }
 
@@ -343,29 +357,36 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectChannelOutputTypeAsync()
         {
-            // do filtering based on device capabilities
-            var channelOutputTypes = new[] { ChannelOutputType.ServoMotor, ChannelOutputType.StepperMotor }
-                .Where(x => Device.IsOutputTypeSupported(Action.Channel, x))
-                .Select(x => Enum.GetName(x)!)
-                .ToArray();
-
-            var result = await _dialogService.ShowSelectionDialogAsync(
-                channelOutputTypes,
-                Translate("ChannelType"),
-                Translate("Cancel"),
-                DisappearingToken);
-
-            if (result.IsOk &&
-                Enum.TryParse<ChannelOutputType>(result.SelectedItem, out var newChannelType) &&
-                newChannelType != Action.ChannelOutputType)
+            try
             {
-                // update channel output type and trigger UI update
-                Action.ChannelOutputType = newChannelType;
-                // update prerequsities for servo/stepper testing
-                UpdateChannelConfig();
+                // do filtering based on device capabilities
+                var channelOutputTypes = new[] { ChannelOutputType.ServoMotor, ChannelOutputType.StepperMotor }
+                    .Where(x => Device.IsOutputTypeSupported(Action.Channel, x))
+                    .Select(x => Enum.GetName(x)!)
+                    .ToArray();
 
-                // by default enable output processing for testing servo/stepper motor
-                await EnforceEnabledChannelOutputProcessing(true);
+                var result = await _dialogService.ShowSelectionDialogAsync(
+                    channelOutputTypes,
+                    Translate("ChannelType"),
+                    Translate("Cancel"),
+                    DisappearingToken);
+
+                if (result.IsOk &&
+                    Enum.TryParse<ChannelOutputType>(result.SelectedItem, out var newChannelType) &&
+                    newChannelType != Action.ChannelOutputType)
+                {
+                    // update channel output type and trigger UI update
+                    Action.ChannelOutputType = newChannelType;
+                    // update prerequsities for servo/stepper testing
+                    UpdateChannelConfig();
+
+                    // by default enable output processing for testing servo/stepper motor
+                    await EnforceEnabledChannelOutputProcessing(true);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
             }
         }
     }

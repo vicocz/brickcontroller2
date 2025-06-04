@@ -43,7 +43,7 @@ namespace BrickController2.DeviceManagement
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
-                // motor if not PLAYVM for all channels, if PLAYVM only others than C channel
+                // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
                 // servo only for PLAYVM and C channel
                 ChannelOutputType.ServoMotor => EnablePlayVmMode && channel == CHANNEL_C,

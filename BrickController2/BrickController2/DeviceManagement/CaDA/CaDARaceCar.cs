@@ -123,9 +123,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
         _controlDataArray[0] = 0x75; // 0x75 (117)
         _controlDataArray[1] = 0x13; // 0x13 (19);
 
-        _cadaPlatformService.TryGetRfPayload(_controlDataArray, out currentData);
-
-        return true;
+        return _cadaPlatformService.TryGetRfPayload(_controlDataArray, out currentData);
     }
 
     /// <summary>

@@ -53,22 +53,22 @@ public static class CryptTools
         // invert bytes of initValues and seed-array in resultBuffer
         for (int index = 0; index < initValuesLength + seedLength; index++)
         {
-            resultBuffer[headerOffset + index] = CryptTools.Invert8(resultBuffer[headerOffset + index]);
+            resultBuffer[headerOffset + index] = Invert8(resultBuffer[headerOffset + index]);
         }
 
         // copy dataArray into resultBuffer after initValues and seed-array
         Buffer.BlockCopy(data, 0, resultBuffer, dataOffset, dataLength);
 
-        ushort checksum = CryptTools.CheckCRC16(seed, data);
+        ushort checksum = CheckCRC16(seed, data);
         resultBuffer.SetUInt16(checksum, checksumOffset);
 
         byte[] ctxArray1 = new byte[7];
-        CryptTools.WhiteningInit(ctxValue1, ctxArray1); // 0x3f (63): 1111111
-        CryptTools.WhiteningEncode(resultBuffer, seedOffset, seedLength + dataLength + checksumLength, ctxArray1);
+        WhiteningInit(ctxValue1, ctxArray1); // 0x3f (63): 1111111
+        WhiteningEncode(resultBuffer, seedOffset, seedLength + dataLength + checksumLength, ctxArray1);
 
         byte[] ctxArray2 = new byte[7];
-        CryptTools.WhiteningInit(ctxValue2, ctxArray2); // 0x26 (38): 1101110
-        CryptTools.WhiteningEncode(resultBuffer, 0, resultBufferLength, ctxArray2);
+        WhiteningInit(ctxValue2, ctxArray2); // 0x26 (38): 1101110
+        WhiteningEncode(resultBuffer, 0, resultBufferLength, ctxArray2);
 
         Buffer.BlockCopy(resultBuffer, headerOffset, rfPayload, 0, resultArrayLength);
 

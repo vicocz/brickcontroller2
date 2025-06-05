@@ -1,4 +1,4 @@
-﻿namespace BrickController2.DeviceManagement;
+﻿namespace BrickController2.DeviceManagement.CaDA;
 
 /// <summary>
 /// Interface definition for CaDA specific PlatformService

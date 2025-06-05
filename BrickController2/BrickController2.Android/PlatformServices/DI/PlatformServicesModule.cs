@@ -1,7 +1,9 @@
 ﻿using Autofac;
-using BrickController2.DeviceManagement;
-using BrickController2.Droid.PlatformServices.DeviceManagement;
+using BrickController2.DeviceManagement.CaDA;
+using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.Droid.PlatformServices.BluetoothLE;
+using BrickController2.Droid.PlatformServices.DeviceManagement.CaDA;
+using BrickController2.Droid.PlatformServices.DeviceManagement.MouldKing;
 using BrickController2.Droid.PlatformServices.GameController;
 using BrickController2.Droid.PlatformServices.Infrared;
 using BrickController2.Droid.PlatformServices.Localization;

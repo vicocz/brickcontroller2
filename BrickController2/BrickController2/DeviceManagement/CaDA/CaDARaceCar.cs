@@ -2,7 +2,7 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 
-namespace BrickController2.DeviceManagement;
+namespace BrickController2.DeviceManagement.CaDA;
 
 /// <summary>
 /// CaDA RaceCar

@@ -1,7 +1,7 @@
-﻿using BrickController2.DeviceManagement;
+﻿using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.Protocols;
 
-namespace BrickController2.Windows.PlatformServices.DeviceManagement;
+namespace BrickController2.Windows.PlatformServices.DeviceManagement.MouldKing;
 
 public class MKPlatformService : IMKPlatformService
 {

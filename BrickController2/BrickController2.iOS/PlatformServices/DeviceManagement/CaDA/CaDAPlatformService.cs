@@ -1,7 +1,7 @@
-﻿using BrickController2.DeviceManagement;
+﻿using BrickController2.DeviceManagement.CaDA;
 using BrickController2.Protocols;
 
-namespace BrickController2.iOS.PlatformServices.DeviceManagement;
+namespace BrickController2.iOS.PlatformServices.DeviceManagement.CaDA;
 
 public class CaDAPlatformService : ICaDAPlatformService
 {

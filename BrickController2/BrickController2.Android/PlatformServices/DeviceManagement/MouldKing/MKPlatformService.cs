@@ -1,9 +1,9 @@
-﻿using BrickController2.DeviceManagement;
+﻿using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.Protocols;
 
-namespace BrickController2.Droid.PlatformServices.DeviceManagement;
+namespace BrickController2.Droid.PlatformServices.DeviceManagement.MouldKing;
 
-public class MKPlatformService : IMKPlatformService
+public class MKPlatformService : IMKPlatformService 
 {
     private const int HeaderOffset = 15;
     private const int PayloadLength = 24;

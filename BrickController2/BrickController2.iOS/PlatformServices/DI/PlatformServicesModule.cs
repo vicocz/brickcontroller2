@@ -1,7 +1,9 @@
 ﻿using Autofac;
-using BrickController2.DeviceManagement;
-using BrickController2.iOS.PlatformServices.DeviceManagement;
+using BrickController2.DeviceManagement.CaDA;
+using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.iOS.PlatformServices.BluetoothLE;
+using BrickController2.iOS.PlatformServices.DeviceManagement.MouldKing;
+using BrickController2.iOS.PlatformServices.DeviceManagement.CaDA;
 using BrickController2.iOS.PlatformServices.GameController;
 using BrickController2.iOS.PlatformServices.Infrared;
 using BrickController2.iOS.PlatformServices.Localization;

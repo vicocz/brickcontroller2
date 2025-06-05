@@ -43,16 +43,16 @@ jobs:
     - name: Install MAUI workload
       run: dotnet workload install maui
 
-    - name: Import Code-Signing Certificates
-      uses: Apple-Actions/import-codesign-certs@v1
-      with:
-        p12-filepath: 'AppleSigningCertificate.p12'
-        p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+    # - name: Import Code-Signing Certificates
+    #   uses: Apple-Actions/import-codesign-certs@v1
+    #   with:
+    #     p12-filepath: 'AppleSigningCertificate.p12'
+    #     p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
 
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v1
       with:
-        bundle-id: 'com.scn.BrickController2'
+        bundle-id: 'com.scn.brickcontroller2-legacy'
         issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
@@ -65,11 +65,11 @@ jobs:
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/
 
-    - name: Upload app to TestFlight
-      uses: Apple-Actions/upload-testflight-build@v1
-      with:
-        app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/BrickController2.ipa'
-        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
-        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+    # - name: Upload app to TestFlight
+    #   uses: Apple-Actions/upload-testflight-build@v1
+    #   with:
+    #     app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/BrickController2.ipa'
+    #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+    #     api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+    #     api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 

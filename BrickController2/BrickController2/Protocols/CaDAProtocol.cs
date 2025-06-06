@@ -18,13 +18,23 @@ public static class CaDAProtocol
     public const byte CTXValue2 = 0x26;
 
     /// <summary>
-    /// AddressArray
+    /// SeedArray
     /// </summary>
     public static readonly byte[] SeedArray =
     {
         67, // 0x43
         65, // 0x41
         82, // 0x52
+    };
+
+    /// <summary>
+    /// HeaderArray
+    /// </summary>
+    public static readonly byte[] HeaderArray =
+    {
+        0x71,   // 0x71 (113)
+        0x0f,   // 0x0f (15)
+        0x55,   // 0x55 (85)
     };
 
     /// <summary>

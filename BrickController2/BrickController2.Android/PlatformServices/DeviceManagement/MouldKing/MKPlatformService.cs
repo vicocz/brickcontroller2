@@ -11,7 +11,7 @@ public class MKPlatformService : IMKPlatformService
     public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
     {
         rfPayload = new byte[PayloadLength];
-        int payloadLength = CryptTools.GetRfPayload(MKProtocol.SeedArray, rawData, HeaderOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload);
+        int payloadLength = CryptTools.GetRfPayload(MKProtocol.SeedArray, MKProtocol.HeaderArray, rawData, HeaderOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload);
 
         // fill rest of array
         for (int index = payloadLength; index < PayloadLength; index++)

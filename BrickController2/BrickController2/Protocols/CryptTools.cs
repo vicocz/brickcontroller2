@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using BrickController2.Helpers;
 
 namespace BrickController2.Protocols;
@@ -27,8 +28,8 @@ public static class CryptTools
         int headerLength = header.Length;
         int dataLength = data.Length;
 
-        int resultArrayLength = headerLength + seedLength + dataLength + checksumLength;
-        if (resultArrayLength > rfPayload.Length - rfPayloadOffset)
+        int resultArrayLength = initValuesLength + seedLength + dataLength + checksumLength;
+        if (resultArrayLength > rfPayload.Length)
         {
             return 0;
         }

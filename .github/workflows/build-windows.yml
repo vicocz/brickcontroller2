@@ -41,7 +41,8 @@ jobs:
         dotnet-version: 9.0.x
             
     - name: Restore Dependencies
-      run: dotnet restore BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj
+      run: dotnet restore BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -r win-x64
+
     - name: Build
       run: dotnet build BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win-x64 -f:net9.0-windows10.0.19041.0 --no-restore
 

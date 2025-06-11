@@ -80,7 +80,7 @@ namespace BrickController2.DeviceManagement.MouldKing
         /// <summary>
         /// Gets the nibble value that represents zero in the current encoding scheme.
         /// </summary>
-        protected override byte ZeroValueNibble => 0x00;
+        protected override byte ZeroValueNibble => 0x08;
 
         /// <summary>
         /// Gets the offset for positive values

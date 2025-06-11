@@ -6,7 +6,7 @@ namespace BrickController2.DeviceManagement.MouldKing;
 /// <summary>
 /// MK baseclass for devices with a nibble per channel
 /// </summary>
-internal abstract class MKBaseNible : BluetoothAdvertisingDevice
+internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
 {
     /// <summary>
     /// Channel types
@@ -50,7 +50,7 @@ internal abstract class MKBaseNible : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly byte _zeroValueByte;
 
-    protected MKBaseNible(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
+    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _channelStartOffset = channelStartOffset;

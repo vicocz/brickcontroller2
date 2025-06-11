@@ -7,7 +7,7 @@ namespace BrickController2.DeviceManagement.MouldKing
     /// <summary>
     /// MK 4.0 Module
     /// </summary>
-    internal class MK4 : MKBaseNible
+    internal class MK4 : MKBaseNibble
     {
         public const string Device1 = "Device1";
         public const string Device2 = "Device2";

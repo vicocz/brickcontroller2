@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui;
 using BrickController2.PlatformServices.Localization;
+using System;
 
 namespace BrickController2.Helpers
 {
@@ -8,7 +9,7 @@ namespace BrickController2.Helpers
     {
         private static ILocalizationService? _localizationService = null;
 
-        public static string Translate(string key)
+        public static string Translate(string? key)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -23,5 +24,8 @@ namespace BrickController2.Helpers
             var translation = ResourceHelper.TranslationResourceManager.GetString(key, _localizationService.CurrentCultureInfo);
             return translation ?? key;
         }
+
+        public static string Translate<TEnum>(TEnum key) where TEnum : struct, Enum
+            => Translate(Enum.GetName(key));
     }
 }

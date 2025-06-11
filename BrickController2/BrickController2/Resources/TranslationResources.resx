@@ -714,4 +714,22 @@
   <data name="TestDeviceChannel" xml:space="preserve">
     <value>Test the channel</value>
   </data>
+  <data name="MouldKing" xml:space="preserve">
+    <value>Mould King</value>
+  </data>
+  <data name="MK4" xml:space="preserve">
+    <value>MK 4.0</value>
+  </data>
+  <data name="MK6" xml:space="preserve">
+    <value>MK 6.0</value>
+  </data>
+  <data name="Device1" xml:space="preserve">
+    <value>Device 1</value>
+  </data>
+  <data name="Device2" xml:space="preserve">
+    <value>Device 2</value>
+  </data>
+  <data name="Device3" xml:space="preserve">
+    <value>Device 3</value>
+  </data>
 </root>

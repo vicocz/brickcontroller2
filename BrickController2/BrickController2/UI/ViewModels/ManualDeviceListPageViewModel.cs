@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BrickController2.DeviceManagement;
-using BrickController2.Helpers;
+using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
-using ZXing.QrCode.Internal;
 using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.ViewModels
@@ -33,10 +31,12 @@ namespace BrickController2.UI.ViewModels
         public class DeviceGroup : List<DeviceEntry>
         {
             public DeviceType DeviceType { get; }
+            public DeviceVendor DeviceVendor { get; }
 
             public DeviceGroup(DeviceType deviceType, List<DeviceEntry> deviceEntry) : base(deviceEntry)
             {
                 DeviceType = deviceType;
+                DeviceVendor = deviceType.GetVendor();
             }
         }
 
@@ -57,7 +57,10 @@ namespace BrickController2.UI.ViewModels
             var groups = manualDeviceManager.FactoryDataList
                 .GroupBy(o => o.DeviceType, x => new DeviceEntry(x, GetDeviceInstance(x)));
 
-            GroupedFactoryDatas.AddRange(groups.Select(item => new DeviceGroup(item.Key, item.ToList())));
+            GroupedFactoryDatas.AddRange(groups
+                .Select(item => new DeviceGroup(item.Key, [.. item]))
+                .OrderBy(x => x.DeviceVendor)
+                .ThenBy(x => x.DeviceType));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }

@@ -1,12 +1,10 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using BrickController2.DeviceManagement.BuWizz;
 using BrickController2.DeviceManagement.CaDA;
 using BrickController2.DeviceManagement.Lego;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
 
 namespace BrickController2.DeviceManagement.DI
 {
@@ -49,12 +47,16 @@ namespace BrickController2.DeviceManagement.DI
                     new NamedParameter("settings", settings));
             });
 
-            builder.RegisterDeviceFactory(DeviceType.MK4, "MK4.0 Device 1", MK4.Device1, Array.Empty<byte>(), []);
-            builder.RegisterDeviceFactory(DeviceType.MK4, "MK4.0 Device 2", MK4.Device2, Array.Empty<byte>(), []);
-            builder.RegisterDeviceFactory(DeviceType.MK4, "MK4.0 Device 3", MK4.Device3, Array.Empty<byte>(), []);
-            builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 1", MK6.Device1, Array.Empty<byte>(), []);
-            builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 2", MK6.Device2, Array.Empty<byte>(), []);
-            builder.RegisterDeviceFactory(DeviceType.MK6, "MK6.0 Device 3", MK6.Device3, Array.Empty<byte>(), []);
+            // manually added devices
+            builder.RegisterDevice<MK4>(DeviceType.MK4)
+                .WithDeviceFactory(MK4.Device1)
+                .WithDeviceFactory(MK4.Device2)
+                .WithDeviceFactory(MK4.Device3);
+
+            builder.RegisterDevice<MK6>(DeviceType.MK6)
+                .WithDeviceFactory(MK6.Device1)
+                .WithDeviceFactory(MK6.Device2)
+                .WithDeviceFactory(MK6.Device3);
 
             // device managers
             builder.RegisterDeviceManager<BuWizzDeviceManager>();

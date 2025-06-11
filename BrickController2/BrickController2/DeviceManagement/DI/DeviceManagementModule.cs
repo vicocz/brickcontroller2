@@ -39,6 +39,8 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 
+            builder.RegisterType<LegoController>().Keyed<Device>(DeviceType.LegoController);
+
             builder.Register<DeviceFactory>(c =>
             {
                 IComponentContext ctx = c.Resolve<IComponentContext>();

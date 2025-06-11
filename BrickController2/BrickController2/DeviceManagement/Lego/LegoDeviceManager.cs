@@ -25,6 +25,8 @@ public class LegoDeviceManager : BluetoothDeviceManagerBase
                     0x80 => DeviceType.TechnicHub,
                     0x84 => DeviceType.TechnicMove,
 
+                    0x42 => DeviceType.LegoController,
+
                     _ => DeviceType.Unknown
                 }
             };

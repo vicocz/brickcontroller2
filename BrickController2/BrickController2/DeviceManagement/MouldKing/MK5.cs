@@ -14,7 +14,7 @@ internal class MK5 : MKBaseNibble
     public const int CHANNEL_START_OFFSET = 3;
 
     /// <summary>
-    /// Telegram connect to MK5.0 (switch MK5.0 to Bluetooth mode)
+    /// Telegram connect to MK5.0
     /// </summary>
     private static readonly byte[] Telegram_Connect = [0xad, 0x7b, 0xa7, 0x80, 0x80, 0x80, 0x4f, 0x52];
 
@@ -79,6 +79,5 @@ internal class MK5 : MKBaseNibble
 
     /// <inheritdoc/>>
     protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler() =>
-        // MK5.0 needs a BluetoothAdvertiser per module
         new(_bleService, ManufacturerId, TryGetTelegram, ReconnectTimeSpan);
 }

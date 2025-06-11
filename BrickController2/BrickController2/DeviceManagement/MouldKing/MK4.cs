@@ -2,7 +2,7 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement.MouldKing
 {
     /// <summary>
     /// MK 4.0 Module
@@ -43,22 +43,6 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         private static BluetoothAdvertisingDeviceHandler? bluetoothAdvertisingDeviceHandler;
 
-        /// <summary>
-        /// manufacturerId to advertise
-        /// </summary>
-        protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
-
-        /// <summary>
-        /// number of bytes containing channel values in base telegram
-        /// -> channel 0..3 for all three devices
-        /// </summary>
-        protected override int BaseTelegram_ChannelBytesCount => 6;
-
-        /// <summary>
-        /// offset to position of first channel in base telegram
-        /// </summary>
-        protected override int BaseTelegram_ChannelStartOffset => 3;
-
         public MK4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
           : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, MK4.GetChannelStartOffset(address), MK4.Telegram_Connect, MK4.Telegram_Base)
         {
@@ -73,10 +57,51 @@ namespace BrickController2.DeviceManagement
         public override int NumberOfChannels => 4;
 
         /// <summary>
-        /// Get reference to Base-Telegram for the given address
+        /// manufacturerId to advertise
         /// </summary>
-        /// <param name="address">address</param>
-        /// <returns>reference to Base-Telegram</returns>
+        protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
+
+        /// <summary>
+        /// number of bytes containing channel values in base telegram
+        /// -> channel 0..3 for all three devices -> 6 bytes
+        /// </summary>
+        protected override int BaseTelegram_ChannelBytesCount => 6;
+
+        /// <summary>
+        /// offset to position of first channel in base telegram
+        /// </summary>
+        protected override int BaseTelegram_ChannelStartOffset => 3;
+
+        // MK4: ZeroValueNibble = 0x08, ZeroValueOffset = 0x08
+        // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+        // value == 0:                0 8
+        // value >  0:                    9 A B C D E F  range_pos: 0x07
+
+        /// <summary>
+        /// Gets the nibble value that represents zero in the current encoding scheme.
+        /// </summary>
+        protected override byte ZeroValueNibble => 0x00;
+
+        /// <summary>
+        /// Gets the offset for positive values
+        /// </summary>
+        protected override byte Range_pos_Offset => 0x08;
+
+        /// <summary>
+        /// Gets the range for positive values
+        /// </summary>
+        protected override int Range_pos => 0x07;
+
+        /// <summary>
+        /// Gets the range for negative values
+        /// </summary>
+        protected override int Range_neg => 0x07;
+        
+        /// <summary>
+                                                         /// Get reference to Base-Telegram for the given address
+                                                         /// </summary>
+                                                         /// <param name="address">address</param>
+                                                         /// <returns>reference to Base-Telegram</returns>
         private static int GetChannelStartOffset(string address)
         {
             return address switch

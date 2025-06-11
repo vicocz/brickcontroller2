@@ -50,16 +50,6 @@ internal abstract class MKBaseNible : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly byte _zeroValueByte;
 
-    /// <summary>
-    /// range for negative values
-    /// </summary>
-    protected readonly int _range_neg;
-
-    /// <summary>
-    /// range for positive values
-    /// </summary>
-    protected readonly int _range_pos;
-
     protected MKBaseNible(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
@@ -67,10 +57,6 @@ internal abstract class MKBaseNible : BluetoothAdvertisingDevice
         _telegram_Connect = telegram_Connect;
         _telegram_Base = telegram_Base;
         _mkPlatformService = mkPlatformService;
-
-        int zeroOffset = ZeroValueNibble - 0x08;    // offset to default value of 0x08
-        _range_pos = 0x07 - zeroOffset;             // if zeroValue is > 0x08 then range_pos is smaller than 0x07
-        _range_neg = 0x07;
 
         _zeroValueByte = (byte)((ZeroValueNibble << 4) + ZeroValueNibble); // combined low and high nibble of zeroValue
     }
@@ -86,14 +72,33 @@ internal abstract class MKBaseNible : BluetoothAdvertisingDevice
     protected abstract int BaseTelegram_ChannelStartOffset { get; }
 
     /// <summary>
-    /// zeroValue - default is 0x08, MK3.8 has 0x09
-    /// </summary>
-    protected virtual byte ZeroValueNibble => 0x08;
-
-    /// <summary>
     /// number of bytes containing channel values in base telegram
     /// </summary>
     protected abstract int BaseTelegram_ChannelBytesCount { get; }
+
+    /// <summary>
+    /// Gets the nibble value that represents zero in the current encoding scheme.
+    /// MK3.8 has 0x09, MK4.0 has 0x08, MK5.0 has 0x00
+    /// </summary>
+    protected abstract byte ZeroValueNibble { get; }
+
+    /// <summary>
+    /// Gets the offset for positive values
+    /// MK3.8 has 0x09, MK4.0 has 0x08, MK5.0 has 0x08
+    /// </summary>
+    protected abstract byte Range_pos_Offset { get; }
+
+    /// <summary>
+    /// Gets the range for positive values
+    /// MK3.8 has 0x06, MK4 has 0x07, MK5 has 0x07
+    /// </summary>
+    protected abstract int Range_pos { get; }
+
+    /// <summary>
+    /// Gets the range for negative values
+    /// MK3.8 has 0x07, MK4 has 0x07, MK5 has 0x07
+    /// </summary>
+    protected abstract int Range_neg { get; }
 
     /// <summary>
     /// Sets the output value for the specified channel.
@@ -122,20 +127,25 @@ internal abstract class MKBaseNible : BluetoothAdvertisingDevice
         switch (channelType)
         {
             case ChannelType.Analog:
-                // MK4: ZeroValueNibble = 0x08
+                // MK4: ZeroValueNibble = 0x08, ZeroValueOffset = 0x08
                 // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
-                // value == 0:                0 8                
+                // value == 0:                0 8
                 // value >  0:                    9 A B C D E F  range_pos: 0x07
 
-                // MK3.8: ZeroValueNibble = 0x09                    
+                // MK3.8: ZeroValueNibble = 0x09, ZeroValueOffset = 0x09
                 // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
-                // value == 0:                0 9                
+                // value == 0:                0 9
                 // value >  0:                    A B C D E F    range_pos: 0x06
+
+                // MK5: ZeroValueNibble = 0x00, ZeroValueOffset = 0x08
+                // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+                // value == 0:                0
+                // value >  0:                  9 A B C D E F    range_pos: 0x07
 
                 byte setValue_nibble;
                 if (value < 0)
                 {
-                    float value_abs = Math.Min(0x07, -value * _range_neg);
+                    float value_abs = Math.Min(0x07, -value * Range_neg);
                     setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
                     if (setValue_nibble == 0) // replace zero with ZeroValueNibble
@@ -150,7 +160,7 @@ internal abstract class MKBaseNible : BluetoothAdvertisingDevice
                 }
                 else if (value > 0)
                 {
-                    float value_abs = Math.Min(0x0F, (value * _range_pos) + ZeroValueNibble);
+                    float value_abs = Math.Min(0x0F, (value * Range_pos) + Range_pos_Offset);
                     setValue_nibble = (byte)(0x0F & (byte)(value_abs));
                     zeroSet = false;
                 }

@@ -24,44 +24,10 @@ public static class ContainerBuilderExtensions
     /// Register device of <typeparamref name="TDevice"/> type as a keyed service with its DeviceType.
     /// </summary>
     /// <returns>Registration instance to suppport fluent API</returns>
-    internal static DeviceRegistration<TDevice> RegisterDevice<TDevice>(this ContainerBuilder builder, DeviceType deviceType)
+    internal static void RegisterDevice<TDevice>(this ContainerBuilder builder, DeviceType deviceType)
         where TDevice : Device
     {
         // register device as a keyed service with its DeviceType
         builder.RegisterType<TDevice>().Keyed<Device>(deviceType);
-
-        return new DeviceRegistration<TDevice>(builder, deviceType);
-    }
-
-    /// <summary>
-    /// Register device factory for <typeparamref name="TDevice"/> type with the given parameters.
-    /// </summary>
-    internal static DeviceRegistration<TDevice> WithDeviceFactory<TDevice>(this DeviceRegistration<TDevice> deviceRegistration, string address, byte[]? deviceData = null, IEnumerable<NamedSetting>? settings = null)
-        where TDevice : BluetoothAdvertisingDevice
-    {
-        deviceRegistration.Builder.Register(c =>
-        {
-            var translation = c.Resolve<ITranslationService>();
-
-            // compose name localized "DeviceType - Address" string
-            var name = $"{translation.Translate(deviceRegistration.DeviceType.ToString())} {translation.Translate(address)}";
-            return new DeviceFactoryData(deviceRegistration.DeviceType, name, address, deviceData ?? [], settings ?? []);
-        }).As<IDeviceFactoryData>();
-
-        return deviceRegistration;
-    }
-
-    /// <summary>
-    /// Register device factory for <typeparamref name="TDevice"/> type for all provideed <paramref name="addresses"/>
-    /// </summary>
-    internal static DeviceRegistration<TDevice> WithDeviceFactories<TDevice>(this DeviceRegistration<TDevice> deviceRegistration, params string[] addresses)
-        where TDevice : BluetoothAdvertisingDevice
-    {
-        foreach (var address in addresses)
-        {
-            WithDeviceFactory(deviceRegistration, address);
-        }
-
-        return deviceRegistration;
     }
 }

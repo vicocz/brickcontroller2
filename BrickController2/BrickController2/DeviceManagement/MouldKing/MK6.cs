@@ -7,7 +7,7 @@ namespace BrickController2.DeviceManagement.MouldKing;
 /// <summary>
 /// MK 6.0 Module
 /// </summary>
-internal class MK6 : MKBaseByte
+internal class MK6 : MKBaseByte, IDeviceType<MK6>
 {
     public const string Device1 = "Device1";
     public const string Device2 = "Device2";
@@ -58,7 +58,12 @@ internal class MK6 : MKBaseByte
     {
     }
 
-    public override DeviceType DeviceType => DeviceType.MK6;
+
+    public static DeviceType Type => DeviceType.MK6;
+
+    public static string TypeName => "MK 6.0";
+
+    public override DeviceType DeviceType => Type;
 
     public override int NumberOfChannels => 6;
 

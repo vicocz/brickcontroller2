@@ -16,7 +16,6 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
-            <converters:DeviceTypeToGroupNameConverter x:Key="DeviceTypeToGroupName" />
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -39,7 +38,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
                                 <VerticalStackLayout Grid.Column="1">
-                                    <Label Text="{Binding DeviceType, Converter={StaticResource DeviceTypeToGroupName}}" FontSize="Large" FontAttributes="Bold"/>
+                                    <Label Text="{Binding GroupName}" FontSize="Large" FontAttributes="Bold"/>
                                 </VerticalStackLayout>
                             </Grid>
                         </DataTemplate>

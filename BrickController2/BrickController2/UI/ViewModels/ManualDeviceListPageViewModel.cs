@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -30,13 +29,15 @@ namespace BrickController2.UI.ViewModels
         }
         public class DeviceGroup : List<DeviceEntry>
         {
-            public DeviceType DeviceType { get; }
-            public DeviceVendor DeviceVendor { get; }
+            public string DeviceTypeName { get; }
+            public string VendorName { get; }
+            public string GroupName { get; }
 
-            public DeviceGroup(DeviceType deviceType, List<DeviceEntry> deviceEntry) : base(deviceEntry)
+            public DeviceGroup(string vendorName, string deviceTypeName, List<DeviceEntry> deviceEntry) : base(deviceEntry)
             {
-                DeviceType = deviceType;
-                DeviceVendor = deviceType.GetVendor();
+                GroupName = $"{vendorName} - {deviceTypeName}";
+                VendorName = vendorName;
+                DeviceTypeName = deviceTypeName;
             }
         }
 
@@ -55,12 +56,12 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             var groups = manualDeviceManager.FactoryDataList
-                .GroupBy(o => o.DeviceType, x => new DeviceEntry(x, GetDeviceInstance(x)));
+                .OrderBy(o => o.VendorName)
+                .ThenBy(o => o.DeviceTypeName)
+                .GroupBy(o => (o.VendorName, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));
 
             GroupedFactoryDatas.AddRange(groups
-                .Select(item => new DeviceGroup(item.Key, [.. item]))
-                .OrderBy(x => x.DeviceVendor)
-                .ThenBy(x => x.DeviceType));
+                .Select(item => new DeviceGroup(item.Key.VendorName, item.Key.DeviceTypeName, [.. item])));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }

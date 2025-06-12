@@ -2,6 +2,7 @@
 using BrickController2.DeviceManagement.BuWizz;
 using BrickController2.DeviceManagement.CaDA;
 using BrickController2.DeviceManagement.Lego;
+using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
 
@@ -51,8 +52,8 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
             builder.RegisterDeviceManager<SBrickDeviceManager>();
 
-            // other vendor modules
-            builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);
+            // other vendors
+            builder.RegisterAssemblyModules<Vendor>(typeof(DeviceManagementModule).Assembly);
         }
     }
 }

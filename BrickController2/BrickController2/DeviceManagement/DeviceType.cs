@@ -1,6 +1,4 @@
-﻿using BrickController2.DeviceManagement.Vendors;
-
-namespace BrickController2.DeviceManagement
+﻿namespace BrickController2.DeviceManagement
 {
     public enum DeviceType
     {
@@ -17,11 +15,8 @@ namespace BrickController2.DeviceManagement
         CircuitCubes,
         WeDo2,
         TechnicMove,
-        [DeviceVendor(DeviceVendor.MouldKing)]
         MK4,
-        [DeviceVendor(DeviceVendor.MouldKing)]
         MK6,
-        [DeviceVendor(DeviceVendor.MouldKing)]
         MK_DIY,
         CaDA_RaceCar,
         PfxBrick,

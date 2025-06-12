@@ -43,7 +43,7 @@ public static class ContainerBuilderExtensions
         {
             var translation = c.Resolve<ITranslationService>();
 
-            // compose name localized "DeviceTye - Address" string
+            // compose name localized "DeviceType - Address" string
             var name = $"{translation.Translate(deviceRegistration.DeviceType.ToString())} {translation.Translate(address)}";
             return new DeviceFactoryData(deviceRegistration.DeviceType, name, address, deviceData ?? [], settings ?? []);
         }).As<IDeviceFactoryData>();

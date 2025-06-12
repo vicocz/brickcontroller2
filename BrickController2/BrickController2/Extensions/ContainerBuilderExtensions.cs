@@ -50,4 +50,18 @@ public static class ContainerBuilderExtensions
 
         return deviceRegistration;
     }
+
+    /// <summary>
+    /// Register device factory for <typeparamref name="TDevice"/> type for all provideed <paramref name="addresses"/>
+    /// </summary>
+    internal static DeviceRegistration<TDevice> WithDeviceFactories<TDevice>(this DeviceRegistration<TDevice> deviceRegistration, params string[] addresses)
+        where TDevice : BluetoothAdvertisingDevice
+    {
+        foreach (var address in addresses)
+        {
+            WithDeviceFactory(deviceRegistration, address);
+        }
+
+        return deviceRegistration;
+    }
 }

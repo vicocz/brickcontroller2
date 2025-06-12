@@ -13,16 +13,12 @@ public class MouldKingModule : Module, IVendorModule
 
         // manually added devices
         builder.RegisterDevice<MK4>(DeviceType.MK4)
-            .WithDeviceFactory(MK4.Device1)
-            .WithDeviceFactory(MK4.Device2)
-            .WithDeviceFactory(MK4.Device3);
+            .WithDeviceFactories(MK4.Device1, MK4.Device2, MK4.Device3);
 
         builder.RegisterDevice<MK6>(DeviceType.MK6)
-            .WithDeviceFactory(MK6.Device1)
-            .WithDeviceFactory(MK6.Device2)
-            .WithDeviceFactory(MK6.Device3);
+            .WithDeviceFactories(MK6.Device1, MK6.Device2, MK6.Device3);
 
-        // device managers
+        // device manager
         builder.RegisterDeviceManager<MouldKingDeviceManager>();
     }
 }

@@ -1,18 +1,14 @@
 ﻿using Autofac;
 using Autofac.Builder;
 using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.DI;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Settings;
-using BrickController2.UI.Services.Translation;
-using System.Collections.Generic;
 
 namespace BrickController2.Extensions;
 
 public static class ContainerBuilderExtensions
 {
     /// <summary>
-    /// Register <typeparamref name="TManager"/> as implementation of <see cref="IBluetoothLEDeviceManager"/> in irder to use it for device discovery
+    /// Register <typeparamref name="TManager"/> as implementation of <see cref="IBluetoothLEDeviceManager"/> in order to use it for device discovery
     /// </summary>
     /// <param name="builder">DI container builder</param>
     /// <returns>Registration builder in order to allow additional registration, such as .As<>()</returns>

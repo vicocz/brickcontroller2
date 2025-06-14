@@ -7,11 +7,11 @@ namespace BrickController2.DeviceManagement.MouldKing;
 /// <summary>
 /// Vendor: Mould King and all it's device and implementation of IBluetoothLEDeviceManager
 /// </summary>
-internal class MouldKing : Vendor<MouldKingDeviceManager>
+internal class MouldKing : Vendor<MouldKing>
 {
-    protected override string VendorName => "Mould King";
+    public override string VendorName => "Mould King";
 
-    protected override void RegisterDevices(VendorBuilder builder)
+    protected override void Register(VendorBuilder<MouldKing> builder)
     {
         // clasic devices
         builder.ContainerBuilder.RegisterDevice<MK_DIY>(DeviceType.MK_DIY);
@@ -22,5 +22,7 @@ internal class MouldKing : Vendor<MouldKingDeviceManager>
 
         builder.RegisterDevice<MK6>()
             .WithDeviceFactories(MK6.Device1, MK6.Device2, MK6.Device3);
+        // device manager
+        builder.RegisterDeviceManager<MouldKingDeviceManager>();
     }
 }

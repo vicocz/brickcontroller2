@@ -29,15 +29,14 @@ namespace BrickController2.UI.ViewModels
         }
         public class DeviceGroup : List<DeviceEntry>
         {
-            public string DeviceTypeName { get; }
-            public string VendorName { get; }
+            public DeviceType DeviceType { get; }
+
             public string GroupName { get; }
 
-            public DeviceGroup(string vendorName, string deviceTypeName, List<DeviceEntry> deviceEntry) : base(deviceEntry)
+            public DeviceGroup(DeviceType deviceType, string vendorName, string deviceTypeName, List<DeviceEntry> deviceEntry) : base(deviceEntry)
             {
                 GroupName = $"{vendorName} - {deviceTypeName}";
-                VendorName = vendorName;
-                DeviceTypeName = deviceTypeName;
+                DeviceType = deviceType;
             }
         }
 
@@ -58,10 +57,10 @@ namespace BrickController2.UI.ViewModels
             var groups = manualDeviceManager.FactoryDataList
                 .OrderBy(o => o.VendorName)
                 .ThenBy(o => o.DeviceTypeName)
-                .GroupBy(o => (o.VendorName, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));
+                .GroupBy(o => (o.VendorName, o.DeviceType, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));
 
             GroupedFactoryDatas.AddRange(groups
-                .Select(item => new DeviceGroup(item.Key.VendorName, item.Key.DeviceTypeName, [.. item])));
+                .Select(item => new DeviceGroup(item.Key.DeviceType, item.Key.VendorName, item.Key.DeviceTypeName, [.. item])));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }

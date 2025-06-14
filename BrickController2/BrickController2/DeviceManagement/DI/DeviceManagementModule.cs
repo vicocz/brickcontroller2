@@ -52,7 +52,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
             builder.RegisterDeviceManager<SBrickDeviceManager>();
 
-            // other vendors
+            // execute registration per vendors
             builder.RegisterAssemblyModules<Vendor>(typeof(DeviceManagementModule).Assembly);
         }
     }

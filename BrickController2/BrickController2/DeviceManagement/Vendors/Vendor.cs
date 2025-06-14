@@ -1,39 +1,27 @@
 ﻿using Autofac;
-using Autofac.Builder;
 using BrickController2.DeviceManagement.DI;
-using BrickController2.Extensions;
-using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement.Vendors;
 
-internal abstract class Vendor : Module
+public abstract class Vendor : Module
 {
-    protected abstract string VendorName { get; }
-
-    protected virtual void RegisterDevices(VendorBuilder registration)
-    {
-        // empty method to be overridden by derived classes
-    }
-
-    protected override void Load(ContainerBuilder builder)
-    {
-        // do registration of the vendor
-        var vendorBuilder = new VendorBuilder(builder, this);
-        RegisterDevices(vendorBuilder);
-    }
 }
 
-internal abstract class Vendor<TManager> : Vendor
-    where TManager : class, IBluetoothLEDeviceManager
+public abstract class Vendor<TVendor> : Vendor
+    where TVendor : Vendor<TVendor>
 {
-    protected virtual IRegistrationBuilder<TManager, ConcreteReflectionActivatorData, SingleRegistrationStyle> RegisterManager(ContainerBuilder builder)
-        => builder.RegisterDeviceManager<TManager>();
+    public abstract string VendorName { get; }
+
+    protected abstract void Register(VendorBuilder<TVendor> builder);
 
     protected sealed override void Load(ContainerBuilder builder)
     {
-        base.Load(builder);
+        // do registration of the vendor
+        TVendor vendor = (TVendor)this;
+        builder.RegisterInstance(vendor);
 
-        // do registration of the manager
-        RegisterManager(builder);
+        // do registration of the vendor
+        var vendorBuilder = new VendorBuilder<TVendor>(builder, vendor);
+        Register(vendorBuilder);
     }
 }

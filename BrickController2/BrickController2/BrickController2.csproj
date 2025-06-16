@@ -24,8 +24,8 @@
     <EmbeddedResource Include="UI\Images\mk4_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk6_image.png" />
     <EmbeddedResource Include="UI\Images\mk6_image_small.png" />
-    <EmbeddedResource Include="UI\Images\pfx_brick_image.png" />
-    <EmbeddedResource Include="UI\Images\pfx_brick_image_small.png" />
+    <EmbeddedResource Include="UI\Images\pfxbrick_image.png" />
+    <EmbeddedResource Include="UI\Images\pfxbrick_image_small.png" />
     <EmbeddedResource Include="UI\Images\rc_left_right_image.png" />
     <EmbeddedResource Include="UI\Images\rc_light_on_off.png" />
     <EmbeddedResource Include="UI\Images\rc_up_down_image.png" />

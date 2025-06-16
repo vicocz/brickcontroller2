@@ -22,7 +22,6 @@ internal class MouldKing : Vendor<MouldKing>
             .WithDeviceFactory(MK4.Device2, $"{MK4.TypeName} Device 2")
             .WithDeviceFactory(MK4.Device3, $"{MK4.TypeName} Device 3");
 
-
         builder.RegisterDevice<MK5>()
             .WithDeviceFactory(MK5.Device, MK5.TypeName);
 

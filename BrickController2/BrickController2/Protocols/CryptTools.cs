@@ -1,10 +1,80 @@
-﻿namespace BrickController2.Protocols;
+﻿using System;
+using BrickController2.Helpers;
+
+namespace BrickController2.Protocols;
 
 /// <summary>
 /// static class containing functions needed by encryption algorithm for the advertising data
 /// </summary>
 public static class CryptTools
 {
+    /// <summary>
+    /// crypt data-array with seed and ctxvalues
+    /// </summary>
+    /// <param name="seed">seed array</param>
+    /// <param name="data">data array to encrypt</param>
+    /// <param name="headerOffset">offset for header data: android=0x0f (15) iOS=0xd (13)</param>
+    /// <param name="ctxValue1">ctx value1 for encryption</param>
+    /// <param name="ctxValue2">ctx value2 for encryption</param>
+    /// <param name="rfPayload">crypted array</param>
+    /// <returns>size of crypted array</returns>
+    public static int GetRfPayload(byte[] seed, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload)
+    {
+        const int initValuesLength = 3;
+        const int checksumLength = 2;
+        int seedLength = seed.Length;
+        int dataLength = data.Length;
+
+        int resultArrayLength = initValuesLength + seedLength + dataLength + checksumLength;
+        if (resultArrayLength > rfPayload.Length)
+        {
+            return 0;
+        }
+
+        //int headerOffset = 0x0f;                         // 0x0f (15)
+        int seedOffset = headerOffset + initValuesLength;  // 0x12 (18) 
+        int dataOffset = seedOffset + seedLength;
+        int checksumOffset = dataOffset + dataLength;
+
+        int resultBufferLength = checksumOffset + checksumLength;
+
+        byte[] resultBuffer = new byte[resultBufferLength];
+
+        resultBuffer[headerOffset + 0] = 0x71;   // 0x71 (113)
+        resultBuffer[headerOffset + 1] = 0x0f;   // 0x0f (15)
+        resultBuffer[headerOffset + 2] = 0x55;   // 0x55 (85)
+
+        // reverse-copy seed-array into resultBuffer after initValues (offset 18)
+        for (int index = 0; index < seedLength; index++)
+        {
+            resultBuffer[seedOffset + index] = seed[seedLength - 1 - index];
+        }
+
+        // invert bytes of initValues and seed-array in resultBuffer
+        for (int index = 0; index < initValuesLength + seedLength; index++)
+        {
+            resultBuffer[headerOffset + index] = Invert8(resultBuffer[headerOffset + index]);
+        }
+
+        // copy dataArray into resultBuffer after initValues and seed-array
+        Buffer.BlockCopy(data, 0, resultBuffer, dataOffset, dataLength);
+
+        ushort checksum = CheckCRC16(seed, data);
+        resultBuffer.SetUInt16(checksum, checksumOffset);
+
+        byte[] ctxArray1 = new byte[7];
+        WhiteningInit(ctxValue1, ctxArray1); // 0x3f (63): 1111111
+        WhiteningEncode(resultBuffer, seedOffset, seedLength + dataLength + checksumLength, ctxArray1);
+
+        byte[] ctxArray2 = new byte[7];
+        WhiteningInit(ctxValue2, ctxArray2); // 0x26 (38): 1101110
+        WhiteningEncode(resultBuffer, 0, resultBufferLength, ctxArray2);
+
+        Buffer.BlockCopy(resultBuffer, headerOffset, rfPayload, 0, resultArrayLength);
+
+        return resultArrayLength;
+    }
+    
     /// <summary>
     /// inverts the bits of a given byte
     /// </summary>

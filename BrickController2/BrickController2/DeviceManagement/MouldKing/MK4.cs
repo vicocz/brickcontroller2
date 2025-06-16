@@ -7,7 +7,7 @@ namespace BrickController2.DeviceManagement.MouldKing
     /// <summary>
     /// MK 4.0 Module
     /// </summary>
-    internal class MK4 : MKBaseNibble
+    internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     {
         public const string Device1 = "Device1";
         public const string Device2 = "Device2";
@@ -48,7 +48,11 @@ namespace BrickController2.DeviceManagement.MouldKing
         {
         }
 
-        public override DeviceType DeviceType => DeviceType.MK4;
+        public override DeviceType DeviceType => Type;
+
+        public static DeviceType Type => DeviceType.MK4;
+
+        public static string TypeName => "MK 4.0";
 
         /// <summary>
         /// Number of channels for one MK4.0 device

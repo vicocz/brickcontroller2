@@ -24,7 +24,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
             : base(service, gamePad)
         {
             // initialize properties
-            Name = gamePad.Name!;
+            Name = GetDisplayName(gamePad);
             VendorId = gamePad.VendorId;
             ProductId = gamePad.ProductId;
             ControllerNumber = gamePad.ControllerNumber;
@@ -95,6 +95,27 @@ namespace BrickController2.Droid.PlatformServices.GameController
             RaiseEvent(events);
 
             return true;
+        }
+
+        private static string GetDisplayName(InputDevice device)
+        {
+            // Try Name first
+            if (!string.IsNullOrWhiteSpace(device.Name))
+                return device.Name;
+
+            var deviceType = device.Sources switch
+            {
+                var s when s.HasFlag(InputSourceType.Gamepad) => "Gamepad",
+                var s when s.HasFlag(InputSourceType.Joystick) => "Joystick",
+                var s when s.HasFlag(InputSourceType.Dpad) => "DPad",
+                _ => "Device"
+            };
+
+            // apply some fallbacks using VendorId / ProductId if possible
+            if (device.VendorId != 0 || device.ProductId != 0)
+                return $"{deviceType} ({device.VendorId:X4}:{device.ProductId:X4})";
+
+            return $"{deviceType}";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.CreationManagement;
+using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -38,14 +39,23 @@ namespace BrickController2.DeviceManagement
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
         public override bool CanResetOutput(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
-        public override bool CanChangeOutputType(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
 
+        public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
+            => outputType switch
+            {
+                // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
+                ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
+                // servo only for PLAYVM and C channel
+                ChannelOutputType.ServoMotor => EnablePlayVmMode && channel == CHANNEL_C,
+                // other types (such as stepper) are not supported at all
+                _ => false,
+            };
 
         public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)
         {
             // autodetect PLAYVM mode for A / B channels (as testing page should not be affected)
             _applyPlayVmMode = startOutputProcessing &&
-                channelConfigurations.Any(c => c.Channel == CHANNEL_VM);
+                channelConfigurations.Any(c => c.Channel == CHANNEL_VM || (c.Channel == CHANNEL_C && c.ChannelOutputType == ChannelOutputType.ServoMotor));
 
             // filter out non standard channels
             var filteredConfigurtions = channelConfigurations

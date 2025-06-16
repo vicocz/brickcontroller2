@@ -1,6 +1,6 @@
 ﻿namespace BrickController2.Protocols;
 
-internal static class CaDAProtocol
+public static class CaDAProtocol
 {
     /// <summary>
     /// ManufacturerID for CaDA
@@ -10,12 +10,17 @@ internal static class CaDAProtocol
     /// <summary>
     /// CTXValue for Encryption
     /// </summary>
-    public const byte CTXValue = 0x26;
+    public const byte CTXValue1 = 0x3f;
+
+    /// <summary>
+    /// CTXValue for Encryption
+    /// </summary>
+    public const byte CTXValue2 = 0x26;
 
     /// <summary>
     /// AddressArray
     /// </summary>
-    public static readonly byte[] AddressArray =
+    public static readonly byte[] SeedArray =
     {
         67, // 0x43
         65, // 0x41
@@ -32,67 +37,6 @@ internal static class CaDAProtocol
         0xdc, 0x14, 0xc4, 0xc0, 0x50, 0x18, 0x64, 0x7c, 0x70, 0x78, 0x88, 0x90, 0x58, 0x2c, 0xf8, 0x84,
         0x30, 0x68, 0x60, 0x04, 0x40, 0x4c, 0xe0, 0xb8, 0xd8, 0xfc, 0x20, 0x10, 0xe4, 0x3c, 0xd0, 0xb4,
     };
-
-    /// <summary>
-    /// crypt data-array with addr and ctxvalue
-    /// </summary>
-    /// <param name="addr">address array</param>
-    /// <param name="data">data array to encrypt</param>
-    /// <param name="ctxValue">ctx value for encryption</param>
-    /// <param name="rfPayload">crypted array</param>
-    /// <returns>size of crypted array</returns>
-    public static int GetRfPayload(byte[] addr, byte[] data, byte ctxValue, out byte[] rfPayload)
-    {
-        int addrLength = addr.Length;
-        int dataLength = data.Length;
-        byte data_offset = 0x12;    // 0x12 (18)
-        byte inverse_offset = 0x0f; // 0x0f (15)
-
-        int length_24 = addrLength + dataLength + data_offset;
-        int result_data_size = length_24 + 2;
-
-        byte[] resultbuf = new byte[result_data_size];
-
-        resultbuf[0x0f] = 0x71; //  'q';
-        resultbuf[0x10] = 0x0f; // '\x0f';
-        resultbuf[0x11] = 0x55; // 'U';
-
-        for (int index = 0; index < addrLength; index++)
-        {
-            resultbuf[index + data_offset] = addr[addrLength - index - 1];
-        }
-
-        for (int index = 0; index < dataLength; index++)
-        {
-            resultbuf[addrLength + data_offset + index] = data[index];
-        }
-
-        for (int index = 0; index < addrLength + 3; index++)
-        {
-            byte cVar1 = CryptTools.Invert8(resultbuf[index + inverse_offset]);
-            resultbuf[index + inverse_offset] = cVar1;
-        }
-
-        ushort crc = CryptTools.CheckCRC16(addr, data);
-        resultbuf[result_data_size - 2] = (byte)(crc);
-        resultbuf[result_data_size - 1] = (byte)(crc >> 8);
-
-        byte[] ctx_0x3F = new byte[7];
-        CryptTools.WhiteningInit(0x3f, ctx_0x3F); // 0x3f (63): 1111111
-        CryptTools.WhiteningEncode(resultbuf, 0x12, addrLength + dataLength + 2, ctx_0x3F);
-
-        byte[] ctx_0x26 = new byte[7];
-        CryptTools.WhiteningInit(ctxValue, ctx_0x26); // 0x26 (38): 1101110
-        CryptTools.WhiteningEncode(resultbuf, 0, addrLength + dataLength + 0x14, ctx_0x26);
-
-        rfPayload = new byte[addrLength + dataLength + 5];
-        for (int local_bc = 0; local_bc < addrLength + dataLength + 5; local_bc++)
-        {
-            rfPayload[local_bc] = resultbuf[local_bc + 0xf];
-        }
-
-        return result_data_size;
-    }
 
     public static void Encrypt(byte[] data)
     {

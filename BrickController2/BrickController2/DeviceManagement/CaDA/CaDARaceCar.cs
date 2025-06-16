@@ -2,7 +2,7 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 
-namespace BrickController2.DeviceManagement;
+namespace BrickController2.DeviceManagement.CaDA;
 
 /// <summary>
 /// CaDA RaceCar
@@ -32,12 +32,15 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
             0x00, // [15] ChannelData 
     };
 
+    private readonly ICaDAPlatformService _cadaPlatformService;
     private readonly int[] _outputValues = new int[3];
     private readonly Random _rnd = new Random();
 
-    public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ICaDAPlatformService cadaPlatformService)
       : base(name, address, deviceData, deviceRepository, bleService)
     {
+        _cadaPlatformService = cadaPlatformService;
+
         if (deviceData?.Length == 18)
         {
             // DeviceData-Array is the manufacturer specific data inside the response telegram sent when
@@ -120,9 +123,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
         _controlDataArray[0] = 0x75; // 0x75 (117)
         _controlDataArray[1] = 0x13; // 0x13 (19);
 
-        CaDAProtocol.GetRfPayload(CaDAProtocol.AddressArray, _controlDataArray, CaDAProtocol.CTXValue, out currentData);
-
-        return true;
+        return _cadaPlatformService.TryGetRfPayload(_controlDataArray, out currentData);
     }
 
     /// <summary>

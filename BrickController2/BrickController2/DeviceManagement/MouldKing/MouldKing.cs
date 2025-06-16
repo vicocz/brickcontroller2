@@ -13,15 +13,20 @@ internal class MouldKing : Vendor<MouldKing>
 
     protected override void Register(VendorBuilder<MouldKing> builder)
     {
-        // clasic devices
+        // classic devices
         builder.ContainerBuilder.RegisterDevice<MK_DIY>(DeviceType.MK_DIY);
 
         // manually added devices
         builder.RegisterDevice<MK4>()
-            .WithDeviceFactories(MK4.Device1, MK4.Device2, MK4.Device3);
+            .WithDeviceFactory(MK4.Device1, $"{MK4.TypeName} Device 1")
+            .WithDeviceFactory(MK4.Device2, $"{MK4.TypeName} Device 2")
+            .WithDeviceFactory(MK4.Device3, $"{MK4.TypeName} Device 3");
 
         builder.RegisterDevice<MK6>()
-            .WithDeviceFactories(MK6.Device1, MK6.Device2, MK6.Device3);
+            .WithDeviceFactory(MK6.Device1, $"{MK6.TypeName} Device 1")
+            .WithDeviceFactory(MK6.Device2, $"{MK6.TypeName} Device 2")
+            .WithDeviceFactory(MK6.Device3, $"{MK6.TypeName} Device 3");
+
         // device manager
         builder.RegisterDeviceManager<MouldKingDeviceManager>();
     }

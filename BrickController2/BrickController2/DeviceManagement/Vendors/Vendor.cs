@@ -1,13 +1,13 @@
 ﻿using Autofac;
+using Autofac.Core;
 using BrickController2.DeviceManagement.DI;
 
 namespace BrickController2.DeviceManagement.Vendors;
 
-public abstract class Vendor : Module
-{
-}
-
-public abstract class Vendor<TVendor> : Vendor
+/// <summary>
+/// Base class for a vendor to register all required devices and dependencies
+/// </summary>
+public abstract class Vendor<TVendor> : Module, IVendorModule
     where TVendor : Vendor<TVendor>
 {
     public abstract string VendorName { get; }
@@ -16,7 +16,7 @@ public abstract class Vendor<TVendor> : Vendor
 
     protected sealed override void Load(ContainerBuilder builder)
     {
-        // do registration of the vendor
+        // do registration of the vendor itself
         TVendor vendor = (TVendor)this;
         builder.RegisterInstance(vendor);
 
@@ -24,4 +24,8 @@ public abstract class Vendor<TVendor> : Vendor
         var vendorBuilder = new VendorBuilder<TVendor>(builder, vendor);
         Register(vendorBuilder);
     }
+}
+
+public interface IVendorModule : IModule
+{
 }

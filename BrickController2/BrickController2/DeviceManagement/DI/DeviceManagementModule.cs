@@ -53,7 +53,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceManager<SBrickDeviceManager>();
 
             // execute registration per vendors
-            builder.RegisterAssemblyModules<Vendor>(typeof(DeviceManagementModule).Assembly);
+            builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);
         }
     }
 }

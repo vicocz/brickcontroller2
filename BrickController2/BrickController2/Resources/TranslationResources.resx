@@ -714,13 +714,4 @@
   <data name="TestDeviceChannel" xml:space="preserve">
     <value>Test the channel</value>
   </data>
-  <data name="Device1" xml:space="preserve">
-    <value>Device 1</value>
-  </data>
-  <data name="Device2" xml:space="preserve">
-    <value>Device 2</value>
-  </data>
-  <data name="Device3" xml:space="preserve">
-    <value>Device 3</value>
-  </data>
 </root>

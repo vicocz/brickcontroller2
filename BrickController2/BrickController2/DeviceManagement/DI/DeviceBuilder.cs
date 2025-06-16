@@ -22,29 +22,13 @@ public class DeviceBuilder<TVendor, TDevice>(VendorBuilder<TVendor> builder)
     /// <summary>
     /// Register device factory for <typeparamref name="TDevice"/> type with the given parameters.
     /// </summary>
-    public DeviceBuilder<TVendor, TDevice> WithDeviceFactory(string address, byte[]? deviceData = null, IEnumerable<NamedSetting>? settings = null)
+    public DeviceBuilder<TVendor, TDevice> WithDeviceFactory(string address, string name, byte[]? deviceData = null, IEnumerable<NamedSetting>? settings = null)
     {
         Builder.Register(c =>
         {
-            var translation = c.Resolve<ITranslationService>();
-
-            // compose name localized "DeviceType - Address" string
-            var name = $"{TDevice.TypeName} {translation.Translate(address)}";
             return new DeviceFactoryData<TVendor, TDevice>(Vendor, name, address, deviceData ?? [], settings ?? []);
         }).As<IDeviceFactoryData>();
 
-        return this;
-    }
-
-    /// <summary>
-    /// Register device factory for <typeparamref name="TDevice"/> type for all provideed <paramref name="addresses"/>
-    /// </summary>
-    internal DeviceBuilder<TVendor, TDevice> WithDeviceFactories(params string[] addresses)
-    {
-        foreach (var address in addresses)
-        {
-            WithDeviceFactory(address);
-        }
         return this;
     }
 }

@@ -33,9 +33,9 @@ namespace BrickController2.UI.ViewModels
 
             public string GroupName { get; }
 
-            public DeviceGroup(DeviceType deviceType, string vendorName, string deviceTypeName, List<DeviceEntry> deviceEntry) : base(deviceEntry)
+            public DeviceGroup(DeviceType deviceType, string groupName, List<DeviceEntry> deviceEntry) : base(deviceEntry)
             {
-                GroupName = $"{vendorName} - {deviceTypeName}";
+                GroupName = groupName;
                 DeviceType = deviceType;
             }
         }
@@ -60,7 +60,7 @@ namespace BrickController2.UI.ViewModels
                 .GroupBy(o => (o.VendorName, o.DeviceType, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));
 
             GroupedFactoryDatas.AddRange(groups
-                .Select(item => new DeviceGroup(item.Key.DeviceType, item.Key.VendorName, item.Key.DeviceTypeName, [.. item])));
+                .Select(item => new DeviceGroup(item.Key.DeviceType, $"{item.Key.VendorName} - {item.Key.DeviceTypeName}", [.. item])));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }
@@ -74,13 +74,13 @@ namespace BrickController2.UI.ViewModels
         {
             // get all entries to create (=> entry.Selected && entry.ExistingDevice == null)
             IDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas
-                .SelectMany(group => group.FindAll(entry => entry.Selected && entry.ExistingDevice == null)
+                .SelectMany(group => group.Where(entry => entry.Selected && entry.ExistingDevice == null)
                     .Select(entry => entry.DeviceFactoryData))
                 .ToArray();
 
             // get all entries to delete (=> !entry.Selected && entry.ExistingDevice != null)
             Device[] devicesToDelete = GroupedFactoryDatas
-                .SelectMany(group => group.FindAll(entry => !entry.Selected && entry.ExistingDevice != null)
+                .SelectMany(group => group.Where(entry => !entry.Selected && entry.ExistingDevice != null)
                     .Select(entry => entry.ExistingDevice!))
                 .ToArray();
 

@@ -35,5 +35,5 @@ public class VendorBuilder<TVendor>(ContainerBuilder builder, TVendor vendor)
     /// <returns>Registration builder in order to allow additional registration, such as .As<>()</returns>
     public IRegistrationBuilder<TManager, ConcreteReflectionActivatorData, SingleRegistrationStyle> RegisterDeviceManager<TManager>()
         where TManager : class, IBluetoothLEDeviceManager
-         => ContainerBuilder.RegisterDeviceManager<TManager>();
+        => ContainerBuilder.RegisterDeviceManager<TManager>();
 }

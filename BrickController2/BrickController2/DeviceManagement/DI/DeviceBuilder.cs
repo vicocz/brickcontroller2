@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Settings;
-using BrickController2.UI.Services.Translation;
 using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement.DI;

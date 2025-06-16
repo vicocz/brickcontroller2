@@ -62,6 +62,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="BrickController2.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
 </Project>

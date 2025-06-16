@@ -21,6 +21,9 @@ on:
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Android/**'
+  release:
+    types:
+      - published
   workflow_dispatch:
 
 permissions:
@@ -46,4 +49,20 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/*Signed.a*
+        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
+
+    - name: Upload Artifact to Release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      run: |
+        # Get the release ID
+        RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME} | jq -r '.id')
+
+        # Upload the artifact
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Content-Type: application/vnd.android.package-archive" \
+          --data-binary @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
+          "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$RELEASE_ID/assets?name=com.scn.BrickController2-Signed.apk"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

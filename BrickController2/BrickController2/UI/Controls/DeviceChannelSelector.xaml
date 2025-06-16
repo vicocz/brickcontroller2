@@ -242,6 +242,33 @@
                 <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=technic_move.png}" WidthRequest="150" HeightRequest="80" ZIndex="-1"/>
             </Grid>
 
+            <!-- PFx Brick -->
+            <Grid x:Name="PfxBrickSection">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="PfxBrickChannelA" DeviceType="PfxBrick" Channel="0" HorizontalOptions="Start" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="PfxBrickChannelB" DeviceType="PfxBrick" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel1" DeviceType="PfxBrick" Channel="2" HorizontalOptions="End" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel2" DeviceType="PfxBrick" Channel="3" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,40,0"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel3" DeviceType="PfxBrick" Channel="4" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,80,0"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel4" DeviceType="PfxBrick" Channel="5" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,120,0"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel5" DeviceType="PfxBrick" Channel="6" HorizontalOptions="End" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel6" DeviceType="PfxBrick" Channel="7" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,40,0"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel7" DeviceType="PfxBrick" Channel="8" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,80,0"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel8" DeviceType="PfxBrick" Channel="9" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,120,0"/>
+
+                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=pfx_brick_image.png}" WidthRequest="130" HeightRequest="95" ZIndex="-1"/>
+            </Grid>
+
             <!-- MK4 -->
             <Grid x:Name="MK4Section">
                 <Grid.ColumnDefinitions>

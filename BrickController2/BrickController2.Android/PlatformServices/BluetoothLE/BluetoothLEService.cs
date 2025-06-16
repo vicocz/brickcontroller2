@@ -31,13 +31,13 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
         }
 
-        public bool IsBluetoothLESupported => _bluetoothAdapter != null;
-        public bool IsBluetoothLEAdvertisingSupported => _bluetoothAdapter?.BluetoothLeAdvertiser != null;
-        public bool IsBluetoothOn => _bluetoothAdapter?.IsEnabled ?? false;
+        public Task<bool> IsBluetoothLESupportedAsync() => Task.FromResult(_bluetoothAdapter != null);
+        public Task<bool> IsBluetoothLEAdvertisingSupportedAsync() => Task.FromResult(_bluetoothAdapter?.BluetoothLeAdvertiser != null);
+        public Task<bool> IsBluetoothOnAsync() => Task.FromResult(_bluetoothAdapter?.IsEnabled ?? false);
 
         public async Task<bool> ScanDevicesAsync(Action<BrickController2.PlatformServices.BluetoothLE.ScanResult> scanCallback, CancellationToken token)
         {
-            if (!IsBluetoothLESupported || !IsBluetoothOn || _isScanning)
+            if (! await IsBluetoothLESupportedAsync() || ! await IsBluetoothOnAsync() || _isScanning)
             {
                 return false;
             }
@@ -59,9 +59,9 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             }
         }
 
-        public IBluetoothLEDevice? GetKnownDevice(string address)
+        public async Task<IBluetoothLEDevice?> GetKnownDeviceAsync(string address)
         {
-            if (!IsBluetoothLESupported || _bluetoothAdapter is null)
+            if (! await IsBluetoothLESupportedAsync() || _bluetoothAdapter is null)
             {
                 return null;
             }

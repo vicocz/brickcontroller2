@@ -65,7 +65,9 @@ namespace BrickController2.DeviceManagement
 
         public override string BatteryVoltageSign => "%";
 
-        public override bool CanChangeOutputType(int channel) => true;
+        public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
+            // support all output types on all channels
+            => true;
 
         protected override bool AutoConnectOnFirstConnect => true;
 

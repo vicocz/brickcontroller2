@@ -64,6 +64,7 @@ namespace BrickController2.UI.ViewModels
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             AddAnotherActionCommand = new SafeCommand<ControllerEvent>(AddAnotherActionAsync);
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
+            OpenControllerActionSetupCommand = new SafeCommand<ControllerAction>(OpenControllerActionChannelSetupAsync, ValidateControllerActionChannelSetup);
 
             PopulateControllerEvents();
         }
@@ -96,8 +97,9 @@ namespace BrickController2.UI.ViewModels
         public ICommand ControllerActionTappedCommand { get; }
         public ICommand DeleteControllerEventCommand { get; }
         public ICommand AddAnotherActionCommand { get; }
-        
+
         public ICommand DeleteControllerActionCommand { get; }
+        public ICommand OpenControllerActionSetupCommand { get; }
 
         private void PopulateControllerEvents()
         {
@@ -386,6 +388,25 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private Task OpenControllerActionChannelSetupAsync(ControllerAction controllerAction)
+        {
+            var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+            return NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", device!),
+                        ("controlleraction", controllerAction)));
+        }
+
+        private bool ValidateControllerActionChannelSetup(object? cmdParam)
+        {
+            if (cmdParam is not ControllerAction controllerAction ||
+                (controllerAction.ChannelOutputType != ChannelOutputType.ServoMotor &&
+                controllerAction.ChannelOutputType != ChannelOutputType.StepperMotor))
+            {
+                return false;
+            }
+            var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+            return device != null;
         }
 
         public class ControllerActionViewModel

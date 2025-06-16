@@ -28,12 +28,12 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
 #pragma warning restore CA1422 // Validate platform compatibility
         }
 
-        public bool IsBluetoothLESupported => true;
-        public bool IsBluetoothLEAdvertisingSupported => false; // Not supported yet - has to be implemented
-        public bool IsBluetoothOn => _centralManager.State == CBManagerState.PoweredOn;
+        public Task<bool> IsBluetoothLESupportedAsync() => Task.FromResult(true);
+        public Task<bool> IsBluetoothLEAdvertisingSupportedAsync() => Task.FromResult(true);
+        public Task<bool> IsBluetoothOnAsync() => Task.FromResult(_centralManager.State == CBManagerState.PoweredOn);
         public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
         {
-            if (!IsBluetoothLESupported || !IsBluetoothOn || _centralManager.IsScanning)
+            if (!await IsBluetoothLESupportedAsync() || !await IsBluetoothOnAsync() || _centralManager.IsScanning)
             {
                 return false;
             }
@@ -57,18 +57,18 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             }
         }
 
-        public IBluetoothLEDevice? GetKnownDevice(string address)
+        public Task<IBluetoothLEDevice?> GetKnownDeviceAsync(string address)
         {
             var peripheral = _centralManager?.RetrievePeripheralsWithIdentifiers(new NSUuid(address)).FirstOrDefault();
             if (peripheral is null)
             {
-                return null;
+                return Task.FromResult<IBluetoothLEDevice?>(default);
             }
 
             var device = new BluetoothLEDevice(_centralManager!, peripheral);
             _peripheralMap[peripheral] = device;
 
-            return device;
+            return Task.FromResult<IBluetoothLEDevice?>(device);
         }
 
         public override void UpdatedState(CBCentralManager central)
@@ -79,7 +79,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         {
             lock(_lock)
             {
-                if (peripheral is null || peripheral.Identifier is null || string.IsNullOrEmpty(peripheral.Name))
+                if (peripheral is null || peripheral.Identifier is null)
                 {
                     return;
                 }
@@ -126,7 +126,8 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             var serviceUuid = GetServiceUuidForKey(advertisementData, CBAdvertisement.DataServiceUUIDsKey);
             if (serviceUuid is not null)
             {
-                result[ADTYPE_SERVICE_128BIT] = serviceUuid;
+                // set it as incomplete service UUID (even though it might be the complete list)
+                result[ADTYPE_INCOMPLETE_SERVICE_128BIT] = serviceUuid;
             }
 
             // TODO: add the rest of the advertisementdata...
@@ -178,7 +179,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
 
         public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
         {
-            return null; // Not supported yet - has to be implemented
+            return new BluetoothLEAdvertiserDevice();
         }
     }
 }

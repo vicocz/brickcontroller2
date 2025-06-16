@@ -13,41 +13,40 @@ public class BuWizzDeviceManager : BluetoothDeviceManagerBase
         ReadOnlySpan<byte> manufacturerData,
         out FoundDevice device)
     {
-        ReadOnlySpan<byte> completeLocalName;
-        switch (manufacturerId)
+        // Discovering BuWizz device is based on the following information:
+        // 4E:05:’B’:’W’:’x’:’y’ where x and y are firmware version
+        // 05:45:’B’:’W’:’x’:’y’ where x and y are firmware version
+
+        device = manufacturerData switch
         {
-            case 0x4d48:
-                device = template with { DeviceType = DeviceType.BuWizz };
-                return true;
+            // legacy BuWizz 1 - manufacturer ID only
+            [0x48, 0x4d, ..] => template with { DeviceType = DeviceType.BuWizz },
+            // BuWizz 3 prefix - 
+            [0x4e, 0x05, 0x42, 0x57, 0x03, ..] => template with { DeviceType = DeviceType.BuWizz3 },
+            // BuWizz 2 with older firmware -
+            [0x4e, 0x05, ..] or
+            // BuWizz2 with new ID since firmware 1.2.30
+            [0x05, 0x45, 0x42, 0x57, 0x02, ..] => template with { DeviceType = DeviceType.BuWizz2 },
 
-            case 0x054e:
-                if (scanResult.TryGetCompleteLocalName(out completeLocalName))
-                {
-                    if (completeLocalName.SequenceEqual("BuWizz"u8)) // BuWizz
-                    {
-                        device = template with { DeviceType = DeviceType.BuWizz2 };
-                    }
-                    else
-                    {
-                        device = template with { DeviceType = DeviceType.BuWizz3 };
-                    }
-                    return true;
-                }
-                break;
+            _ => default,
+        };
 
-            case 0x4505: // BuWizz2 has new ID since firmware 1.2.30
-                if (scanResult.TryGetCompleteLocalName(out completeLocalName))
-                {
-                    if (completeLocalName.SequenceEqual("BuWizz2"u8)) // BuWizz2
-                    {
-                        device = template with { DeviceType = DeviceType.BuWizz2 };
-                        return true;
-                    }
-                }
-                break;
-        }
-        // no match
-        device = default;
-        return false;
+        return device.DeviceType != DeviceType.Unknown;
+    }
+    
+    protected override bool TryGetDeviceByServiceUiid(FoundDevice template, Guid serviceGuid, out FoundDevice device)
+    {
+        // this is prefered way however UUID might not be available on some platforms
+        device = serviceGuid switch
+        {
+            // BuWizz2 (firmware 1.2.30 +)
+            { } when serviceGuid == BuWizz2Device.SERVICE_UUID => template with { DeviceType = DeviceType.BuWizz2 },
+            // BuWizz3
+            { } when serviceGuid == BuWizz3Device.SERVICE_UUID => template with { DeviceType = DeviceType.BuWizz3 },
+
+            _ => default
+        };
+
+        return device.DeviceType != DeviceType.Unknown;
     }
 }

@@ -1,5 +1,9 @@
 ﻿using Autofac;
+using BrickController2.DeviceManagement.CaDA;
+using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.iOS.PlatformServices.BluetoothLE;
+using BrickController2.iOS.PlatformServices.DeviceManagement.MouldKing;
+using BrickController2.iOS.PlatformServices.DeviceManagement.CaDA;
 using BrickController2.iOS.PlatformServices.GameController;
 using BrickController2.iOS.PlatformServices.Infrared;
 using BrickController2.iOS.PlatformServices.Localization;
@@ -29,6 +33,8 @@ namespace BrickController2.iOS.PlatformServices.DI
             builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
             builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
+            builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
+            builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
         }
     }
 }

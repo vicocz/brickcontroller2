@@ -1,23 +1,31 @@
-﻿using BrickController2.Settings;
+﻿using BrickController2.DeviceManagement.Vendors;
+using BrickController2.Settings;
 using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement
 {
-    public class DeviceFactoryData : IDeviceFactoryData
+    public class DeviceFactoryData<TVendor, TDevice> : IDeviceFactoryData
+        where TDevice : Device, IDeviceType<TDevice>
+         where TVendor : Vendor<TVendor>
     {
-        public DeviceFactoryData(DeviceType deviceType, string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings)
+        public DeviceFactoryData(TVendor vendor, string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings)
         {
-            DeviceType = deviceType;
+            Vendor = vendor;
             Name = name;
             Address = address;
             DeviceData = deviceData;
             Settings = settings;
         }
 
-        public DeviceType DeviceType { get; }
+        public DeviceType DeviceType => TDevice.Type;
+
+        public TVendor Vendor { get; }
         public string Name { get; }
         public string Address { get; }
         public byte[] DeviceData { get; }
         public IEnumerable<NamedSetting> Settings { get; }
+
+        public string DeviceTypeName => TDevice.TypeName;
+        public string VendorName => Vendor.VendorName;
     }
 }

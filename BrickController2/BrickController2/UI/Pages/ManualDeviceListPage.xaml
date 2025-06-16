@@ -16,7 +16,6 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
-            <converters:DeviceTypeToGroupNameConverter x:Key="DeviceTypeToGroupName" />
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -25,25 +24,23 @@
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
-        <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+        <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" Padding="10">
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Device list -->
                 <CollectionView ItemsSource="{Binding GroupedFactoryDatas}" IsGrouped="True">
                     <CollectionView.GroupHeaderTemplate>
                         <DataTemplate>
-                            <VerticalStackLayout>
-                                <Grid Style="{StaticResource CollectionItemGridStyle}">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
-                                    <VerticalStackLayout Grid.Column="1">
-                                        <Label Text="{Binding DeviceType, Converter={StaticResource DeviceTypeToGroupName}}" FontSize="Large" FontAttributes="Bold"/>
-                                    </VerticalStackLayout>
-                                </Grid>
-                            </VerticalStackLayout>
+                            <Grid Style="{StaticResource CollectionItemGridStyle}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="{Binding GroupName}" FontSize="Large" FontAttributes="Bold"/>
+                                </VerticalStackLayout>
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                     <CollectionView.GroupFooterTemplate>
@@ -53,17 +50,15 @@
                     </CollectionView.GroupFooterTemplate>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <VerticalStackLayout>
-                                <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="50"/>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="1" Text="{Binding DeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
-                                    <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
-                                </Grid>
-                            </VerticalStackLayout>
+                            <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="1" Text="{Binding DeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
+                                <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>

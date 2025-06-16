@@ -33,7 +33,7 @@ namespace BrickController2.UI.ViewModels
 
             public string GroupName { get; }
 
-            public DeviceGroup(DeviceType deviceType, string groupName, List<DeviceEntry> deviceEntry) : base(deviceEntry)
+            public DeviceGroup(DeviceType deviceType, string groupName, List<DeviceEntry> deviceEntries) : base(deviceEntries)
             {
                 GroupName = groupName;
                 DeviceType = deviceType;
@@ -55,6 +55,7 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             var groups = manualDeviceManager.FactoryDataList
+                // apply ordering per vendor and device type
                 .OrderBy(o => o.VendorName)
                 .ThenBy(o => o.DeviceTypeName)
                 .GroupBy(o => (o.VendorName, o.DeviceType, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));

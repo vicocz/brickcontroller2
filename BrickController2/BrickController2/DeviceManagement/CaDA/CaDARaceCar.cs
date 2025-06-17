@@ -87,7 +87,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
                 _outputValues[channelNo] = intValue;
 
                 // notify data changed
-                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(false);
+                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(0, false);
             }
         }
     }

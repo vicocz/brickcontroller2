@@ -94,9 +94,9 @@ namespace BrickController2.DeviceManagement
         private AutoResetEvent? _waitForNewData;
 
         /// <summary>
-        /// True if all channels are zero
+        /// bitfield representing the set-state of all channels of all instances of the DeviceType handled by this instance.
         /// </summary>
-        private bool _allChannelsZero = true;
+        private long _allChannelsSetState = 0;
 
         public BluetoothAdvertisingDeviceHandler(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram, TimeSpan reconnectTimespan)
         {
@@ -109,14 +109,18 @@ namespace BrickController2.DeviceManagement
         public AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
         public TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
 
-        public void NotifyDataChanged(bool allChannelsZero)
+        public void NotifyDataChanged(int specificChannelNo, bool zeroSet)
         {
-            if (allChannelsZero)
+            if (zeroSet)
             {
-                // _allChannelsZero will change to true
-                if (!_allChannelsZero)
+                long allChannelsSetState = _allChannelsSetState;
+
+                // reset the bit for the specificChannelNo
+                _allChannelsSetState &= ~(1L << specificChannelNo);
+
+                if (_allChannelsSetState == 0 &&                    // set state of all channels is zero
+                    allChannelsSetState != _allChannelsSetState)    // there was a change
                 {
-                    _allChannelsZero = true;
                     _allZeroStopwatch.Restart();
 
                     // signal _waitForNewData to immediately run next loop in ProcessOutputs
@@ -126,7 +130,8 @@ namespace BrickController2.DeviceManagement
             }
             else
             {
-                _allChannelsZero = false;
+                // set the bit for the specificChannelNo
+                _allChannelsSetState |= (1L << specificChannelNo);
 
                 // signal _waitForNewData to immediately run next loop in ProcessOutputs
                 _waitForNewData?.Set();
@@ -316,7 +321,8 @@ namespace BrickController2.DeviceManagement
 
                 // if all channels are zero and _reconnectTimeSpan has elapsed
                 // then the connect telegram should be sent
-                inConnectMode = _allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
+                inConnectMode = _allChannelsSetState == 0 && 
+                    _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
 
                 // if connectMode is requested and if previous was not a connect telegram
                 if (inConnectMode && !inConnectModePrevious)

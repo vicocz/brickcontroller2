@@ -11,8 +11,6 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
 {
     public const string Device = "Device";
 
-    public const int CHANNEL_START_OFFSET = 3;
-
     /// <summary>
     /// Telegram connect to MK5.0
     /// </summary>
@@ -29,7 +27,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
     public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
-      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, CHANNEL_START_OFFSET, Telegram_Connect, Telegram_Base)
+      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, 0, Telegram_Connect, Telegram_Base)
     {
     }
 
@@ -46,42 +44,76 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// </summary>
     protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
-    /// <summary>
-    /// Number of bytes containing channel values in base telegram
-    /// </summary>
-    protected override int BaseTelegram_ChannelBytesCount => 2;
-
-    /// <summary>
-    /// Offset to position of first channel in base telegram
-    /// </summary>
-    protected override int BaseTelegram_ChannelStartOffset => CHANNEL_START_OFFSET;
-
-    // MK5: ZeroValueNibble = 0x00, ZeroValueOffset = 0x08
-    // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
-    // value == 0:                0
-    // value >  0:                  9 A B C D E F    range_pos: 0x07
-
-    /// <summary>
-    /// Gets the nibble value that represents zero in the current encoding scheme.
-    /// </summary>
-    protected override byte ZeroValueNibble => 0x00;
-
-    /// <summary>
-    /// Gets the offset for positive values
-    /// </summary>
-    protected override byte Range_pos_Offset => 0x08;
-
-    /// <summary>
-    /// Gets the range for positive values
-    /// </summary>
-    protected override int Range_neg => 0x07;
-
-    /// <summary>
-    /// Gets the range for negative values
-    /// </summary>
-    protected override int Range_pos => 0x07;
-
     /// <inheritdoc/>>
     protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler() =>
+        // there is only one instance of MK5.0
         new(_bleService, ManufacturerId, TryGetTelegram, ReconnectTimeSpan);
+
+
+    protected override Func<float, (byte, bool)> CreateSetChannel(int channelNo)
+    {
+        return channelNo switch
+        {
+            0 => (float value) => SetOutput_AnalogChannel(value),
+            1 => (float value) => SetOutput_AnalogChannel(value),
+            2 => (float value) => SetOutput_Shot(value),
+            3 => (float value) => SetOutput_AnalogChannel(value),
+            _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
+        };
+    }
+
+    private (byte, bool) SetOutput_AnalogChannel(float value)
+    {
+        // MK5: ZeroValueNibble = 0x00, Range_pos_Offset = 0x08
+        // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+        // value == 0:                0
+        // value >  0:                  9 A B C D E F    range_pos: 0x07
+        const byte ZeroValueNibble = 0x00;
+        const byte Range_pos_Offset = 0x08;
+        const int Range_pos = 0x07;
+        const int Range_neg = 0x07;
+
+        if (value < 0)
+        {
+            float value_abs = Math.Min(0x07, -value * Range_neg);
+            byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
+
+            if (setValue_nibble == 0) // replace zero with ZeroValueNibble
+            {
+                return (ZeroValueNibble, true);
+            }
+            else
+            {
+                return (setValue_nibble, false);
+            }
+        }
+        else if (value > 0)
+        {
+            float value_abs = Math.Min(0x0F, (value * Range_pos) + Range_pos_Offset);
+            byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));
+
+            return (setValue_nibble, false);
+        }
+        else
+        {
+            return (ZeroValueNibble, true);
+        }
+    }
+
+    private (byte, bool) SetOutput_Shot(float value)
+    {
+        // Tank fires a shot when value is set to 0x0F
+        if (value < 0)
+        {
+            return (0x0F, false);
+        }
+        else if (value > 0)
+        {
+            return (0x0F, false);
+        }
+        else
+        {
+            return (0x00, true);
+        }
+    }
 }

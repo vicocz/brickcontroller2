@@ -80,11 +80,11 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     {
         return channelNo switch
         {
-            0 => (0, (value) => SetOutput_AnalogChannel(value)),                    // Tracks A + B forward, backward
-            1 => (1, (value) => SetOutput_AnalogChannel_Turrent(value)),            // Turrent rotation
-            2 => (2, (value) => SetOutput_Shot(value)),                             // shot canon
-            3 => (3, (value) => SetOutput_AnalogChannel(value)),                    // turn on spot
-            4 => (VIRTUALCHANNEL, (value) => SetOutput_Option_Turrent_Lock(value)), // virtual channel: lock turrent
+            0 => (0, SetOutput_AnalogChannel),                    // Tracks A + B forward, backward
+            1 => (1, SetOutput_AnalogChannel_Turrent),            // Turrent rotation
+            2 => (2, SetOutput_Shot),                             // shot canon
+            3 => (3, SetOutput_AnalogChannel),                    // turn on spot
+            4 => (VIRTUALCHANNEL, SetOutput_Option_Turrent_Lock), // virtual channel: lock turrent
             _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
         };
     }

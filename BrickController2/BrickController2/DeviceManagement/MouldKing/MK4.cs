@@ -91,10 +91,10 @@ namespace BrickController2.DeviceManagement.MouldKing
     {
         return channelNo switch
         {
-            0 => (0, (value) => SetOutput_AnalogChannel(value)),
-            1 => (1, (value) => SetOutput_AnalogChannel(value)),
-            2 => (2, (value) => SetOutput_AnalogChannel(value)),
-            3 => (3, (value) => SetOutput_AnalogChannel(value)),
+            0 => (0, SetOutput_AnalogChannel),
+            1 => (1, SetOutput_AnalogChannel),
+            2 => (2, SetOutput_AnalogChannel),
+            3 => (3, SetOutput_AnalogChannel),
             _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
         };
     }

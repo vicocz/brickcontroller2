@@ -304,7 +304,10 @@
                     <controls:ChannelSelectorRadioButton x:Name="MK5Channel0" DeviceType="MK5" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
                 </Grid>
 
-                <Image Grid.Column="1" Source="{extensions:ImageResource Source=mk5_image.png}" WidthRequest="150" HeightRequest="112"/>
+                <Grid Grid.Column="1">
+                    <Image Source="{extensions:ImageResource Source=mk5_image.png}" WidthRequest="150" HeightRequest="112"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK5Channel4" DeviceType="MK5" Channel="4" HorizontalOptions="Center" VerticalOptions="End" />
+                </Grid>
 
                 <Grid Grid.Column="2">
                     <controls:ChannelSelectorRadioButton x:Name="MK5Channel1" DeviceType="MK5" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>

@@ -26,6 +26,13 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// </summary>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
+    /// <summary>
+    /// Offset for turrent rotation.
+    /// * 0x00: turrent is unlocked
+    /// * 0x02: turrent is locked
+    /// </summary>
+    private byte _turrentOffset = 0x00;
+
     public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, 0, Telegram_Connect, Telegram_Base)
     {
@@ -37,7 +44,14 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
 
     public static string TypeName => "MK 5.0";
 
-    public override int NumberOfChannels => 4;
+    /// <summary>
+    /// Gets the number of audio channels supported by the current configuration.
+    /// <remarks><list type="bullet">
+    /// <item><description>Channel 0..4: real existing channel</description></item> 
+    /// <item><description>Channel 5: virtual channel for locking the turret</description></item>
+    /// </list></remarks>
+    /// </summary>
+    public override int NumberOfChannels => 5;
 
     /// <summary>
     /// ManufacturerId to advertise
@@ -49,25 +63,51 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
         // there is only one instance of MK5.0
         new(_bleService, ManufacturerId, TryGetTelegram, ReconnectTimeSpan);
 
-
-    protected override Func<float, (byte, bool)> CreateSetChannel(int channelNo)
+    /// <summary>
+    /// Creates a handler for the specified channel, providing a mapping between the channel number  and its associated
+    /// output function.
+    /// </summary>
+    /// <remarks>Each channel number corresponds to a specific operation or behavior: <list type="bullet">
+    /// <item><description>Channel 0: Tracks A + B forward and backward.</description></item> <item><description>Channel
+    /// 1: Controls turret rotation.</description></item> <item><description>Channel 2: Fires the
+    /// cannon.</description></item> <item><description>Channel 3: Enables turning on the spot.</description></item>
+    /// <item><description>Channel 4: Virtual channel for locking the turret.</description></item> </list></remarks>
+    /// <param name="channelNo">The channel number for which the handler is to be created. Valid values are 0, 1, 2, 3, or 4.</param>
+    /// <returns>A tuple containing the channel identifier and a function that processes a float input to  produce a byte output
+    /// and a boolean status.</returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not a valid channel number.</exception>
+    protected override (int, Func<float, (byte, bool)>) CreateChannelHandler(int channelNo)
     {
         return channelNo switch
         {
-            0 => (float value) => SetOutput_AnalogChannel(value),
-            1 => (float value) => SetOutput_AnalogChannel(value),
-            2 => (float value) => SetOutput_Shot(value),
-            3 => (float value) => SetOutput_AnalogChannel(value),
+            0 => (0, (value) => SetOutput_AnalogChannel(value)),                    // Tracks A + B forward, backward
+            1 => (1, (value) => SetOutput_AnalogChannel_Turrent(value)),            // Turrent rotation
+            2 => (2, (value) => SetOutput_Shot(value)),                             // shot canon
+            3 => (3, (value) => SetOutput_AnalogChannel(value)),                    // turn on spot
+            4 => (VIRTUALCHANNEL, (value) => SetOutput_Option_Turrent_Lock(value)), // virtual channel: lock turrent
             _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
         };
     }
 
-    private (byte, bool) SetOutput_AnalogChannel(float value)
+    /// <summary>
+    /// Converts a floating-point value into a nibble representation for an analog channel output.
+    /// </summary>
+    /// <remarks>This method maps the input <paramref name="value"/> to a nibble (4-bit) representation based
+    /// on its sign and magnitude. Negative values are scaled using a predefined negative range, positive values are
+    /// scaled using a positive range with an offset,  and zero values are represented by a specific nibble
+    /// value.</remarks>
+    /// <param name="value">The floating-point value to be converted. Negative values, positive values, and zero are handled differently.</param>
+    /// <returns>A tuple containing: <list type="bullet"> <item> <description><c>setValue_nibble</c>: The 4-bit nibble
+    /// representation of the input value.</description> </item> <item> <description><c>zeroSet</c>: A boolean
+    /// indicating whether the input value was zero (<see langword="true"/>) or not (<see
+    /// langword="false"/>).</description> </item> </list></returns>
+    private (byte setValue_nibble, bool zeroSet) SetOutput_AnalogChannel(float value)
     {
         // MK5: ZeroValueNibble = 0x00, Range_pos_Offset = 0x08
         // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
         // value == 0:                0
         // value >  0:                  9 A B C D E F    range_pos: 0x07
+
         const byte ZeroValueNibble = 0x00;
         const byte Range_pos_Offset = 0x08;
         const int Range_pos = 0x07;
@@ -100,20 +140,115 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
         }
     }
 
-    private (byte, bool) SetOutput_Shot(float value)
+    /// <summary>
+    /// Calculates the nibble value and zero-set flag for the analog channel turret based on the specified input value.
+    /// </summary>
+    /// <remarks>The method processes the input value by inverting it for turret-specific requirements and
+    /// calculates the appropriate nibble value  based on predefined positive and negative ranges. If the calculated
+    /// nibble value is zero, the zero value nibble is applied.</remarks>
+    /// <param name="value">The input value to be processed. Negative values represent the negative range, positive values represent the
+    /// positive range,  and zero represents the neutral state.</param>
+    /// <returns>A tuple containing: <list type="bullet"> <item> <description><c>setValue_nibble</c>: The calculated nibble value
+    /// to be set for the turret.</description> </item> <item> <description><c>zeroSet</c>: A boolean flag indicating
+    /// whether the zero value nibble is used (<see langword="true"/> if the zero value nibble is applied; otherwise,
+    /// <see langword="false"/>).</description> </item> </list></returns>
+    private (byte setValue_nibble, bool zeroSet) SetOutput_AnalogChannel_Turrent(float value)
     {
-        // Tank fires a shot when value is set to 0x0F
+        // MK5: ZeroValueNibble = 0x00, Range_pos_Offset = 0x08
+        // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+        // value == 0:                0
+        // value >  0:                  9 A B C D E F    range_pos: 0x07
+
+        byte ZeroValueNibble = _turrentOffset; // <-- turrentOffset is set by SetOutput_Option_Turrent_Lock
+        const byte Range_pos_Offset = 0x08;
+        const int Range_pos = 0x07;
+        const int Range_neg = 0x07;
+
+        value *= -1; // invert value for turrent
+
         if (value < 0)
         {
-            return (0x0F, false);
+            float value_abs = Math.Min(0x07, -value * Range_neg);
+            byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
+
+            if (setValue_nibble == 0) // replace zero with ZeroValueNibble
+            {
+                return (ZeroValueNibble, true);
+            }
+            else
+            {
+                return (setValue_nibble, false);
+            }
         }
         else if (value > 0)
         {
-            return (0x0F, false);
+            float value_abs = Math.Min(0x0F, (value * Range_pos) + Range_pos_Offset);
+            byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));
+
+            return (setValue_nibble, false);
         }
         else
         {
+            return (ZeroValueNibble, true);
+        }
+    }
+
+    /// <summary>
+    /// Determines the output value and status for firing a shot based on the provided input.
+    /// </summary>
+    /// <remarks>The method is designed to control the firing mechanism of a tank. When the input value is
+    /// <c>0</c>, the output indicates no firing (<c>0x00</c>), and <c>zeroSet</c> is <see langword="true"/>.  For all
+    /// other values, the output indicates a firing action (<c>0x0F</c>), and <c>zeroSet</c> is <see
+    /// langword="false"/>.</remarks>
+    /// <param name="value">The input value used to determine the output. Must be a floating-point number.</param>
+    /// <returns>A tuple containing: <list type="bullet"> <item><description><c>setValue_nibble</c>: A byte representing the
+    /// output value. Returns <c>0x00</c> if <paramref name="value"/> is <c>0</c>, or <c>0x0F</c>
+    /// otherwise.</description></item> <item><description><c>zeroSet</c>: A boolean indicating whether the input value
+    /// was zero. Returns <see langword="true"/> if <paramref name="value"/> is <c>0</c>; otherwise, <see
+    /// langword="false"/>.</description></item> </list></returns>
+    private (byte setValue_nibble, bool zeroSet) SetOutput_Shot(float value)
+    {
+        if (value == 0)
+        {
             return (0x00, true);
         }
+        else
+        {
+            // Tank fires a shot when value is set to 0x0F
+            return (0x0F, false);
+        }
+    }
+
+    /// <summary>
+    /// Configures the turret lock state based on the specified value.
+    /// </summary>
+    /// <remarks>The turret lock is managed as a virtual channel, and the method invokes the handler for the
+    /// corresponding real turret channel.</remarks>
+    /// <param name="value">A floating-point value representing the desired turret lock state.  A value of <see langword="0"/> unlocks the
+    /// turret, while any other value locks the turret.</param>
+    /// <returns>A tuple containing two elements: <list type="bullet"> <item> <description><c>setValue_nibble</c>: A byte value
+    /// indicating the nibble used for the turret lock operation. Always returns <c>0x00</c>.</description> </item>
+    /// <item> <description><c>zeroSet</c>: A boolean value indicating whether the turret lock state was successfully
+    /// updated.</description> </item> </list></returns>
+    private (byte setValue_nibble, bool zeroSet) SetOutput_Option_Turrent_Lock(float value)
+    {
+        if (value == 0)
+        {
+            _turrentOffset = 0x00; // turrent is unlocked
+        }
+        else
+        {
+            _turrentOffset = 0x02; // turrent is locked
+        }
+
+        bool valueChanged = false;
+        
+        valueChanged |= _setChannel[1](_storedValues[1]); // The turrent lock is a virtual channel, so call handler for real turrent channel
+
+        // to clarify the concept:
+        // inside a virtual channel handler multiple calls to _setChannel are allowed
+        //valueChanged |= _setChannel[1](_storedValues[1]); // The turrent lock is a virtual channel, so call handler for real turrent channel
+
+        return (_turrentOffset, valueChanged);
     }
 }

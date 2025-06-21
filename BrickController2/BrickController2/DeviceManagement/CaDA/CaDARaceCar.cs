@@ -82,15 +82,17 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
 
         lock (_outputLock)
         {
+            // check for change
             if (_outputValues[channelNo] != intValue)
             {
                 _outputValues[channelNo] = intValue;
 
                 // notify data changed
-                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(0, false);
+                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
             }
         }
     }
+
     protected override void InitDevice()
     {
     }

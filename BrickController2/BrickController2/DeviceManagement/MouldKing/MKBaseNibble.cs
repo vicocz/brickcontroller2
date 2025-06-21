@@ -19,6 +19,13 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     private const int MAX_CHANNEL_BYTES_PER_INSTANCE = 2;
 
     /// <summary>
+    /// Represents the virtual channel number used for specific operations.
+    /// </summary>
+    /// <remarks>This constant is intended for use in scenarios where a virtual channel identifier is
+    /// required. The value is set to -1, which may indicate a special or default channel.</remarks>
+    protected const int VIRTUALCHANNEL = -1; // virtual channel number
+
+    /// <summary>
     /// platform specific MouldKing stuff
     /// </summary>
     protected readonly IMKPlatformService _mkPlatformService;
@@ -35,10 +42,15 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     protected readonly byte[] _telegram_Base;
 
     /// <summary>
+    /// array to hold the incoming output values for all channels.
+    /// </summary>
+    protected readonly float[] _storedValues;
+
+    /// <summary>
     /// Represents an array of functions that process the channel's setvalue and return a tuple
     /// containing the baseTelegramChannelByteOffset, the channel specific setvalue and a boolean to indicate a zero value.
     /// </summary>
-    protected readonly Func<float, (int, int, (byte, bool))>[] _setChannel;
+    protected readonly Func<float, bool>[] _setChannel;
 
     /// <summary>
     /// instance number of specific device type
@@ -54,6 +66,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
 
         _instanceNo = instanceNo;
 
+        _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
         _setChannel = CreateSetChannelList();
     }
 
@@ -62,83 +75,129 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     public override string BatteryVoltageSign => string.Empty;
 
-
     /// <summary>
     /// Sets the output value for the specified channel.
     /// </summary>
-    /// <remarks>This method adjusts the output value based on the channel type and applies the appropriate
-    /// encoding. If the output value changes, a notification is triggered to indicate the change. For channels where
-    /// the value is set to zero, additional checks are performed to determine if all channels are zero.</remarks>
-    /// <param name="channelNo">The channel number for which the output value is to be set. Must be a valid channel index.</param>
-    /// <param name="value">The output value to set. The value is interpreted based on the channel type: negative values, zero, and positive
-    /// values may have different effects depending on the channel configuration.</param>
+    /// <remarks>This method updates the output value for the specified channel and ensures the value is
+    /// within the valid range. If the value changes, the method triggers a notification to indicate that data has been
+    /// updated.</remarks>
+    /// <param name="channelNo">The channel number for which the output value is being set. Must be a valid channel index.</param>
+    /// <param name="value">The output value to set. The value will be adjusted if it exceeds the allowable range.</param>
     public override void SetOutput(int channelNo, float value)
     {
         CheckChannel(channelNo);
         value = CutOutputValue(value);
 
-        (int byteOffset, int specificChannelNo, (byte setValue_nibble, bool zeroSet)) = _setChannel[channelNo](value);
-
-        byte originValue_byte = _telegram_Base[byteOffset];
-
-        bool isOdd = (channelNo & 0x01) == 0x01; // is odd
-        byte setValue_byte;
-        if (isOdd)
-        {
-            setValue_byte = (byte)((originValue_byte & 0xF0) + setValue_nibble);
-        }
-        else
-        {
-            setValue_byte = (byte)((originValue_byte & 0x0F) + (setValue_nibble << 4));
-        }
+        // store the incoming value in the stored values array
+        _storedValues[channelNo] = value;
 
         lock (_outputLock)
         {
-            // check for change
-            if (_telegram_Base[byteOffset] != setValue_byte)
-            {
-                _telegram_Base[byteOffset] = setValue_byte;
+            // call the channel specific set function
+            bool valueChanged = _setChannel[channelNo](value);
 
-                // notify data changed
-                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(specificChannelNo, zeroSet);
+            // check for change
+            if (valueChanged)
+            {
+                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
             }
         }
     }
 
     /// <summary>
-    /// Creates and returns an array of functions, each corresponding to a channel
+    /// Updates a specific nibble of a byte in the telegram buffer and returns whether the value was changed.
     /// </summary>
-    /// <remarks>Each function in the returned array is specific to a channel and is generated using the <see
-    /// cref="CreateSetChannel"/> method. The number of functions in the array matches the value of <see
-    /// cref="NumberOfChannels"/>.</remarks>
-    /// <returns>An array of functions</returns>
-    protected Func<float, (int, int, (byte, bool))>[] CreateSetChannelList()
+    /// <remarks>This method modifies the telegram buffer by updating either the lower or upper nibble of the
+    /// specified byte. The operation is thread-safe and ensures exclusive access to the buffer during the
+    /// update.</remarks>
+    /// <param name="byteOffset">The zero-based index of the byte in the telegram buffer to modify.</param>
+    /// <param name="isLowerNibble">A value indicating whether the lower nibble of the byte should be updated.  <see langword="true"/> to update the
+    /// lower nibble; <see langword="false"/> to update the upper nibble.</param>
+    /// <param name="setValue_nibble">The new nibble value to set, represented as a byte (0-15).</param>
+    /// <returns><see langword="true"/> if the byte in the telegram buffer was modified;  otherwise, <see langword="false"/> if
+    /// the value remained unchanged.</returns>
+    protected bool SetChannelValue(int byteOffset, bool isLowerNibble, byte setValue_nibble)
     {
-        Func<float, (int, int, (byte, bool))>[] setChannelList = new Func<float, (int, int, (byte, bool))>[NumberOfChannels];
+        lock (_outputLock)
+        {
+            byte originValue_byte = _telegram_Base[byteOffset];
+
+            byte setValue_byte;
+            if (isLowerNibble)
+            {
+                setValue_byte = (byte)((originValue_byte & 0xF0) + setValue_nibble);
+            }
+            else
+            {
+                setValue_byte = (byte)((originValue_byte & 0x0F) + (setValue_nibble << 4));
+            }
+            _telegram_Base[byteOffset] = setValue_byte;
+            return _telegram_Base[byteOffset] != originValue_byte;
+        }
+    }
+
+    /// <summary>
+    /// Creates and initializes a list of channel-setting functions for all available channels.
+    /// </summary>
+    /// <remarks>Each function in the returned array is responsible for setting the state or value of a
+    /// specific channel. The behavior of the function depends on whether the channel is virtual or real: - For virtual
+    /// channels, the function determines whether the channel's state has been modified. - For real channels, the
+    /// function updates the channel's state and value based on the provided input.</remarks>
+    /// <returns>An array of functions, where each function takes a <see langword="float"/> value as input and returns a <see
+    /// langword="bool"/> indicating success or modification. The array contains one function per channel, corresponding
+    /// to the total number of channels.</returns>
+    protected Func<float, bool>[] CreateSetChannelList()
+    {
+        Func<float, bool>[] setChannelList = new Func<float, bool>[NumberOfChannels];
 
         for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
         {
-            int byteOffset = GetSpecificChannelByteOffset(channelNo);
-            int specificChannelNo = GetSpecificChannelNumber(channelNo);
-            Func<float, (byte, bool)> createSetChannel = CreateSetChannel(channelNo);
+            (int realChannelNo, Func<float, (byte, bool)> handler) setChannelHandler = CreateChannelHandler(channelNo);
 
-            setChannelList[channelNo] = (float value) => (byteOffset, specificChannelNo, createSetChannel(value));
+            int realChannelNo = setChannelHandler.Item1;
+
+            // virtual channel
+            if (realChannelNo == VIRTUALCHANNEL)
+            {
+                setChannelList[channelNo] = (float value) =>
+                {
+                    // virtual channel handlers return isModified insted of zeroSet
+                    (byte a, bool isModified) = setChannelHandler.Item2(value);
+
+                    return isModified;
+                };
+            }
+            // real channel
+            else
+            {
+                bool isOdd = (realChannelNo & 0x01) == 0x01;
+                int byteOffset = GetByteOffset(realChannelNo);
+                int specificChannelNo = GetSpecificChannelNumber(realChannelNo);
+
+                setChannelList[channelNo] = (float value) =>
+                {
+                    (byte setValue_nibble, bool zeroSet) = setChannelHandler.Item2(value);
+
+                    _bluetoothAdvertisingDeviceHandler.SetChannelState(specificChannelNo, zeroSet); // set global channel state
+                    return SetChannelValue(byteOffset, isOdd, setValue_nibble);
+                };
+            }
         }
         return setChannelList;
     }
 
-
     /// <summary>
-    /// Creates a delegate that sets the value of a specific channel and returns the result as a tuple.
+    /// Creates a handler for processing a specific channel, returning the real channel number and a function to compute
+    /// channel-specific values.
     /// </summary>
-    /// <remarks>The returned delegate allows dynamic configuration of the specified channel. The exact
-    /// behavior and constraints of the delegate depend on the implementation in derived classes.</remarks>
-    /// <param name="channelNo">The channel number to configure. Must be a valid channel identifier.</param>
-    /// <returns>A function that takes a <see cref="float"/> value as input, representing the channel's desired state, and
-    /// returns a tuple containing a <see cref="byte"/> representing the processed channel value and a <see
-    /// langword="bool"/> indicating whether a zero value was set.</returns>
-    protected abstract Func<float, (byte, bool)> CreateSetChannel(int channelNo);
-
+    /// <remarks>This method is abstract and must be implemented by derived classes to define the behavior for
+    /// mapping and processing channel numbers.</remarks>
+    /// <param name="channelNo">The logical channel number to be processed. Must be a valid channel number within the expected range.</param>
+    /// <returns>A tuple containing: <list type="bullet"> <item> <description>The real channel number corresponding to the
+    /// provided logical channel number or constant VIRTUALCHANNEL to mark as virtual.</description> </item> <item> <description>A function that takes a float input
+    /// and returns a tuple consisting of a byte value (representing the nibble to set) and a boolean indicating whether
+    /// the zero set condition is met.</description> </item> </list></returns>
+    protected abstract (int realChannelNo, Func<float, (byte setValue_nibble, bool zeroSet)>) CreateChannelHandler(int channelNo);
 
     /// <summary>
     /// This method sets the device to initial state before advertising starts
@@ -151,7 +210,6 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
             _setChannel[channelNo](0); // set all channels to zero using the channel specific function
         }
     }
-
 
     /// <summary>
     /// Attempts to retrieve the RF payload for the specified telegram type.
@@ -176,28 +234,32 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     }
 
     /// <summary>
-    /// Calculates the byte offset inside the baseTelegram of the DeviceType for the specified channel.
+    /// Calculates the byte offset for a given channel number within the current instance.
     /// </summary>
-    /// <param name="channelNo">The zero-based index of the channel for which to calculate the start offset.</param>
-    /// <returns>The start offset for the specified channel.</returns>
-    private int GetSpecificChannelByteOffset(int channelNo)
+    /// <remarks>The byte offset is determined based on the instance number, the maximum number of bytes
+    /// allocated per instance,  and the channel number. Each byte represents two channels.</remarks>
+    /// <param name="channelNo">The channel number for which to calculate the byte offset. Must be a non-negative integer.</param>
+    /// <returns>The byte offset corresponding to the specified channel number within the current instance.</returns>
+    private int GetByteOffset(int channelNo)
     {
+        // i.e. MK4.0 has 3 instances, each with 2 bytes for channels
         // instance 0: 3..4
         // instance 1: 5..6
         // instance 2: 7..8
-        return CHANNEL_START_OFFSET + _instanceNo * MAX_CHANNEL_BYTES_PER_INSTANCE + (channelNo >> 1); // div 2, 2 channels per byte
+        return CHANNEL_START_OFFSET + _instanceNo * MAX_CHANNEL_BYTES_PER_INSTANCE + (channelNo >> 1); // div 2 -> 2 channels per byte
     }
 
     /// <summary>
-    /// Calculates the channel number inside the DeviceType for the specified channel.
+    /// Calculates the absolute channel number based on the specified relative channel number and the instance number.
     /// </summary>
-    /// <param name="channelNo">The zero-based index of the channel for which to calculate the DeviceType specific channel number.</param>
-    /// <returns>The DeviceType specific channel number for the specified channel.</returns>
+    /// <param name="channelNo">The relative channel number within the current instance. Must be within the valid range for the instance.</param>
+    /// <returns>The absolute channel number, combining the instance number and the relative channel number.</returns>
     private int GetSpecificChannelNumber(int channelNo)
     {
-        // instance 0: 0..3
-        // instance 1: 4..7
-        // instance 2: 8..11
+        // i.e. MK4.0 has 3 instances, each with 4 channels
+        // instance 0:  0.. 3
+        // instance 1:  4.. 7
+        // instance 2:  8..11
         return _instanceNo * NumberOfChannels + channelNo;
     }
 }

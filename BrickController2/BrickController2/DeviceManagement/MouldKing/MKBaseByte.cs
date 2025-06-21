@@ -84,8 +84,8 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
             {
                 _telegram_Base[byteOffset] = byteValue;
 
-                // Zero was set -> check all channel's values
-                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged(channelNo, byteValue == 0x80);
+                _bluetoothAdvertisingDeviceHandler.SetChannelState(channelNo, byteValue == 0x80);
+                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
             }
         }
     }

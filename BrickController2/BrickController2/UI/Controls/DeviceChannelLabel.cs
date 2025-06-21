@@ -12,7 +12,7 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _pfxBricks = ["A", "B", "1", "2", "3", "4", "5", "6", "7", "8"];
         private readonly static string[] _circuitCubesChannelLetters = new[] { "A", "B", "C" };
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
-        private readonly static string[] _mk5ChannelLetters = ["AB", "C", "M", "AB+C"];
+        private readonly static string[] _mk5ChannelLetters = ["AB", "T", "C", "AB+T", "TL"];
         private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
 
         public static readonly BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);

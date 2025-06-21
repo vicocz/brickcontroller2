@@ -50,8 +50,10 @@ namespace BrickController2.DeviceManagement.MouldKing
         public static string TypeName => "MK 4.0";
 
     /// <summary>
-    /// Number of channels for one MK4.0 device
-    /// * channel 0..3 are analog 
+    /// Gets the number of audio channels supported by the current configuration.
+    /// <remarks><list type="bullet">
+    /// <item><description>Channel 0..4: real existing channel</description></item> 
+    /// </list></remarks>
     /// </summary>
     public override int NumberOfChannels => 4;
 
@@ -78,36 +80,44 @@ namespace BrickController2.DeviceManagement.MouldKing
     }
 
     /// <summary>
-    /// Returns a function that processes a floating-point input value and produces a tuple containing the channel
-    /// offset and the result of the analog channel output operation.
+    /// Creates a handler for the specified analog channel.
     /// </summary>
-    /// <remarks>The returned function is specific to the provided channel number and uses predefined
-    /// parameters  to calculate the analog channel output. The caller must ensure that the channel number is valid 
-    /// to avoid exceptions.</remarks>
-    /// <param name="channelNo">The channel number for which the processing function is requested. Valid values are 0, 1, 2, or 3.</param>
-    /// <returns>A function that takes a <see langword="float"/> input value and returns a tuple containing: - An <see
-    /// langword="int"/> representing the channel offset. - A nested tuple containing:   - A <see langword="byte"/>
-    /// representing the output value.   - A <see langword="bool"/> indicating the success or failure of the
-    /// operation.</returns>
+    /// <param name="channelNo">The channel number for which the handler is to be created. Valid values are 0, 1, 2, or 3.</param>
+    /// <returns>A tuple containing the channel identifier and a function that processes analog output values. The function takes
+    /// a <see langword="float"/> representing the analog value and returns a tuple containing a <see langword="byte"/>
+    /// representing the processed output and a <see langword="bool"/> indicating the success of the operation.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not one of the valid channel numbers (0, 1, 2, or 3).</exception>
-    protected override Func<float, (byte, bool)> CreateSetChannel(int channelNo)
+    protected override (int, Func<float, (byte, bool)>) CreateChannelHandler(int channelNo)
     {
         return channelNo switch
         {
-            0 => (float value) => SetOutput_AnalogChannel(value),
-            1 => (float value) => SetOutput_AnalogChannel(value),
-            2 => (float value) => SetOutput_AnalogChannel(value),
-            3 => (float value) => SetOutput_AnalogChannel(value),
+            0 => (0, (value) => SetOutput_AnalogChannel(value)),
+            1 => (1, (value) => SetOutput_AnalogChannel(value)),
+            2 => (2, (value) => SetOutput_AnalogChannel(value)),
+            3 => (3, (value) => SetOutput_AnalogChannel(value)),
             _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
         };
     }
 
+    /// <summary>
+    /// Converts a floating-point value into a nibble representation for an analog channel output.
+    /// </summary>
+    /// <remarks>The method maps the input value to a nibble representation based on predefined ranges for
+    /// positive, negative, and zero values. The zero value is represented by a specific nibble constant. The caller can
+    /// use the returned boolean to determine if the nibble corresponds to the zero value.</remarks>
+    /// <param name="value">The floating-point value to be converted. Negative values are mapped to the negative range, positive values are
+    /// mapped to the positive range, and zero is mapped to a predefined nibble.</param>
+    /// <returns>A tuple containing the following: <list type="bullet"> <item> <description> A <see cref="byte"/> representing
+    /// the nibble value for the analog channel output. </description> </item> <item> <description> A <see cref="bool"/>
+    /// indicating whether the nibble corresponds to the zero value. <see langword="true"/> if the nibble represents
+    /// zero; otherwise, <see langword="false"/>. </description> </item> </list></returns>
     private (byte, bool) SetOutput_AnalogChannel(float value)
     {
         // MK4: ZeroValueNibble = 0x08, Range_pos_Offset = 0x08
         // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
         // value == 0:                0 8
         // value >  0:                    9 A B C D E F  range_pos: 0x07
+
         const byte ZeroValueNibble = 0x08;
         const byte Range_pos_Offset = 0x08;
         const int Range_pos = 0x07;

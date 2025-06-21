@@ -27,11 +27,11 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
     /// <summary>
-    /// Offset for turrent rotation.
-    /// * 0x00: turrent is unlocked
-    /// * 0x02: turrent is locked
+    /// Offset for turret rotation.
+    /// * 0x00: turret is unlocked
+    /// * 0x02: turret is locked
     /// </summary>
-    private byte _turrentOffset = 0x00;
+    private byte _turretOffset = 0x00;
 
     public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, 0, Telegram_Connect, Telegram_Base)
@@ -81,10 +81,10 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
         return channelNo switch
         {
             0 => (0, SetOutput_AnalogChannel),                    // Tracks A + B forward, backward
-            1 => (1, SetOutput_AnalogChannel_Turrent),            // Turrent rotation
+            1 => (1, SetOutput_AnalogChannel_Turret),             // Turret rotation
             2 => (2, SetOutput_Shot),                             // shot canon
             3 => (3, SetOutput_AnalogChannel),                    // turn on spot
-            4 => (VIRTUALCHANNEL, SetOutput_Option_Turrent_Lock), // virtual channel: lock turrent
+            4 => (VIRTUALCHANNEL, SetOutput_Option_Turret_Lock),  // virtual channel: lock turret
             _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
         };
     }
@@ -152,19 +152,19 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// to be set for the turret.</description> </item> <item> <description><c>zeroSet</c>: A boolean flag indicating
     /// whether the zero value nibble is used (<see langword="true"/> if the zero value nibble is applied; otherwise,
     /// <see langword="false"/>).</description> </item> </list></returns>
-    private (byte setValue_nibble, bool zeroSet) SetOutput_AnalogChannel_Turrent(float value)
+    private (byte setValue_nibble, bool zeroSet) SetOutput_AnalogChannel_Turret(float value)
     {
         // MK5: ZeroValueNibble = 0x00, Range_pos_Offset = 0x08
         // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
         // value == 0:                0
         // value >  0:                  9 A B C D E F    range_pos: 0x07
 
-        byte ZeroValueNibble = _turrentOffset; // <-- turrentOffset is set by SetOutput_Option_Turrent_Lock
+        byte ZeroValueNibble = _turretOffset; // <-- turretOffset is set by SetOutput_Option_Turret_Lock
         const byte Range_pos_Offset = 0x08;
         const int Range_pos = 0x07;
         const int Range_neg = 0x07;
 
-        value *= -1; // invert value for turrent
+        value *= -1; // invert value for turret
 
         if (value < 0)
         {
@@ -230,25 +230,25 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// indicating the nibble used for the turret lock operation. Always returns <c>0x00</c>.</description> </item>
     /// <item> <description><c>zeroSet</c>: A boolean value indicating whether the turret lock state was successfully
     /// updated.</description> </item> </list></returns>
-    private (byte setValue_nibble, bool zeroSet) SetOutput_Option_Turrent_Lock(float value)
+    private (byte setValue_nibble, bool zeroSet) SetOutput_Option_Turret_Lock(float value)
     {
         if (value == 0)
         {
-            _turrentOffset = 0x00; // turrent is unlocked
+            _turretOffset = 0x00; // turret is unlocked
         }
         else
         {
-            _turrentOffset = 0x02; // turrent is locked
+            _turretOffset = 0x02; // turret is locked
         }
 
         bool valueChanged = false;
         
-        valueChanged |= _setChannel[1](_storedValues[1]); // The turrent lock is a virtual channel, so call handler for real turrent channel
+        valueChanged |= _setChannel[1](_storedValues[1]); // The turret lock is a virtual channel, so call handler for real turret channel
 
         // to clarify the concept:
         // inside a virtual channel handler multiple calls to _setChannel are allowed
-        //valueChanged |= _setChannel[1](_storedValues[1]); // The turrent lock is a virtual channel, so call handler for real turrent channel
+        //valueChanged |= _setChannel[x](_storedValues[x]); 
 
-        return (_turrentOffset, valueChanged);
+        return (_turretOffset, valueChanged);
     }
 }

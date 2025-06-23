@@ -117,14 +117,14 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
 
         const byte ZEROVALUE_NIBBLE = 0x00;
 
-        if (value < MIN_NEG_RANGE_THRESHOLD)
+        if (value <= MIN_NEG_RANGE_THRESHOLD)
         {
             float value_abs = Math.Min(0x07, -value * RANGE_NEG);
             byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
             return (setValue_nibble, false);
         }
-        else if (value > MIN_POS_RANGE_THRESHOLD)
+        else if (value >= MIN_POS_RANGE_THRESHOLD)
         {
             float value_abs = Math.Min(0x0F, (value * RANGE_POS) + RANGE_POS_OFFSET);
             byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
@@ -166,14 +166,14 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
 
         value *= -1; // invert value for turret
 
-        if (value < MIN_NEG_RANGE_THRESHOLD)
+        if (value <= MIN_NEG_RANGE_THRESHOLD)
         {
             float value_abs = Math.Min(0x07, -value * RANGE_NEG);
             byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
             return (setValue_nibble, false);
         }
-        else if (value > MIN_POS_RANGE_THRESHOLD)
+        else if (value >= MIN_POS_RANGE_THRESHOLD)
         {
             float value_abs = Math.Min(0x0F, (value * RANGE_POS) + RANGE_POS_OFFSET);
             byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));

@@ -1,6 +1,7 @@
 ﻿using Xunit;
 using FluentAssertions;
 using BrickController2.Protocols;
+using BrickController2.Tools.Protocols;
 
 namespace BrickController2.Tests.Protocols;
 
@@ -28,7 +29,7 @@ public class CryptToolsTests
         size.Should().Be(expectedSize);
         rfPayload.Should().BeEquivalentTo(expected);
 
-        byte[] decrypt = CryptTools.DecryptRfPayload(CaDAProtocol.SeedArray, CaDAProtocol.HeaderArray.Length, input.Length, headerOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload);
+        byte[] decrypt = DecryptTools.DecryptRfPayload(CaDAProtocol.SeedArray, CaDAProtocol.HeaderArray.Length, input.Length, headerOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload);
         decrypt.Should().BeEquivalentTo(input);
     }
 
@@ -59,8 +60,7 @@ public class CryptToolsTests
         size.Should().Be(expectedSize);
         rfPayload.Should().BeEquivalentTo(expected);
 
-        byte[] decrypt = CryptTools.DecryptRfPayload(MKProtocol.SeedArray, MKProtocol.HeaderArray.Length, input.Length, headerOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload);
+        byte[] decrypt = DecryptTools.DecryptRfPayload(MKProtocol.SeedArray, MKProtocol.HeaderArray.Length, input.Length, headerOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload);
         decrypt.Should().BeEquivalentTo(input);
     }
-
 }

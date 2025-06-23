@@ -111,42 +111,40 @@ namespace BrickController2.DeviceManagement.MouldKing
     /// the nibble value for the analog channel output. </description> </item> <item> <description> A <see cref="bool"/>
     /// indicating whether the nibble corresponds to the zero value. <see langword="true"/> if the nibble represents
     /// zero; otherwise, <see langword="false"/>. </description> </item> </list></returns>
-    private (byte, bool) SetOutput_AnalogChannel(float value)
+    private (byte setValue_Nibble, bool zeroSet) SetOutput_AnalogChannel(float value)
     {
-        // MK4: ZeroValueNibble = 0x08, Range_pos_Offset = 0x08
-        // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+        // MK4: ZEROVALUE_NIBBLE = 0x08, RANGE_POS_OFFSET = 0x08
+        // value <  0:  7 6 5 4 3 2 1                    RANGE_NEG: 0x07
         // value == 0:                0 8
-        // value >  0:                    9 A B C D E F  range_pos: 0x07
+        // value >  0:                    9 A B C D E F  RANGE_POS: 0x07
 
-        const byte ZeroValueNibble = 0x08;
-        const byte Range_pos_Offset = 0x08;
-        const int Range_pos = 0x07;
-        const int Range_neg = 0x07;
+        const byte RANGE_POS_OFFSET = 0x08;
+        const int RANGE_POS = 0x07;
+        const int RANGE_NEG = 0x07;
 
-        if (value < 0)
+        const float MIN_NEG_RANGE_THRESHOLD = -1f / RANGE_NEG;    // Minimum value for negative range
+        const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
+
+        const byte ZEROVALUE_NIBBLE = 0x08;
+
+
+        if (value < MIN_NEG_RANGE_THRESHOLD)
         {
-            float value_abs = Math.Min(0x07, -value * Range_neg);
+            float value_abs = Math.Min(0x07, -value * RANGE_NEG);
             byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
-            if (setValue_nibble == 0) // replace zero with ZeroValueNibble
-            {
-                return (ZeroValueNibble, true);
-            }
-            else
-            {
-                return (setValue_nibble, false);
-            }
+            return (setValue_nibble, false);
         }
-        else if (value > 0)
+        else if (value > MIN_POS_RANGE_THRESHOLD)
         {
-            float value_abs = Math.Min(0x0F, (value * Range_pos) + Range_pos_Offset);
+            float value_abs = Math.Min(0x0F, (value * RANGE_POS) + RANGE_POS_OFFSET);
             byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));
 
             return (setValue_nibble, false);
         }
         else
         {
-            return (ZeroValueNibble, true);
+            return (ZEROVALUE_NIBBLE, true);
         }
     }
 

@@ -31,7 +31,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// * 0x00: turret is unlocked
     /// * 0x02: turret is locked
     /// </summary>
-    private byte _turretOffset = 0x00;
+    private byte _turret_lock_Nibble = 0x00;
 
     public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, 0, Telegram_Connect, Telegram_Base)
@@ -101,42 +101,39 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// representation of the input value.</description> </item> <item> <description><c>zeroSet</c>: A boolean
     /// indicating whether the input value was zero (<see langword="true"/>) or not (<see
     /// langword="false"/>).</description> </item> </list></returns>
-    private (byte setValue_nibble, bool zeroSet) SetOutput_AnalogChannel(float value)
+    private (byte setValue_Nibble, bool zeroSet) SetOutput_AnalogChannel(float value)
     {
-        // MK5: ZeroValueNibble = 0x00, Range_pos_Offset = 0x08
-        // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+        // MK5: ZEROVALUE_NIBBLE = 0x00, Range_pos_Offset = 0x08
+        // value <  0:  7 6 5 4 3 2 1                    RANGE_NEG: 0x07
         // value == 0:                0
         // value >  0:                  9 A B C D E F    range_pos: 0x07
 
-        const byte ZeroValueNibble = 0x00;
-        const byte Range_pos_Offset = 0x08;
-        const int Range_pos = 0x07;
-        const int Range_neg = 0x07;
+        const byte RANGE_POS_OFFSET = 0x08;
+        const int RANGE_POS = 0x07;
+        const int RANGE_NEG = 0x07;
 
-        if (value < 0)
+        const float MIN_NEG_RANGE_THRESHOLD = -1f / RANGE_NEG;    // Minimum value for negative range
+        const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
+
+        const byte ZEROVALUE_NIBBLE = 0x00;
+
+        if (value < MIN_NEG_RANGE_THRESHOLD)
         {
-            float value_abs = Math.Min(0x07, -value * Range_neg);
+            float value_abs = Math.Min(0x07, -value * RANGE_NEG);
             byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
-            if (setValue_nibble == 0) // replace zero with ZeroValueNibble
-            {
-                return (ZeroValueNibble, true);
-            }
-            else
-            {
-                return (setValue_nibble, false);
-            }
+            return (setValue_nibble, false);
         }
-        else if (value > 0)
+        else if (value > MIN_POS_RANGE_THRESHOLD)
         {
-            float value_abs = Math.Min(0x0F, (value * Range_pos) + Range_pos_Offset);
-            byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));
+            float value_abs = Math.Min(0x0F, (value * RANGE_POS) + RANGE_POS_OFFSET);
+            byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
             return (setValue_nibble, false);
         }
         else
         {
-            return (ZeroValueNibble, true);
+            return (ZEROVALUE_NIBBLE, true);
         }
     }
 
@@ -152,44 +149,40 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// to be set for the turret.</description> </item> <item> <description><c>zeroSet</c>: A boolean flag indicating
     /// whether the zero value nibble is used (<see langword="true"/> if the zero value nibble is applied; otherwise,
     /// <see langword="false"/>).</description> </item> </list></returns>
-    private (byte setValue_nibble, bool zeroSet) SetOutput_AnalogChannel_Turret(float value)
+    private (byte setValue_Nibble, bool zeroSet) SetOutput_AnalogChannel_Turret(float value)
     {
-        // MK5: ZeroValueNibble = 0x00, Range_pos_Offset = 0x08
-        // value <  0:  7 6 5 4 3 2 1                    range_neg: 0x07
+        // MK5: zeroValue_Nibble = 0x00/0x02, RANGE_POS_OFFSET = 0x08
+        // value <  0:  7 6 5 4 3 2 1                    RANGE_NEG: 0x07
         // value == 0:                0
-        // value >  0:                  9 A B C D E F    range_pos: 0x07
+        // value >  0:                  9 A B C D E F    RANGE_POS: 0x07
 
-        byte ZeroValueNibble = _turretOffset; // <-- turretOffset is set by SetOutput_Option_Turret_Lock
-        const byte Range_pos_Offset = 0x08;
-        const int Range_pos = 0x07;
-        const int Range_neg = 0x07;
+        const byte RANGE_POS_OFFSET = 0x08;
+        const int RANGE_POS = 0x07;
+        const int RANGE_NEG = 0x07;
+        const float MIN_NEG_RANGE_THRESHOLD = -1f / RANGE_NEG;    // Minimum value for negative range
+        const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
+
+        byte zeroValue_Nibble = _turret_lock_Nibble; // <-- turretOffset is set by SetOutput_Option_Turret_Lock
 
         value *= -1; // invert value for turret
 
-        if (value < 0)
+        if (value < MIN_NEG_RANGE_THRESHOLD)
         {
-            float value_abs = Math.Min(0x07, -value * Range_neg);
+            float value_abs = Math.Min(0x07, -value * RANGE_NEG);
             byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
 
-            if (setValue_nibble == 0) // replace zero with ZeroValueNibble
-            {
-                return (ZeroValueNibble, true);
-            }
-            else
-            {
-                return (setValue_nibble, false);
-            }
+            return (setValue_nibble, false);
         }
-        else if (value > 0)
+        else if (value > MIN_POS_RANGE_THRESHOLD)
         {
-            float value_abs = Math.Min(0x0F, (value * Range_pos) + Range_pos_Offset);
+            float value_abs = Math.Min(0x0F, (value * RANGE_POS) + RANGE_POS_OFFSET);
             byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));
 
             return (setValue_nibble, false);
         }
         else
         {
-            return (ZeroValueNibble, true);
+            return (zeroValue_Nibble, true);
         }
     }
 
@@ -208,14 +201,17 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// langword="false"/>.</description></item> </list></returns>
     private (byte setValue_nibble, bool zeroSet) SetOutput_Shot(float value)
     {
+        const byte ZEROVALUE_NIBBLE = 0x00;
+        const byte FIRE_SHOT_NIBBLE = 0x0F;
+
         if (value == 0)
         {
-            return (0x00, true);
+            return (ZEROVALUE_NIBBLE, true);
         }
         else
         {
             // Tank fires a shot when value is set to 0x0F
-            return (0x0F, false);
+            return (FIRE_SHOT_NIBBLE, false);
         }
     }
 
@@ -232,23 +228,25 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// updated.</description> </item> </list></returns>
     private (byte setValue_nibble, bool zeroSet) SetOutput_Option_Turret_Lock(float value)
     {
+        const byte TURRET_UNLOCKED_NIBBLE = 0x00;
+        const byte TURRET_LOCKED_NIBBLE = 0x02;
+
         if (value == 0)
         {
-            _turretOffset = 0x00; // turret is unlocked
+            _turret_lock_Nibble = TURRET_UNLOCKED_NIBBLE; // turret is unlocked
         }
         else
         {
-            _turretOffset = 0x02; // turret is locked
+            _turret_lock_Nibble = TURRET_LOCKED_NIBBLE; // turret is locked
         }
 
         bool valueChanged = false;
-        
         valueChanged |= _setChannel[1](_storedValues[1]); // The turret lock is a virtual channel, so call handler for real turret channel
 
         // to clarify the concept:
         // inside a virtual channel handler multiple calls to _setChannel are allowed
         //valueChanged |= _setChannel[x](_storedValues[x]); 
 
-        return (_turretOffset, valueChanged);
+        return (_turret_lock_Nibble, valueChanged);
     }
 }

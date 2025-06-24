@@ -45,7 +45,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     public static string TypeName => "MK 5.0";
 
     /// <summary>
-    /// Gets the number of audio channels supported by the current configuration.
+    /// Gets the number of channels supported by the device
     /// <remarks><list type="bullet">
     /// <item><description>Channel 0..4: real existing channel</description></item> 
     /// <item><description>Channel 5: virtual channel for locking the turret</description></item>

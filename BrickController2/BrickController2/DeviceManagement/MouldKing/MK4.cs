@@ -2,16 +2,16 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 
-namespace BrickController2.DeviceManagement.MouldKing
+namespace BrickController2.DeviceManagement.MouldKing;
+
+/// <summary>
+/// MK 4.0 Module
+/// </summary>
+internal class MK4 : MKBaseNibble, IDeviceType<MK4>
 {
-    /// <summary>
-    /// MK 4.0 Module
-    /// </summary>
-    internal class MK4 : MKBaseNibble, IDeviceType<MK4>
-    {
-        public const string Device1 = "Device1";
-        public const string Device2 = "Device2";
-        public const string Device3 = "Device3";
+    public const string Device1 = "Device1";
+    public const string Device2 = "Device2";
+    public const string Device3 = "Device3";
 
     /// <summary>
     /// Telegram to connect to the MK4.0 device(s)
@@ -43,14 +43,14 @@ namespace BrickController2.DeviceManagement.MouldKing
     {
     }
 
-        public override DeviceType DeviceType => Type;
+    public override DeviceType DeviceType => Type;
 
-        public static DeviceType Type => DeviceType.MK4;
+    public static DeviceType Type => DeviceType.MK4;
 
-        public static string TypeName => "MK 4.0";
+    public static string TypeName => "MK 4.0";
 
     /// <summary>
-    /// Gets the number of audio channels supported by the current configuration.
+    /// Gets the number of channels supported by the device.
     /// <remarks><list type="bullet">
     /// <item><description>Channel 0..4: real existing channel</description></item> 
     /// </list></remarks>

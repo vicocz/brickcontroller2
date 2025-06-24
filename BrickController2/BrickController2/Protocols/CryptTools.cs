@@ -12,27 +12,27 @@ public static class CryptTools
     /// crypt data-array with seed and ctxvalues
     /// </summary>
     /// <param name="seed">seed array</param>
+    /// <param name="header">header array to encrypt</param>
     /// <param name="data">data array to encrypt</param>
     /// <param name="headerOffset">offset for header data: android=0x0f (15) iOS=0xd (13)</param>
     /// <param name="ctxValue1">ctx value1 for encryption</param>
     /// <param name="ctxValue2">ctx value2 for encryption</param>
     /// <param name="rfPayload">crypted array</param>
     /// <returns>size of crypted array</returns>
-    public static int GetRfPayload(byte[] seed, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload)
+    public static int GetRfPayload(byte[] seed, byte[] header, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload)
     {
-        const int initValuesLength = 3;
         const int checksumLength = 2;
         int seedLength = seed.Length;
+        int headerLength = header.Length;
         int dataLength = data.Length;
 
-        int resultArrayLength = initValuesLength + seedLength + dataLength + checksumLength;
+        int resultArrayLength = headerLength + seedLength + dataLength + checksumLength;
         if (resultArrayLength > rfPayload.Length)
         {
             return 0;
         }
 
-        //int headerOffset = 0x0f;                         // 0x0f (15)
-        int seedOffset = headerOffset + initValuesLength;  // 0x12 (18) 
+        int seedOffset = headerOffset + headerLength;  // 0x12 (18) 
         int dataOffset = seedOffset + seedLength;
         int checksumOffset = dataOffset + dataLength;
 
@@ -40,9 +40,7 @@ public static class CryptTools
 
         byte[] resultBuffer = new byte[resultBufferLength];
 
-        resultBuffer[headerOffset + 0] = 0x71;   // 0x71 (113)
-        resultBuffer[headerOffset + 1] = 0x0f;   // 0x0f (15)
-        resultBuffer[headerOffset + 2] = 0x55;   // 0x55 (85)
+        Buffer.BlockCopy(header, 0, resultBuffer, headerOffset, header.Length);
 
         // reverse-copy seed-array into resultBuffer after initValues (offset 18)
         for (int index = 0; index < seedLength; index++)
@@ -51,7 +49,7 @@ public static class CryptTools
         }
 
         // invert bytes of initValues and seed-array in resultBuffer
-        for (int index = 0; index < initValuesLength + seedLength; index++)
+        for (int index = 0; index < headerLength + seedLength; index++)
         {
             resultBuffer[headerOffset + index] = Invert8(resultBuffer[headerOffset + index]);
         }
@@ -74,7 +72,7 @@ public static class CryptTools
 
         return resultArrayLength;
     }
-    
+
     /// <summary>
     /// inverts the bits of a given byte
     /// </summary>

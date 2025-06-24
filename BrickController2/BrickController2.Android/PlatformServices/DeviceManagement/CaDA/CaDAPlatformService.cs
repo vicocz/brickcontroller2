@@ -12,7 +12,7 @@ public class CaDAPlatformService : ICaDAPlatformService
     {
         rfPayload = new byte[PayloadLength];
 
-        int payloadLength = CryptTools.GetRfPayload(CaDAProtocol.SeedArray, rawData, HeaderOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload);
+        int payloadLength = CryptTools.GetRfPayload(CaDAProtocol.SeedArray, CaDAProtocol.HeaderArray, rawData, HeaderOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload);
 
         return true;
     }

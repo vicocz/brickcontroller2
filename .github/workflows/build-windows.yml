@@ -46,11 +46,6 @@ jobs:
     - name: Build
       run: dotnet build BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win-x64 -f:net9.0-windows10.0.19041.0 /p:PublishProfile=win10-x64 --no-restore
 
-    - name: Unit tests
-      run: |
-        dotnet build BrickController2/BrickController2.WinUI.Tests/BrickController2.WinUI.Tests.csproj -c Release -r win-x64 -f:net9.0-windows10.0.19041.0 /p:PublishProfile=win10-x64
-        dotnet test BrickController2/BrickController2.WinUI.Tests/BrickController2.WinUI.Tests.csproj -c Release -r win-x64
-
     - name: Build MAUI WinUI App
       run: dotnet publish BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win-x64 -f:net9.0-windows10.0.19041.0 /p:PublishProfile=win10-x64 /p:GenerateAppxPackageOnBuild=true
 

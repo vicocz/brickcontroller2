@@ -62,9 +62,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="BrickController2.Tests" />
-    <InternalsVisibleTo Include="BrickController2.Android.Tests" />
-    <InternalsVisibleTo Include="BrickController2.iOS.Tests" />
-    <InternalsVisibleTo Include="BrickController2.WinUI.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
 </Project>

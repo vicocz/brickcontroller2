@@ -39,6 +39,9 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+
+    - name: Install MAUI Workload
+      run: dotnet workload install maui --ignore-failed-sources
             
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -r win-x64

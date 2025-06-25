@@ -29,6 +29,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
+
 jobs:
   build-winui:
     runs-on: windows-2025
@@ -40,20 +43,20 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    - name: Install MAUI Workload
-      run: dotnet workload install maui --ignore-failed-sources
+    # - name: Install MAUI Workload
+    #   run: dotnet workload install maui --ignore-failed-sources
             
     - name: Restore Dependencies
-      run: dotnet restore BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj
+      run: dotnet restore ${{env.PROJECT_PATH}}
 
     - name: Build
-      run: dotnet build BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win10-x64 -p:Platform=x64
+      run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true
+      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-winui-ci-build
-        path: .\**\AppPackages\**\*.*
+        path: .\**\AppPackages\**\BrickController*.msix

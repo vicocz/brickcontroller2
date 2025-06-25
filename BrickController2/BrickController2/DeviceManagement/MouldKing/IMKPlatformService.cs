@@ -1,4 +1,4 @@
-﻿namespace BrickController2.DeviceManagement;
+﻿namespace BrickController2.DeviceManagement.MouldKing;
 
 /// <summary>
 /// Interface definition for MouldKing specific PlatformService

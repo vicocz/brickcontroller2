@@ -89,7 +89,11 @@ namespace BrickController2.DeviceManagement
 
         public override string BatteryVoltageSign => "V";
 
-        public override bool CanChangeOutputType(int channel) => channel < NUMBER_OF_PU_PORTS;
+        public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType) =>
+            // allow motor output type for all channels 
+            outputType == ChannelOutputType.NormalMotor ||
+            // servo / stepper for PoweredUp channels only
+            channel < NUMBER_OF_PU_PORTS;
 
         public override bool CanChangeMaxServoAngle(int channel) => true;
 
@@ -248,6 +252,8 @@ namespace BrickController2.DeviceManagement
 
                 result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
+                result = result && await StopAllChannelsAsync(token).ConfigureAwait(false);
+
                 result = result && await SetPuPortModesAsync(token).ConfigureAwait(false);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
@@ -560,6 +566,15 @@ namespace BrickController2.DeviceManagement
             }
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
+            return result;
+        }
+
+        private async Task<bool> StopAllChannelsAsync(CancellationToken token)
+        {
+            // send command 0x30 with all channels set to 0 and motor breaks
+            var reset = new byte[] { 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x3F };
+            var result = await _bleDevice!.WriteAsync(_characteristic!, reset, token);
+            await Task.Delay(20, token);
             return result;
         }
 

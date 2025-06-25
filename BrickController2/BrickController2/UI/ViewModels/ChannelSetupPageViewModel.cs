@@ -1,15 +1,18 @@
-﻿using System;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BrickController2.CreationManagement;
+﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Input;
+
+using static BrickController2.CreationManagement.ControllerDefaults;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -41,47 +44,57 @@ namespace BrickController2.UI.ViewModels
 
             Device = parameters.Get<Device>("device");
             Action = parameters.Get<ControllerAction>("controlleraction");
-            MaxServoAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? Action.MaxServoAngle : 0;
-            ServoBaseAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? Action.ServoBaseAngle : 0;
-            StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? Action.StepperAngle : 0;
+            IsChannelTest = parameters.Get("ischanneltest", false);
+            MaxServoAngle = Action.MaxServoAngle;
+            ServoBaseAngle = Action.ServoBaseAngle;
+            StepperAngle = Action.StepperAngle;
 
             // setup channel config for testing
             UpdateChannelConfig();
             _startOutputProcessing = Action.ChannelOutputType == ChannelOutputType.StepperMotor;
 
-            SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !_dialogService.IsDialogOpen);
+            SaveChannelSettingsCommand = new SafeCommand(async () => await SaveChannelSettingsAsync(), () => !IsChannelTest && !_dialogService.IsDialogOpen);
             AutoCalibrateServoCommand = new SafeCommand(async () => await AutoCalibrateServoAsync(), () => Device.CanAutoCalibrateOutput(Action.Channel));
             ResetServoBaseCommand = new SafeCommand(async () => await ResetServoBaseAngleAsync(), () => CanResetChannelOutput);
             StepperTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: true));
+            ServoTestCommand = new SafeCommand<string>(value => TestChannelAsync(value, reset: false));
+            SelectChannelOutputTypeCommand = new SafeCommand(SelectChannelOutputTypeAsync, () => IsChannelTest);
+            ResetMaxServoAngleCommand = new SafeCommand(() => MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE, () => MaxServoAngle != DEFAULT_MAX_SERVO_ANGLE);
+            ResetServoBaseAngleCommand = new SafeCommand(() => ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE, () => ServoBaseAngle != DEFAULT_SERVO_BASE_ANGLE && CanResetChannelOutput);
+            ResetStepperAngleCommand = new SafeCommand(() => StepperAngle = DEFAULT_STEPPER_ANGLE, () => StepperAngle != DEFAULT_STEPPER_ANGLE);
         }
 
         public Device Device { get; }
         public ControllerAction Action { get; }
-
-        public bool IsServoChannelOutputType => Action.ChannelOutputType == ChannelOutputType.ServoMotor;
-        public bool IsStepperChannelOutputType => Action.ChannelOutputType == ChannelOutputType.StepperMotor;
         public bool CanResetChannelOutput => Device.CanResetOutput(Action.Channel);
+
+        public bool IsChannelTest { get; }
 
         public int ServoBaseAngle
         {
             get { return _servoBaseAngle; }
-            set { _servoBaseAngle = value; RaisePropertyChanged(); }
+            set { _servoBaseAngle = value; RaisePropertyChanged(); ResetServoBaseAngleCommand.RaiseCanExecuteChanged(); }
         }
         public int MaxServoAngle
         {
             get { return _maxServoAngle; }
-            set { _maxServoAngle = value; RaisePropertyChanged(); }
+            set { _maxServoAngle = value; RaisePropertyChanged(); ResetMaxServoAngleCommand.RaiseCanExecuteChanged(); }
         }
         public int StepperAngle
         {
             get { return _stepperAngle; }
-            set { _stepperAngle = value; RaisePropertyChanged(); }
+            set { _stepperAngle = value; RaisePropertyChanged(); ResetStepperAngleCommand.RaiseCanExecuteChanged(); }
         }
 
         public ICommand SaveChannelSettingsCommand { get; }
         public ICommand AutoCalibrateServoCommand { get; }
         public ICommand ResetServoBaseCommand { get; }
         public ICommand StepperTestCommand { get; }
+        public ICommand ServoTestCommand { get; }
+        public ICommand SelectChannelOutputTypeCommand { get; }
+        public ICommand ResetStepperAngleCommand { get; }
+        public ICommand ResetMaxServoAngleCommand { get; }
+        public ICommand ResetServoBaseAngleCommand { get; }
 
         public override async void OnAppearing()
         {
@@ -210,36 +223,50 @@ namespace BrickController2.UI.ViewModels
 
         private async Task AutoCalibrateServoAsync()
         {
-            await EnforceDisabledChannelOutputProcessing();
-            await _dialogService.ShowProgressDialogAsync(
-                false,
-                async (progressDialog, token) =>
-                {
-                    var result = await Device.AutoCalibrateOutputAsync(Action.Channel, token);
-                    if (result.Success)
+            try
+            {
+                await EnforceDisabledChannelOutputProcessing();
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) =>
                     {
-                        ServoBaseAngle = (int)(result.BaseServoAngle * 180);
-                    }
-                },
-                Translate("Calibrating"),
-                null,
-                Translate("Cancel"),
-                DisappearingToken);
+                        var result = await Device.AutoCalibrateOutputAsync(Action.Channel, token);
+                        if (result.Success)
+                        {
+                            ServoBaseAngle = (int)(result.BaseServoAngle * 180);
+                        }
+                    },
+                    Translate("Calibrating"),
+                    null,
+                    Translate("Cancel"),
+                    DisappearingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
+            }
         }
 
         private async Task ResetServoBaseAngleAsync()
         {
-            await EnforceDisabledChannelOutputProcessing();
-            await _dialogService.ShowProgressDialogAsync(
-                false,
-                async (progressDialog, token) =>
-                {
-                    await Device.ResetOutputAsync(Action.Channel, ServoBaseAngle / 180F, token);
-                },
-                Translate("Reseting"),
-                null,
-                Translate("Cancel"),
-                DisappearingToken);
+            try
+            {
+                await EnforceDisabledChannelOutputProcessing();
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) =>
+                    {
+                        await Device.ResetOutputAsync(Action.Channel, ServoBaseAngle / 180F, token);
+                    },
+                    Translate("Reseting"),
+                    null,
+                    Translate("Cancel"),
+                    DisappearingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
+            }
         }
 
         private void UpdateChannelConfig()
@@ -249,37 +276,55 @@ namespace BrickController2.UI.ViewModels
                 Channel = Action.Channel,
                 ChannelOutputType = Action.ChannelOutputType,
                 // current settings
-                MaxServoAngle = Action.ChannelOutputType == ChannelOutputType.ServoMotor ? MaxServoAngle : 0,
+                MaxServoAngle = MaxServoAngle,
                 ServoBaseAngle = ServoBaseAngle, // for testing applied both servo and stepper
-                StepperAngle = Action.ChannelOutputType == ChannelOutputType.StepperMotor ? StepperAngle : 0
+                StepperAngle = StepperAngle
             };
         }
 
         private async Task TestChannelAsync(string parameter, bool reset = true)
         {
-            var value = Convert.ToSingle(parameter, CultureInfo.InvariantCulture);
-            // ensure stepper / servo settings are up-to-date and output processing is set
-            if (MaxServoAngle != _channelConfig.MaxServoAngle ||
-                ServoBaseAngle != _channelConfig.ServoBaseAngle ||
-                StepperAngle != _channelConfig.StepperAngle ||
-                !_startOutputProcessing)
+            try
             {
-                // update prerequsities for servo/stepper testing
-                UpdateChannelConfig();
+                var value = Convert.ToSingle(parameter, CultureInfo.InvariantCulture);
+                // ensure stepper / servo settings are up-to-date and output processing is set
+                if (MaxServoAngle != _channelConfig.MaxServoAngle ||
+                    ServoBaseAngle != _channelConfig.ServoBaseAngle ||
+                    StepperAngle != _channelConfig.StepperAngle ||
+                    Action.ChannelOutputType != _channelConfig.ChannelOutputType ||
+                    !_startOutputProcessing)
+                {
+                    // update prerequsities for servo/stepper testing
+                    UpdateChannelConfig();
+                    // force reconnection with processing enabled
+                    await EnforceEnabledChannelOutputProcessing(true);
+                }
+                // simulate triggering of servo/stepper button
+                await TestButtonAsync(value, reset).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
+            }
+        }
+
+        private async Task EnforceEnabledChannelOutputProcessing(bool force = false)
+        {
+            if (!_startOutputProcessing|| force)
+            {
+                // update prerequisites for servo/stepper calibration/reset
                 _startOutputProcessing = true;
                 // force reconnection
                 await ReconnectDeviceAsync();
             }
-            // simulate triggering of servo/stepper button
-            await TestButtonAsync(value, reset).ConfigureAwait(false);
         }
 
         private async Task EnforceDisabledChannelOutputProcessing()
         {
-            // if stepper angle has changed, we need to reconnect to apply it
+            // if output processing was required, reset it now
             if (_startOutputProcessing)
             {
-                // update prerequsities for servo/stepper calibration/reset
+                // update prerequisites for servo/stepper calibration/reset
                 _startOutputProcessing = false;
                 // force reconnection
                 await ReconnectDeviceAsync();
@@ -291,10 +336,11 @@ namespace BrickController2.UI.ViewModels
             // disconnect 
             await Device.DisconnectAsync();
 
-            // await reconnection
-            while (!DisappearingToken.IsCancellationRequested && Device.DeviceState != DeviceState.Connected)
+            // await reconnection (and closing of dialog if any)
+            while (!DisappearingToken.IsCancellationRequested &&
+                (Device.DeviceState != DeviceState.Connected || _dialogService.IsDialogOpen))
             {
-                await Task.Delay(100, DisappearingToken);
+                await Task.Delay(50, DisappearingToken);
             }
         }
 
@@ -306,6 +352,41 @@ namespace BrickController2.UI.ViewModels
             if (reset)
             {
                 Device.SetOutput(Action.Channel, GameControllers.BUTTON_RELEASED);
+            }
+        }
+
+        private async Task SelectChannelOutputTypeAsync()
+        {
+            try
+            {
+                // do filtering based on device capabilities
+                var channelOutputTypes = new[] { ChannelOutputType.ServoMotor, ChannelOutputType.StepperMotor }
+                    .Where(x => Device.IsOutputTypeSupported(Action.Channel, x))
+                    .Select(x => Enum.GetName(x)!)
+                    .ToArray();
+
+                var result = await _dialogService.ShowSelectionDialogAsync(
+                    channelOutputTypes,
+                    Translate("ChannelType"),
+                    Translate("Cancel"),
+                    DisappearingToken);
+
+                if (result.IsOk &&
+                    Enum.TryParse<ChannelOutputType>(result.SelectedItem, out var newChannelType) &&
+                    newChannelType != Action.ChannelOutputType)
+                {
+                    // update channel output type and trigger UI update
+                    Action.ChannelOutputType = newChannelType;
+                    // update prerequsities for servo/stepper testing
+                    UpdateChannelConfig();
+
+                    // by default enable output processing for testing servo/stepper motor
+                    await EnforceEnabledChannelOutputProcessing(true);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // ignore cancellation
             }
         }
     }

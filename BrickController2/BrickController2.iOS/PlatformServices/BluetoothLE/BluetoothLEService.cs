@@ -29,7 +29,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         }
 
         public Task<bool> IsBluetoothLESupportedAsync() => Task.FromResult(true);
-        public Task<bool> IsBluetoothLEAdvertisingSupportedAsync() => Task.FromResult(false); // Not supported yet - has to be implemented
+        public Task<bool> IsBluetoothLEAdvertisingSupportedAsync() => Task.FromResult(true);
         public Task<bool> IsBluetoothOnAsync() => Task.FromResult(_centralManager.State == CBManagerState.PoweredOn);
         public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
         {
@@ -79,7 +79,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         {
             lock(_lock)
             {
-                if (peripheral is null || peripheral.Identifier is null || string.IsNullOrEmpty(peripheral.Name))
+                if (peripheral is null || peripheral.Identifier is null)
                 {
                     return;
                 }

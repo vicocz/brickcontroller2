@@ -216,6 +216,20 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="HeightRequest" Value="46"/>
             <Setter Property="WidthRequest" Value="46"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="ImageColor" Value="{DynamicResource SecondaryColor}" />
+                                <Setter Property="BackgroundColor" Value="{DynamicResource TertiaryTextColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver" />
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
         </Style>
 
         <!-- Misc -->

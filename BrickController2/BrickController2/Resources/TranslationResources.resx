@@ -711,4 +711,7 @@
   <data name="StepForward" xml:space="preserve">
     <value>Next step</value>
   </data>
+  <data name="TestDeviceChannel" xml:space="preserve">
+    <value>Test the channel</value>
+  </data>
 </root>

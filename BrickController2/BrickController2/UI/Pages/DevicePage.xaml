@@ -15,6 +15,7 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <!-- Converters -->
+            <converters:InverseBoolConverter x:Key="InverseBool"/>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
@@ -70,13 +71,13 @@
                                 <Label Grid.Column="{OnPlatform iOS=0, Default=1}" Grid.Row="{OnPlatform iOS=3, Default=2}" Grid.ColumnSpan="{OnPlatform iOS=2, Default=1}"
                                        Text="{Binding Device.Address}" FontSize="{OnPlatform iOS=Micro, Default=Medium}" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Battery}" FontSize="Small"/>
-                                <HorizontalStackLayout Grid.Column="1" Grid.Row="4">
+                                <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Battery}" FontSize="Small" IsVisible="{Binding IsAdvertisingDevice, Mode=OneTime, Converter={StaticResource InverseBool}}"/>
+                                <HorizontalStackLayout Grid.Column="1" Grid.Row="4" IsVisible="{Binding IsAdvertisingDevice, Mode=OneTime, Converter={StaticResource InverseBool}}">
                                     <Label Text="{Binding Device.BatteryVoltage}" FontSize="Medium" FontAttributes="Bold" Margin="0,0,5,0"/>
                                     <Label Text="{Binding Device.BatteryVoltageSign}" FontSize="Medium"/>
                                 </HorizontalStackLayout>
 
-                                <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5">
+                                <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" IsVisible="{Binding IsAdvertisingDevice, Mode=OneTime, Converter={StaticResource InverseBool}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -114,17 +115,19 @@
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding DeviceOutputs}">
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <VerticalStackLayout>
-                                            <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="10,4,10,4">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="30"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <controls:DeviceChannelLabel Grid.Column="0" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Channel}"/>
-                                                <controls:ExtendedSlider Grid.Column="1" Minimum="-100" Maximum="100" IsEnabled="{Binding Device.DeviceState, Converter={StaticResource DeviceConnectedToBool}}" Value="{Binding Output}" TouchUpCommand="{Binding TouchUpCommand}"/>
-                                            </Grid>
-                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
-                                        </VerticalStackLayout>
+                                        <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="5,0,5,0" RowDefinitions="*,*">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="25"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <controls:DeviceChannelLabel Grid.Column="0" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Channel}" VerticalOptions="Center" />
+                                            <controls:ExtendedSlider Grid.Column="1" Minimum="-100" Maximum="100" IsEnabled="{Binding Device.DeviceState, Converter={StaticResource DeviceConnectedToBool}}" Value="{Binding Output}" TouchUpCommand="{Binding TouchUpCommand}" VerticalOptions="Center"/>
+                                            <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate TestDeviceChannel}"
+                                                                           Command="{Binding TestServoStepperCommand}" Margin="10,0,0,0"
+                                                                           IsVisible="{Binding x:DataType='bool', Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.IsServoOrStepperSupported}"/>
+                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,4,6,0"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>
                             </VerticalStackLayout>

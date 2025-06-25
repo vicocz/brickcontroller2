@@ -8,11 +8,13 @@ internal static class InputEventExtensions
         keyEvent.Source.IsButtonEventSource() &&
         keyEvent.RepeatCount == 0;
 
-    internal static bool IsButtonEventSource(this InputSourceType sourceType) => sourceType.HasFlag(InputSourceType.Gamepad);
+    internal static bool IsButtonEventSource(this InputSourceType sourceType) => sourceType.HasFlag(InputSourceType.Gamepad) ||
+        sourceType.HasFlag(InputSourceType.Dpad);
 
     internal static bool IsGameControllerAxisEvent(this MotionEvent? motionEvent) => motionEvent != null &&
         motionEvent.Source.IsAxisEventSource() &&
         motionEvent.Action == MotionEventActions.Move;
 
-    internal static bool IsAxisEventSource(this InputSourceType sourceType) => sourceType.HasFlag(InputSourceType.Joystick);
+    internal static bool IsAxisEventSource(this InputSourceType sourceType) => sourceType.HasFlag(InputSourceType.Joystick) ||
+        sourceType.HasFlag(InputSourceType.Dpad);
 }

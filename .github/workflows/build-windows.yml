@@ -47,10 +47,10 @@ jobs:
       run: dotnet restore ${{env.PROJECT_PATH}}
 
     - name: Build
-      run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 --no-restore
+      run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true --no-restore
+      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4

@@ -161,7 +161,7 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
             Device1 => 0,
             Device2 => 1,
             Device3 => 2,
-            _ => throw new ArgumentException("Illegal Argument", nameof(address))
+            _ => throw new ArgumentException($"Illegal Argument: \"{address}\"", nameof(address))
         };
     }
 }

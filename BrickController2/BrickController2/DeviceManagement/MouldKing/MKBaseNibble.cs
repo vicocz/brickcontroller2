@@ -152,9 +152,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
 
         for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
         {
-            (int realChannelNo, Func<float, (byte, bool)> handler) setChannelHandler = CreateChannelHandler(channelNo);
-
-            int realChannelNo = setChannelHandler.Item1;
+            var (realChannelNo, handler) = CreateChannelHandler(channelNo);
 
             // virtual channel
             if (realChannelNo == VIRTUALCHANNEL)
@@ -162,7 +160,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
                 setChannelList[channelNo] = (float value) =>
                 {
                     // virtual channel handlers return isModified insted of zeroSet
-                    (byte a, bool isModified) = setChannelHandler.Item2(value);
+                    (byte a, bool isModified) = handler(value);
 
                     return isModified;
                 };
@@ -176,7 +174,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
 
                 setChannelList[channelNo] = (float value) =>
                 {
-                    (byte setValue_nibble, bool zeroSet) = setChannelHandler.Item2(value);
+                    (byte setValue_nibble, bool zeroSet) = handler(value);
 
                     _bluetoothAdvertisingDeviceHandler.SetChannelState(specificChannelNo, zeroSet); // set global channel state
                     return SetChannelValue(byteOffset, isOdd, setValue_nibble);

@@ -74,6 +74,13 @@ namespace BrickController2.DeviceManagement
         private readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
 
         /// <summary>
+        /// A synchronization object used to ensure thread-safe operations when setting the state of all channels.
+        /// </summary>
+        /// <remarks>This object is intended for use in locking mechanisms to prevent race conditions
+        /// during state updates.</remarks>
+        private readonly object _lockAllChannelsSetState = new object();
+
+        /// <summary>
         /// task running the cyclic output loop
         /// </summary>
         private Task? _outputTask;
@@ -124,30 +131,29 @@ namespace BrickController2.DeviceManagement
         /// successfully changed; otherwise, <see langword="false"/>.</returns>
         public bool SetChannelState(int specificChannelNo, bool zeroSet)
         {
-            if (zeroSet)
+            lock (_lockAllChannelsSetState)
             {
-                int allChannelsSetState = _allChannelsSetState;
-
-                // reset the bit for the specificChannelNo in the bitfield
-                _allChannelsSetState &= ~(1 << specificChannelNo);
-
-                if(_allChannelsSetState == 0 &&                     // new set state of all channels is zero
-                    allChannelsSetState != _allChannelsSetState)    // and there was a change
+                if (zeroSet)
                 {
-                    // if all channels are set to zero, reset the stopwatch
-                    _allZeroStopwatch.Restart();
+                    int allChannelsSetState = _allChannelsSetState;
 
-                    return true;
+                    // reset the bit for the specificChannelNo in the bitfield
+                    _allChannelsSetState &= ~(1 << specificChannelNo);
+
+                    if (_allChannelsSetState == 0 &&                    // new set state of all channels is zero
+                        allChannelsSetState != _allChannelsSetState)    // and there was a change
+                    {
+                        // if all channels are set to zero, reset the stopwatch
+                        _allZeroStopwatch.Restart();
+
+                        return true;
+                    }
                 }
                 else
                 {
-                    return false; // no change in state
+                    // set the bit for the specificChannelNo
+                    _allChannelsSetState |= (1 << specificChannelNo);
                 }
-            }
-            else
-            {
-                // set the bit for the specificChannelNo
-                _allChannelsSetState |= (1 << specificChannelNo);
 
                 return false;
             }

@@ -1,5 +1,6 @@
-﻿using System;
-using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.PlatformServices.BluetoothLE;
+using Newtonsoft.Json.Linq;
+using System;
 
 namespace BrickController2.DeviceManagement.MouldKing;
 
@@ -203,9 +204,12 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     protected override void InitDevice()
     {
+        const float zeroValue = 0.0f;
+
         for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
         {
-            _setChannel[channelNo](0); // set all channels to zero using the channel specific function
+            _storedValues[channelNo] = zeroValue;   // restore stored values to zero
+            _setChannel[channelNo](zeroValue);      // set all channels to zero using the channel specific function
         }
     }
 

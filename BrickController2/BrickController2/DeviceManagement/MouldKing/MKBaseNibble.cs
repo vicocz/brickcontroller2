@@ -1,6 +1,4 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
-using Newtonsoft.Json.Linq;
-using System;
 
 namespace BrickController2.DeviceManagement.MouldKing;
 
@@ -18,13 +16,6 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// number of maximal channels in the device type
     /// </summary>
     private const int MAX_CHANNEL_BYTES_PER_INSTANCE = 2;
-
-    /// <summary>
-    /// Represents the virtual channel number used for specific operations.
-    /// </summary>
-    /// <remarks>This constant is intended for use in scenarios where a virtual channel identifier is
-    /// required. The value is set to -1, which may indicate a special or default channel.</remarks>
-    protected const int VIRTUALCHANNEL = -1; // virtual channel number
 
     /// <summary>
     /// platform specific MouldKing stuff
@@ -48,12 +39,6 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     protected readonly float[] _storedValues;
 
     /// <summary>
-    /// Represents an array of functions that process the channel's setvalue and return a tuple
-    /// containing the baseTelegramChannelByteOffset, the channel specific setvalue and a boolean to indicate a zero value.
-    /// </summary>
-    protected readonly Func<float, bool>[] _setChannel;
-
-    /// <summary>
     /// instance number of specific device type
     /// </summary>
     protected readonly int _instanceNo;
@@ -68,7 +53,6 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         _instanceNo = instanceNo;
 
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
-        _setChannel = CreateSetChannelList();
     }
 
     /// <summary>
@@ -95,7 +79,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         lock (_outputLock)
         {
             // call the channel specific set function
-            bool valueChanged = _setChannel[channelNo](value);
+            bool valueChanged = SetChannelOutput(channelNo, value);
 
             // check for change
             if (valueChanged)
@@ -104,6 +88,10 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
             }
         }
     }
+
+    protected virtual bool IsVirtualChannel(int channelNo) => false;
+
+    protected abstract (byte value, bool flag) ProccessChannelValue(int channelNo, float value);
 
     /// <summary>
     /// Updates a specific nibble of a byte in the telegram buffer and returns whether the value was changed.
@@ -137,66 +125,27 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         }
     }
 
-    /// <summary>
-    /// Creates and initializes a list of channel-setting functions for all available channels.
-    /// </summary>
-    /// <remarks>Each function in the returned array is responsible for setting the state or value of a
-    /// specific channel. The behavior of the function depends on whether the channel is virtual or real: - For virtual
-    /// channels, the function determines whether the channel's state has been modified. - For real channels, the
-    /// function updates the channel's state and value based on the provided input.</remarks>
-    /// <returns>An array of functions, where each function takes a <see langword="float"/> value as input and returns a <see
-    /// langword="bool"/> indicating success or modification. The array contains one function per channel, corresponding
-    /// to the total number of channels.</returns>
-    protected Func<float, bool>[] CreateSetChannelList()
+    protected bool SetChannelOutput(int channelNo, float value)
     {
-        Func<float, bool>[] setChannelList = new Func<float, bool>[NumberOfChannels];
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+        if (IsVirtualChannel(channelNo))
         {
-            var (realChannelNo, handler) = CreateChannelHandler(channelNo);
-
             // virtual channel
-            if (realChannelNo == VIRTUALCHANNEL)
-            {
-                setChannelList[channelNo] = (float value) =>
-                {
-                    // virtual channel handlers return isModified insted of zeroSet
-                    (byte a, bool isModified) = handler(value);
-
-                    return isModified;
-                };
-            }
-            // real channel
-            else
-            {
-                bool isOdd = (realChannelNo & 0x01) == 0x01;
-                int byteOffset = GetByteOffset(realChannelNo);
-                int specificChannelNo = GetSpecificChannelNumber(realChannelNo);
-
-                setChannelList[channelNo] = (float value) =>
-                {
-                    (byte setValue_nibble, bool zeroSet) = handler(value);
-
-                    _bluetoothAdvertisingDeviceHandler.SetChannelState(specificChannelNo, zeroSet); // set global channel state
-                    return SetChannelValue(byteOffset, isOdd, setValue_nibble);
-                };
-            }
+            (byte _, bool isModified) = ProccessChannelValue(channelNo, value);
+            return isModified;
         }
-        return setChannelList;
-    }
+        else
+        {
+            // real channel
+            bool isOdd = (channelNo & 0x01) == 0x01;
+            int byteOffset = GetByteOffset(channelNo);
+            int specificChannelNo = GetSpecificChannelNumber(channelNo);
 
-    /// <summary>
-    /// Creates a handler for processing a specific channel, returning the real channel number and a function to compute
-    /// channel-specific values.
-    /// </summary>
-    /// <remarks>This method is abstract and must be implemented by derived classes to define the behavior for
-    /// mapping and processing channel numbers.</remarks>
-    /// <param name="channelNo">The logical channel number to be processed. Must be a valid channel number within the expected range.</param>
-    /// <returns>A tuple containing: <list type="bullet"> <item> <description>The real channel number corresponding to the
-    /// provided logical channel number or constant VIRTUALCHANNEL to mark as virtual.</description> </item> <item> <description>A function that takes a float input
-    /// and returns a tuple consisting of a byte value (representing the nibble to set) and a boolean indicating whether
-    /// the zero set condition is met.</description> </item> </list></returns>
-    protected abstract (int realChannelNo, Func<float, (byte setValue_nibble, bool zeroSet)>) CreateChannelHandler(int channelNo);
+            (byte setValue_nibble, bool zeroSet) = ProccessChannelValue(channelNo, value);
+
+            _bluetoothAdvertisingDeviceHandler.SetChannelState(specificChannelNo, zeroSet); // set global channel state
+            return SetChannelValue(byteOffset, isOdd, setValue_nibble);
+        }
+    }
 
     /// <summary>
     /// This method sets the device to initial state before advertising starts
@@ -209,7 +158,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
         {
             _storedValues[channelNo] = zeroValue;   // restore stored values to zero
-            _setChannel[channelNo](zeroValue);      // set all channels to zero using the channel specific function
+            SetChannelOutput(channelNo, zeroValue); // set all channels to zero using the channel specific function
         }
     }
 

@@ -80,24 +80,20 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     }
 
     /// <summary>
-    /// Creates a handler for the specified analog channel.
+    /// Processes the value for the specified analog channel and returns the processed result.
     /// </summary>
-    /// <param name="channelNo">The channel number for which the handler is to be created. Valid values are 0, 1, 2, or 3.</param>
-    /// <returns>A tuple containing the channel identifier and a function that processes analog output values. The function takes
-    /// a <see langword="float"/> representing the analog value and returns a tuple containing a <see langword="byte"/>
-    /// representing the processed output and a <see langword="bool"/> indicating the success of the operation.</returns>
+    /// <param name="channelNo">The channel number to process. Valid values are 0, 1, 2, or 3.</param>
+    /// <param name="value">The input value to be processed for the specified channel.</param>
+    /// <returns>A tuple containing the processed value and a flag indicating the success of the operation.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not one of the valid channel numbers (0, 1, 2, or 3).</exception>
-    protected override (int, Func<float, (byte, bool)>) CreateChannelHandler(int channelNo)
+    protected override (byte value, bool flag) ProccessChannelValue(int channelNo, float value) => channelNo switch
     {
-        return channelNo switch
-        {
-            0 => (0, SetOutput_AnalogChannel),
-            1 => (1, SetOutput_AnalogChannel),
-            2 => (2, SetOutput_AnalogChannel),
-            3 => (3, SetOutput_AnalogChannel),
-            _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
-        };
-    }
+        0 => SetOutput_AnalogChannel(value),
+        1 => SetOutput_AnalogChannel(value),
+        2 => SetOutput_AnalogChannel(value),
+        3 => SetOutput_AnalogChannel(value),
+        _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
+    };
 
     /// <summary>
     /// Converts a floating-point value into a nibble representation for an analog channel output.
@@ -154,14 +150,11 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// <param name="address">The address of the device. Must match one of the predefined device addresses.</param>
     /// <returns>An integer representing the zero based instance number of the device.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="address"/> does not match any predefined device address.</exception>
-    private static int GetInstanceNo(string address)
+    private static int GetInstanceNo(string address) => address switch
     {
-        return address switch
-        {
-            Device1 => 0,
-            Device2 => 1,
-            Device3 => 2,
-            _ => throw new ArgumentException($"Illegal Argument: \"{address}\"", nameof(address))
-        };
-    }
+        Device1 => 0,
+        Device2 => 1,
+        Device3 => 2,
+        _ => throw new ArgumentException($"Illegal Argument: \"{address}\"", nameof(address))
+    };
 }

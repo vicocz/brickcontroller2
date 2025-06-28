@@ -77,30 +77,35 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
         new(_bleService, ManufacturerId, TryGetTelegram, ReconnectTimeSpan);
 
     /// <summary>
-    /// Creates a handler for the specified channel, providing a mapping between the channel number  and its associated
-    /// output function.
+    /// Determines whether the specified channel number corresponds to a virtual channel.
     /// </summary>
-    /// <remarks>Each channel number corresponds to a specific operation or behavior: <list type="bullet">
-    /// <item><description>Channel 0: Tracks A + B forward and backward.</description></item> <item><description>Channel
-    /// 1: Controls turret rotation.</description></item> <item><description>Channel 2: Fires the
-    /// cannon.</description></item> <item><description>Channel 3: Enables turning on the spot.</description></item>
-    /// <item><description>Channel 4: Virtual channel for locking the turret.</description></item> </list></remarks>
-    /// <param name="channelNo">The channel number for which the handler is to be created. Valid values are 0, 1, 2, 3, or 4.</param>
-    /// <returns>A tuple containing the channel identifier and a function that processes a float input to  produce a byte output
-    /// and a boolean status.</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not a valid channel number.</exception>
-    protected override (int, Func<float, (byte, bool)>) CreateChannelHandler(int channelNo)
+    /// <param name="channelNo">The channel number to evaluate.</param>
+    /// <returns><see langword="true"/> if the specified channel number is a virtual channel;  otherwise, <see
+    /// langword="false"/>. </returns>
+    protected override bool IsVirtualChannel(int channelNo) => channelNo == 4;
+
+    /// <summary>
+    /// Processes the value for a specified channel and returns the processed result along with a status flag.
+    /// </summary>
+    /// <remarks>Each channel number corresponds to a specific operation: <list type="bullet">
+    /// <item><description>Channel 0: Tracks A + B forward or backward.</description></item> <item><description>Channel
+    /// 1: Turret rotation.</description></item> <item><description>Channel 2: Canon shot.</description></item>
+    /// <item><description>Channel 3: Turn on the spot.</description></item> <item><description>Channel 4: Virtual
+    /// channel for locking the turret.</description></item> </list></remarks>
+    /// <param name="channelNo">The channel number to process. Valid values are 0 through 4.</param>
+    /// <param name="value">The input value to be processed for the specified channel.</param>
+    /// <returns>A tuple containing the processed byte value and a boolean flag indicating the success or status of the
+    /// operation.</returns>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not within the valid range of 0 through 4.</exception>
+    protected override (byte value, bool flag) ProccessChannelValue(int channelNo, float value) => channelNo switch
     {
-        return channelNo switch
-        {
-            0 => (0, SetOutput_AnalogChannel),                    // Tracks A + B forward, backward
-            1 => (1, SetOutput_AnalogChannel_Turret),             // Turret rotation
-            2 => (2, SetOutput_Shot),                             // shot canon
-            3 => (3, SetOutput_AnalogChannel),                    // turn on spot
-            4 => (VIRTUALCHANNEL, SetOutput_Option_Turret_Lock),  // virtual channel: lock turret
-            _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
-        };
-    }
+        0 => SetOutput_AnalogChannel(value),                    // Tracks A + B forward, backward
+        1 => SetOutput_AnalogChannel_Turret(value),             // Turret rotation
+        2 => SetOutput_Shot(value),                             // shot canon
+        3 => SetOutput_AnalogChannel(value),                    // turn on spot
+        4 => SetOutput_Option_Turret_Lock(value),               // virtual channel: lock turret
+        _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
+    };
 
     /// <summary>
     /// Converts a floating-point value into a nibble representation for an analog channel output.
@@ -251,7 +256,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
         }
 
         bool valueChanged = false;
-        valueChanged |= _setChannel[1](_storedValues[1]); // The turret lock is a virtual channel, so call handler for real turret channel
+        valueChanged |= SetChannelOutput(1, _storedValues[1]); // The turret lock is a virtual channel, so call handler for real turret channel
 
         // to clarify the concept:
         // inside a virtual channel handler multiple calls to _setChannel are allowed

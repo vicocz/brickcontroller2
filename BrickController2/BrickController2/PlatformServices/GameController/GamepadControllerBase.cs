@@ -85,4 +85,9 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
     {
         _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
     }
+    protected void RaiseEvent(GameControllerEventType eventType, string eventCode, string? eventAlias, float value)
+    {
+        //TODO
+        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
+    }
 }

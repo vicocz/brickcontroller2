@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 
 using static BrickController2.PlatformServices.GameController.GameControllers;
+using Alias = BrickController2.PlatformServices.GameController.Aliases;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
@@ -14,6 +15,24 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// Set of supported axes (might get filtered in future)
         /// </summary>
         private static readonly IReadOnlyCollection<Axis> SupportedAxes = Enum.GetValues<Axis>();
+
+        private static IReadOnlyDictionary<Keycode, string> ButtonAliasMapping = new Dictionary<Keycode, string>
+        {
+            { Keycode.ButtonA, Alias.Button.A },
+            { Keycode.ButtonB, Alias.Button.B },
+            { Keycode.ButtonX, Alias.Button.X },
+            { Keycode.ButtonY, Alias.Button.Y },
+            { Keycode.DpadLeft, Alias.Button.DPadLeft },
+            { Keycode.DpadRight, Alias.Button.DPadRight },
+            { Keycode.DpadDown, Alias.Button.DPadDown },
+            { Keycode.DpadUp, Alias.Button.DPadUp },
+            { Keycode.ButtonL1, Alias.Button.LeftShoulder },
+            { Keycode.ButtonR1, Alias.Button.RightBumper },
+            { Keycode.ButtonStart, Alias.Button.Start },
+            { Keycode.ButtonSelect, "ButtonSelect" },
+            { Keycode.ButtonThumbl, Alias.Button.LeftStickButton },
+            { Keycode.ButtonThumbr, Alias.Button.RightStickButton }
+        };
 
         /// <summary>
         /// Constructor
@@ -36,7 +55,9 @@ namespace BrickController2.Droid.PlatformServices.GameController
         {
             // do simple event name mapping
             var eventName = e.KeyCode.ToString();
-            RaiseEvent(GameControllerEventType.Button, eventName, buttonValue);
+            ButtonAliasMapping.TryGetValue(e.KeyCode, out var aliasName);
+
+            RaiseEvent(GameControllerEventType.Button, eventName, aliasName, buttonValue);
             return true;
         }
 

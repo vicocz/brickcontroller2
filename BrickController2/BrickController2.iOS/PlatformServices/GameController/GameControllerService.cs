@@ -163,7 +163,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
             SetupDigitalButtonInput(gamePad.ButtonA, "Button_A");
             SetupDigitalButtonInput(gamePad.ButtonX, "Button_X");
 
-            SetupDPadInput(gamePad.Dpad, "DPad");
+            SetupDPadInput(gamePad.Dpad);
         }
 
         private void SetupGamePad(GCGamepad gamePad)
@@ -177,7 +177,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
             SetupDigitalButtonInput(gamePad.LeftShoulder, "LeftShoulder");
             SetupDigitalButtonInput(gamePad.RightShoulder, "RightShoulder");
 
-            SetupDPadInput(gamePad.DPad, "DPad");
+            SetupDPadInput(gamePad.DPad);
 #pragma warning restore CA1422 // Validate platform compatibility
         }
 
@@ -194,7 +194,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
             SetupAnalogButtonInput(gamePad.LeftTrigger, "LeftTrigger");
             SetupAnalogButtonInput(gamePad.RightTrigger, "RightTrigger");
 
-            SetupDPadInput(gamePad.DPad, "DPad");
+            SetupDPadInput(gamePad.DPad);
 
             SetupJoyInput(gamePad.LeftThumbstick, "LeftThumbStick");
             SetupJoyInput(gamePad.RightThumbstick, "RightThumbStick");
@@ -234,10 +234,10 @@ namespace BrickController2.iOS.PlatformServices.GameController
             };
         }
 
-        private void SetupDPadInput(GCControllerDirectionPad dPad, string name)
+        private void SetupDPadInput(GCControllerDirectionPad dPad)
         {
-            SetupDigitalAxisInput(dPad.XAxis, $"{name}_X");
-            SetupDigitalAxisInput(dPad.YAxis, $"{name}_Y");
+            SetupDigitalAxisInput(dPad.XAxis, $"DPad_X");
+            SetupDigitalAxisInput(dPad.YAxis, $"DPad_Y");
         }
 
         private void SetupDigitalAxisInput(GCControllerAxisInput axis, string name)

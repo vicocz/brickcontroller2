@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 
@@ -10,6 +13,9 @@ namespace BrickController2.DeviceManagement.MouldKing;
 internal class MK5 : MKBaseNibble, IDeviceType<MK5>
 {
     public const string Device = "Device";
+
+    private const byte TURRET_UNLOCKED_NIBBLE = 0x00;
+    private const byte TURRET_LOCKED_NIBBLE = 0x02;
 
     /// <summary>
     /// Telegram connect to MK5.0
@@ -31,7 +37,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// * 0x00: turret is unlocked
     /// * 0x02: turret is locked
     /// </summary>
-    private byte _turret_lock_Nibble = 0x00;
+    private byte _turret_lock_Nibble = TURRET_UNLOCKED_NIBBLE;
 
     public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, 0, Telegram_Connect, Telegram_Base)
@@ -52,6 +58,13 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// </list></remarks>
     /// </summary>
     public override int NumberOfChannels => 5;
+
+    public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)
+    {
+        _turret_lock_Nibble = TURRET_UNLOCKED_NIBBLE; // reset turret lock nibble on connect
+
+        return base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
+    }
 
     /// <summary>
     /// ManufacturerId to advertise
@@ -228,9 +241,6 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// updated.</description> </item> </list></returns>
     private (byte setValue_nibble, bool zeroSet) SetOutput_Option_Turret_Lock(float value)
     {
-        const byte TURRET_UNLOCKED_NIBBLE = 0x00;
-        const byte TURRET_LOCKED_NIBBLE = 0x02;
-
         if (value == 0)
         {
             _turret_lock_Nibble = TURRET_UNLOCKED_NIBBLE; // turret is unlocked

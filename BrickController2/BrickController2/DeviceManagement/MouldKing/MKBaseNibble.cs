@@ -163,6 +163,22 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     }
 
     /// <summary>
+    /// Disconnects the device and resets the output state of all channels to zero.
+    /// </summary>
+    /// <remarks>This method ensures that all channels are set to a zero output state during the disconnection
+    /// process. It is intended to be called as part of the device's disconnection workflow.</remarks>
+    protected override void DisconnectDevice()
+    {
+        const float zeroValue = 0.0f;
+
+        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+        {
+            // call _bluetoothAdvertisingDeviceHandler.SetChannelState() to set global channel state to zero
+            SetChannelOutput(channelNo, zeroValue);
+        }
+    }
+
+    /// <summary>
     /// Attempts to retrieve the RF payload for the specified telegram type.
     /// </summary>
     /// <remarks>This method delegates the retrieval of the RF payload to the underlying platform

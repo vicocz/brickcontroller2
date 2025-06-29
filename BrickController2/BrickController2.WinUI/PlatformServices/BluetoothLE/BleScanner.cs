@@ -56,6 +56,16 @@ public class BleScanner
         {
             _deviceNameCache.AddOrUpdate(args.BluetoothAddress, deviceName, (key, oldValue) => deviceName);
         }
+        else if (args.Advertisement.DataSections?.Count > 0)
+        {
+            var advertismentData = args.Advertisement.DataSections
+                .Where(s => AdvertismentDataTypes.Contains(s.DataType))
+                .ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
+
+            var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
+
+            _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
+        }
     }
 
     private void _passiveWatcher_Stopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)

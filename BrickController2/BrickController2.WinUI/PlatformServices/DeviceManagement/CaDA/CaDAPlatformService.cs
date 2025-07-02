@@ -6,7 +6,8 @@ namespace BrickController2.Windows.PlatformServices.DeviceManagement.CaDA;
 public class CaDAPlatformService : ICaDAPlatformService
 {
     private const int HeaderOffset = 15;
-    private const int PayloadLength = 27;
+    private const int PayloadOffset = 3;
+    private const int PayloadLength = 24 + PayloadOffset;
 
     public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
     {
@@ -23,7 +24,7 @@ public class CaDAPlatformService : ICaDAPlatformService
         //
         // Therefore, we need to place the encrypted CaDA payload at an offset of 3 bytes to have it at the same offset as Android.
         rfPayload = new byte[PayloadLength];
-        int payloadLength = CryptTools.GetRfPayload(CaDAProtocol.SeedArray, CaDAProtocol.HeaderArray, rawData, HeaderOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload, 3);
+        int payloadLength = CryptTools.GetRfPayload(CaDAProtocol.SeedArray, CaDAProtocol.HeaderArray, rawData, HeaderOffset, CaDAProtocol.CTXValue1, CaDAProtocol.CTXValue2, rfPayload, PayloadOffset);
 
         return true;
     }

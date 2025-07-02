@@ -6,18 +6,18 @@ namespace BrickController2.Windows.PlatformServices.DeviceManagement.MouldKing;
 public class MKPlatformService : IMKPlatformService
 {
     private const int HeaderOffset = 15;
-    private const int PayloadLength = 26;
+    private const int PayloadOffset = 3;
+    private const int PayloadLength = 24 + PayloadOffset;
 
     public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
     {
         rfPayload = new byte[PayloadLength];
-        int payloadLength = CryptTools.GetRfPayload(MKProtocol.SeedArray, MKProtocol.HeaderArray, rawData, HeaderOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload);
+        int payloadLength = CryptTools.GetRfPayload(MKProtocol.SeedArray, MKProtocol.HeaderArray, rawData, HeaderOffset, MKProtocol.CTXValue1, MKProtocol.CTXValue2, rfPayload, PayloadOffset);
 
         // fill rest of array
-        byte bVar = 0x12; // initial value
-        for (int index = payloadLength; index < PayloadLength; index++)
+        for (int index = payloadLength + PayloadOffset; index < PayloadLength; index++)
         {
-            rfPayload[index] = bVar++;
+            rfPayload[index] = (byte)(index + 1);
         }
 
         return true;

@@ -73,6 +73,7 @@ namespace BrickController2.UI.Controls
             MK5Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK5Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             MK5Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK5Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             MK6Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK6Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK6Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
@@ -194,6 +195,7 @@ namespace BrickController2.UI.Controls
                 dcs.MK5Channel1.SelectedChannel = selectedChannel;
                 dcs.MK5Channel2.SelectedChannel = selectedChannel;
                 dcs.MK5Channel3.SelectedChannel = selectedChannel;
+                dcs.MK5Channel4.SelectedChannel = selectedChannel;
                 dcs.MK6Channel0.SelectedChannel = selectedChannel;
                 dcs.MK6Channel1.SelectedChannel = selectedChannel;
                 dcs.MK6Channel2.SelectedChannel = selectedChannel;

@@ -18,8 +18,9 @@ public static class CryptTools
     /// <param name="ctxValue1">ctx value1 for encryption</param>
     /// <param name="ctxValue2">ctx value2 for encryption</param>
     /// <param name="rfPayload">crypted array</param>
+    /// <param name="rfPayloadOffset">start offset for crypted data</param>
     /// <returns>size of crypted array</returns>
-    public static int GetRfPayload(byte[] seed, byte[] header, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload)
+    public static int GetRfPayload(byte[] seed, byte[] header, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload, int rfPayloadOffset = 0)
     {
         const int checksumLength = 2;
         int seedLength = seed.Length;
@@ -27,7 +28,7 @@ public static class CryptTools
         int dataLength = data.Length;
 
         int resultArrayLength = headerLength + seedLength + dataLength + checksumLength;
-        if (resultArrayLength > rfPayload.Length)
+        if (resultArrayLength > rfPayload.Length - rfPayloadOffset)
         {
             return 0;
         }
@@ -68,7 +69,7 @@ public static class CryptTools
         WhiteningInit(ctxValue2, ctxArray2); // 0x26 (38): 1101110
         WhiteningEncode(resultBuffer, 0, resultBufferLength, ctxArray2);
 
-        Buffer.BlockCopy(resultBuffer, headerOffset, rfPayload, 0, resultArrayLength);
+        Buffer.BlockCopy(resultBuffer, headerOffset, rfPayload, rfPayloadOffset, resultArrayLength);
 
         return resultArrayLength;
     }

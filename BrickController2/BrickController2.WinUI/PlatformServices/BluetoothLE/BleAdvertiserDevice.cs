@@ -1,24 +1,28 @@
-﻿using System.Diagnostics;
+﻿using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Advertisement;
-using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 internal class BleAdvertiserDevice : IBluetoothLEAdvertiserDevice
 {
+    private readonly ILogger _logger;
+
     private BluetoothLEAdvertisementPublisher? _publisher;
+
+    public BleAdvertiserDevice(ILogger logger)
+    {
+        _logger = logger;
+    }
 
     public Task StartAdvertiseAsync(AdvertisingInterval advertisingInterval,
         TxPowerLevel txPowerLevel,
         ushort manufacturerId,
         byte[] rawData)
-    {
-        SetNewAdvertisedData(manufacturerId, rawData);
 
-        return Task.CompletedTask;
-    }
+        => SetNewAdvertisedDataAsync(manufacturerId, rawData);
 
     public Task StopAdvertiseAsync()
     {
@@ -29,11 +33,7 @@ internal class BleAdvertiserDevice : IBluetoothLEAdvertiserDevice
     }
 
     public Task UpdateAdvertisedDataAsync(ushort manufacturerId, byte[] rawData)
-    {
-        SetNewAdvertisedData(manufacturerId, rawData);
-
-        return Task.CompletedTask;
-    }
+        => SetNewAdvertisedDataAsync(manufacturerId, rawData);
 
     public void Dispose()
     {
@@ -41,7 +41,7 @@ internal class BleAdvertiserDevice : IBluetoothLEAdvertiserDevice
         _publisher = null;
     }
 
-    private void SetNewAdvertisedData(ushort manufacturerId, byte[] rawData)
+    private Task SetNewAdvertisedDataAsync(ushort manufacturerId, byte[] rawData)
     {
         _publisher?.Stop();
 
@@ -54,7 +54,9 @@ internal class BleAdvertiserDevice : IBluetoothLEAdvertiserDevice
         _publisher = new BluetoothLEAdvertisementPublisher(advertisement);
         _publisher.Start();
 
-        // Debug.WriteLine($"Started BLE advertisement with Manufacturer ID: {manufacturerId}, Data Length: {rawData.Length}");
+        _logger.LogDebug("Started BLE advertisement with Manufacturer ID: {0}, Data Length: {1}", [manufacturerId, rawData.Length]);
+
+        return Task.CompletedTask;
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +10,13 @@ namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 public class BleService : IBluetoothLEService
 {
+    private readonly ILogger _logger;
+
     private bool _isScanning;
 
-    public BleService()
+    public BleService(ILogger<BleService> logger)
     {
+        _logger = logger;
     }
 
     public async Task<bool> IsBluetoothLESupportedAsync()
@@ -67,7 +71,8 @@ public class BleService : IBluetoothLEService
         return new BleDevice(address);
     }
 
-    public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice() => new BleAdvertiserDevice();
+    public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
+        => new BleAdvertiserDevice(_logger);
 
     private async Task<bool> ScanAsync(Action<ScanResult> scanCallback, CancellationToken token)
     {

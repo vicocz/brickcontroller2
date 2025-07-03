@@ -60,7 +60,7 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
         var currentEvents = currentReading
             .Enumerate()
             .Where(x => HasValueChanged(x.Name, x.Value))
-            .ToDictionary(x => (x.EventType, x.Name), x => x.Value);
+            .ToDictionary(x => new GameControllerEventKey(x.EventType, x.Name), x => x.Value);
 
         RaiseEvent(currentEvents);
     }

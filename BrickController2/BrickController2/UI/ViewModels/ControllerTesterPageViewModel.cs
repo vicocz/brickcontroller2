@@ -95,9 +95,9 @@ namespace BrickController2.UI.ViewModels
         }
 
         private static void ProcessEvent(ICollection<GameControllerEventViewModel> events,
-            KeyValuePair<(GameControllerEventType EventType, string EventCode), float> controllerEvent)
+            KeyValuePair<GameControllerEventKey, float> controllerEvent)
         {
-            var controllerEventViewModel = events.FirstOrDefault(ce => ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
+            var controllerEventViewModel = events.FirstOrDefault(ce => ce.IsMatch(controllerEvent.Key));
             if (AXIS_DELTA_VALUE < Math.Abs(controllerEvent.Value))
             {
                 if (controllerEventViewModel != null)
@@ -106,7 +106,7 @@ namespace BrickController2.UI.ViewModels
                 }
                 else
                 {
-                    events.Add(new GameControllerEventViewModel(controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
+                    events.Add(new GameControllerEventViewModel(controllerEvent.Key, controllerEvent.Value));
                 }
             }
             else

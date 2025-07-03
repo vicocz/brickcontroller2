@@ -72,7 +72,7 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
         return true;
     }
 
-    protected void RaiseEvent(IDictionary<(GameControllerEventType, string), float> events)
+    protected void RaiseEvent(IDictionary<GameControllerEventKey, float> events)
     {
         if (!events.Any())
         {
@@ -85,9 +85,9 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
     {
         _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
     }
+
     protected void RaiseEvent(GameControllerEventType eventType, string eventCode, string? eventAlias, float value)
     {
-        //TODO
-        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
+        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, eventAlias, value));
     }
 }

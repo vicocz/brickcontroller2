@@ -37,6 +37,8 @@
                             <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
                                 <HorizontalStackLayout>
                                     <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
+                                    <Label Text="/" FontSize="Large" Margin="5,0,5,0" IsVisible="{Binding ContainsEventAlias}"/>
+                                    <Label Text="{Binding EventAlias}" FontSize="Large" FontAttributes="Bold" IsVisible="{Binding ContainsEventAlias}"/>
                                     <Label Text=":" FontSize="Large" Margin="5,0,5,0"/>
                                     <Label Text="{Binding Value}" FontSize="Large"/>
                                 </HorizontalStackLayout>

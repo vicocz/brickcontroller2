@@ -7,20 +7,30 @@ namespace BrickController2.UI.ViewModels
     {
         private float _value;
 
-        public GameControllerEventViewModel(GameControllerEventType eventType, string eventCode, float value)
+        public GameControllerEventViewModel(GameControllerEventKey eventKey, float value)
         {
-            EventType = eventType;
-            EventCode = eventCode;
+            EventType = eventKey.EventType;
+            EventCode = eventKey.EventCode;
+            EventAlias = eventKey.EventAlias;
             Value = value;
         }
 
         public GameControllerEventType EventType { get; }
         public string EventCode { get; }
 
+        public string? EventAlias { get; }
+
+        public bool ContainsEventAlias => string.IsNullOrEmpty(EventAlias) == false;
+
         public float Value
         {
             get => _value;
             set { _value = value; RaisePropertyChanged(); }
         }
+
+        public bool IsMatch(GameControllerEventKey other) =>
+            EventType == other.EventType &&
+            EventCode == other.EventCode &&
+            EventAlias == other.EventAlias;
     }
 }

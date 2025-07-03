@@ -34,6 +34,12 @@ namespace BrickController2.Droid.PlatformServices.GameController
             { Keycode.ButtonThumbr, Alias.Button.RightStickButton }
         };
 
+        private static IReadOnlyDictionary<Axis, string> AxisAliasMapping = new Dictionary<Axis, string>
+        {
+            { Axis.X, Alias.Axis.LeftThumbX },
+            { Axis.Y, Alias.Axis.LeftThumbY },
+        };
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -61,9 +67,9 @@ namespace BrickController2.Droid.PlatformServices.GameController
             return true;
         }
 
-        internal Dictionary<(GameControllerEventType, string), float> GetAxisEvents(MotionEvent e)
+        internal Dictionary<GameControllerEventKey, float> GetAxisEvents(MotionEvent e)
         {
-            var events = new Dictionary<(GameControllerEventType, string), float>();
+            var events = new Dictionary<GameControllerEventKey, float>();
             foreach (Axis axisCode in SupportedAxes)
             {
                 var axisName = axisCode.ToString();
@@ -104,7 +110,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 {
                     continue;
                 }
-                events[(GameControllerEventType.Axis, axisName)] = axisValue;
+                AxisAliasMapping.TryGetValue(axisCode, out var axisAlias);
+                events[new GameControllerEventKey(GameControllerEventType.Axis, axisName, axisAlias)] = axisValue;
             }
             return events;
         }

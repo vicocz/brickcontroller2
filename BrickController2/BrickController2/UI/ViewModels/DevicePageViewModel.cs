@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
+using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
 using BrickController2.UI.Commands;
@@ -12,6 +13,7 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
+using static BrickController2.CreationManagement.ControllerDefaults;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -41,7 +43,7 @@ namespace BrickController2.UI.ViewModels
             BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs =  Enumerable
                 .Range(0, Device.NumberOfChannels)
-                .Select(channel => new DeviceOutputViewModel(Device, channel))
+                .Select(channel => new DeviceOutputViewModel(navigationService, Device, channel))
                 .ToArray();
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
@@ -66,6 +68,10 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
+
+        public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
+
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
@@ -85,7 +91,7 @@ namespace BrickController2.UI.ViewModels
 
             if (Device.DeviceType != DeviceType.Infrared)
             {
-                if (!_deviceManager.IsBluetoothOn)
+                if (!await _deviceManager.IsBluetoothOnAsync())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -269,7 +275,7 @@ namespace BrickController2.UI.ViewModels
 
         private async Task ScanAsync()
         {
-            if (!_deviceManager.IsBluetoothOn)
+            if (!await _deviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),
@@ -338,6 +344,8 @@ namespace BrickController2.UI.ViewModels
             ScanCommand.RaiseCanExecuteChanged();
             ActivateShelfModeCommand.RaiseCanExecuteChanged();
             OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
+            // to ensure that servo/stepper commands are enabled / disabled properly
+            RaisePropertyChanged(nameof(IsServoOrStepperSupported));
         }
 
         private void SetBuWizzOutputLevel(int level)
@@ -347,15 +355,18 @@ namespace BrickController2.UI.ViewModels
 
         public class DeviceOutputViewModel : NotifyPropertyChangedSource
         {
+            private readonly INavigationService _navigationService;
             private int _output;
 
-            public DeviceOutputViewModel(Device device, int channel)
+            public DeviceOutputViewModel(INavigationService navigationService, Device device, int channel)
             {
+                _navigationService= navigationService;
                 Device = device;
                 Channel = channel;
                 Output = 0;
 
                 TouchUpCommand = new Command(() => Output = 0);
+                TestServoStepperCommand = new SafeCommand(OpenChannelSetupAsync, () => IsServoOrStepperSupported);
             }
 
             public Device Device { get; }
@@ -375,7 +386,31 @@ namespace BrickController2.UI.ViewModels
                 }
             }
 
+            public bool IsServoOrStepperSupported =>
+                Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) ||
+                Device.IsOutputTypeSupported(Channel, ChannelOutputType.StepperMotor);
+
             public ICommand TouchUpCommand { get; }
+            public ICommand TestServoStepperCommand { get; }
+
+            private async Task OpenChannelSetupAsync()
+            {
+                var action = new ControllerAction
+                {
+                    DeviceId = Device.Id,
+                    Channel = Channel,
+                    MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE,
+                    ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE,
+                    StepperAngle = DEFAULT_STEPPER_ANGLE,
+                    // choose first supported output type
+                    ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) 
+                        ? ChannelOutputType.ServoMotor
+                        : ChannelOutputType.StepperMotor,
+                };
+                await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
+                    ("controlleraction", action),
+                    ("ischanneltest", true)));
+            }
         }
     }
 }

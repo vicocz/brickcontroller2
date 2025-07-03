@@ -1,0 +1,59 @@
+name: Build BrickController WinUI 
+
+on:
+  push:
+    branches:
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.WinUI/**'
+  pull_request:
+    branches:    
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.WinUI/**'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
+
+jobs:
+  build-winui:
+    runs-on: windows-2025
+    name: BrickController WinUI Build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+            
+    - name: Restore Dependencies
+      run: dotnet restore ${{env.PROJECT_PATH}}
+
+    - name: Build
+      run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
+
+    - name: Build MAUI WinUI App
+      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true
+
+    - name: Upload WinUI Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brickcontroller-winui-ci-build
+        path: .\**\AppPackages\**\BrickController*.msix

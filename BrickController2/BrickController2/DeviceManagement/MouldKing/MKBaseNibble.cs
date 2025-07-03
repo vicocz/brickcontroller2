@@ -91,7 +91,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
 
     protected virtual bool IsVirtualChannel(int channelNo) => false;
 
-    protected abstract (byte value, bool flag) ProccessChannelValue(int channelNo, float value);
+    protected abstract (byte value, bool flag) ProcessChannelValue(int channelNo, float value);
 
     /// <summary>
     /// Updates a specific nibble of a byte in the telegram buffer and returns whether the value was changed.
@@ -130,7 +130,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         if (IsVirtualChannel(channelNo))
         {
             // virtual channel
-            (byte _, bool isModified) = ProccessChannelValue(channelNo, value);
+            (byte _, bool isModified) = ProcessChannelValue(channelNo, value);
             return isModified;
         }
         else
@@ -140,7 +140,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
             int byteOffset = GetByteOffset(channelNo);
             int specificChannelNo = GetSpecificChannelNumber(channelNo);
 
-            (byte setValue_nibble, bool zeroSet) = ProccessChannelValue(channelNo, value);
+            (byte setValue_nibble, bool zeroSet) = ProcessChannelValue(channelNo, value);
 
             _bluetoothAdvertisingDeviceHandler.SetChannelState(specificChannelNo, zeroSet); // set global channel state
             return SetChannelValue(byteOffset, isOdd, setValue_nibble);

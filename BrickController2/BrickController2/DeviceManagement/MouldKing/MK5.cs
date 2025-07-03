@@ -53,8 +53,8 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// <summary>
     /// Gets the number of channels supported by the device
     /// <remarks><list type="bullet">
-    /// <item><description>Channel 0..4: real existing channel</description></item> 
-    /// <item><description>Channel 5: virtual channel for locking the turret</description></item>
+    /// <item><description>Channel 0..3: real existing channel</description></item> 
+    /// <item><description>Channel 4: virtual channel for locking the turret</description></item>
     /// </list></remarks>
     /// </summary>
     public override int NumberOfChannels => 5;
@@ -97,14 +97,14 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// <returns>A tuple containing the processed byte value and a boolean flag indicating the success or status of the
     /// operation.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not within the valid range of 0 through 4.</exception>
-    protected override (byte value, bool flag) ProccessChannelValue(int channelNo, float value) => channelNo switch
+    protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
     {
-        0 => SetOutput_AnalogChannel(value),                    // Tracks A + B forward, backward
-        1 => SetOutput_AnalogChannel_Turret(value),             // Turret rotation
-        2 => SetOutput_Shot(value),                             // shot canon
-        3 => SetOutput_AnalogChannel(value),                    // turn on spot
-        4 => SetOutput_Option_Turret_Lock(value),               // virtual channel: lock turret
-        _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
+        0 => ProcessChannelValue_AnalogChannel(value),                    // Tracks A + B forward, backward
+        1 => ProcessChannelValue_AnalogChannel_Turret(value),             // Turret rotation
+        2 => ProcessChannelValue_Shot(value),                             // shot canon
+        3 => ProcessChannelValue_AnalogChannel(value),                    // turn on spot
+        4 => ProcessChannelValue_Option_Turret_Lock(value),               // virtual channel: lock turret
+        _ => throw new ArgumentException($"Illegal Argument \"{channelNo}\"", nameof(channelNo))
     };
 
     /// <summary>
@@ -119,7 +119,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// representation of the input value.</description> </item> <item> <description><c>zeroSet</c>: A boolean
     /// indicating whether the input value was zero (<see langword="true"/>) or not (<see
     /// langword="false"/>).</description> </item> </list></returns>
-    private (byte setValue_Nibble, bool zeroSet) SetOutput_AnalogChannel(float value)
+    private static (byte setValue_Nibble, bool zeroSet) ProcessChannelValue_AnalogChannel(float value)
     {
         // MK5: ZEROVALUE_NIBBLE = 0x00, Range_pos_Offset = 0x08
         // value <  0:  7 6 5 4 3 2 1                    RANGE_NEG: 0x07
@@ -167,7 +167,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// to be set for the turret.</description> </item> <item> <description><c>zeroSet</c>: A boolean flag indicating
     /// whether the zero value nibble is used (<see langword="true"/> if the zero value nibble is applied; otherwise,
     /// <see langword="false"/>).</description> </item> </list></returns>
-    private (byte setValue_Nibble, bool zeroSet) SetOutput_AnalogChannel_Turret(float value)
+    private (byte setValue_Nibble, bool zeroSet) ProcessChannelValue_AnalogChannel_Turret(float value)
     {
         // MK5: zeroValue_Nibble = 0x00/0x02, RANGE_POS_OFFSET = 0x08
         // value <  0:  7 6 5 4 3 2 1                    RANGE_NEG: 0x07
@@ -180,7 +180,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
         const float MIN_NEG_RANGE_THRESHOLD = -1f / RANGE_NEG;    // Minimum value for negative range
         const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
 
-        byte zeroValue_Nibble = _turret_lock_Nibble; // <-- turretOffset is set by SetOutput_Option_Turret_Lock
+        byte zeroValue_Nibble = _turret_lock_Nibble; // <-- turretOffset is set by ProcessChannelValue_Option_Turret_Lock
 
         value *= -1; // invert value for turret
 
@@ -217,7 +217,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// otherwise.</description></item> <item><description><c>zeroSet</c>: A boolean indicating whether the input value
     /// was zero. Returns <see langword="true"/> if <paramref name="value"/> is <c>0</c>; otherwise, <see
     /// langword="false"/>.</description></item> </list></returns>
-    private (byte setValue_nibble, bool zeroSet) SetOutput_Shot(float value)
+    private static (byte setValue_nibble, bool zeroSet) ProcessChannelValue_Shot(float value)
     {
         const byte ZEROVALUE_NIBBLE = 0x00;
         const byte FIRE_SHOT_NIBBLE = 0x0F;
@@ -244,7 +244,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// indicating the nibble used for the turret lock operation. Always returns <c>0x00</c>.</description> </item>
     /// <item> <description><c>zeroSet</c>: A boolean value indicating whether the turret lock state was successfully
     /// updated.</description> </item> </list></returns>
-    private (byte setValue_nibble, bool zeroSet) SetOutput_Option_Turret_Lock(float value)
+    private (byte setValue_nibble, bool zeroSet) ProcessChannelValue_Option_Turret_Lock(float value)
     {
         if (value == 0)
         {

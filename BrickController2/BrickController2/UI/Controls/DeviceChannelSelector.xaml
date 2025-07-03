@@ -306,11 +306,11 @@
 
                 <Grid Grid.Column="1">
                     <Image Source="{extensions:ImageResource Source=mk5_image.png}" WidthRequest="150" HeightRequest="112"/>
-                    <controls:ChannelSelectorRadioButton x:Name="MK5Channel4" DeviceType="MK5" Channel="4" HorizontalOptions="Center" VerticalOptions="End" />
                 </Grid>
 
                 <Grid Grid.Column="2">
                     <controls:ChannelSelectorRadioButton x:Name="MK5Channel1" DeviceType="MK5" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK5Channel4" DeviceType="MK5" Channel="4" HorizontalOptions="Start" VerticalOptions="Center" />
                     <controls:ChannelSelectorRadioButton x:Name="MK5Channel3" DeviceType="MK5" Channel="3" HorizontalOptions="Start" VerticalOptions="End"/>
                 </Grid>
             </Grid>            

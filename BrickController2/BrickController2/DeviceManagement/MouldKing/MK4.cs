@@ -43,16 +43,16 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     {
     }
 
-    public override DeviceType DeviceType => Type;
-
     public static DeviceType Type => DeviceType.MK4;
 
     public static string TypeName => "MK 4.0";
 
+    public override DeviceType DeviceType => Type;
+
     /// <summary>
     /// Gets the number of channels supported by the device.
     /// <remarks><list type="bullet">
-    /// <item><description>Channel 0..4: real existing channel</description></item> 
+    /// <item><description>Channel 0..3: real existing channel</description></item> 
     /// </list></remarks>
     /// </summary>
     public override int NumberOfChannels => 4;
@@ -86,13 +86,13 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// <param name="value">The input value to be processed for the specified channel.</param>
     /// <returns>A tuple containing the processed value and a flag indicating the success of the operation.</returns>
     /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not one of the valid channel numbers (0, 1, 2, or 3).</exception>
-    protected override (byte value, bool flag) ProccessChannelValue(int channelNo, float value) => channelNo switch
+    protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
     {
         0 => SetOutput_AnalogChannel(value),
         1 => SetOutput_AnalogChannel(value),
         2 => SetOutput_AnalogChannel(value),
         3 => SetOutput_AnalogChannel(value),
-        _ => throw new ArgumentException("Illegal Argument", nameof(channelNo))
+        _ => throw new ArgumentException($"Illegal Argument \"{channelNo}\"", nameof(channelNo))
     };
 
     /// <summary>
@@ -122,7 +122,6 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
         const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
 
         const byte ZEROVALUE_NIBBLE = 0x08;
-
 
         if (value <= MIN_NEG_RANGE_THRESHOLD)
         {

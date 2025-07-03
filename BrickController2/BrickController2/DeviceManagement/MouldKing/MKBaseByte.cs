@@ -1,6 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
-using System;
-using System.Threading.Channels;
+﻿using System;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement.MouldKing;
 
@@ -102,11 +101,7 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
             _telegram_Base[BaseTelegram_ChannelStartOffset + index] = 0x80;
         }
 
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            // call _bluetoothAdvertisingDeviceHandler.SetChannelState() to set global channel state to zero
-            _bluetoothAdvertisingDeviceHandler.SetChannelState(channelNo, true);
-        }
+        ResetAllChannelsToZero();
     }
 
     /// <summary>
@@ -114,14 +109,7 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     /// </summary>
     /// <remarks>This method iterates through all available channels and sets their state to inactive.  It
     /// ensures that the device is properly disconnected and all channels are reset.</remarks>
-    protected override void DisconnectDevice()
-    {
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            // call _bluetoothAdvertisingDeviceHandler.SetChannelState() to set global channel state to zero
-            _bluetoothAdvertisingDeviceHandler.SetChannelState(channelNo, true);
-        }
-    }
+    protected override void DisconnectDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Attempts to retrieve the RF payload for the specified telegram type.
@@ -142,6 +130,15 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
         else
         {
             return _mkPlatformService.TryGetRfPayload(_telegram_Base, out payload);
+        }
+    }
+
+    private void ResetAllChannelsToZero()
+    {
+        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+        {
+            // call SetChannelState() to set global channel state to zero
+            _bluetoothAdvertisingDeviceHandler.SetChannelState(channelNo, true);
         }
     }
 }

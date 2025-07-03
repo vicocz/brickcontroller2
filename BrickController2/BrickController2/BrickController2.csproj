@@ -21,6 +21,8 @@
     <EmbeddedResource Include="UI\Images\mk_diy_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk4_image.png" />
     <EmbeddedResource Include="UI\Images\mk4_image_small.png" />
+    <EmbeddedResource Include="UI\Images\mk5_image.png" />
+    <EmbeddedResource Include="UI\Images\mk5_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk6_image.png" />
     <EmbeddedResource Include="UI\Images\mk6_image_small.png" />
     <EmbeddedResource Include="UI\Images\pfx_brick_image.png" />

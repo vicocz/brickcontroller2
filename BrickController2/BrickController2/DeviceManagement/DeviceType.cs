@@ -20,6 +20,7 @@
         MK_DIY,
         CaDA_RaceCar,
         PfxBrick,
+        MK5,
         LegoController,
     }
 }

@@ -68,6 +68,8 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
+
         public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
 
         public ICommand RenameCommand { get; }

@@ -69,6 +69,11 @@ namespace BrickController2.UI.Controls
             MK4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             MK4Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK5Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK5Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK5Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK5Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK5Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             MK6Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK6Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK6Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
@@ -118,6 +123,7 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
                 dcs.PfxBrickSection.IsVisible = deviceType == DeviceType.PfxBrick;
                 dcs.MK4Section.IsVisible = deviceType == DeviceType.MK4;
+                dcs.MK5Section.IsVisible = deviceType == DeviceType.MK5;
                 dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
                 dcs.MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
                 dcs.CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
@@ -185,6 +191,11 @@ namespace BrickController2.UI.Controls
                 dcs.MK4Channel1.SelectedChannel = selectedChannel;
                 dcs.MK4Channel2.SelectedChannel = selectedChannel;
                 dcs.MK4Channel3.SelectedChannel = selectedChannel;
+                dcs.MK5Channel0.SelectedChannel = selectedChannel;
+                dcs.MK5Channel1.SelectedChannel = selectedChannel;
+                dcs.MK5Channel2.SelectedChannel = selectedChannel;
+                dcs.MK5Channel3.SelectedChannel = selectedChannel;
+                dcs.MK5Channel4.SelectedChannel = selectedChannel;
                 dcs.MK6Channel0.SelectedChannel = selectedChannel;
                 dcs.MK6Channel1.SelectedChannel = selectedChannel;
                 dcs.MK6Channel2.SelectedChannel = selectedChannel;

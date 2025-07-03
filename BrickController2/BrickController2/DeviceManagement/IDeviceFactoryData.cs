@@ -10,5 +10,9 @@ namespace BrickController2.DeviceManagement
         string Address { get; }
         byte[] DeviceData { get; }
         IEnumerable<NamedSetting> Settings { get; }
+
+        // additional data
+        string DeviceTypeName { get; }
+        string VendorName { get; }
     }
 }

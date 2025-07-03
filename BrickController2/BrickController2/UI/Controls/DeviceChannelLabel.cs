@@ -12,10 +12,11 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _pfxBricks = ["A", "B", "1", "2", "3", "4", "5", "6", "7", "8"];
         private readonly static string[] _circuitCubesChannelLetters = new[] { "A", "B", "C" };
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
+        private readonly static string[] _mk5ChannelLetters = ["AB", "T", "C", "AB+T", "TL"];
         private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
 
-        public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
-        public static BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
+        public static readonly BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
+        public static readonly BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
 
         public DeviceType DeviceType
         {
@@ -85,6 +86,10 @@ namespace BrickController2.UI.Controls
                 case DeviceType.MK6:
                 case DeviceType.MK_DIY:
                     SetChannelText(_mk6ChannelLetters);
+                    break;
+
+                case DeviceType.MK5:
+                    SetChannelText(_mk5ChannelLetters);
                     break;
 
                 default:

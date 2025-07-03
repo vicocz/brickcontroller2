@@ -1,20 +1,22 @@
-﻿using BrickController2.Windows.PlatformServices.BluetoothLE;
-using BrickController2.Windows.PlatformServices.DeviceManagement.MouldKing;
-using BrickController2.Windows.PlatformServices.Infrared;
-using BrickController2.Windows.PlatformServices.Versioning;
-using BrickController2.Windows.PlatformServices.Localization;
-using BrickController2.Windows.PlatformServices.GameController;
-using BrickController2.Windows.PlatformServices.SharedFileStorage;
-using BrickController2.Windows.PlatformServices.Permission;
-using Autofac;
+﻿using Autofac;
+using BrickController2.DeviceManagement.CaDA;
 using BrickController2.DeviceManagement.MouldKing;
-using BrickController2.PlatformServices.Infrared;
-using BrickController2.PlatformServices.GameController;
-using BrickController2.PlatformServices.Versioning;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.Localization;
-using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.PlatformServices.Permission;
+using BrickController2.PlatformServices.SharedFileStorage;
+using BrickController2.PlatformServices.Versioning;
+using BrickController2.Windows.PlatformServices.BluetoothLE;
+using BrickController2.Windows.PlatformServices.DeviceManagement.CaDA;
+using BrickController2.Windows.PlatformServices.DeviceManagement.MouldKing;
+using BrickController2.Windows.PlatformServices.GameController;
+using BrickController2.Windows.PlatformServices.Infrared;
+using BrickController2.Windows.PlatformServices.Localization;
+using BrickController2.Windows.PlatformServices.Permission;
+using BrickController2.Windows.PlatformServices.SharedFileStorage;
+using BrickController2.Windows.PlatformServices.Versioning;
 
 namespace BrickController2.Windows.PlatformServices.DI;
 
@@ -31,5 +33,6 @@ public class PlatformServicesModule : Module
         builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
         builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
         builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
+        builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
     }
 }

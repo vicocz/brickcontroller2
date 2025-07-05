@@ -65,6 +65,11 @@ namespace BrickController2.UI.Controls
             PfxBrickChannel6.Command = new SafeCommand(() => SelectedChannel = 7);
             PfxBrickChannel7.Command = new SafeCommand(() => SelectedChannel = 8);
             PfxBrickChannel8.Command = new SafeCommand(() => SelectedChannel = 9);
+            MK3_8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK3_8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK3_8Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK3_8Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK3_8Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             MK4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);

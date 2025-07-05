@@ -122,6 +122,7 @@ namespace BrickController2.UI.Controls
                 dcs.TechnicMoveChannelB.IsVisible = !isPlayVm;
                 dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
                 dcs.PfxBrickSection.IsVisible = deviceType == DeviceType.PfxBrick;
+                dcs.MK3_8Section.IsVisible = deviceType == DeviceType.MK3_8;
                 dcs.MK4Section.IsVisible = deviceType == DeviceType.MK4;
                 dcs.MK5Section.IsVisible = deviceType == DeviceType.MK5;
                 dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
@@ -187,6 +188,11 @@ namespace BrickController2.UI.Controls
                 dcs.PfxBrickChannel6.SelectedChannel = selectedChannel;
                 dcs.PfxBrickChannel7.SelectedChannel = selectedChannel;
                 dcs.PfxBrickChannel8.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel0.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel1.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel2.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel3.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel4.SelectedChannel = selectedChannel;
                 dcs.MK4Channel0.SelectedChannel = selectedChannel;
                 dcs.MK4Channel1.SelectedChannel = selectedChannel;
                 dcs.MK4Channel2.SelectedChannel = selectedChannel;

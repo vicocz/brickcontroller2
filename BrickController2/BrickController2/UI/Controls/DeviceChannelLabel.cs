@@ -82,6 +82,7 @@ namespace BrickController2.UI.Controls
                         TranslationHelper.Translate("Red");
                     break;
 
+                case DeviceType.MK3_8:
                 case DeviceType.MK4:
                 case DeviceType.MK6:
                 case DeviceType.MK_DIY:

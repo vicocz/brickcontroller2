@@ -28,7 +28,7 @@ public static class CryptTools
         int headerLength = header.Length;
         int dataLength = data.Length;
 
-        int resultArrayLength = initValuesLength + seedLength + dataLength + checksumLength;
+        int resultArrayLength = headerLength + seedLength + dataLength + checksumLength;
         if (resultArrayLength > rfPayload.Length)
         {
             return 0;

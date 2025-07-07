@@ -299,23 +299,22 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
-                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel3" DeviceType="MK3_8" Channel="3" HorizontalOptions="End" VerticalOptions="Start" Margin="0,25,0,0"/>
-                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel2" DeviceType="MK3_8" Channel="2" HorizontalOptions="End" VerticalOptions="Center" Margin="0,50,0,0" />
+                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel3" DeviceType="MK3_8" Channel="3" HorizontalOptions="End" VerticalOptions="Start" Margin="0,50,0,0"/>
+                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel2" DeviceType="MK3_8" Channel="2" HorizontalOptions="End" VerticalOptions="End" Margin="0,50,0,0" />
                 </Grid>
 
                 <Grid Grid.Column="1">
                     <VerticalStackLayout>
-                        <Image Source="{extensions:ImageResource Source=mk3_8_image.png}" WidthRequest="40" HeightRequest="100" />
-                        <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel4" DeviceType="MK3_8" Channel="4" HorizontalOptions="Center" VerticalOptions="End" Margin="10,10,0,0" />
+                        <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel4" DeviceType="MK3_8" Channel="4" HorizontalOptions="Center" VerticalOptions="Start" Margin="15,0,0,0" />
+                        <Image Source="{extensions:ImageResource Source=mk3_8_image.png}" WidthRequest="40" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="End" />
                     </VerticalStackLayout>
                 </Grid>
 
                 <Grid Grid.Column="2">
-                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel1" DeviceType="MK3_8" Channel="1" HorizontalOptions="Start" VerticalOptions="Start" Margin="0,25,0,0" />
-                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel0" DeviceType="MK3_8" Channel="0" HorizontalOptions="Start" VerticalOptions="Center" Margin="0,50,0,0" />
+                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel1" DeviceType="MK3_8" Channel="1" HorizontalOptions="Start" VerticalOptions="Start" Margin="0,50,0,0" />
+                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel0" DeviceType="MK3_8" Channel="0" HorizontalOptions="Start" VerticalOptions="End" Margin="0,50,0,0" />
                 </Grid>
             </Grid>
-
 
             <!-- MK5 -->
             <Grid x:Name="MK5Section">

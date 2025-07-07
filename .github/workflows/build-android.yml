@@ -38,9 +38,7 @@ jobs:
     - uses: octokit/request-action@v2.x
       id: get_latest_release
       with:
-        route: GET /repos/{owner}/{repo}/releases/latest
-        owner: octokit
-        repo: request-action
+        route: GET /repos/${{ github.repository }}/releases/latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

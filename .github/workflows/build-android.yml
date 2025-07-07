@@ -56,7 +56,7 @@ jobs:
       id: get_release
       uses: octokit/request-action@v2.x
       with:
-        route: GET /repos/${{ github.repository }}/releases/2025.04.Beta1
+        route: GET /repos/${{ github.repository }}/releases/tag/2025.04.Beta1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

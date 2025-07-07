@@ -56,8 +56,10 @@ jobs:
       id: get_release
       uses: octokit/request-action@v2.x
       with:
-          route: GET /repos/${{ github.repository }}/releases/tags/2025.04.Beta1
-          token: ${{ secrets.GITHUB_TOKEN }}
+        route: GET /repos/${{ github.repository }}/releases/2025.04.Beta1
+        token: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Artifact to Release
       uses: actions/upload-release-asset@v1

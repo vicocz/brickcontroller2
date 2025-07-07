@@ -42,9 +42,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Debug Latest Release
-      run: |
-        echo "${{ steps.get_latest_release.outputs.data }}"
+    # - name: Debug Latest Release
+    #   run: |
+    #     echo "${{ steps.get_latest_release.outputs.data }}"
 
     - name: Debug Latest Release
       run: | 

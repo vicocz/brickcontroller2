@@ -43,9 +43,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Debug Latest Release
-      run: | 
-          echo "username=${{ fromJson(steps.get_contribution_data.outputs.data)[0].user.login }}" >> $GITHUB_ENV
-          echo "avatar_url=${{ steps.get_contribution_data.outputs.upload_url }}" >> $GITHUB_ENV
+      run: |
+          echo "username=${{ fromJson(steps.get_latest_release.outputs.data)[0].user.login }}" >> $GITHUB_ENV
+          echo "avatar_url=${{ steps.get_latest_release.outputs.upload_url }}" >> $GITHUB_ENV
           echo "commit_sha=${{ github.sha }}" >> $GITHUB_ENV
           echo "message=${{ fromJson(steps.get_contribution_data.outputs.data)[0].title }}" >> $GITHUB_ENV
 

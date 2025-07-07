@@ -43,7 +43,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Debug Latest Release
-      run: echo ${{ steps.get_latest_release.outputs.data }}
+      run: | 
+          echo "username=${{ fromJson(steps.get_latest_release.outputs.data)[0].url }}" >> $GITHUB_ENV
+          echo "avatar_url=${{ fromJson(steps.get_latest_release.outputs.data)[0].author.login }}" >> $GITHUB_ENV
 
     - name: Find Release ID
       #if: github.event_name == 'release' && github.event.action == 'published'

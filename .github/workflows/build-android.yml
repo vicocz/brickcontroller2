@@ -35,6 +35,18 @@ jobs:
     name: BrickController Android Build
     steps:
 
+    - uses: octokit/request-action@v2.x
+      id: get_latest_release
+      with:
+        route: GET /repos/{owner}/{repo}/releases/latest
+        owner: octokit
+        repo: request-action
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Debug Latest Release
+      run: echo ${{ steps.get_latest_release.outputs.data }}
+
     - name: Find Release ID
       #if: github.event_name == 'release' && github.event.action == 'published'
       id: get_release_test

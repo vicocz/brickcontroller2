@@ -74,6 +74,13 @@ namespace BrickController2.DeviceManagement
         private readonly Stopwatch _allZeroStopwatch = Stopwatch.StartNew();
 
         /// <summary>
+        /// A synchronization object used to ensure thread-safe operations when setting the state of all channels.
+        /// </summary>
+        /// <remarks>This object is intended for use in locking mechanisms to prevent race conditions
+        /// during state updates.</remarks>
+        private readonly object _lockAllChannelsSetState = new object();
+
+        /// <summary>
         /// task running the cyclic output loop
         /// </summary>
         private Task? _outputTask;
@@ -94,9 +101,9 @@ namespace BrickController2.DeviceManagement
         private AutoResetEvent? _waitForNewData;
 
         /// <summary>
-        /// True if all channels are zero
+        /// bitfield representing the set-state of all channels of all instances of the DeviceType handled by this instance.
         /// </summary>
-        private bool _allChannelsZero = true;
+        private int _allChannelsSetState = 0;
 
         public BluetoothAdvertisingDeviceHandler(IBluetoothLEService bleService, ushort manufacturerId, TryGetTelegramHandler tryGetTelegram, TimeSpan reconnectTimespan)
         {
@@ -109,29 +116,61 @@ namespace BrickController2.DeviceManagement
         public AdvertisingInterval AdvertisingInterval => AdvertisingInterval.Min;
         public TxPowerLevel TxPowerLevel => TxPowerLevel.Max;
 
-        public void NotifyDataChanged(bool allChannelsZero)
+        /// <summary>
+        /// Updates the state of a specific channel by either setting or resetting its state.
+        /// </summary>
+        /// <remarks>This method modifies the internal state of the specified channel by either setting or
+        /// resetting its corresponding bit. If <paramref name="zeroSet"/> is <see langword="true"/>, the method sets
+        /// the bit for the specified channel and checks whether the state of all channels is zero and whether a change
+        /// occurred. If <paramref name="zeroSet"/> is <see langword="false"/>, the method resets the bit for the
+        /// specified channel and always returns <see langword="false"/>.</remarks>
+        /// <param name="specificChannelNo">The zero-based index of the channel to update. Must be a valid channel number.</param>
+        /// <param name="zeroSet">A value indicating whether to set (<see langword="true"/>) or reset (<see langword="false"/>) the state of
+        /// the specified channel.</param>
+        /// <returns><see langword="true"/> if the state of all channels is zero and the state of the specified channel was
+        /// successfully changed; otherwise, <see langword="false"/>.</returns>
+        public bool SetChannelState(int specificChannelNo, bool zeroSet)
         {
-            if (allChannelsZero)
+            lock (_lockAllChannelsSetState)
             {
-                // _allChannelsZero will change to true
-                if (!_allChannelsZero)
+                if (zeroSet)
                 {
-                    _allChannelsZero = true;
-                    _allZeroStopwatch.Restart();
+                    int allChannelsSetState = _allChannelsSetState;
 
-                    // signal _waitForNewData to immediately run next loop in ProcessOutputs
-                    _waitForNewData?.Set();
+                    // reset the bit for the specificChannelNo in the bitfield
+                    _allChannelsSetState &= ~(1 << specificChannelNo);
+
+                    if (_allChannelsSetState == 0 &&                    // new set state of all channels is zero
+                        allChannelsSetState != _allChannelsSetState)    // and there was a change
+                    {
+                        // if all channels are set to zero, reset the stopwatch
+                        _allZeroStopwatch.Restart();
+
+                        return true;
+                    }
                 }
-                //else {} // no change, no signalling
-            }
-            else
-            {
-                _allChannelsZero = false;
+                else
+                {
+                    // set the bit for the specificChannelNo
+                    _allChannelsSetState |= (1 << specificChannelNo);
+                }
 
-                // signal _waitForNewData to immediately run next loop in ProcessOutputs
-                _waitForNewData?.Set();
+                return false;
             }
         }
+
+        /// <summary>
+        /// Notifies the system that data has changed and triggers any associated processes.
+        /// </summary>
+        /// <remarks>This method signals the system to immediately proceed with processing outputs that
+        /// depend on new data. It resets internal timing mechanisms and ensures that waiting processes are
+        /// notified.</remarks>
+        public void NotifyDataChanged()
+        {
+            // signal _waitForNewData to immediately run next loop in ProcessOutputs
+            _waitForNewData?.Set();
+        }
+
 
         public async Task<bool> TryConnectAsync(BluetoothAdvertisingDevice requestingDevice)
         {
@@ -316,7 +355,8 @@ namespace BrickController2.DeviceManagement
 
                 // if all channels are zero and _reconnectTimeSpan has elapsed
                 // then the connect telegram should be sent
-                inConnectMode = _allChannelsZero && _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
+                inConnectMode = _allChannelsSetState == 0 && 
+                    _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
 
                 // if connectMode is requested and if previous was not a connect telegram
                 if (inConnectMode && !inConnectModePrevious)

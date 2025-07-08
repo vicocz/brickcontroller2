@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\BrickController2.Tools\BrickController2.Tools.csproj" />
     <ProjectReference Include="..\BrickController2\BrickController2.csproj" />
   </ItemGroup>
 	

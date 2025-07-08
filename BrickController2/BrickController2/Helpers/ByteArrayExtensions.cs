@@ -29,6 +29,14 @@ namespace BrickController2.Helpers
             return BitConverter.ToInt16(tempBuffer, 0);
         }
 
+        public static ushort GetUInt16(this byte[] data, int offset = 0)
+        {
+            var tempBuffer = BitConverter.IsLittleEndian ?
+                new byte[] { data[offset + 0], data[offset + 1] } :
+                new byte[] { data[offset + 1], data[offset + 0] };
+            return BitConverter.ToUInt16(tempBuffer, 0);
+        }
+
         public static int GetInt32(this byte[] data, int offset = 0)
         {
             var tempBuffer = BitConverter.IsLittleEndian ?

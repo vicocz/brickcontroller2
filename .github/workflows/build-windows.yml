@@ -6,7 +6,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*windows.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -16,7 +16,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*windows.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -58,7 +58,7 @@ jobs:
         name: brickcontroller-winui-ci-build
         path: .\**\AppPackages\**\BrickController*.msix
 
-    - name: Find Release ID
+    - name: Find Current Release Info
       #if: github.event_name == 'release' && github.event.action == 'published'
       id: get_release
       uses: octokit/request-action@v2.x
@@ -68,9 +68,10 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Artifact to Release
+      #if: github.event_name == 'release' && github.event.action == 'published' 
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
+        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
         asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_1.0.0.0_Test\BrickController2.WinUI_1.0.0.0_x64.msix
         asset_name: BrickController2.WinUI_1.0.0.0_x64.msix
         asset_content_type: application/vnd.ms-appx

@@ -42,12 +42,22 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+    - name: Parse Latest Release Response
+      run: |
+        echo "Release Tag: ${{ fromJson(steps.get_latest_release.outputs.data).tag_name }}" >> $GITHUB_ENV
+        echo "Release Name: ${{ fromJson(steps.get_latest_release.outputs.data).name }}" >> $GITHUB_ENV
+        echo "Release ID: ${{ fromJson(steps.get_latest_release.outputs.data).id }}" >> $GITHUB_ENV
+        echo "Upload URL: ${{ fromJson(steps.get_latest_release.outputs.data).upload_url }}" >> $GITHUB_ENV
+
     - name: Debug Latest Release
       run: |
           echo "username=${{ fromJson(steps.get_latest_release.outputs.data)[0].user.login }}" >> $GITHUB_ENV
           echo "avatar_url=${{ steps.get_latest_release.outputs.upload_url }}" >> $GITHUB_ENV
           echo "commit_sha=${{ github.sha }}" >> $GITHUB_ENV
           echo "message=${{ fromJson(steps.get_contribution_data.outputs.data)[0].title }}" >> $GITHUB_ENV
+
+
 
 
     - name: Find Release ID

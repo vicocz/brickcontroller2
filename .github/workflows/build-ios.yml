@@ -6,7 +6,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*ios.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -16,7 +16,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*ios.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'

@@ -64,7 +64,14 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
     - name: Build MAUI iOS
-      run: dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj --no-restore -c Release -f net9.0-iOS -p:ArchiveOnBuild=true -p:EnableAssemblyILStripping=false -p:ApplicationId="com.scn.brickcontroller2-legacy"
+      run: |
+        dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj \
+          --no-restore \
+          -c Release \ 
+          -f net9.0-iOS \
+          -p:ArchiveOnBuild=true
+          -p:EnableAssemblyILStripping=false \
+          -p:ApplicationId="com.scn.brickcontroller2-legacy"
 
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/

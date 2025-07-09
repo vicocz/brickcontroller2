@@ -15,6 +15,7 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <!-- Converters -->
+            <converters:InverseBoolConverter x:Key="InverseBool"/>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
@@ -70,13 +71,13 @@
                                 <Label Grid.Column="{OnPlatform iOS=0, Default=1}" Grid.Row="{OnPlatform iOS=3, Default=2}" Grid.ColumnSpan="{OnPlatform iOS=2, Default=1}"
                                        Text="{Binding Device.Address}" FontSize="{OnPlatform iOS=Micro, Default=Medium}" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Battery}" FontSize="Small"/>
-                                <HorizontalStackLayout Grid.Column="1" Grid.Row="4">
+                                <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate Battery}" FontSize="Small" IsVisible="{Binding IsAdvertisingDevice, Mode=OneTime, Converter={StaticResource InverseBool}}"/>
+                                <HorizontalStackLayout Grid.Column="1" Grid.Row="4" IsVisible="{Binding IsAdvertisingDevice, Mode=OneTime, Converter={StaticResource InverseBool}}">
                                     <Label Text="{Binding Device.BatteryVoltage}" FontSize="Medium" FontAttributes="Bold" Margin="0,0,5,0"/>
                                     <Label Text="{Binding Device.BatteryVoltageSign}" FontSize="Medium"/>
                                 </HorizontalStackLayout>
 
-                                <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5">
+                                <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" IsVisible="{Binding IsAdvertisingDevice, Mode=OneTime, Converter={StaticResource InverseBool}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>

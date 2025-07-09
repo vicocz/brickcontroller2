@@ -13,13 +13,21 @@ public class CaDADeviceManagerTests
 {
     private readonly CaDADeviceManager _manager;
     private readonly Mock<IPreferencesService> _preferencesService = new(MockBehavior.Strict);
+    private readonly Mock<ICaDAPlatformService> _cadaPlatformService = new(MockBehavior.Strict);
 
     public CaDADeviceManagerTests()
     {
         _preferencesService.Setup(x => x.ContainsKey("AppID", "CaDA")).Returns(true);
         _preferencesService.Setup(x => x.Get("AppID", "", "CaDA")).Returns("YWJj");
 
-        _manager = new CaDADeviceManager(_preferencesService.Object);
+        _cadaPlatformService.Setup(x => x.TryGetRfPayload(It.IsAny<byte[]>(), out It.Ref<byte[]>.IsAny))
+            .Callback((byte[] input, out byte[] rfPayload) =>
+            {
+                rfPayload = new byte[] { 0x61, 0x62, 0x63 }; // Example AppID bytes
+            })
+            .Returns(true);
+
+        _manager = new CaDADeviceManager(_preferencesService.Object, _cadaPlatformService.Object);
     }
 
     [Fact]

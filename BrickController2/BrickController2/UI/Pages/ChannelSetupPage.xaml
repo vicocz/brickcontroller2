@@ -19,6 +19,11 @@
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
             <converters:ChannelToDisplayChannelConverter x:Key="ChannelToDisplayChannel"/>
+            <converters:IntValueToDegreeStringConverter x:Key="IntValueToDegreeString"/>
+            <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <converters:StepperOutputTypeToVisibleConverter x:Key="StepperVisibility"/>
+            <converters:ServoOutputTypeToVisibleConverter x:Key="ServoVisibility"/>
+            <converters:DeviceAndChannelOutputTypeToMaxServoAngleVisibleConverter x:Key="DeviceAndChannelOutputTypeToMaxServoAngleVisible"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -55,30 +60,33 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <Label Grid.Column="0" Grid.Row="0" Text="{extensions:Translate DeviceName}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="0" Text="{extensions:Translate DeviceName}" FontSize="Small" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Grid.Row="0" Text="{Binding Device.Name}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate DeviceType}" FontSize="Small" VerticalOptions="Center"/>
                                 <Label Grid.Column="1" Grid.Row="1" Text="{Binding Device.DeviceType}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Channel}" FontSize="Small"/>
+                                <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Channel}" FontSize="Small" VerticalOptions="Center"/>
                                 <controls:DeviceChannelLabel Grid.Column="1" Grid.Row="2" DeviceType="{Binding Device.DeviceType}" Channel="{Binding Action.Channel}" FontSize="Medium" FontAttributes="Bold"/>
 
-                                <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small"/>
-                                <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold"/>
+                                <Label Grid.Column="0" Grid.Row="3" Text="{extensions:Translate ChannelType}" FontSize="Small" VerticalOptions="Center"/>
+                                <Label Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" FontSize="Medium" FontAttributes="Bold" IsVisible="{Binding IsChannelTest, Converter={StaticResource InverseBool}, Mode=OneTime}"/>
+                                <Button Grid.Column="1" Grid.Row="3" Text="{Binding Action.ChannelOutputType}" Command="{Binding SelectChannelOutputTypeCommand}"
+                                        Style="{StaticResource PickerButtonStyle}" HorizontalOptions="Start" MaximumWidthRequest="360" IsVisible="{Binding IsChannelTest, Mode=OneTime}"/>
                             </Grid>
                         </Grid>
 
-                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,4"/>
 
                         <!-- Stepper test controls -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsStepperChannelOutputType, Mode=OneTime}">
-                            <Label Text="{extensions:Translate StepperAngle}" Margin="0, 10, 0, 10"/>
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource StepperVisibility}}">
+                            <Label Text="{extensions:Translate StepperAngle}" Margin="0, 0, 0, 5"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding StepperAngle}" Minimum="0" Maximum="180" Step="5"
-                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
-                                <Label Text="{Binding StepperAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
-                                <Label Text="°"/>
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray" VerticalOptions="Center"/>
+                                <Label Text="{Binding StepperAngle, Converter={StaticResource IntValueToDegreeString}}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End" VerticalOptions="Center"/>
+                                <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="settings_backup_restore" ToolTipProperties.Text="{extensions:Translate Reset}"
+                                                               Command="{Binding ResetStepperAngleCommand}" Margin="10,0,0,0" VerticalOptions="Center"/>
                             </StackLayout>
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="20">
                                 <Button Grid.Column="0" Text="{extensions:Translate StepBack}" Style="{StaticResource TextButtonStyle}" Command="{Binding StepperTestCommand}" CommandParameter="-1.0"/>
@@ -86,23 +94,52 @@
                             </Grid>
                         </VerticalStackLayout>
 
+                        <!-- Servo test controls -->
+                        <VerticalStackLayout Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource ServoVisibility}}">
+                            <Label Text="{extensions:Translate ServoAngle}" Margin="0, 0, 0, 5"/>
+                            <StackLayout Orientation="Horizontal">
+                                <StackLayout.IsEnabled>
+                                    <MultiBinding Converter="{StaticResource DeviceAndChannelOutputTypeToMaxServoAngleVisible}">
+                                        <Binding Path="Device" />
+                                        <Binding Path="Action.ChannelOutputType" />
+                                        <Binding Path="Action.Channel" />
+                                    </MultiBinding>
+                                </StackLayout.IsEnabled>
+                                <controls:ExtendedSlider Value="{Binding MaxServoAngle}" Minimum="0" Maximum="180" Step="5"
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray" VerticalOptions="Center"/>
+                                <Label Text="{Binding MaxServoAngle, Converter={StaticResource IntValueToDegreeString}}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End" VerticalOptions="Center"/>
+                                <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="settings_backup_restore" ToolTipProperties.Text="{extensions:Translate Reset}"
+                                                               Command="{Binding ResetMaxServoAngleCommand}" Margin="10,0,0,0" VerticalOptions="Center"/>
+                            </StackLayout>
+                            <Grid ColumnDefinitions="3*,3*,2*,3*,3*" ColumnSpacing="{OnIdiom 8, Desktop=25}" >
+                                <Button Grid.Column="0" Text="-100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-1.0" Padding="0"/>
+                                <Button Grid.Column="1" Text="-50%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="-0.5"/>
+                                <Button Grid.Column="2" Text="0%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.0" Padding="0"/>
+                                <Button Grid.Column="3" Text="50%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="0.5"/>
+                                <Button Grid.Column="4" Text="100%" Style="{StaticResource TextButtonStyle}" Command="{Binding ServoTestCommand}" CommandParameter="1.0" Padding="0"/>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}"/>
+
                         <!-- Auto servo calibration -->
-                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
+                        <StackLayout Orientation="Vertical" Padding="10" IsVisible="{Binding Action.ChannelOutputType, Converter={StaticResource ServoVisibility}}">
 
                             <Button Text="{extensions:Translate AutoCalibrate}" Style="{StaticResource TextButtonStyle}" Command="{Binding AutoCalibrateServoCommand}" Margin="0, 30, 0, 30"/>
 
-                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}"/>
                         </StackLayout>
 
-                        <!-- Manual servo calibration -->
-                        <VerticalStackLayout Padding="10" IsVisible="{Binding IsServoChannelOutputType, Mode=OneTime}">
-                            <Label Text="{extensions:Translate BaseAngle}" Margin="0, 10, 0, 10"/>
+                        <!-- Manual servo/stepper calibration -->
+                        <VerticalStackLayout Padding="10">
+                            <Label Text="{extensions:Translate BaseAngle}" Margin="0, 0, 0, 5"/>
                             <StackLayout Orientation="Horizontal">
                                 <controls:ExtendedSlider Value="{Binding ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5"
                                                          IsEnabled="{Binding CanResetChannelOutput, Mode=OneTime}"
-                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
-                                <Label Text="{Binding ServoBaseAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
-                                <Label Text="°"/>
+                                                         HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray" VerticalOptions="Center"/>
+                                <Label Text="{Binding ServoBaseAngle, Converter={StaticResource IntValueToDegreeString}}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End" VerticalOptions="Center"/>
+                                <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="settings_backup_restore" ToolTipProperties.Text="{extensions:Translate Reset}"
+                                                               Command="{Binding ResetServoBaseAngleCommand}" Margin="10,0,0,0" VerticalOptions="Center"/>
                             </StackLayout>
                             <Button Text="{extensions:Translate Reset}" Style="{StaticResource TextButtonStyle}" Command="{Binding ResetServoBaseCommand}"/>
                         </VerticalStackLayout>

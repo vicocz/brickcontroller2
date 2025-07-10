@@ -6,7 +6,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*android.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -16,7 +16,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*android.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -34,6 +34,7 @@ jobs:
     runs-on: windows-2025
     name: BrickController Android Build
     steps:
+
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -51,18 +52,22 @@ jobs:
         name: brickcontroller-android-ci-build
         path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
 
-    - name: Upload Artifact to Release
+    - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
-      run: |
-        # Get the release ID
-        RELEASE_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-          https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME} | jq -r '.id')
-
-        # Upload the artifact
-        curl -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Content-Type: application/vnd.android.package-archive" \
-          --data-binary @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
-          "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$RELEASE_ID/assets?name=com.scn.BrickController2-Signed.apk"
+      id: get_release
+      uses: octokit/request-action@v2.x
+      with:
+        route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Upload Artifact to Release
+      if: github.event_name == 'release' && github.event.action == 'published'  
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
+        asset_path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
+        asset_name: com.scn.BrickController2-Signed.apk
+        asset_content_type: application/vnd.android.package-archive
+      env:
+        GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

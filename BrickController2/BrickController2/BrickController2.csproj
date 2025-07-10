@@ -17,10 +17,14 @@
     <EmbeddedResource Include="UI\Images\circuitcubes_image_small.png" />
     <EmbeddedResource Include="UI\Images\duplotrainhub_image.png" />
     <EmbeddedResource Include="UI\Images\duplotrainhub_image_small.png" />
+    <EmbeddedResource Include="UI\Images\mk3_8_image.png" />
+    <EmbeddedResource Include="UI\Images\mk3_8_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk_diy_image.png" />
     <EmbeddedResource Include="UI\Images\mk_diy_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk4_image.png" />
     <EmbeddedResource Include="UI\Images\mk4_image_small.png" />
+    <EmbeddedResource Include="UI\Images\mk5_image.png" />
+    <EmbeddedResource Include="UI\Images\mk5_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk6_image.png" />
     <EmbeddedResource Include="UI\Images\mk6_image_small.png" />
     <EmbeddedResource Include="UI\Images\pfx_brick_image.png" />
@@ -62,6 +66,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="BrickController2.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
 </Project>

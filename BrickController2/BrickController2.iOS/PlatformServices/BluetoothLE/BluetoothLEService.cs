@@ -79,7 +79,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         {
             lock(_lock)
             {
-                if (peripheral is null || peripheral.Identifier is null || string.IsNullOrEmpty(peripheral.Name))
+                if (peripheral is null || peripheral.Identifier is null)
                 {
                     return;
                 }

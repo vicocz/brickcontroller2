@@ -19,11 +19,11 @@ namespace BrickController2.Droid.PlatformServices.Versioning
             {
                 try
                 {
-                    return PackageInfo?.VersionName ?? "Unkonwn version";
+                    return PackageInfo?.VersionName ?? "Unknown version";
                 }
                 catch (PackageManager.NameNotFoundException)
                 {
-                    return "Unkonwn version";
+                    return "Unknown version";
                 }
             }
         }

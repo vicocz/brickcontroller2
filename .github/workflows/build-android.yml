@@ -55,7 +55,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set APP_DISPLAY_VERSION for release
-      # if: github.event_name == 'release' && github.event.action == 'published'  
+      # if: github.event_name == 'release' && github.event.action == 'published'   
+      shell: bash 
       run: echo "APP_DISPLAY_VERSION=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')" >> $GITHUB_ENV
             
     - name: Restore Dependencies

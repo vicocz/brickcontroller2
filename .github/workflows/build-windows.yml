@@ -57,7 +57,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set APP_DISPLAY_VERSION for release
-      # if: github.event_name == 'release' && github.event.action == 'published'  
+      # if: github.event_name == 'release' && github.event.action == 'published'
       shell: bash
       run: |
         TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
@@ -87,7 +87,7 @@ jobs:
         path: .\**\AppPackages\**\BrickController*.msix
 
     - name: Upload Artifact to Release
-#      if: github.event_name == 'release' && github.event.action == 'published' 
+#      if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}

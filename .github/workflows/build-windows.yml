@@ -58,6 +58,7 @@ jobs:
 
     - name: Set APP_DISPLAY_VERSION for release
       # if: github.event_name == 'release' && github.event.action == 'published'  
+      shell: bash
       run: |
         TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
         # Split the tag into parts and add missing parts as zeros

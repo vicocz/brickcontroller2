@@ -58,7 +58,17 @@ jobs:
 
     - name: Set APP_DISPLAY_VERSION for release
       # if: github.event_name == 'release' && github.event.action == 'published'  
-      run: echo "APP_DISPLAY_VERSION=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')" >> $GITHUB_ENV
+      run: |
+        TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
+        # Split the tag into parts and add missing parts as zeros
+        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"
+        MAJOR=${VERSION_PARTS[0]:-0}
+        MINOR=${VERSION_PARTS[1]:-0}
+        PATCH=${VERSION_PARTS[2]:-0}
+        BUILD=${VERSION_PARTS[3]:-0}
+        NORMALIZED_VERSION="$MAJOR.$MINOR.$PATCH.$BUILD"
+        echo "APP_DISPLAY_VERSION=$NORMALIZED_VERSION" >> $GITHUB_ENV
+        echo "Validated release version: $NORMALIZED_VERSION"
             
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
@@ -67,7 +77,7 @@ jobs:
       run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}"
+      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationVersion="${{ env.APP_DISPLAY_VERSION }}"
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4

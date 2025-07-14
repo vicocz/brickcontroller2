@@ -50,9 +50,9 @@
 	</PropertyGroup>
 
 	<!--Overrides-->	
-	<Target Name="UpdateAppXManifest" BeforeTargets="Build" Condition="'$(ApplicationDisplayVersion)' != ''">
-        <Message Text="Package:Version override: $(ApplicationDisplayVersion)" Importance="high" />
-		<XmlPoke XmlInputPath="Package.appxmanifest" Namespaces="&lt;Namespace Prefix='x' Uri='http://schemas.microsoft.com/appx/manifest/foundation/windows10' /&gt;" Query="x:Package/x:Identity/@Version" Value="$(ApplicationDisplayVersion)" />
+	<Target Name="UpdateAppXManifest" BeforeTargets="Build" Condition="'$(ApplicationVersion)' != ''">
+        <Message Text="Package:Version override: $(ApplicationVersion)" Importance="high" />
+		<XmlPoke XmlInputPath="Package.appxmanifest" Namespaces="&lt;Namespace Prefix='x' Uri='http://schemas.microsoft.com/appx/manifest/foundation/windows10' /&gt;" Query="x:Package/x:Identity/@Version" Value="$(ApplicationVersion)" />
 	</Target>
 	
 </Project>

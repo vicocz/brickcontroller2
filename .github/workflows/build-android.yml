@@ -75,7 +75,7 @@ jobs:
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
         asset_path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
-        asset_name: BrickController2_${{ APP_DISPLAY_VERSION }}.apk
+        asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.apk
         asset_content_type: application/vnd.android.package-archive
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

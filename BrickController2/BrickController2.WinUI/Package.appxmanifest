@@ -8,8 +8,7 @@
 
   <Identity
     Name="862fe8cb-2b86-40e2-b93f-9ff2a9eaa934"
-    Publisher="CN=20e2eb05-a9ce-4df2-b83a-efe50e08ac16"
-    Version="1.0.0.0" />
+    Publisher="CN=20e2eb05-a9ce-4df2-b83a-efe50e08ac16" />
 
   <Properties>
     <DisplayName>BrickController2</DisplayName>

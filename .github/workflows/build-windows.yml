@@ -67,9 +67,9 @@ jobs:
         MINOR=${VERSION_PARTS[1]:-0}
         PATCH=${VERSION_PARTS[2]:-0}
         BUILD=${VERSION_PARTS[3]:-0}
-        NORMALIZED_VERSION="$MAJOR.$MINOR.$PATCH.$BUILD"
-        echo "APP_DISPLAY_VERSION=$NORMALIZED_VERSION" >> $GITHUB_ENV
-        echo "Validated release version: $NORMALIZED_VERSION"
+        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV
+        echo "APP_PUBLISH_VERSION=$MAJOR.$MINOR.$PATCH.$BUILD" >> $GITHUB_ENV
+        echo "Validated release version: $MAJOR.$MINOR.$PATCH.$BUILD"
             
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
@@ -78,20 +78,20 @@ jobs:
       run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}"
+      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true -o \publish-output /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" /p:ApplicationVersion="0"
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-winui-ci-build
-        path: .\**\AppPackages\**\BrickController*.msix
+        path: .\publish-output\BrickController*.msix
 
     - name: Upload Artifact to Release
 #      if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_DISPLAY_VERSION}}_Test\BrickController2.WinUI_${{env.APP_DISPLAY_VERSION}}_x64.msix
+        asset_path: .\publish-output\BrickController2.WinUI_${{env.APP_DISPLAY_VERSION}}_x64.msix
         asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:

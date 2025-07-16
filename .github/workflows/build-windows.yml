@@ -80,9 +80,6 @@ jobs:
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" /p:ApplicationVersion="0"
 
-    - name: Debug Output Directory
-      run: dir \publish-output
-
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4
       with:

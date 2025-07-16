@@ -80,18 +80,21 @@ jobs:
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true -o \publish-output /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" /p:ApplicationVersion="0"
 
+    - name: Debug Output Directory
+      run: dir \publish-output
+
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-winui-ci-build
-        path: .\publish-output\BrickController*.msix
+        path: \publish-output\BrickController*.msix
 
     - name: Upload Artifact to Release
 #      if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: .\publish-output\BrickController2.WinUI_${{env.APP_DISPLAY_VERSION}}_x64.msix
+        asset_path: \publish-output\BrickController2.WinUI_${{env.APP_DISPLAY_VERSION}}_x64.msix
         asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:

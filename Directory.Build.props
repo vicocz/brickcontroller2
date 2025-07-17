@@ -21,6 +21,7 @@
   <!--App information-->
   <PropertyGroup>
 	<ApplicationDisplayVersion>3.4</ApplicationDisplayVersion>
-	<ApplicationVersion>2</ApplicationVersion>
+	<!--Ignore ApplicationVersion on Windows-->
+	<ApplicationVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">2</ApplicationVersion>
   </PropertyGroup>
 </Project>

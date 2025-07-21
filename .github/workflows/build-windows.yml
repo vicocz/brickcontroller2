@@ -70,6 +70,14 @@ jobs:
         echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV
         echo "APP_PUBLISH_VERSION=$MAJOR.$MINOR.$PATCH.$BUILD" >> $GITHUB_ENV
         echo "Validated release version: $MAJOR.$MINOR.$PATCH.$BUILD"
+
+    - name: Decode Signing Certificate
+      run: |
+        echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
+        certutil -decode cert.asc cert.pfx
+
+    - name: Install Signing Certficiate
+      run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
             
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
@@ -78,7 +86,7 @@ jobs:
     #   run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" /p:ApplicationVersion="0" /p:PackageVersion="${{ env.APP_PUBLISH_VERSION }}"
+      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" /p:ApplicationVersion="0" /p:PackageVersion="${{ env.APP_PUBLISH_VERSION }}" /p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
 
     - name: Dump Matching Files 
       shell: bash      

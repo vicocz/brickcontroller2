@@ -64,13 +64,8 @@ jobs:
         TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
         # Split the tag into parts and add missing parts as zeros
         IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"
-        MAJOR=${VERSION_PARTS[0]:-0}
-        MINOR=${VERSION_PARTS[1]:-0}
-        PATCH=${VERSION_PARTS[2]:-0}
-        BUILD=${VERSION_PARTS[3]:-0}
         echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV
-        echo "APP_PACKAGE_VERSION=$MAJOR.$MINOR.$PATCH.$BUILD" >> $GITHUB_ENV
-        echo "Validated release version: $MAJOR.$MINOR.$PATCH.$BUILD"
+        echo "APP_PACKAGE_VERSION=${VERSION_PARTS[0]:-0}.${VERSION_PARTS[1]:-0}.${VERSION_PARTS[2]:-0}.${VERSION_PARTS[3]:-0}" >> $GITHUB_ENV
 
     - name: Decode Signing Certificate
       run: |
@@ -101,14 +96,6 @@ jobs:
         -p:AppxPackageSigningEnabled=true `
         -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
 
-    - name: Dump Matching Files 
-      shell: bash      
-      run: |  
-        echo "Dumping all files matching the expression..."  
-        for file in $(find . -path "./**/AppPackages/**/BrickController*.*"); do  
-          echo "Found file: $file"  
-        done
-
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -120,7 +107,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_PUBLISH_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PUBLISH_VERSION}}_x64.msix
+        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
         asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:

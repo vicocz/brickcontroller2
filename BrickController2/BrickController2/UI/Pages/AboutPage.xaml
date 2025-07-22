@@ -28,7 +28,7 @@
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 
-                        <Label Text="Copyright © 2024, István Murvai (SCN)"/>
+                        <Label Text="Copyright © 2025, István Murvai (SCN)"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 

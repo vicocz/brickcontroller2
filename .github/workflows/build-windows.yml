@@ -38,6 +38,7 @@ jobs:
     name: BrickController WinUI Build
     env:
       APP_DISPLAY_VERSION: "1034.7.0"
+      APP_PACKAGE_VERSION: "1.0.0.0"
 
     steps:
     - uses: actions/checkout@v4
@@ -68,7 +69,7 @@ jobs:
         PATCH=${VERSION_PARTS[2]:-0}
         BUILD=${VERSION_PARTS[3]:-0}
         echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV
-        echo "APP_PUBLISH_VERSION=$MAJOR.$MINOR.$PATCH.$BUILD" >> $GITHUB_ENV
+        echo "APP_PACKAGE_VERSION=$MAJOR.$MINOR.$PATCH.$BUILD" >> $GITHUB_ENV
         echo "Validated release version: $MAJOR.$MINOR.$PATCH.$BUILD"
 
     - name: Decode Signing Certificate
@@ -82,17 +83,26 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
 
-    # - name: Build
-    #   run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
+    - name: Build
+      run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" /p:ApplicationVersion="0" /p:AppxPackageSigningEnabled=true /p:PackageVersion="${{ env.APP_PUBLISH_VERSION }}" /p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
+      run: dotnet publish ${{env.PROJECT_PATH}} ^
+        -c Release ^
+        -r win10-x64 ^
+        -p:Platform=x64 ^
+        /p:GenerateAppxPackageOnBuild=true ^
+        /p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" ^
+        /p:ApplicationVersion="0" ^
+        /p:PackageVersion="${{ env.APP_PACKAGE_VERSION }}" ^
+        /p:AppxPackageSigningEnabled=true ^
+        /p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
 
     - name: Dump Matching Files 
       shell: bash      
       run: |  
         echo "Dumping all files matching the expression..."  
-        for file in $(find . -path "./**/AppPackages/**/BrickController*.msix"); do  
+        for file in $(find . -path "./**/AppPackages/**/BrickController*.*"); do  
           echo "Found file: $file"  
         done
 

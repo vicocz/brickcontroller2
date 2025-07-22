@@ -34,7 +34,7 @@ jobs:
     runs-on: windows-2025
     name: BrickController Android Build
     env:
-      APP_DISPLAY_VERSION: "1034.7.0"
+      APP_DISPLAY_VERSION: ""
 
     steps:
 

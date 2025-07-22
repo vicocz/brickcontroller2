@@ -37,8 +37,8 @@ jobs:
     runs-on: windows-2025
     name: BrickController WinUI Build
     env:
-      APP_DISPLAY_VERSION: "1034.7.0"
-      APP_PACKAGE_VERSION: "1.0.0.0"
+      APP_DISPLAY_VERSION: ""
+      APP_PACKAGE_VERSION: ""
 
     steps:
     - uses: actions/checkout@v4

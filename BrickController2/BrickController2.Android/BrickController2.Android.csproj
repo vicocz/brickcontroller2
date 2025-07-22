@@ -50,15 +50,5 @@
 	<ItemGroup>
 		<MauiSplashScreen Include="Resources\splash.svg" BaseSize="128,128" Color="#990000" />
 	</ItemGroup>
-	
-	<!--Overrides-->	
-	<!--<Target Name="UpdateAndroidManifest_versionName" BeforeTargets="Build" Condition="'$(ApplicationDisplayVersion)' != ''">
-        <Message Text="android:versionName override: $(ApplicationDisplayVersion)" Importance="high" />
-		<XmlPoke XmlInputPath="Properties/AndroidManifest.xml" Namespaces="&lt;Namespace Prefix='android' Uri='http://schemas.android.com/apk/res/android' /&gt;" Query="manifest/@android:versionName" Value="$(ApplicationDisplayVersion)" />
-	</Target>
-	<Target Name="UpdateAndroidManifest_versionCode" BeforeTargets="Build" Condition="'$(ApplicationVersion)' != ''">
-        <Message Text="android:versionCode override: $(ApplicationVersion)" Importance="high" />
-		<XmlPoke XmlInputPath="Properties/AndroidManifest.xml" Namespaces="&lt;Namespace Prefix='android' Uri='http://schemas.android.com/apk/res/android' /&gt;" Query="manifest/@android:versionCode" Value="$(ApplicationVersion)" />
-	</Target>-->
 
 </Project>

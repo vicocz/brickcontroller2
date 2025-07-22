@@ -50,5 +50,5 @@
 	<ItemGroup>
 		<MauiSplashScreen Include="Resources\splash.svg" BaseSize="128,128" Color="#990000" />
 	</ItemGroup>
-	
+
 </Project>

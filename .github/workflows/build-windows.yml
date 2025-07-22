@@ -36,27 +36,16 @@ jobs:
   build-winui:
     runs-on: windows-2025
     name: BrickController WinUI Build
+    env:
+      APP_DISPLAY_VERSION: ""
+      APP_PACKAGE_VERSION: ""
+
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-            
-    - name: Restore Dependencies
-      run: dotnet restore ${{env.PROJECT_PATH}}
-
-    - name: Build
-      run: dotnet build ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64
-
-    - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} -c Release -r win10-x64 -p:Platform=x64 /p:GenerateAppxPackageOnBuild=true
-
-    - name: Upload WinUI Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: brickcontroller-winui-ci-build
-        path: .\**\AppPackages\**\BrickController*.msix
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -67,13 +56,58 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set app version for release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      shell: bash
+      run: |
+        TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
+        # Split the tag into parts and add missing parts as zeros
+        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"
+        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV
+        echo "APP_PACKAGE_VERSION=${VERSION_PARTS[0]:-0}.${VERSION_PARTS[1]:-0}.${VERSION_PARTS[2]:-0}.${VERSION_PARTS[3]:-0}" >> $GITHUB_ENV
+
+    - name: Decode Signing Certificate
+      run: |
+        echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
+        certutil -decode cert.asc cert.pfx
+
+    - name: Install Signing Certificate
+      run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
+            
+    - name: Restore Dependencies
+      run: dotnet restore ${{env.PROJECT_PATH}}
+
+    - name: Build
+      run: dotnet build ${{env.PROJECT_PATH}} `
+        -c Release `
+        -r win10-x64 `
+        -p:Platform=x64 `
+        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
+        -p:ApplicationVersion="0" `
+        -p:PackageVersion="${{ env.APP_PACKAGE_VERSION }}"
+
+    - name: Build MAUI WinUI App
+      run: dotnet publish ${{env.PROJECT_PATH}} `
+        -c Release `
+        -r win10-x64 `
+        -p:Platform=x64 `
+        -p:GenerateAppxPackageOnBuild=true `
+        -p:AppxPackageSigningEnabled=true `
+        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
+
+    - name: Upload WinUI Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brickcontroller-winui-ci-build
+        path: .\**\AppPackages\**\BrickController*.msix
+
     - name: Upload Artifact to Release
-      if: github.event_name == 'release' && github.event.action == 'published' 
+      if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_1.0.0.0_Test\BrickController2.WinUI_1.0.0.0_x64.msix
-        asset_name: BrickController2.WinUI_1.0.0.0_x64.msix
+        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
+        asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

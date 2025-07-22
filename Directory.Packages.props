@@ -5,9 +5,9 @@
   <ItemGroup>
     <PackageVersion Include="Autofac" Version="8.1.1" />
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.70" />
-    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.70" />
-    <PackageVersion Include="Microsoft.Maui.Essentials" Version="9.0.70" />
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.90" />
+    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.90" />
+    <PackageVersion Include="Microsoft.Maui.Essentials" Version="9.0.90" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageVersion Include="SQLiteNetExtensions" Version="2.1.0" />

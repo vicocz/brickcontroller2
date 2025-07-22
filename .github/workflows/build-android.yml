@@ -33,6 +33,9 @@ jobs:
   build-android:
     runs-on: windows-2025
     name: BrickController Android Build
+    env:
+      APP_DISPLAY_VERSION: ""
+
     steps:
 
     - uses: actions/checkout@v4
@@ -40,17 +43,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
-            
-    - name: Restore Dependencies
-      run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
-    - name: Build MAUI Android
-      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net9.0-android --no-restore
-
-    - name: Upload Android Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -61,13 +53,29 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Set APP_DISPLAY_VERSION for release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      shell: bash 
+      run: echo "APP_DISPLAY_VERSION=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')" >> $GITHUB_ENV
+            
+    - name: Restore Dependencies
+      run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
+    - name: Build MAUI Android
+      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net9.0-android --no-restore -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}"
+
+    - name: Upload Android Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brickcontroller-android-ci-build
+        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
+
     - name: Upload Artifact to Release
-      if: github.event_name == 'release' && github.event.action == 'published'  
+      if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
         asset_path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk
-        asset_name: com.scn.BrickController2-Signed.apk
+        asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.apk
         asset_content_type: application/vnd.android.package-archive
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

@@ -71,7 +71,7 @@ jobs:
         echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
         certutil -decode cert.asc cert.pfx
 
-    - name: Install Signing Certficiate
+    - name: Install Signing Certificate
       run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
             
     - name: Restore Dependencies

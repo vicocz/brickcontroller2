@@ -5,10 +5,11 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Graphics;
 using BrickController2.UI.DI;
-using BrickController2.UI.ViewModels;
 using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
+using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.Theme;
+using BrickController2.UI.ViewModels;
 
 [assembly: XamlCompilation (XamlCompilationOptions.Skip)]
 namespace BrickController2
@@ -25,7 +26,8 @@ namespace BrickController2
             PageFactory pageFactory, 
             Func<Page, NavigationPage> navigationPageFactory,
             BackgroundService backgroundService,
-			IThemeService themeService)
+			IThemeService themeService,
+			ILocalizationService localizationService)
 		{
 			InitializeComponent();
 
@@ -44,18 +46,30 @@ namespace BrickController2
 				};
 				themeService.ApplyCurrentTheme();
 			};
-			themeService.ApplyCurrentTheme();
+			localizationService.LanguageChanged += (s, e) =>
+			{
+                // enforce language change on the main page
+                Windows[0].Page = GetMainPage();
+            };
+
+            localizationService.ApplyCurrentLanguage();
+            themeService.ApplyCurrentTheme();
 		}
 
         protected override Window CreateWindow(IActivationState? activationState)
+        {
+            NavigationPage navigationPage = GetMainPage();
+            return new Window(navigationPage);
+        }
+
+        private NavigationPage GetMainPage()
         {
             var vm = _viewModelFactory(typeof(CreationListPageViewModel), null);
             var page = _pageFactory(typeof(CreationListPage), vm);
             var navigationPage = _navigationPageFactory(page);
             navigationPage.BarBackgroundColor = Colors.Red;
             navigationPage.BarTextColor = Colors.White;
-
-            return new Window(navigationPage);
+            return navigationPage;
         }
 
         protected override void OnStart()

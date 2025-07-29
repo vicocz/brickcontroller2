@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Threading;
-using Microsoft.Maui.Controls;
 using BrickController2.PlatformServices.Localization;
+using Microsoft.Maui.Controls;
 
 [assembly:Dependency(typeof(BrickController2.Droid.PlatformServices.Localization.LocalizationService))]
 namespace BrickController2.Droid.PlatformServices.Localization
@@ -46,6 +46,8 @@ namespace BrickController2.Droid.PlatformServices.Localization
 
             set
             {
+                _ci = value;
+                _androidLocale = Java.Util.Locale.Default;
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
             }

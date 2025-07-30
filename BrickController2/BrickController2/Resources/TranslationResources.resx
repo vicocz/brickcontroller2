@@ -715,6 +715,6 @@
     <value>Test the channel</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Application language</value>
+    <value>Language</value>
   </data>
 </root>

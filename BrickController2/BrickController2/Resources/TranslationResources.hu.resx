@@ -525,4 +525,7 @@
   <data name="Yes" xml:space="preserve">
     <value>Igen</value>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>Nyelv</value>
+  </data>
 </root>

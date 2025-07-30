@@ -1,17 +1,17 @@
-using System;
-using Microsoft.Maui;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Xaml;
-using Microsoft.Maui.Graphics;
 using BrickController2.UI.DI;
 using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.Theme;
 using BrickController2.UI.ViewModels;
+using Microsoft.Maui;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Xaml;
+using Microsoft.Maui.Graphics;
+using System;
 
-[assembly: XamlCompilation (XamlCompilationOptions.Skip)]
+[assembly: XamlCompilation(XamlCompilationOptions.Skip)]
 namespace BrickController2
 {
 	public partial class App : Application
@@ -48,8 +48,16 @@ namespace BrickController2
 			};
 			localizationService.LanguageChanged += (s, e) =>
 			{
-                // enforce language change on the main page
-                Windows[0].Page = GetMainPage();
+                // recreate the root page to apply the change
+                if (MainPage is NavigationPage navigationPage &&
+                    navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
+                {
+                    // reset view model
+                    navigationPage.RootPage.BindingContext = null;
+                    // apply new page with the existing view model
+                    var newPage = GetMainPage(viewModel);
+                    MainPage = newPage;
+                }
             };
 
             localizationService.ApplyCurrentLanguage();
@@ -62,9 +70,9 @@ namespace BrickController2
             return new Window(navigationPage);
         }
 
-        private NavigationPage GetMainPage()
+        private NavigationPage GetMainPage(CreationListPageViewModel? viewModel = default)
         {
-            var vm = _viewModelFactory(typeof(CreationListPageViewModel), null);
+            var vm = viewModel ?? _viewModelFactory(typeof(CreationListPageViewModel), null);
             var page = _pageFactory(typeof(CreationListPage), vm);
             var navigationPage = _navigationPageFactory(page);
             navigationPage.BarBackgroundColor = Colors.Red;

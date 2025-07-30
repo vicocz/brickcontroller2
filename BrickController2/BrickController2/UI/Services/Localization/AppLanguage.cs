@@ -2,8 +2,8 @@
 
 public enum AppLanguage
 {
-    System,  // ue system language
-    English,
+    System,  // use based on system settings
     Deutsch, // German
+    English,
     Magyar   // Hungarian
 }

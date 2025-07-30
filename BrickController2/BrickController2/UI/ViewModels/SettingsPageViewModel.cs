@@ -83,9 +83,17 @@ namespace BrickController2.UI.ViewModels
                 Translate("Cancel"),
                 DisappearingToken);
 
-            if (result.IsOk)
+            if (result.IsOk && Enum.TryParse<AppLanguage>(result.SelectedItem, out var currentLanguage))
             {
-                CurrentLanguage = Enum.Parse<AppLanguage>(result.SelectedItem);
+                // apply the change
+                CurrentLanguage = currentLanguage;
+
+                // use some notification via progress dialog
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    (progressDialog, token) => NavigationService.NavigateBackAsync(),
+                    Translate("Applying"),
+                    token: DisappearingToken);
             }
         }
     }

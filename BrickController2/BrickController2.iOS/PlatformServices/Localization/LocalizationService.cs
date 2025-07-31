@@ -52,6 +52,7 @@ namespace BrickController2.iOS.PlatformServices.Localization
             set
             {
                 _ci = value;
+                CultureInfo.CurrentUICulture = value;
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
             }

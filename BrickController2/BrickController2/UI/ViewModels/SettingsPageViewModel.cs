@@ -13,6 +13,8 @@ namespace BrickController2.UI.ViewModels
 {
     public class SettingsPageViewModel : PageViewModelBase
     {
+        private const int ProgressDialogDelayMs = 500;
+
         private readonly IThemeService _themeService;
         private readonly ILocalizationService _localizationService;
         private readonly CreationListPageViewModel _parentViewModel;

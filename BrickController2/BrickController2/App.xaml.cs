@@ -49,14 +49,13 @@ namespace BrickController2
 			localizationService.LanguageChanged += (s, e) =>
 			{
                 // recreate the root page to apply the change
-                if (MainPage is NavigationPage navigationPage &&
+                if (Windows[0].Page is NavigationPage navigationPage &&
                     navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
                 {
                     // reset view model
                     navigationPage.RootPage.BindingContext = null;
                     // apply new page with the existing view model
-                    var newPage = GetMainPage(viewModel);
-                    MainPage = newPage;
+                    Windows[0].Page = GetMainPage(viewModel);
                 }
             };
 

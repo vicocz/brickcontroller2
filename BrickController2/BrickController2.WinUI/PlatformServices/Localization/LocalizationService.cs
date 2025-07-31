@@ -8,11 +8,11 @@ namespace BrickController2.Windows.PlatformServices.Localization;
 
 public class LocalizationService : ILocalizationService
 {
-    private CultureInfo _cultureInfo = CultureInfo.CurrentUICulture;
+    private CultureInfo? _cultureInfo;
 
     public CultureInfo CurrentCultureInfo
     {
-        get => _cultureInfo;
+        get => _cultureInfo ?? DefaultCultureInfo;
 
         set
         {
@@ -22,4 +22,6 @@ public class LocalizationService : ILocalizationService
             Thread.CurrentThread.CurrentUICulture = value;
         }
     }
+
+    public CultureInfo DefaultCultureInfo => CultureInfo.InstalledUICulture;
 }

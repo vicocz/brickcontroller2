@@ -43,7 +43,7 @@ public class LocalizationService : ILocalizationService
             AppLanguage.Deutsch => CultureInfo.GetCultureInfo("de"),
             AppLanguage.Magyar => CultureInfo.GetCultureInfo("hu"),
 
-            _ => CultureInfo.InstalledUICulture
+            _ => _localizationService.DefaultCultureInfo
         };
     }
 }

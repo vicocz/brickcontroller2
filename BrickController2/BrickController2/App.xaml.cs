@@ -46,22 +46,23 @@ namespace BrickController2
 				};
 				themeService.ApplyCurrentTheme();
 			};
-			localizationService.LanguageChanged += (s, e) =>
-			{
-                // recreate the root page to apply the change
-                if (Windows[0].Page is NavigationPage navigationPage &&
-                    navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
-                {
-                    // reset view model
-                    navigationPage.RootPage.BindingContext = null;
-                    // apply new page with the existing view model
-                    Windows[0].Page = GetMainPage(viewModel);
-                }
-            };
 
             localizationService.ApplyCurrentLanguage();
             themeService.ApplyCurrentTheme();
 		}
+
+        internal void ReloadRootPage()
+        {
+            // recreate the root page to apply the change
+            if (Windows[0].Page is NavigationPage navigationPage &&
+                navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
+            {
+                // reset view model
+                navigationPage.RootPage.BindingContext = null;
+                // apply new page with the existing view model
+                Windows[0].Page = GetMainPage(viewModel);
+            }
+        }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {

@@ -9,18 +9,15 @@ public class LocalizationService : ILocalizationService
     private readonly IPreferencesService _preferencesService;
     private readonly PlatformServices.Localization.ILocalizationService _localizationService;
 
-    // Define the event
-    public event EventHandler<AppLanguage>? LanguageChanged;
-
     public LocalizationService(IPreferencesService preferencesService, PlatformServices.Localization.ILocalizationService localizationService)
     {
         _preferencesService = preferencesService;
         _localizationService = localizationService;
     }
 
-    public AppLanguage CurrentLanguage
+    public Language CurrentLanguage
     {
-        get => _preferencesService.Get("Language", AppLanguage.System);
+        get => _preferencesService.Get("Language", Language.System);
 
         set
         {
@@ -29,8 +26,6 @@ public class LocalizationService : ILocalizationService
                 _preferencesService.Set("Language", value);
                 // apply the change
                 ApplyCurrentLanguage();
-                // trigger event for UI updates
-                LanguageChanged?.Invoke(this, value);
             }
         }
     }
@@ -39,9 +34,9 @@ public class LocalizationService : ILocalizationService
     {
         _localizationService.CurrentCultureInfo = CurrentLanguage switch
         {
-            AppLanguage.English => CultureInfo.GetCultureInfo("en"),
-            AppLanguage.Deutsch => CultureInfo.GetCultureInfo("de"),
-            AppLanguage.Magyar => CultureInfo.GetCultureInfo("hu"),
+            Language.English => CultureInfo.GetCultureInfo("en"),
+            Language.Deutsch => CultureInfo.GetCultureInfo("de"),
+            Language.Magyar => CultureInfo.GetCultureInfo("hu"),
 
             _ => _localizationService.DefaultCultureInfo
         };

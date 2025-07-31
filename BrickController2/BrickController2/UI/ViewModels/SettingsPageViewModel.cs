@@ -102,7 +102,7 @@ namespace BrickController2.UI.ViewModels
                             myApp.ReloadRootPage();
                         }
                         // some delay to show the progress dialog
-                        return Task.Delay(250, token);
+                        return Task.Delay(ProgressDialogDelayMs, token);
                     },
                     Translate("Applying"),
                     token: DisappearingToken);

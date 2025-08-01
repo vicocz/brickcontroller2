@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BrickController2.CreationManagement;
+﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.PlatformServices.GameController;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickController2.BusinessLogic
 {
@@ -57,6 +57,32 @@ namespace BrickController2.BusinessLogic
             var sequence = _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName);
 
             return device != null && (controllerAction.ButtonType != ControllerButtonType.Sequence || sequence != null);
+        }
+
+        public IEnumerable<string> GetMissingDevices(Creation creation)
+        {
+            return creation.GetDeviceIds().Where(d => _deviceManager.GetDeviceById(d) == null);
+        }
+
+        public int RemapDevice(Creation creation, string sourceDeviceId, string newDeviceId)
+        {
+            var counter = 0;
+            foreach (var profile in creation.ControllerProfiles)
+            {
+                foreach (var controllerEvent in profile.ControllerEvents)
+                {
+                    foreach (var controllerAction in controllerEvent.ControllerActions)
+                    {
+                        if (controllerAction.DeviceId == sourceDeviceId)
+                        {
+                            controllerAction.DeviceId = newDeviceId;
+                            counter++;
+                        }
+                    }
+                }
+            }
+
+            return counter;
         }
 
         public void StartPlay()

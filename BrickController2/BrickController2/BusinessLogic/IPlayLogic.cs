@@ -1,6 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.PlatformServices.GameController;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace BrickController2.BusinessLogic
 {
@@ -10,6 +10,9 @@ namespace BrickController2.BusinessLogic
 
         CreationValidationResult ValidateCreation(Creation creation);
         bool ValidateControllerAction(ControllerAction controllerAction);
+
+        IEnumerable<string> GetMissingDevices(Creation creation);
+        int RemapDevice(Creation creation, string sourceDeviceId, string newDeviceId);
 
         void StartPlay();
         void StopPlay();

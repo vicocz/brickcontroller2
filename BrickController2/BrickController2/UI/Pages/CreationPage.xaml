@@ -36,6 +36,7 @@
                             <TapGestureRecognizer Command="{Binding RenameCreationCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
+                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="build" Command="{Binding FixItCommand}" ToolTipProperties.Text="{extensions:Translate Fix}" HorizontalOptions="End" VerticalOptions="Center" Margin="0,0,100,0" />
                     <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" ToolTipProperties.Text="{extensions:Translate Play}" HorizontalOptions="End" VerticalOptions="Center"/>
                 </Grid>
 

@@ -1,6 +1,7 @@
 ﻿using Xunit;
 using FluentAssertions;
 using BrickController2.Protocols;
+using BrickController2.DeviceManagement.MouldKing;
 
 namespace BrickController2.Tests.Protocols;
 
@@ -57,4 +58,71 @@ public class CryptToolsTests
         rfPayload.Should().BeEquivalentTo(expected);
     }
 
+    [Theory]
+    [InlineData(0b00000000, 0x00000000)]
+    [InlineData(0b11111111, 0b11111111)]
+    [InlineData(0b10101010, 0b01010101)]
+    [InlineData(0b11110000, 0b00001111)]
+    public void Invert8_ShouldReturnExpectedValue(byte input, byte expected)
+    {
+        byte result = CryptTools.Invert8(input);
+
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(0b0000000000000000, 0x0000000000000000)]
+    [InlineData(0b1111111111111111, 0b1111111111111111)]
+    [InlineData(0b1010101010101010, 0b0101010101010101)]
+    [InlineData(0b1111000011110000, 0b0000111100001111)]
+    public void Invert16_ShouldReturnExpectedValue(ushort input, ushort expected)
+    {
+        ushort result = CryptTools.Invert16(input);
+
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(
+        new byte[] { 0xc1, 0xc2, 0xc3, 0xc4, 0xc5 },
+        new byte[] { 0xAD, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0x52 },
+        0xabd3)]
+    [InlineData(
+        new byte[] { 0x43, 0x41, 0x52 },
+        new byte[] { 0x75, 0x13, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00 },
+        0x0b5e)]
+    public void CheckCRC16_ShouldReturnExpectedValue(byte[] input1, byte[] input2, ushort expected)
+    {
+        ushort result = CryptTools.CheckCRC16(input1, input2);
+
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(MKProtocol.CTXValue1, new byte[] { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 })]
+    [InlineData(MKProtocol.CTXValue2, new byte[] { 0x01, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01 })]
+    [InlineData(CaDAProtocol.CTXValue2, new byte[] { 0x01, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00 })]
+    public void WhiteningInit_ShouldReturnExpectedArray(byte input, byte[] expected)
+    {
+        byte[] result = new byte[7];
+        CryptTools.WhiteningInit(input, result);
+
+        result.Should().BeEquivalentTo(expected);
+    }
+
+
+    [Theory]
+    [InlineData(
+        new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8E, 0xF0, 0xAA, 0xA3, 0x23, 0xC3, 0x43, 0x83, 0xAD, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0x52, 0xD3, 0xAB },
+        0x12, 0x0f,
+        MKProtocol.CTXValue1,
+        new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8E, 0xF0, 0xAA, 0x64, 0xAE, 0x11, 0x14, 0x22, 0x90, 0xDC, 0xC1, 0x30, 0xF5, 0xB1, 0x5E, 0x1A, 0x45, 0xDC })]
+    public void WhiteningEncode_ShouldReturnExpectedArray(byte[] input, int seedOffset, int len, byte ctx, byte[] expected)
+    {
+        byte[] ctxArray = new byte[7];
+        CryptTools.WhiteningInit(ctx, ctxArray);
+        CryptTools.WhiteningEncode(input, seedOffset, len, ctxArray);
+
+        input.Should().BeEquivalentTo(expected);
+    }
 }

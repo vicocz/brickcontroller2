@@ -188,59 +188,44 @@ namespace BrickController2.UI.ViewModels
 
                     // get missing types
                     var missingTypes = deviceIds.Select(x => x.DeviceType).ToHashSet();
+                    // missing types that have some existing device of such type present
+                    var suitableTypes = missingTypes.Where(x => _deviceManager.Devices.Any(d => d.DeviceType == x))
+                        .ToHashSet();
 
-                    if (missingTypes.Count == 0 || _deviceManager.Devices.All(x => !missingTypes.Contains(x.DeviceType)))
+                    if (missingTypes.Count == 0 || suitableTypes.Count == 0)
                     {
                         // report error - no suitable missing devices
+                        await _dialogService.ShowMessageBoxAsync(
+                            Translate("Information"),
+                            Translate("No suitable device found to replace missing device."),
+                            Translate("Ok"),
+                            DisappearingToken);
                         return;
                     }
 
-                    DeviceType deviceType;
-
-                    if (missingTypes.Count == 1)
+                    var sourceType = await ChooseDeviceTypeToRemapAsync(suitableTypes);
+                    if (sourceType is null)
                     {
-                        deviceType = missingTypes.First();
-                    }
-                    else
-                    {
-                        // choose device type to remap
-                        var sourceType = await _dialogService.ShowSelectionDialogAsync(
-                            missingTypes.Select(x => x.ToString()),
-                            Translate("Missing device type"),
-                            Translate("Cancel"),
-                            DisappearingToken);
-
-                        if (!sourceType.IsOk || !Enum.TryParse(sourceType.SelectedItem, out deviceType))
-                        {
-                            return; // user cancelled or invalid type
-                        }
+                        // user cancelled
+                        return;
                     }
 
                     // have device type
                     var missingDeviceAddresses = deviceIds
-                        .Where(x => x.DeviceType == deviceType)
+                        .Where(x => x.DeviceType == sourceType.Value)
                         .Select(x => x.Address!)
                         .ToList();
 
-                    string missingDeviceAddress = missingDeviceAddresses[0];
-                    if (missingDeviceAddresses.Count > 1)
+                    var sourceDeviceAddress = await ChooseDeviceAddressToRemapAsync(missingDeviceAddresses);
+                    if (sourceDeviceAddress is null)
                     {
-                        var sourceDevice = await _dialogService.ShowSelectionDialogAsync(
-                            missingDeviceAddresses,
-                            Translate("Missing device"),
-                            Translate("Cancel"),
-                            DisappearingToken);
-
-                        if (!sourceDevice.IsOk)
-                        {
-                            return; // user cancelled
-                        }
-
-                        missingDeviceAddress = sourceDevice.SelectedItem!;
+                        // user cancelled
+                        return;
                     }
 
+                    // choose target device by name
                     var suitableDevices = _deviceManager.Devices
-                        .Where(d => d.DeviceType == deviceType)
+                        .Where(d => d.DeviceType == sourceType.Value)
                         .Select(d => new DeviceModel(d))
                         .ToList();
 
@@ -253,11 +238,9 @@ namespace BrickController2.UI.ViewModels
                     if (targetDevice.IsOk)
                     {
                         // replace all missing device IDs with the selected one
-                        var missingDeviceId = DeviceId.Get(deviceType, missingDeviceAddress);
+                        var missingDeviceId = DeviceId.Get(sourceType.Value, sourceDeviceAddress);
                         var newDeviceId = targetDevice.SelectedItem!.DeviceId;
-                        var count = _playLogic.RemapDevice(Creation, missingDeviceId, newDeviceId);
-
-                        //TODO update creation
+                        var count = await _creationManager.RemapDevice(Creation, missingDeviceId, newDeviceId);
 
                         await _dialogService.ShowMessageBoxAsync(
                             Translate("Information"),
@@ -270,6 +253,48 @@ namespace BrickController2.UI.ViewModels
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private async Task<string?> ChooseDeviceAddressToRemapAsync(System.Collections.Generic.List<string> missingDeviceAddresses)
+        {
+            if (missingDeviceAddresses.Count == 1)
+            {
+                return missingDeviceAddresses[0];
+            }
+
+            // choose address to remap
+            var sourceDevice = await _dialogService.ShowSelectionDialogAsync(
+                missingDeviceAddresses,
+                Translate("Missing device"),
+                Translate("Cancel"),
+                DisappearingToken);
+
+            if (sourceDevice.IsOk)
+            {
+                return sourceDevice.SelectedItem;
+            }
+            return default;
+        }
+
+        private async Task<DeviceType?> ChooseDeviceTypeToRemapAsync(System.Collections.Generic.HashSet<DeviceType> suitableTypes)
+        {
+            if (suitableTypes.Count == 1)
+            {
+                return suitableTypes.First();
+            }
+
+            // choose device type to remap
+            var deviceType = await _dialogService.ShowSelectionDialogAsync(
+                suitableTypes,
+                Translate("Missing device type"),
+                Translate("Cancel"),
+                DisappearingToken);
+
+            if (deviceType.IsOk)
+            {
+                return deviceType.SelectedItem;
+            }
+            return default;
         }
 
         private async Task AddControllerProfileAsync()

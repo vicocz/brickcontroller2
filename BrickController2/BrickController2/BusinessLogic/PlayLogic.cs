@@ -64,27 +64,6 @@ namespace BrickController2.BusinessLogic
             return creation.GetDeviceIds().Where(d => _deviceManager.GetDeviceById(d) == null);
         }
 
-        public int RemapDevice(Creation creation, string sourceDeviceId, string newDeviceId)
-        {
-            var counter = 0;
-            foreach (var profile in creation.ControllerProfiles)
-            {
-                foreach (var controllerEvent in profile.ControllerEvents)
-                {
-                    foreach (var controllerAction in controllerEvent.ControllerActions)
-                    {
-                        if (controllerAction.DeviceId == sourceDeviceId)
-                        {
-                            controllerAction.DeviceId = newDeviceId;
-                            counter++;
-                        }
-                    }
-                }
-            }
-
-            return counter;
-        }
-
         public void StartPlay()
         {
             _sequencePlayer.StartPlayer();

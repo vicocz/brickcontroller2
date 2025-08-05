@@ -128,6 +128,30 @@ namespace BrickController2.CreationManagement
             }
         }
 
+        public async Task<int> RemapDevice(Creation creation, string sourceDeviceId, string newDeviceId)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                var counter = 0;
+                foreach (var profile in creation.ControllerProfiles)
+                {
+                    foreach (var controllerEvent in profile.ControllerEvents)
+                    {
+                        foreach (var controllerAction in controllerEvent.ControllerActions)
+                        {
+                            // if remapping is applied, persist the change
+                            if (controllerAction.RemapDevice(sourceDeviceId, newDeviceId))
+                            {
+                                await _creationRepository.UpdateControllerActionAsync(controllerAction);
+                                counter++;
+                            }
+                        }
+                    }
+                }
+                return counter;
+            }
+        }
+
         public async Task<bool> IsControllerProfileNameAvailableAsync(Creation creation, string controllerProfileName)
         {
             using (await _asyncLock.LockAsync())

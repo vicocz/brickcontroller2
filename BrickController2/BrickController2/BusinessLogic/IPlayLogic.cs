@@ -12,7 +12,6 @@ namespace BrickController2.BusinessLogic
         bool ValidateControllerAction(ControllerAction controllerAction);
 
         IEnumerable<string> GetMissingDevices(Creation creation);
-        int RemapDevice(Creation creation, string sourceDeviceId, string newDeviceId);
 
         void StartPlay();
         void StopPlay();

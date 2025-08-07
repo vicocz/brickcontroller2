@@ -26,7 +26,7 @@ public class CircuitCubeDeviceManagerTests : DeviceManagerTestBase<CircuitCubeDe
     }
 
     [Fact]
-    public void TryGetDevice_CircuitCubeServiceUuidWithEMptyName_CircuitCubeDeviceReturned()
+    public void TryGetDevice_CircuitCubeServiceUuidWithEmptyName_CircuitCubeDeviceReturned()
     {
         var scanResult = CreateScanResult(deviceName: "", serviceUuid: new Guid("6e400001-b5a3-f393-e0a9-e50e24dcca9e"));
 

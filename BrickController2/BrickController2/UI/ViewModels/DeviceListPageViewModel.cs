@@ -115,7 +115,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     await _dialogService.ShowProgressDialogAsync(
                         false,
-                        (progressDialog, token) => device.RenameDeviceAsync(device, result.Result),
+                        (progressDialog, token) => device.RenameDeviceAsync(result.Result),
                         Translate("Renaming"),
                         token: DisappearingToken);
                 }

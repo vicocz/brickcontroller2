@@ -62,9 +62,9 @@ public class CryptToolsTests
     [InlineData(0b11111111, 0b11111111)]
     [InlineData(0b10101010, 0b01010101)]
     [InlineData(0b11110000, 0b00001111)]
-    public void Invert8_ShouldReturnExpectedValue(byte input, byte expected)
+    public void Reverse_byte_ShouldReturnExpectedValue(byte input, byte expected)
     {
-        byte result = CryptTools.Invert8(input);
+        byte result = CryptTools.Reverse(input);
 
         result.Should().Be(expected);
     }
@@ -74,9 +74,9 @@ public class CryptToolsTests
     [InlineData(0b1111111111111111, 0b1111111111111111)]
     [InlineData(0b1010101010101010, 0b0101010101010101)]
     [InlineData(0b1111000011110000, 0b0000111100001111)]
-    public void Invert16_ShouldReturnExpectedValue(ushort input, ushort expected)
+    public void Reverse_ushort_ShouldReturnExpectedValue(ushort input, ushort expected)
     {
-        ushort result = CryptTools.Invert16(input);
+        ushort result = CryptTools.Reverse(input);
 
         result.Should().Be(expected);
     }

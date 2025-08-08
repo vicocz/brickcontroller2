@@ -1,26 +1,32 @@
-﻿using System;
-using BrickController2.Protocols;
+﻿using BrickController2.Protocols;
 
 namespace BrickController2.Tools.Protocols;
 
 public static class CaDATools
 {
+    // Reverse lookup table for SwitchSheet transformation
+    private static readonly byte[] ReverseSwitchSheet = CreateReverseSwitchSheet();
+
+    private static byte[] CreateReverseSwitchSheet()
+    {
+        var table = new byte[256];
+        for (int orig = 0; orig < 256; orig++)
+        {
+            byte candidate = (byte)(CaDAProtocol.SwitchSheet[orig / 4] + orig % 4);
+            table[candidate] = (byte)orig;
+        }
+        return table;
+    }
+
     public static void Decrypt(byte[] data)
     {
         // Inverse of the last for-loop in Encrypt
         for (int index = 0; index < 8; index++)
         {
             byte val = data[index];
-            // Find the original value before switchSheet transformation
-            for (int orig = 0; orig < 256; orig++)
-            {
-                byte candidate = (byte)(CaDAProtocol.SwitchSheet[orig / 4] + orig % 4);
-                if (candidate == val)
-                {
-                    data[index] = (byte)orig;
-                    break;
-                }
-            }
+
+            // Use reverse lookup table to find the original value
+            data[index] = ReverseSwitchSheet[val];
         }
 
         // Inverse of the XOR and 0x69 step

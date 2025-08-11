@@ -60,7 +60,6 @@ jobs:
       shell: bash
       run: |
         TAG_NAME="2025.07.05"
-        # TODO TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
         # Remove leading zeros from each part of the version  
         IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"  
         for i in "${!VERSION_PARTS[@]}"; do  

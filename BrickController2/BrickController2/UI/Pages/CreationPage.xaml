@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
@@ -11,6 +12,12 @@
     Title="{extensions:Translate Creation}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <local:PageBase.Resources>
+        <ResourceDictionary>
+            <converters:InverseBoolConverter x:Key="InverseBool"/>
+        </ResourceDictionary>
+    </local:PageBase.Resources>
 
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="share" Text="{extensions:Translate Share}" Command="{Binding ShareCreationCommand}" />
@@ -36,8 +43,8 @@
                             <TapGestureRecognizer Command="{Binding RenameCreationCommand}"/>
                         </Label.GestureRecognizers>
                     </Label>
-                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="build" Command="{Binding FixItCommand}" ToolTipProperties.Text="{extensions:Translate Fix}" HorizontalOptions="End" VerticalOptions="Center" Margin="0,0,100,0" />
-                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" ToolTipProperties.Text="{extensions:Translate Play}" HorizontalOptions="End" VerticalOptions="Center"/>
+                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="build" Command="{Binding FixItCommand}" ToolTipProperties.Text="{extensions:Translate Fix}" HorizontalOptions="End" VerticalOptions="Center" IsVisible="{Binding IsCreationValid, Converter={StaticResource InverseBool}}" />
+                    <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" Command="{Binding PlayCommand}" ToolTipProperties.Text="{extensions:Translate Play}" HorizontalOptions="End" VerticalOptions="Center" IsVisible="{Binding IsCreationValid}"/>
                 </Grid>
 
                 <!-- Controller profile list -->

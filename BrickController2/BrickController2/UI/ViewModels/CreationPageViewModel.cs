@@ -7,7 +7,6 @@ using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Theme;
 using BrickController2.UI.Services.Translation;
 using System;
 using System.Linq;
@@ -65,6 +64,8 @@ namespace BrickController2.UI.ViewModels
 
         public bool HasMultipleControllerProfiles => Creation.ControllerProfiles.Count > 1;
 
+        public bool IsCreationValid => _playLogic.ValidateCreation(Creation) == CreationValidationResult.Ok;
+
         public ISharedFileStorageService SharedFileStorageService { get; }
         public ICommand ImportControllerProfileCommand { get; }
         public ICommand CopyControllerProfileCommand { get; }
@@ -80,6 +81,24 @@ namespace BrickController2.UI.ViewModels
         public ICommand ControllerProfileTappedCommand { get; }
         public ICommand DeleteControllerProfileCommand { get; }
         public ICommand PlayControllerProfileCommand { get; }
+
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+            // recheck creation validity
+            RecheckCreationValidity();
+        }
+
+        private void OnProfilesCountChanged()
+        {
+            RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
+        }
+
+        private void RecheckCreationValidity()
+        {
+            // recheck validity of the creation
+            RaisePropertyChanged(nameof(IsCreationValid));
+        }
 
         private async Task RenameCreationAsync()
         {
@@ -247,6 +266,8 @@ namespace BrickController2.UI.ViewModels
                             Translate($"Remapped {count} controller actions from device '{missingDeviceId}' to '{newDeviceId}'"),
                             Translate("Ok"),
                             DisappearingToken);
+
+                        RecheckCreationValidity();
                     }
                 }
             }
@@ -330,7 +351,8 @@ namespace BrickController2.UI.ViewModels
                         Translate("Creating"),
                         token: DisappearingToken);
                     // notify profile count change
-                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
+                    OnProfilesCountChanged();
+                    RecheckCreationValidity();
 
                     await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile!)));
                 }
@@ -357,7 +379,8 @@ namespace BrickController2.UI.ViewModels
                         Translate("Deleting"),
                         token: DisappearingToken);
                     // notify profile count change
-                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
+                    OnProfilesCountChanged();
+                    RecheckCreationValidity();
                 }
             }
             catch (OperationCanceledException)
@@ -383,6 +406,9 @@ namespace BrickController2.UI.ViewModels
                         try
                         {
                             await _creationManager.ImportControllerProfileAsync(Creation, controllerProfileFilesMap[result.SelectedItem]);
+                            // notify profile count change
+                            OnProfilesCountChanged();
+                            RecheckCreationValidity();
                         }
                         catch (Exception)
                         {
@@ -413,6 +439,9 @@ namespace BrickController2.UI.ViewModels
             {
                 var profile = await _sharingManagerProfile.ImportFromClipboardAsync();
                 await _creationManager.ImportControllerProfileAsync(Creation, profile);
+                // notify profile count change
+                OnProfilesCountChanged();
+                RecheckCreationValidity();
             }
             catch (Exception ex)
             {

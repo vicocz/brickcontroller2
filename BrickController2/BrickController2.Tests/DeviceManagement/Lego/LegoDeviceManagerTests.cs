@@ -57,4 +57,15 @@ public class LegoDeviceManagerTests : DeviceManagerTestBase<LegoDeviceManager>
         result.Should().BeFalse();
         device.DeviceType.Should().Be(DeviceType.Unknown);
     }
+
+    [Fact]
+    public void TryGetDevice_BoostWithEmptyDeviceName_ReturnsFalse()
+    {
+        var scanResult = CreateScanResult("", manufacturerData: [0x97, 0x03, 0x00, 0x40]);
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeFalse();
+        device.DeviceType.Should().Be(DeviceType.Unknown);
+    }
 }

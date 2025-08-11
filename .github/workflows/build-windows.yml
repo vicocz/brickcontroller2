@@ -61,9 +61,12 @@ jobs:
       shell: bash
       run: |
         TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
-        # Split the tag into parts and add missing parts as zeros
-        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"
-        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV
+        # Split the tag into parts, remove leading zeros and add missing parts as zeros
+        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"  
+        for i in "${!VERSION_PARTS[@]}"; do  
+          VERSION_PARTS[$i]=$(echo "${VERSION_PARTS[$i]}" | sed 's/^0*//')  
+        done  
+        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV  
         echo "APP_PACKAGE_VERSION=${VERSION_PARTS[0]:-0}.${VERSION_PARTS[1]:-0}.${VERSION_PARTS[2]:-0}.${VERSION_PARTS[3]:-0}" >> $GITHUB_ENV
 
     - name: Decode Signing Certificate

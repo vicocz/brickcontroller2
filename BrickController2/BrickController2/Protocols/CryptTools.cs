@@ -52,7 +52,7 @@ public static class CryptTools
         // invert bytes of initValues and seed-array in resultBuffer
         for (int index = 0; index < headerLength + seedLength; index++)
         {
-            resultBuffer[headerOffset + index] = Invert8(resultBuffer[headerOffset + index]);
+            resultBuffer[headerOffset + index] = Reverse(resultBuffer[headerOffset + index]);
         }
 
         // copy dataArray into resultBuffer after initValues and seed-array
@@ -75,39 +75,47 @@ public static class CryptTools
     }
 
     /// <summary>
-    /// inverts the bits of a given byte
+    /// Reverses the bit order of an 8-bit unsigned integer.
     /// </summary>
-    /// <param name="value">byte to invert</param>
-    /// <returns>inverted byte</returns>
-    public static byte Invert8(byte value)
+    /// <remarks>This method takes an 8-bit unsigned integer and reverses the order of its bits. For example,
+    /// if the input is <c>0b00000001</c>, the output will be <c>0b10000000</c>.</remarks>
+    /// <param name="value">The 8-bit unsigned integer whose bits are to be reversed.</param>
+    /// <returns>An 8-bit unsigned integer with the bits of <paramref name="value"/> reversed.</returns>
+    public static byte Reverse(byte value)
     {
-        int result = 0;
-        for (byte index = 0; index < 8; index++)
-        {
-            if ((value & 1 << (index & 0x1f)) != 0)
-            {
-                result |= (byte)(1 << (7 - index & 0x1f));
-            }
-        }
-        return (byte)result;
+        /* (bitwise swap version)
+        // Swap odd and even bits
+        value = (byte)(((value & 0xAA) >> 1) | ((value & 0x55) << 1));
+        // Swap consecutive pairs
+        value = (byte)(((value & 0xCC) >> 2) | ((value & 0x33) << 2));
+        // Swap nibbles
+        value = (byte)(((value & 0xF0) >> 4) | ((value & 0x0F) << 4));
+        */
+
+        // (bit-twiddling hack version)
+        value = (byte)(((value * 0x0802U & 0x22110U) | (value * 0x8020U & 0x88440U)) * 0x10101U >> 16);
+        return value;
     }
 
     /// <summary>
-    /// inverts the bits of a given short
+    /// Reverses the bit order of a 16-bit unsigned integer.
     /// </summary>
-    /// <param name="value">short to invert</param>
-    /// <returns>inverted short</returns>
-    public static ushort Invert16(ushort value)
+    /// <remarks>This method swaps the positions of the bits in the input value, effectively reversing their
+    /// order. For example, if the input value is represented in binary as <c>0000000000001011</c>, the output will be
+    /// <c>1101000000000000</c>.</remarks>
+    /// <param name="value">The 16-bit unsigned integer whose bits are to be reversed.</param>
+    /// <returns>A 16-bit unsigned integer with the bit order of <paramref name="value"/> reversed.</returns>
+    public static ushort Reverse(ushort value)
     {
-        int result = 0;
-        for (byte index = 0; index < 0x10; index++)
-        {
-            if (((uint)value & 1 << (index & 0x1f)) != 0)
-            {
-                result |= (ushort)(1 << (0xf - index & 0x1f));
-            }
-        }
-        return (ushort)result;
+        // Swap odd and even bits
+        value = (ushort)(((value & 0xAAAA) >> 1) | ((value & 0x5555) << 1));
+        // Swap consecutive pairs
+        value = (ushort)(((value & 0xCCCC) >> 2) | ((value & 0x3333) << 2));
+        // Swap nibbles
+        value = (ushort)(((value & 0xF0F0) >> 4) | ((value & 0x0F0F) << 4));
+        // Swap bytes
+        value = (ushort)((value >> 8) | (value << 8));
+        return value;
     }
 
     /// <summary>
@@ -141,7 +149,7 @@ public static class CryptTools
         int array2Length = array2.Length;
         for (int index = 0; index < array2Length; index++)
         {
-            byte cVar1 = Invert8(array2[index]);
+            byte cVar1 = Reverse(array2[index]);
 
             result = result ^ (ushort)(cVar1 << 8);
 
@@ -157,7 +165,7 @@ public static class CryptTools
                 }
             }
         }
-        ushort result_inverse = Invert16((ushort)result);
+        ushort result_inverse = Reverse((ushort)result);
         return (ushort)(result_inverse ^ 0xffff);
     }
 

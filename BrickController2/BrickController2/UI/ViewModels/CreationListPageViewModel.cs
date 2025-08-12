@@ -41,7 +41,7 @@ namespace BrickController2.UI.ViewModels
             IPlayLogic playLogic,
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
-            ICommandFactory<Creation> commandFactory,
+            ICreationCommandFactory commandFactory,
             IBluetoothPermission bluetoothPermission,
             IReadWriteExternalStoragePermission readWriteExternalStoragePermission)
             : base(navigationService, translationService)
@@ -62,7 +62,7 @@ namespace BrickController2.UI.ViewModels
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
-            PlayCreationCommand = new SafeCommand<Creation>(PlayAsync);
+            PlayCreationCommand = commandFactory.PlayCreationCommand(this);
             ShareCreationCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", creation))));
             NavigateToDevicesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<DeviceListPageViewModel>());
             NavigateToControllerTesterCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<ControllerTesterPageViewModel>());
@@ -97,6 +97,11 @@ namespace BrickController2.UI.ViewModels
 
                 await LoadCreationsAndDevicesAsync();
                 await RequestPermissionsAsync();
+            }
+            // update validation statuses
+            foreach (var creation in _creationManager.Creations)
+            {
+                creation.ValidationResult = _playLogic.ValidateCreation(creation);
             }
         }
 
@@ -254,46 +259,6 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteCreationAsync(creation),
                         Translate("Deleting"),
                         token: DisappearingToken);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task PlayAsync(Creation creation)
-        {
-            try
-            {
-                var validationResult = _playLogic.ValidateCreation(creation);
-
-                string warning = string.Empty;
-                switch (validationResult)
-                {
-                    case CreationValidationResult.MissingControllerAction:
-                        warning = Translate("NoControllerActions");
-                        break;
-
-                    case CreationValidationResult.MissingDevice:
-                        warning = Translate("MissingDevices");
-                        break;
-
-                    case CreationValidationResult.MissingSequence:
-                        warning = Translate("MissingSequence");
-                        break;
-                }
-
-                if (validationResult == CreationValidationResult.Ok)
-                {
-                    await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(("creation", creation)));
-                }
-                else
-                {
-                    await _dialogService.ShowMessageBoxAsync(
-                        Translate("Warning"),
-                        Translate("Play") + $" '{creation.Name}': {warning}",
-                        Translate("Ok"),
-                        DisappearingToken);
                 }
             }
             catch (OperationCanceledException)

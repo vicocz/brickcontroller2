@@ -1,4 +1,5 @@
-﻿using BrickController2.CreationManagement.Sharing;
+﻿using BrickController2.BusinessLogic;
+using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
 using Newtonsoft.Json;
 using SQLite;
@@ -12,6 +13,7 @@ namespace BrickController2.CreationManagement
     {
         private string _name = string.Empty;
         private ObservableCollection<ControllerProfile> _controllerProfiles = new ObservableCollection<ControllerProfile>();
+        private CreationValidationResult _lastValidation;
 
         [PrimaryKey, AutoIncrement]
         [JsonIgnore]
@@ -28,6 +30,23 @@ namespace BrickController2.CreationManagement
         {
             get { return _controllerProfiles; }
             set { _controllerProfiles = value; RaisePropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Keeps track of the last validation result for this creation.
+        /// </summary>
+        [JsonIgnore]
+        public CreationValidationResult ValidationResult
+        {
+            get { return _lastValidation; }
+            set
+            {
+                if (_lastValidation != value)
+                {
+                    _lastValidation = value;
+                    RaisePropertyChanged();
+                }
+            }
         }
 
         [JsonIgnore]

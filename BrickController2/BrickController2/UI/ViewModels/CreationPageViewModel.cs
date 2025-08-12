@@ -1,7 +1,6 @@
 ﻿using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
-using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
@@ -9,6 +8,8 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -21,7 +22,6 @@ namespace BrickController2.UI.ViewModels
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
         private readonly ISharingManager<ControllerProfile> _sharingManagerProfile;
-        private readonly IDeviceManager _deviceManager;
 
         public CreationPageViewModel(
             INavigationService navigationService,
@@ -31,8 +31,7 @@ namespace BrickController2.UI.ViewModels
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
             ISharingManager<ControllerProfile> sharingManagerProfile,
-            ICommandFactory<Creation> commandFactory,
-            IDeviceManager deviceManager,
+            ICreationCommandFactory commandFactory,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -41,7 +40,6 @@ namespace BrickController2.UI.ViewModels
             SharedFileStorageService = sharedFileStorageService;
             _playLogic = playLogic;
             _sharingManagerProfile = sharingManagerProfile;
-            _deviceManager = deviceManager;
             Creation = parameters.Get<Creation>("creation");
 
             ImportControllerProfileCommand = new SafeCommand(async () => await ImportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
@@ -52,19 +50,19 @@ namespace BrickController2.UI.ViewModels
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
             ShareCreationCommand = new SafeCommand(ShareCreationAsync);
             ShareCreationAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Creation);
-            PlayCommand = new SafeCommand(async () => await PlayAsync());
-            FixItCommand = new SafeCommand(async () => await FixItAsync());
+            PlayCommand = commandFactory.PlayCommand(this, Creation);
+            FixItCommand = commandFactory.FixCommand(this, Creation);
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));
             DeleteControllerProfileCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await DeleteControllerProfileAsync(controllerProfile));
-            PlayControllerProfileCommand = new SafeCommand<ControllerProfile>(PlayAsync);
+            PlayControllerProfileCommand = commandFactory.PlayControllerProfileCommand(this);
         }
 
         public Creation Creation { get; }
 
         public bool HasMultipleControllerProfiles => Creation.ControllerProfiles.Count > 1;
 
-        public bool IsCreationValid => _playLogic.ValidateCreation(Creation) == CreationValidationResult.Ok;
+        public bool IsCreationValid => Creation.ValidationResult == CreationValidationResult.Ok;
 
         public ISharedFileStorageService SharedFileStorageService { get; }
         public ICommand ImportControllerProfileCommand { get; }
@@ -85,20 +83,38 @@ namespace BrickController2.UI.ViewModels
         public override void OnAppearing()
         {
             base.OnAppearing();
+
+            // listen to creation changes
+            Creation.PropertyChanged += Creation_PropertyChanged;
+            Creation.ControllerProfiles.CollectionChanged += ControllerProfiles_CollectionChanged;
             // recheck creation validity
             RecheckCreationValidity();
         }
 
-        private void OnProfilesCountChanged()
+        public override void OnDisappearing()
         {
-            RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
+            Creation.PropertyChanged -= Creation_PropertyChanged;
+            Creation.ControllerProfiles.CollectionChanged -= ControllerProfiles_CollectionChanged;
+
+            base.OnDisappearing();
         }
 
-        private void RecheckCreationValidity()
+        private void Creation_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            // recheck validity of the creation
-            RaisePropertyChanged(nameof(IsCreationValid));
+            // notify update of creation validity
+            if (e.PropertyName == nameof(Creation.ValidationResult))
+            {
+                RaisePropertyChanged(nameof(IsCreationValid));
+            }
         }
+
+        private void ControllerProfiles_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
+            RecheckCreationValidity();
+        }
+
+        private void RecheckCreationValidity() => Creation.ValidationResult = _playLogic.ValidateCreation(Creation);
 
         private async Task RenameCreationAsync()
         {
@@ -136,188 +152,6 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task PlayAsync(ControllerProfile? controllerProfile = default!)
-        {
-            try
-            {
-                var validationResult = _playLogic.ValidateCreation(Creation);
-
-                string warning = string.Empty;
-                switch (validationResult)
-                {
-                    case CreationValidationResult.MissingControllerAction:
-                        warning = Translate("NoControllerActions");
-                        break;
-
-                    case CreationValidationResult.MissingDevice:
-                        warning = Translate("MissingDevices");
-                        break;
-
-                    case CreationValidationResult.MissingSequence:
-                        warning = Translate("MissingSequence");
-                        break;
-                }
-
-                if (validationResult == CreationValidationResult.Ok)
-                {
-                    await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(
-                        ("creation", Creation),
-                        ("profile", controllerProfile!)));
-                }
-                else
-                {
-                    await _dialogService.ShowMessageBoxAsync(
-                        Translate("Warning"),
-                        warning,
-                        Translate("Ok"),
-                        DisappearingToken);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private readonly struct DeviceModel(Device device)
-        {
-            public string DeviceId => device.Id;
-            public override string ToString()
-            {
-                return string.IsNullOrWhiteSpace(device.Name) ? device.Address : device.Name;
-            }
-        }
-
-        private async Task FixItAsync()
-        {
-            try
-            {
-                var validationResult = _playLogic.ValidateCreation(Creation);
-
-                if (validationResult == CreationValidationResult.MissingDevice)
-                {
-                    // get missing device IDs
-                    var deviceIds = _playLogic.GetMissingDevices(Creation)
-                        .Select(id =>
-                        {
-                            DeviceId.TryParse(id, out var deviceType, out var deviceAddress);
-                            return (DeviceType: deviceType, Address: deviceAddress);
-                        })
-                        .Where(x => x.DeviceType != DeviceType.Unknown && x.Address != null)
-                        .ToList();
-
-                    // get missing types
-                    var missingTypes = deviceIds.Select(x => x.DeviceType).ToHashSet();
-                    // missing types that have some existing device of such type present
-                    var suitableTypes = missingTypes.Where(x => _deviceManager.Devices.Any(d => d.DeviceType == x))
-                        .ToHashSet();
-
-                    if (missingTypes.Count == 0 || suitableTypes.Count == 0)
-                    {
-                        // report error - no suitable missing devices
-                        await _dialogService.ShowMessageBoxAsync(
-                            Translate("Information"),
-                            Translate("No suitable device found to replace missing device."),
-                            Translate("Ok"),
-                            DisappearingToken);
-                        return;
-                    }
-
-                    var sourceType = await ChooseDeviceTypeToRemapAsync(suitableTypes);
-                    if (sourceType is null)
-                    {
-                        // user cancelled
-                        return;
-                    }
-
-                    // have device type
-                    var missingDeviceAddresses = deviceIds
-                        .Where(x => x.DeviceType == sourceType.Value)
-                        .Select(x => x.Address!)
-                        .ToList();
-
-                    var sourceDeviceAddress = await ChooseDeviceAddressToRemapAsync(missingDeviceAddresses);
-                    if (sourceDeviceAddress is null)
-                    {
-                        // user cancelled
-                        return;
-                    }
-
-                    // choose target device by name
-                    var suitableDevices = _deviceManager.Devices
-                        .Where(d => d.DeviceType == sourceType.Value)
-                        .Select(d => new DeviceModel(d))
-                        .ToList();
-
-                    var targetDevice = await _dialogService.ShowSelectionDialogAsync(
-                        suitableDevices,
-                        Translate("Target device"),
-                        Translate("Cancel"),
-                        DisappearingToken);
-
-                    if (targetDevice.IsOk)
-                    {
-                        // replace all missing device IDs with the selected one
-                        var missingDeviceId = DeviceId.Get(sourceType.Value, sourceDeviceAddress);
-                        var newDeviceId = targetDevice.SelectedItem!.DeviceId;
-                        var count = await _creationManager.RemapDevice(Creation, missingDeviceId, newDeviceId);
-
-                        await _dialogService.ShowMessageBoxAsync(
-                            Translate("Information"),
-                            Translate($"Remapped {count} controller actions from device '{missingDeviceId}' to '{newDeviceId}'"),
-                            Translate("Ok"),
-                            DisappearingToken);
-
-                        RecheckCreationValidity();
-                    }
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        private async Task<string?> ChooseDeviceAddressToRemapAsync(System.Collections.Generic.List<string> missingDeviceAddresses)
-        {
-            if (missingDeviceAddresses.Count == 1)
-            {
-                return missingDeviceAddresses[0];
-            }
-
-            // choose address to remap
-            var sourceDevice = await _dialogService.ShowSelectionDialogAsync(
-                missingDeviceAddresses,
-                Translate("Missing device"),
-                Translate("Cancel"),
-                DisappearingToken);
-
-            if (sourceDevice.IsOk)
-            {
-                return sourceDevice.SelectedItem;
-            }
-            return default;
-        }
-
-        private async Task<DeviceType?> ChooseDeviceTypeToRemapAsync(System.Collections.Generic.HashSet<DeviceType> suitableTypes)
-        {
-            if (suitableTypes.Count == 1)
-            {
-                return suitableTypes.First();
-            }
-
-            // choose device type to remap
-            var deviceType = await _dialogService.ShowSelectionDialogAsync(
-                suitableTypes,
-                Translate("Missing device type"),
-                Translate("Cancel"),
-                DisappearingToken);
-
-            if (deviceType.IsOk)
-            {
-                return deviceType.SelectedItem;
-            }
-            return default;
-        }
-
         private async Task AddControllerProfileAsync()
         {
             try
@@ -350,9 +184,6 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => controllerProfile = await _creationManager.AddControllerProfileAsync(Creation, result.Result),
                         Translate("Creating"),
                         token: DisappearingToken);
-                    // notify profile count change
-                    OnProfilesCountChanged();
-                    RecheckCreationValidity();
 
                     await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile!)));
                 }
@@ -378,9 +209,6 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteControllerProfileAsync(controllerProfile),
                         Translate("Deleting"),
                         token: DisappearingToken);
-                    // notify profile count change
-                    OnProfilesCountChanged();
-                    RecheckCreationValidity();
                 }
             }
             catch (OperationCanceledException)
@@ -406,9 +234,6 @@ namespace BrickController2.UI.ViewModels
                         try
                         {
                             await _creationManager.ImportControllerProfileAsync(Creation, controllerProfileFilesMap[result.SelectedItem]);
-                            // notify profile count change
-                            OnProfilesCountChanged();
-                            RecheckCreationValidity();
                         }
                         catch (Exception)
                         {
@@ -439,9 +264,6 @@ namespace BrickController2.UI.ViewModels
             {
                 var profile = await _sharingManagerProfile.ImportFromClipboardAsync();
                 await _creationManager.ImportControllerProfileAsync(Creation, profile);
-                // notify profile count change
-                OnProfilesCountChanged();
-                RecheckCreationValidity();
             }
             catch (Exception ex)
             {

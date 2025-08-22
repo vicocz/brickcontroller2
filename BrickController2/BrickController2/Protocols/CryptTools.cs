@@ -63,7 +63,10 @@ public static class CryptTools
 
         // Write checksum
         ushort checksum = CheckCRC16(seed, data);
-        BitConverter.TryWriteBytes(resultBuffer.Slice(checksumOffset, checksumLength), checksum);
+        if (!BitConverter.TryWriteBytes(resultBuffer.Slice(checksumOffset, checksumLength), checksum))
+        {
+            return 0;
+        }
 
         // Whitening
         Span<byte> ctxArray1 = stackalloc byte[7];

@@ -21,7 +21,7 @@ public static class CryptTools
     /// <param name="ctxValue2">The second context value used for whitening the entire RF payload.</param>
     /// <param name="rfPayload">The output array where the generated RF payload will be written.</param>
     /// <param name="rfPayloadOffset">The offset in the <paramref name="rfPayload"/> array where the RF payload should be written. Defaults to 0.</param>
-    /// <returns>The total length of the generated RF payload written to <paramref name="rfPayload"/>,  or 0 if the <paramref
+    /// <returns>The total length of the generated RF payload written to <paramref name="rfPayload"/>, or 0 if the <paramref
     /// name="rfPayload"/> array does not have sufficient space to hold the result.</returns>
     public static int GetRfPayload(byte[] seed, byte[] header, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload, int rfPayloadOffset = 0)
     {

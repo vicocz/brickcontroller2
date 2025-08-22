@@ -169,7 +169,8 @@ public static class CryptTools
     /// the method will throw an <see cref="IndexOutOfRangeException"/>.</remarks>
     /// <param name="val">The input byte value from which bits are extracted.</param>
     /// <param name="ctx">A span of bytes representing the whitening context. The first element is set to 1,  and the subsequent elements
-    /// (indices 1 through 6) are populated with the individual bits of <paramref name="val"/>,  starting from the most
+    /// <param name="ctx">A span of bytes representing the whitening context. The first element is set to 1, and the subsequent elements
+    /// (indices 1 through 6) are populated with the individual bits of <paramref name="val"/>, starting from the most
     /// significant bit (bit 5) to the least significant bit (bit 0).</param>
     public static void WhiteningInit(byte val, Span<byte> ctx)
     {

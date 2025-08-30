@@ -24,13 +24,9 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
     public GamepadController(GameControllerService service, Gamepad gamepad, RawGameController rawController, int controllerNumber, IDispatcherTimer timer)
         : base(service, gamepad)
     {
+        Name = rawController.DisplayName;
         ControllerNumber = controllerNumber;
         ControllerId = GetControllerIdFromNumber(controllerNumber);
-
-        UniquePersistantDeviceId = rawController.NonRoamableId;
-        Name = rawController.DisplayName;
-        VendorId = rawController.HardwareVendorId;
-        ProductId = rawController.HardwareProductId;
 
         _timer = timer;
 
@@ -55,7 +51,7 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
 
     private void Timer_Tick(object? sender, object e)
     {
-        var currentReading = Gamepad.GetCurrentReading();
+        var currentReading = ControllerDevice.GetCurrentReading();
 
         var currentEvents = currentReading
             .Enumerate()

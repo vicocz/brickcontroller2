@@ -4,7 +4,7 @@ using static BrickController2.PlatformServices.GameController.GameControllers;
 
 namespace BrickController2.PlatformServices.GameController;
 
-public abstract class GamepadControllerBase<TGamepad> : IGameController where TGamepad : class
+public abstract class GamepadControllerBase<TControllerDevice> : IGameController where TControllerDevice : class
 {
     /// <summary>stored last value per axis to detect changes</summary>
     private readonly Dictionary<string, float> _lastAxisValues = [];
@@ -13,10 +13,10 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
     private readonly IGameControllerServiceInternal _controllerService;
 
     protected GamepadControllerBase(IGameControllerServiceInternal controllerService,
-        TGamepad gamepad)
+        TControllerDevice controllerDevice)
     {
         _controllerService = controllerService;
-        Gamepad = gamepad;
+        ControllerDevice = controllerDevice;
     }
 
     /// <summary>
@@ -30,19 +30,15 @@ public abstract class GamepadControllerBase<TGamepad> : IGameController where TG
     public string ControllerId { get; protected init; } = default!;
 
     /// <summary>
-    /// Unique and persistant identifier of device
+    /// DisplayName of the controller
     /// </summary>
-    public string UniquePersistantDeviceId { get; protected init; } = default!;
-
     public string Name { get; protected init; } = default!;
 
-    public int VendorId { get; protected init; }
-    public int ProductId { get; protected init; }
 
     /// <summary>
-    /// Native instance of gamepad
+    /// Native instance of controllerdevice
     /// </summary>
-    public TGamepad Gamepad { get; }
+    public TControllerDevice ControllerDevice { get; }
 
     public virtual void Start()
     {

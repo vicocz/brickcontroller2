@@ -1,5 +1,4 @@
 ﻿using Android.Views;
-using BrickController2.Droid.Extensions;
 using BrickController2.PlatformServices.GameController;
 using System;
 using System.Collections.Generic;
@@ -25,11 +24,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
         {
             // initialize properties
             Name = GetDisplayName(gamePad);
-            VendorId = gamePad.VendorId;
-            ProductId = gamePad.ProductId;
             ControllerNumber = gamePad.ControllerNumber;
             ControllerId = GetControllerIdFromNumber(gamePad.ControllerNumber);
-            UniquePersistantDeviceId = gamePad.GetUniquePersistentDeviceId();
         }
 
         internal bool OnButtonEvent(KeyEvent e, float buttonValue)

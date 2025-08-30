@@ -10,8 +10,7 @@ namespace BrickController2.PlatformServices.GameController;
 /// <summary>
 /// Base class for implementation of <see cref="IGameControllerService"/>
 /// </summary>
-public abstract class GameControllerServiceBase<TGameController> : IGameControllerServiceInternal
-    where TGameController : class, IGameController
+public abstract class GameControllerServiceBase : IGameControllerServiceInternal
 {
     protected readonly object _lockObject = new();
     protected readonly ILogger _logger;
@@ -21,7 +20,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
     /// <summary>
     /// Collection of available gamepads having <see cref="IGameController.ControllerId"/>
     /// </summary>
-    private readonly List<TGameController> _availableControllers = [];
+    private readonly List<IGameController> _availableControllers = [];
 
     protected GameControllerServiceBase(ILogger logger)
     {
@@ -97,6 +96,8 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         foreach (var controller in _availableControllers)
         {
             controller.Stop();
+
+            (controller as IDisposable)?.Dispose();
         }
         _availableControllers.Clear();
         // notify removal
@@ -119,7 +120,7 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected void AddController(TGameController controller)
+    protected void AddController(IGameController controller)
     {
         lock (_lockObject)
         {
@@ -130,27 +131,36 @@ public abstract class GameControllerServiceBase<TGameController> : IGameControll
         }
     }
 
-    protected bool TryRemove(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
+    protected bool TryRemove<TGameController>(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
+        where TGameController : class, IGameController
     {
         lock (_lockObject)
         {
             // remove and stop the controller
-            if (_availableControllers.Remove(predicate, out controller))
+            if (_availableControllers.Remove(x => x is TGameController tc && predicate(tc), out var removed))
             {
+                controller = (TGameController)removed; // safe due to pattern match above
                 controller.Stop();
+
                 // notify removal
                 OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controller);
+
+                (controller as IDisposable)?.Dispose();
+
                 return true;
             }
+
+            controller = null;
             return false;
         }
     }
 
-    protected bool TryGetController(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
+    protected bool TryGetController<TGameController>(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
+        where TGameController : class, IGameController
     {
         lock (_lockObject)
         {
-            controller = _availableControllers.FirstOrDefault(x => predicate(x));
+            controller = _availableControllers.OfType<TGameController>().FirstOrDefault(x => predicate(x));
             return controller is not null;
         }
     }

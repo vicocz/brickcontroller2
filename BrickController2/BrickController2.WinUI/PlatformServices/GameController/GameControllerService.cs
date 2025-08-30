@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
-internal class GameControllerService : GameControllerServiceBase<GamepadController>, IGameControllerService
+internal class GameControllerService : GameControllerServiceBase, IGameControllerService
 {
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
@@ -53,9 +53,9 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
             // ensure stopped in UI thread
             _ = _mainThreadService.RunOnMainThread(() =>
             {
-                if (TryRemove(x => x.Gamepad == gamepad, out var controller))
+                if (TryRemove<GamepadController>(x => x.ControllerDevice == gamepad, out var controller))
                 {
-                    _logger.LogInformation("Gamepad has been removed ControllerId:{controllerId}", controller.ControllerId);
+                    _logger.LogInformation("ControllerDevice has been removed ControllerId:{controllerId}", controller.ControllerId);
                 }
             });
         }

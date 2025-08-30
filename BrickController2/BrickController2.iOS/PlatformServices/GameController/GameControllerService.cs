@@ -1,285 +1,94 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using BrickController2.PlatformServices.GameController;
 using Foundation;
 using GameController;
-
-using static BrickController2.PlatformServices.GameController.GameControllers;
+using Microsoft.Extensions.Logging;
 
 namespace BrickController2.iOS.PlatformServices.GameController
 {
-    public class GameControllerService : IGameControllerService
+    internal class GameControllerService : GameControllerServiceBase
     {
-        private enum GameControllerType
-        {
-            Unknown,
-            Micro,
-            Standard,
-            Extended
-        };
-
-        private readonly object _lockObject = new object();
-
-        private readonly IDictionary<string, float> _lastControllerEventValueMap = new Dictionary<string, float>();
-
-        private GCController? _gameController;
-        private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
         private NSObject? _didConnectNotification;
         private NSObject? _didDisconnectNotification;
 
-        public event EventHandler<GameControllerEventArgs> GameControllerEvent
+        public GameControllerService(ILogger<GameControllerService> logger) 
+            : base(logger)
         {
-            add
-            {
-                lock (_lockObject)
-                {
-                    if (GameControllerEventInternal is null)
-                    {
-                        if (GCController.Controllers.Length == 0)
-                        {
-                            FindController();
-                        }
-                        else
-                        {
-                            FoundController();
-                        }
-                    }
-
-                    GameControllerEventInternal += value;
-                }
-            }
-
-            remove
-            {
-                lock (_lockObject)
-                {
-                    GameControllerEventInternal -= value;
-
-                    if (GameControllerEventInternal is null)
-                    {
-                        GCController.StopWirelessControllerDiscovery();
-                        _didConnectNotification?.Dispose();
-                        _didDisconnectNotification?.Dispose();
-                        _didConnectNotification = null;
-                        _didDisconnectNotification = null;
-                        _gameController?.Dispose();
-                        _gameController = null;
-                    }
-                }
-            }
         }
 
-        public event EventHandler<GameControllersChangedEventArgs>? GameControllersChangedEvent;
+        public override bool IsControllerIdSupported => true;
 
-        public bool IsControllerIdSupported => false; // ToDo: implement ControllerManagement
+        protected override void InitializeCurrentControllers()
+        {
+            // get all available gamepads
+            if (GCController.Controllers.Any())
+            {
+                AddDevices(GCController.Controllers);
+            }
 
-        private void FindController()
+            // register GCController events
+            _didDisconnectNotification = GCController.Notifications.ObserveDidDisconnect((sender, args) =>
+            {
+                var controller = args.Notification.Object as GCController;
+                if (controller != null)
+                {
+                    ControllerRemoved(controller);
+                }
+            });
+            _didConnectNotification = GCController.Notifications.ObserveDidConnect((sender, args) =>
+            {
+                var controller = args.Notification.Object as GCController;
+                if (controller != null)
+                {
+                    ControllerAdded(controller);
+                }
+            });
+
+            GCController.StartWirelessControllerDiscovery(() => { });
+        }
+
+
+        protected override void RemoveAllControllers()
+        {
+            GCController.StopWirelessControllerDiscovery();
+            _didConnectNotification?.Dispose();
+            _didDisconnectNotification?.Dispose();
+            _didConnectNotification = null;
+            _didDisconnectNotification = null;
+
+            base.RemoveAllControllers();
+        }
+
+        private void ControllerRemoved(GCController controller)
         {
             lock (_lockObject)
             {
-                _didConnectNotification = GCController.Notifications.ObserveDidConnect((sender, args) =>
+                if (TryRemove<GamepadController>(x => x.ControllerDevice == controller, out var controllerDevice))
                 {
-                    FoundController();
-                });
-
-                GCController.StartWirelessControllerDiscovery(() => { });
+                    _logger.LogInformation("ControllerDevice has been removed ControllerId:{controllerId}", controllerDevice.ControllerId);
+                }
             }
         }
 
-        private void FoundController()
+        private void ControllerAdded(GCController controller)
+        {
+            AddDevices([controller]);
+        }
+
+        private void AddDevices(IEnumerable<GCController> controllers)
         {
             lock (_lockObject)
             {
-                _gameController = GCController.Controllers.FirstOrDefault();
-
-                if (_gameController is not null)
+                foreach (var gamepad in controllers)
                 {
-                    GCController.StopWirelessControllerDiscovery();
-                    _didConnectNotification?.Dispose();
-                    _didConnectNotification = null;
+                    // get first unused number and apply it
+                    int controllerNumber = GetFirstUnusedControllerNumber();
+                    var newController = new GamepadController(this, gamepad, controllerNumber);
 
-                    _didDisconnectNotification = GCController.Notifications.ObserveDidDisconnect((sender, args) =>
-                    {
-                        FindController();
-                    });
-
-                    switch (GetGameControllerType(_gameController))
-                    {
-                        case GameControllerType.Micro:
-                            SetupMicroGamePad(_gameController.MicroGamepad!);
-                            break;
-
-                        case GameControllerType.Standard:
-#pragma warning disable CA1422 // Validate platform compatibility
-                            SetupGamePad(_gameController.Gamepad!);
-#pragma warning restore CA1422 // Validate platform compatibility
-                            break;
-
-                        case GameControllerType.Extended:
-                            SetupExtendedGamePad(_gameController.ExtendedGamepad!);
-                            break;
-                    }
+                    AddController(newController);
                 }
             }
-        }
-
-        private GameControllerType GetGameControllerType(GCController controller)
-        {
-            try
-            {
-                if (controller.MicroGamepad is not null)
-                {
-                    return GameControllerType.Micro;
-                }
-            }
-            catch (InvalidCastException) { }
-
-            try
-            {
-#pragma warning disable CA1422 // Validate platform compatibility
-                if (controller.Gamepad is not null)
-                {
-                    return GameControllerType.Standard;
-                }
-#pragma warning restore CA1422 // Validate platform compatibility
-            }
-            catch (InvalidCastException) { }
-
-            try
-            {
-                if (controller.ExtendedGamepad is not null)
-                {
-                    return GameControllerType.Extended;
-                }
-            }
-            catch (InvalidCastException) { }
-
-            return GameControllerType.Unknown;
-        }
-
-        private void SetupMicroGamePad(GCMicroGamepad gamePad)
-        {
-            SetupDigitalButtonInput(gamePad.ButtonA, "Button_A");
-            SetupDigitalButtonInput(gamePad.ButtonX, "Button_X");
-
-            SetupDPadInput(gamePad.Dpad, "DPad");
-        }
-
-        private void SetupGamePad(GCGamepad gamePad)
-        {
-#pragma warning disable CA1422 // Validate platform compatibility
-            SetupDigitalButtonInput(gamePad.ButtonA, "Button_A");
-            SetupDigitalButtonInput(gamePad.ButtonB, "Button_B");
-            SetupDigitalButtonInput(gamePad.ButtonX, "Button_X");
-            SetupDigitalButtonInput(gamePad.ButtonY, "Button_Y");
-
-            SetupDigitalButtonInput(gamePad.LeftShoulder, "LeftShoulder");
-            SetupDigitalButtonInput(gamePad.RightShoulder, "RightShoulder");
-
-            SetupDPadInput(gamePad.DPad, "DPad");
-#pragma warning restore CA1422 // Validate platform compatibility
-        }
-
-        private void SetupExtendedGamePad(GCExtendedGamepad gamePad)
-        {
-            SetupDigitalButtonInput(gamePad.ButtonA, "Button_A");
-            SetupDigitalButtonInput(gamePad.ButtonB, "Button_B");
-            SetupDigitalButtonInput(gamePad.ButtonX, "Button_X");
-            SetupDigitalButtonInput(gamePad.ButtonY, "Button_Y");
-
-            SetupDigitalButtonInput(gamePad.LeftShoulder, "LeftShoulder");
-            SetupDigitalButtonInput(gamePad.RightShoulder, "RightShoulder");
-
-            SetupAnalogButtonInput(gamePad.LeftTrigger, "LeftTrigger");
-            SetupAnalogButtonInput(gamePad.RightTrigger, "RightTrigger");
-
-            SetupDPadInput(gamePad.DPad, "DPad");
-
-            SetupJoyInput(gamePad.LeftThumbstick, "LeftThumbStick");
-            SetupJoyInput(gamePad.RightThumbstick, "RightThumbStick");
-        }
-
-        private void SetupDigitalButtonInput(GCControllerButtonInput button, string name)
-        {
-            button.ValueChangedHandler = (btn, value, isPressed) =>
-            {
-                value = isPressed ? 1.0F : 0.0F;
-
-                if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
-                {
-                    // ToDo: find ControllerId
-                    string controllerId = GetControllerIdFromIndex(0);
-
-                    _lastControllerEventValueMap[name] = value;
-                    GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Button, name, value));
-                }
-            };
-        }
-
-        private void SetupAnalogButtonInput(GCControllerButtonInput button, string name)
-        {
-            button.ValueChangedHandler = (btn, value, isPressed) =>
-            {
-                value = value < 0.1 ? 0.0F : value;
-
-                if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
-                {
-                    // ToDo: find ControllerId
-                    string controllerId = GetControllerIdFromIndex(0);
-
-                    _lastControllerEventValueMap[name] = value;
-                    GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
-                }
-            };
-        }
-
-        private void SetupDPadInput(GCControllerDirectionPad dPad, string name)
-        {
-            SetupDigitalAxisInput(dPad.XAxis, $"{name}_X");
-            SetupDigitalAxisInput(dPad.YAxis, $"{name}_Y");
-        }
-
-        private void SetupDigitalAxisInput(GCControllerAxisInput axis, string name)
-        {
-            axis.ValueChangedHandler = (ax, value) =>
-            {
-                if (value < -0.1F) value = -1.0F;
-                else if (value > 0.1F) value = 1.0F;
-                else value = 0.0F;
-
-                if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
-                {
-                    // ToDo: find ControllerId
-                    string controllerId = GetControllerIdFromIndex(0);
-
-                    GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
-                    _lastControllerEventValueMap[name] = value;
-                }
-            };
-        }
-
-        private void SetupJoyInput(GCControllerDirectionPad joy, string name)
-        {
-            SetupAnalogAxisInput(joy.XAxis, $"{name}_X");
-            SetupAnalogAxisInput(joy.YAxis, $"{name}_Y");
-        }
-
-        private void SetupAnalogAxisInput(GCControllerAxisInput axis, string name)
-        {
-            axis.ValueChangedHandler = (ax, value) =>
-            {
-                value = AdjustControllerValue(value);
-
-                if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
-                {
-                    // ToDo: find ControllerId
-                    string controllerId = GetControllerIdFromIndex(0);
-
-                    GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
-                    _lastControllerEventValueMap[name] = value;
-                }
-            };
         }
     }
 }

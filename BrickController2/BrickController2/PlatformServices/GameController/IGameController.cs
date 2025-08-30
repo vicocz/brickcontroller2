@@ -19,16 +19,6 @@ public interface IGameController
     string Name { get; }
 
     /// <summary>
-    /// Vendor ID of the game controller.
-    /// </summary>
-    int VendorId { get; }
-
-    /// <summary>
-    /// Product ID of the game controller.
-    /// </summary>
-    int ProductId { get; }
-
-    /// <summary>
     /// Start the controller and publishing of its events
     /// </summary>
     void Start();

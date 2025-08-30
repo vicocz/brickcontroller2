@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
-    internal class GameControllerService : GameControllerServiceBase<GamepadController>
+    internal class GameControllerService : GameControllerServiceBase
     {
         private readonly InputManager _inputManager;
 
@@ -36,9 +36,9 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceRemoved(int deviceId)
         {
-            if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
+            if (TryRemove<GamepadController>(x => x.ControllerDevice.Id == deviceId, out var controller))
             {
-                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                _logger.LogInformation("ControllerDevice has been removed DeviceId:{id}, ControllerId:{controllerId}",
                     deviceId, controller.ControllerId);
             }
         }
@@ -64,14 +64,14 @@ namespace BrickController2.Droid.PlatformServices.GameController
                     else if (controller != null)
                     {
                         // handle change - remove and then add it again
-                        TryRemove(x => x.Gamepad.Id == deviceId, out _);
+                        TryRemove<GamepadController>(x => x.ControllerDevice.Id == deviceId, out _);
                     }
                     AddGameControllerDevice(device);
                 }
             }
-            else if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
+            else if (TryRemove<GamepadController>(x => x.ControllerDevice.Id == deviceId, out var controller))
             {
-                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                _logger.LogInformation("ControllerDevice has been removed DeviceId:{id}, ControllerId:{controllerId}",
                     deviceId, controller.ControllerId);
             }
         }
@@ -122,7 +122,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         }
 
         private bool TryGetControllerByDeviceId(int deviceId, [MaybeNullWhen(false)] out GamepadController controller)
-            => TryGetController(x => x.Gamepad.Id == deviceId, out controller);
+            => TryGetController(x => x.ControllerDevice.Id == deviceId, out controller);
 
         private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
         {

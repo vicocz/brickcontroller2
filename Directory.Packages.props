@@ -5,6 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Autofac" Version="8.1.1" />
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageVersion Include="EmbedIO" Version="3.5.2" />
     <PackageVersion Include="Microsoft.Maui.Controls" Version="9.0.90" />
     <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.90" />
     <PackageVersion Include="Microsoft.Maui.Essentials" Version="9.0.90" />

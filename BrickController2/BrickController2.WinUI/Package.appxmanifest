@@ -43,6 +43,7 @@
     <rescap:Capability Name="runFullTrust" />
     <Capability Name="internetClient"/>
     <uap:Capability Name="removableStorage"/>
+    <Capability Name="internetClientServer"/>
     <DeviceCapability Name="location"/>
     <DeviceCapability Name="bluetooth"/>
   </Capabilities>

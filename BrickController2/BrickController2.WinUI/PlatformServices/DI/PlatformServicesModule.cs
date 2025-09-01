@@ -5,6 +5,7 @@ using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.Localization;
+using BrickController2.PlatformServices.ModelContextProtocol;
 using BrickController2.PlatformServices.Permission;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.Windows.PlatformServices.BluetoothLE;
@@ -13,6 +14,7 @@ using BrickController2.Windows.PlatformServices.DeviceManagement.MouldKing;
 using BrickController2.Windows.PlatformServices.GameController;
 using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Localization;
+using BrickController2.Windows.PlatformServices.ModelContextProtocol;
 using BrickController2.Windows.PlatformServices.Permission;
 using BrickController2.Windows.PlatformServices.SharedFileStorage;
 
@@ -31,5 +33,6 @@ public class PlatformServicesModule : Module
         builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
         builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
         builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
+        builder.RegisterType<McpServerService>().AsSelf().As<IMcpServerService>().SingleInstance();
     }
 }

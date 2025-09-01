@@ -1,8 +1,10 @@
+using BrickController2.UI.Converters;
 using BrickController2.UI.DI;
 using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.Theme;
+using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
 using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
@@ -27,7 +29,8 @@ namespace BrickController2
             Func<Page, NavigationPage> navigationPageFactory,
             BackgroundService backgroundService,
 			IThemeService themeService,
-			ILocalizationService localizationService)
+			ILocalizationService localizationService,
+            ITranslationService translationService)
 		{
 			InitializeComponent();
 
@@ -49,7 +52,10 @@ namespace BrickController2
 
             localizationService.ApplyCurrentLanguage();
             themeService.ApplyCurrentTheme();
-		}
+
+            // set Converter in Application.Resources
+            Resources["NoAuthTokenToPlaceholderConverter"] = new NoAuthTokenToPlaceholderConverter(translationService);
+        }
 
         internal void ReloadRootPage()
         {

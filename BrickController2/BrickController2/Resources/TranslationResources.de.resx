@@ -717,4 +717,13 @@
   <data name="Language" xml:space="preserve">
     <value>Sprache</value>
   </data>
+  <data name="McpServerAuthToken" xml:space="preserve">
+    <value>Passwort</value>
+  </data>
+  <data name="McpServerAuthTokenValue" xml:space="preserve">
+    <value>Passwort oder leer</value>
+  </data>
+  <data name="NoAuthToken" xml:space="preserve">
+    <value>kein Passwort</value>
+  </data>
 </root>

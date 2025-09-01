@@ -29,10 +29,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/> <!-- Theme -->
+                        <RowDefinition Height="Auto"/> <!-- Divider -->
+                        <RowDefinition Height="Auto"/> <!-- Language -->
+                        <RowDefinition Height="Auto"/> <!-- Divider -->
+                        <RowDefinition Height="Auto"/> <!-- McpServer -->
+                        <RowDefinition Height="Auto"/> <!-- McpServerPort -->
+                        <RowDefinition Height="Auto"/> <!-- McpServerAuthToken -->
+                        <RowDefinition Height="Auto"/> <!-- Divider -->
                     </Grid.RowDefinitions>
                     
                     <!-- Theme -->
@@ -45,6 +49,19 @@
                     <Button Grid.Column="1" Grid.Row="2" Text="{Binding CurrentLanguage}" Command="{Binding SelectLanguageCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
 
                     <BoxView Grid.ColumnSpan="2" Grid.Row="3" Style="{StaticResource DividerBoxViewStyle}" Margin="5,10,5,10"/>                    
+                    <!-- McpServer -->
+                    <Label Grid.Column="0" Grid.Row="4" Text="{extensions:Translate McpServer}" FontSize="Large" VerticalOptions="Center"/>
+                    <Switch Grid.Column="1" Grid.Row="4" IsToggled="{Binding CurrentMcpServerEnabled}" IsEnabled="{Binding McpServerIsAvailable}" HorizontalOptions="EndAndExpand"/>
+
+                    <!-- McpServerPort -->
+                    <Label Grid.Column="0" Grid.Row="5" Text="{extensions:Translate McpServerPort}" FontSize="Medium" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Grid.Row="5" Text="{Binding CurrentMcpServerPort}" Command="{Binding SelectMcpServerPortCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
+
+                    <!-- McpServerAuthToken -->
+                    <Label Grid.Column="0" Grid.Row="6" Text="{extensions:Translate McpServerAuthToken}" FontSize="Medium" VerticalOptions="Center" />
+                    <Button Grid.Column="1" Grid.Row="6" Text="{Binding CurrentMcpServerAuthToken, Converter={StaticResource NoAuthTokenToPlaceholderConverter}}" Command="{Binding SelectMcpServerAuthTokenCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
+
+                    <BoxView Grid.ColumnSpan="2" Grid.Row="7" Style="{StaticResource DividerBoxViewStyle}" Margin="5,10,5,10" />
                 </Grid>
 
             </Grid>

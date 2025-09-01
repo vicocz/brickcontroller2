@@ -28,6 +28,10 @@
 		<ProjectReference Include="..\BrickController2\BrickController2.csproj" />
 	</ItemGroup>
 
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
 	<ItemGroup>
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>

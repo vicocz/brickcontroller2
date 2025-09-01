@@ -19,6 +19,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{5AFB0DE9
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrickController2.Tools", "BrickController2\BrickController2.Tools\BrickController2.Tools.csproj", "{C127AB50-E104-2345-5239-13258E2B7474}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MCPSercer", "MCPSercer", "{12E3959D-03BB-49C4-B382-2188D5CCD111}"
+	ProjectSection(SolutionItems) = preProject
+		BrickController2\MCPServer\claude_desktop_config.json = BrickController2\MCPServer\claude_desktop_config.json
+		BrickController2\MCPServer\mcp_http_bridge.py = BrickController2\MCPServer\mcp_http_bridge.py
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +132,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7981CBBF-BB2F-4AF4-BEF3-3CF0C92DBB23} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{C127AB50-E104-2345-5239-13258E2B7474} = {5AFB0DE9-536E-4C5D-831A-421ADC3EF3D9}
+		{12E3959D-03BB-49C4-B382-2188D5CCD111} = {5AFB0DE9-536E-4C5D-831A-421ADC3EF3D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {024A01F8-4022-4F9E-A006-AC2CABB04620}

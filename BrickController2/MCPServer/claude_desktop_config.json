@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "brickcontroller": {
+      "command": "py",
+      "args": [
+        "C:\\Projects\\brickcontroller2\\BrickController2\\MCPServer\\mcp_http_bridge.py",
+        "--url",
+        "http://localhost:5000",
+        "--token",
+        "YOUR_SECRET_TOKEN_HERE"
+      ]
+    }
+  }
+}

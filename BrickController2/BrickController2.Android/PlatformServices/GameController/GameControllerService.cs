@@ -1,19 +1,25 @@
 ﻿using Android.Views;
 using Android.Hardware.Input;
 using Android.Content;
+using BrickController2.Droid.PlatformServices.ModelContextProtocol;
 using BrickController2.PlatformServices.GameController;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using BrickController2.PlatformServices.ModelContextProtocol;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
-    internal class GameControllerService : GameControllerServiceBase<GamepadController>
+    internal class GameControllerService : GameControllerServiceBase
     {
         private readonly InputManager _inputManager;
+        private readonly McpServerService _mcpServerService;
 
-        public GameControllerService(Context context, ILogger<GameControllerService> logger) :base(logger)
+        public GameControllerService(Context context,
+            McpServerService mcpServerService,
+            ILogger<GameControllerService> logger) :base(logger)
         {
             _inputManager = (InputManager)context.GetSystemService(Context.InputService)!;
+            _mcpServerService = mcpServerService;
         }
 
         public override bool IsControllerIdSupported => true;
@@ -36,9 +42,9 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceRemoved(int deviceId)
         {
-            if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
+            if (TryRemove<GamepadController>(x => x.ControllerDevice.Id == deviceId, out var controller))
             {
-                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                _logger.LogInformation("ControllerDevice has been removed DeviceId:{id}, ControllerId:{controllerId}",
                     deviceId, controller.ControllerId);
             }
         }
@@ -64,14 +70,14 @@ namespace BrickController2.Droid.PlatformServices.GameController
                     else if (controller != null)
                     {
                         // handle change - remove and then add it again
-                        TryRemove(x => x.Gamepad.Id == deviceId, out _);
+                        TryRemove<GamepadController>(x => x.ControllerDevice.Id == deviceId, out _);
                     }
                     AddGameControllerDevice(device);
                 }
             }
-            else if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
+            else if (TryRemove<GamepadController>(x => x.ControllerDevice.Id == deviceId, out var controller))
             {
-                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                _logger.LogInformation("ControllerDevice has been removed DeviceId:{id}, ControllerId:{controllerId}",
                     deviceId, controller.ControllerId);
             }
         }
@@ -98,6 +104,9 @@ namespace BrickController2.Droid.PlatformServices.GameController
 
         protected override void InitializeCurrentControllers()
         {
+            // add McpServer
+            AddMcpServer();
+
             // add any connected game controller
             var deviceIds = _inputManager?.GetInputDeviceIds() ?? [];
             foreach (int deviceId in deviceIds)
@@ -105,6 +114,46 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 if (TryGetGamepadDevice(deviceId, out var device))
                 {
                     AddGameControllerDevice(device);
+                }
+            }
+
+            _mcpServerService.McpServerAdded += McpServerAdded;
+            _mcpServerService.McpServerRemoved += McpServerRemoved; ;
+        }
+
+        protected override void RemoveAllControllers()
+        {
+            _mcpServerService.McpServerAdded -= McpServerAdded;
+            _mcpServerService.McpServerRemoved -= McpServerRemoved; ;
+
+            base.RemoveAllControllers();
+        }
+
+        private void McpServerRemoved(object? sender, McpServer e)
+        {
+            lock (_lockObject)
+            {
+                if (TryRemove<McpServerController>(x => x.ControllerDevice is McpServer, out var controller))
+                {
+                    _logger.LogInformation("McpServer has been removed");
+                }
+            }
+        }
+
+        private void McpServerAdded(object? sender, McpServer e)
+        {
+            AddMcpServer();
+        }
+
+        private void AddMcpServer()
+        {
+            if (_mcpServerService?.Server != null)
+            {
+                lock (_lockObject)
+                {
+                    var newController = new McpServerController(this, _mcpServerService.Server);
+
+                    AddController(newController);
                 }
             }
         }
@@ -122,7 +171,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         }
 
         private bool TryGetControllerByDeviceId(int deviceId, [MaybeNullWhen(false)] out GamepadController controller)
-            => TryGetController(x => x.Gamepad.Id == deviceId, out controller);
+            => TryGetController(x => x.ControllerDevice.Id == deviceId, out controller);
 
         private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
         {

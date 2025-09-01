@@ -717,4 +717,19 @@
   <data name="Language" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="McpServer" xml:space="preserve">
+    <value>MCP Server</value>
+  </data>
+  <data name="McpServerPort" xml:space="preserve">
+    <value>Port</value>
+  </data>
+  <data name="McpServerAuthToken" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="McpServerAuthTokenValue" xml:space="preserve">
+    <value>Password or empty</value>
+  </data>
+  <data name="NoAuthToken" xml:space="preserve">
+    <value>no password</value>
+  </data>
 </root>

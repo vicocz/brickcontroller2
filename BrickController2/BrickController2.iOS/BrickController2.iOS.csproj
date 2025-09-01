@@ -2,21 +2,21 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-    <TargetFrameworks>net9.0-ios</TargetFrameworks>
-    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
+		<TargetFrameworks>net9.0-ios</TargetFrameworks>
+		<RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
 		<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
-    <OutputType>Exe</OutputType>
-		<ApplicationId>com.scn.BrickController2</ApplicationId>
+		<OutputType>Exe</OutputType>
+    <ApplicationId>com.scn.BrickController2</ApplicationId>
 		<RootNamespace>BrickController2.iOS</RootNamespace>
-    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
-	  <BundleResource Remove="Resources\splash.svg" />
+		<BundleResource Remove="Resources\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\splash.svg" />
+		<None Remove="Resources\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -29,14 +29,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Properties\" />
+		<Folder Include="Properties\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiSplashScreen Include="Resources\splash.svg">
-	    <Color>#990000</Color>
-	    <BaseSize>128,128</BaseSize>
-	  </MauiSplashScreen>
+		<MauiSplashScreen Include="Resources\splash.svg">
+			<Color>#990000</Color>
+			<BaseSize>128,128</BaseSize>
+		</MauiSplashScreen>
 	</ItemGroup>
 
 </Project>

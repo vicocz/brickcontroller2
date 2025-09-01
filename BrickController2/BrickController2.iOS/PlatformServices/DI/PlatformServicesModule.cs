@@ -7,12 +7,14 @@ using BrickController2.iOS.PlatformServices.DeviceManagement.CaDA;
 using BrickController2.iOS.PlatformServices.GameController;
 using BrickController2.iOS.PlatformServices.Infrared;
 using BrickController2.iOS.PlatformServices.Localization;
+using BrickController2.iOS.PlatformServices.ModelContextProtocol;
 using BrickController2.iOS.PlatformServices.Permission;
 using BrickController2.iOS.PlatformServices.SharedFileStorage;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.PlatformServices.GameController;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.Localization;
+using BrickController2.PlatformServices.ModelContextProtocol;
 using BrickController2.PlatformServices.Permission;
 using BrickController2.PlatformServices.SharedFileStorage;
 
@@ -32,6 +34,8 @@ namespace BrickController2.iOS.PlatformServices.DI
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
             builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
             builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
+            builder.RegisterType<McpServerBonjourPublisher>().AsSelf().SingleInstance();
+            builder.RegisterType<McpServerService>().AsSelf().As<IMcpServerService>().SingleInstance();
         }
     }
 }

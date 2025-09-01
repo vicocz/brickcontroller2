@@ -28,7 +28,7 @@
 	<ItemGroup>
 		<PackageReference Include="Autofac" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" />
-		<PackageReference Include="Microsoft.Maui.Controls" />
+    <PackageReference Include="Microsoft.Maui.Controls" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
 		<PackageReference Include="Microsoft.Maui.Essentials" />
 		<ProjectReference Include="..\BrickController2\BrickController2.csproj" />

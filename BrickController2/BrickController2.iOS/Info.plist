@@ -40,7 +40,7 @@
 	<string>Location access is required to use SBrick, BuWizz or Powered-Up devices.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera is required in order to import a creation via QR code from another application.</string>
-	<key>CFBundleShortVersionString</key>
+  <key>CFBundleShortVersionString</key>
 	<string>3.4</string>
 	<key>CFBundleVersion</key>
 	<string>50</string>
@@ -64,5 +64,16 @@
 	<string>LaunchScreen</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+  <key>NSBonjourServices</key>
+  <array>
+    <string>_http._tcp</string>
+  </array>
+  <key>NSLocalNetworkUsageDescription</key>
+  <string>To act as a Model Context Protocol (MCP) server, local network access is required.</string>
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+  </dict>
 </dict>
 </plist>

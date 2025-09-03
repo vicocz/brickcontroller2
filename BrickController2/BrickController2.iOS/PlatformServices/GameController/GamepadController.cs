@@ -24,15 +24,15 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
     /// </summary>
     /// <param name="service">reference to GameControllerService</param>
     /// <param name="controller">reference to InputDevice</param>
-    public GamepadController(GameControllerService service, GCController controller, int controllerNumber)
+    public GamepadController(GameControllerService service, GCController controller)
         : base(service, controller)
     {
         // initialize properties
         GameControllerType gameControllerType = GetGameControllerType(controller);
 
         Name = GetDisplayName(gameControllerType);
-        ControllerNumber = controllerNumber;
-        ControllerId = GetControllerIdFromNumber(controllerNumber);
+        ControllerNumber = (int)controller.PlayerIndex;
+        ControllerId = GetControllerIdFromNumber(ControllerNumber);
 
         SetupController(controller, gameControllerType);
     }
@@ -146,10 +146,6 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
             {
-                // ToDo: find ControllerId
-                //string controllerId = GetControllerIdFromIndex(0);
-                //GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Button, name, value));
-
                 RaiseEvent(GameControllerEventType.Button, name, value);
 
                 _lastControllerEventValueMap[name] = value;
@@ -165,10 +161,6 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
             {
-                // ToDo: find ControllerId
-                //string controllerId = GetControllerIdFromIndex(0);
-                //GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
-
                 RaiseEvent(GameControllerEventType.Axis, name, value);
 
                 _lastControllerEventValueMap[name] = value;
@@ -192,10 +184,6 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
             {
-                // ToDo: find ControllerId
-                //string controllerId = GetControllerIdFromIndex(0);
-                //GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
-
                 RaiseEvent(GameControllerEventType.Axis, name, value);
 
                 _lastControllerEventValueMap[name] = value;
@@ -217,10 +205,6 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
             {
-                // ToDo: find ControllerId
-                //string controllerId = GetControllerIdFromIndex(0);
-                //GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(controllerId, GameControllerEventType.Axis, name, value));
-
                 RaiseEvent(GameControllerEventType.Axis, name, value);
 
                 _lastControllerEventValueMap[name] = value;

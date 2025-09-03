@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.GameController;
 using Foundation;
 using GameController;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickController2.iOS.PlatformServices.GameController
 {
@@ -82,11 +83,40 @@ namespace BrickController2.iOS.PlatformServices.GameController
             {
                 foreach (var gamepad in controllers)
                 {
+                    // If PlayerIndex is unset then assign the next free player index
+                    AssignNextAvailablePlayerIndex(gamepad);
+
                     // get first unused number and apply it
-                    int controllerNumber = GetFirstUnusedControllerNumber();
-                    var newController = new GamepadController(this, gamepad, controllerNumber);
+                    var newController = new GamepadController(this, gamepad);
 
                     AddController(newController);
+                }
+            }
+        }
+
+        /// <summary>
+        /// If PlayerIndex is unset then assign the next free player index
+        /// </summary>
+        /// <param name="controller"></param>
+        private void AssignNextAvailablePlayerIndex(GCController controller)
+        {
+            if (controller.PlayerIndex != GCControllerPlayerIndex.Unset)
+            {
+                return;
+            }
+
+            var usedIndexes = GCController.Controllers
+                .Where(c => c.PlayerIndex != GCControllerPlayerIndex.Unset)
+                .Select(c => c.PlayerIndex)
+                .ToHashSet();
+
+            foreach (GCControllerPlayerIndex index in Enum.GetValues(typeof(GCControllerPlayerIndex)))
+            {
+                if (index == GCControllerPlayerIndex.Unset) continue;
+                if (!usedIndexes.Contains(index))
+                {
+                    controller.PlayerIndex = index;
+                    break;
                 }
             }
         }

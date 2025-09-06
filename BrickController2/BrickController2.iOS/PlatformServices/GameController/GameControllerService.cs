@@ -31,16 +31,14 @@ namespace BrickController2.iOS.PlatformServices.GameController
             // register GCController events
             _didDisconnectNotification = GCController.Notifications.ObserveDidDisconnect((sender, args) =>
             {
-                var controller = args.Notification.Object as GCController;
-                if (controller != null)
+                if (args.Notification.Object is GCController controller)
                 {
                     ControllerRemoved(controller);
                 }
             });
             _didConnectNotification = GCController.Notifications.ObserveDidConnect((sender, args) =>
             {
-                var controller = args.Notification.Object as GCController;
-                if (controller != null)
+                if (args.Notification.Object is GCController controller)
                 {
                     ControllerAdded(controller);
                 }

@@ -65,7 +65,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
             {
                 if (TryRemove<GamepadController>(x => x.ControllerDevice == controller, out var controllerDevice))
                 {
-                    _logger.LogInformation("ControllerDevice has been removed ControllerId:{controllerId}", controllerDevice.ControllerId);
+                    _logger.LogInformation("Controller device has been removed ControllerId:{controllerId}", controllerDevice.ControllerId);
                 }
             }
         }

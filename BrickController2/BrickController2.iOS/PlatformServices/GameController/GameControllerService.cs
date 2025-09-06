@@ -10,6 +10,11 @@ namespace BrickController2.iOS.PlatformServices.GameController
 {
     internal class GameControllerService : GameControllerServiceBase
     {
+        private static readonly GCControllerPlayerIndex[] ValidPlayerIndexes = Enum.GetValues(typeof(GCControllerPlayerIndex))
+            .Cast<GCControllerPlayerIndex>()
+            .Where(i => i != GCControllerPlayerIndex.Unset)
+            .ToArray();
+
         private NSObject? _didConnectNotification;
         private NSObject? _didDisconnectNotification;
 
@@ -99,18 +104,15 @@ namespace BrickController2.iOS.PlatformServices.GameController
         private void AssignNextAvailablePlayerIndex(GCController controller)
         {
             if (controller.PlayerIndex != GCControllerPlayerIndex.Unset)
-            {
                 return;
-            }
 
             var usedIndexes = GCController.Controllers
                 .Where(c => c.PlayerIndex != GCControllerPlayerIndex.Unset)
                 .Select(c => c.PlayerIndex)
                 .ToHashSet();
 
-            foreach (GCControllerPlayerIndex index in Enum.GetValues(typeof(GCControllerPlayerIndex)))
+            foreach (var index in ValidPlayerIndexes)
             {
-                if (index == GCControllerPlayerIndex.Unset) continue;
                 if (!usedIndexes.Contains(index))
                 {
                     controller.PlayerIndex = index;

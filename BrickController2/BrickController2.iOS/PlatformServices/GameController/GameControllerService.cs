@@ -79,13 +79,13 @@ namespace BrickController2.iOS.PlatformServices.GameController
         {
             lock (_lockObject)
             {
-                foreach (var gamepad in controllers)
+                foreach (var controller in controllers)
                 {
                     // If PlayerIndex is unset then assign the next free player index
-                    AssignNextAvailablePlayerIndex(gamepad);
+                    AssignNextAvailablePlayerIndex(controller);
 
                     // get first unused number and apply it
-                    var newController = new GamepadController(this, gamepad);
+                    var newController = new GamepadController(this, controller);
 
                     AddController(newController);
                 }

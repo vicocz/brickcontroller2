@@ -36,7 +36,7 @@ public abstract class GamepadControllerBase<TControllerDevice> : IGameController
 
 
     /// <summary>
-    /// Native instance of controllerdevice
+    /// Native instance of controller device
     /// </summary>
     public TControllerDevice ControllerDevice { get; }
 

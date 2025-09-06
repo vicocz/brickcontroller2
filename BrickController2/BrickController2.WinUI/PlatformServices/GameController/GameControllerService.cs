@@ -55,7 +55,7 @@ internal class GameControllerService : GameControllerServiceBase, IGameControlle
             {
                 if (TryRemove<GamepadController>(x => x.ControllerDevice == gamepad, out var controller))
                 {
-                    _logger.LogInformation("ControllerDevice has been removed ControllerId:{controllerId}", controller.ControllerId);
+                    _logger.LogInformation("Controller device has been removed ControllerId:{controllerId}", controller.ControllerId);
                 }
             });
         }

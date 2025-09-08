@@ -1,5 +1,4 @@
 ﻿using System;
-using BrickController2.Helpers;
 
 namespace BrickController2.Protocols;
 
@@ -9,17 +8,21 @@ namespace BrickController2.Protocols;
 public static class CryptTools
 {
     /// <summary>
-    /// crypt data-array with seed and ctxvalues
+    /// Generates an RF payload by combining and processing the provided seed, header, and data arrays.
     /// </summary>
-    /// <param name="seed">seed array</param>
-    /// <param name="header">header array to encrypt</param>
-    /// <param name="data">data array to encrypt</param>
-    /// <param name="headerOffset">offset for header data: android=0x0f (15) iOS=0xd (13)</param>
-    /// <param name="ctxValue1">ctx value1 for encryption</param>
-    /// <param name="ctxValue2">ctx value2 for encryption</param>
-    /// <param name="rfPayload">crypted array</param>
-    /// <param name="rfPayloadOffset">start offset for crypted data</param>
-    /// <returns>size of crypted array</returns>
+    /// <remarks>The method combines the header, a reversed and inverted version of the seed, and the data
+    /// array, appends a CRC16 checksum, and applies two levels of whitening using the provided context values. The
+    /// resulting RF payload is written to the specified offset in the <paramref name="rfPayload"/> array.</remarks>
+    /// <param name="seed">The seed array used for generating the RF payload. The array is reversed and processed during the operation.</param>
+    /// <param name="header">The header array to include at the beginning of the RF payload.</param>
+    /// <param name="data">The data array to include in the RF payload after the header and seed.</param>
+    /// <param name="headerOffset">The offset in the RF payload where the header should be placed.</param>
+    /// <param name="ctxValue1">The first context value used for whitening the seed, data, and checksum.</param>
+    /// <param name="ctxValue2">The second context value used for whitening the entire RF payload.</param>
+    /// <param name="rfPayload">The output array where the generated RF payload will be written.</param>
+    /// <param name="rfPayloadOffset">The offset in the <paramref name="rfPayload"/> array where the RF payload should be written. Defaults to 0.</param>
+    /// <returns>The total length of the generated RF payload written to <paramref name="rfPayload"/>, or 0 if the <paramref
+    /// name="rfPayload"/> array does not have sufficient space to hold the result.</returns>
     public static int GetRfPayload(byte[] seed, byte[] header, byte[] data, int headerOffset, byte ctxValue1, byte ctxValue2, byte[] rfPayload, int rfPayloadOffset = 0)
     {
         const int checksumLength = 2;
@@ -33,43 +36,49 @@ public static class CryptTools
             return 0;
         }
 
-        int seedOffset = headerOffset + headerLength;  // 0x12 (18) 
+        int seedOffset = headerOffset + headerLength;
         int dataOffset = seedOffset + seedLength;
         int checksumOffset = dataOffset + dataLength;
-
         int resultBufferLength = checksumOffset + checksumLength;
 
-        byte[] resultBuffer = new byte[resultBufferLength];
+        Span<byte> resultBuffer = stackalloc byte[resultBufferLength];
 
-        Buffer.BlockCopy(header, 0, resultBuffer, headerOffset, header.Length);
+        // Copy header
+        header.AsSpan().CopyTo(resultBuffer.Slice(headerOffset, headerLength));
 
-        // reverse-copy seed-array into resultBuffer after initValues (offset 18)
+        // Reverse-copy seed-array into resultBuffer after header
         for (int index = 0; index < seedLength; index++)
         {
             resultBuffer[seedOffset + index] = seed[seedLength - 1 - index];
         }
 
-        // invert bytes of initValues and seed-array in resultBuffer
+        // Invert bytes of header and seed-array in resultBuffer
         for (int index = 0; index < headerLength + seedLength; index++)
         {
             resultBuffer[headerOffset + index] = Reverse(resultBuffer[headerOffset + index]);
         }
 
-        // copy dataArray into resultBuffer after initValues and seed-array
-        Buffer.BlockCopy(data, 0, resultBuffer, dataOffset, dataLength);
+        // Copy data
+        data.AsSpan().CopyTo(resultBuffer.Slice(dataOffset, dataLength));
 
+        // Write checksum
         ushort checksum = CheckCRC16(seed, data);
-        resultBuffer.SetUInt16(checksum, checksumOffset);
+        if (!BitConverter.TryWriteBytes(resultBuffer.Slice(checksumOffset, checksumLength), checksum))
+        {
+            return 0;
+        }
 
-        byte[] ctxArray1 = new byte[7];
-        WhiteningInit(ctxValue1, ctxArray1); // 0x3f (63): 1111111
+        // Whitening
+        Span<byte> ctxArray1 = stackalloc byte[7];
+        WhiteningInit(ctxValue1, ctxArray1);
         WhiteningEncode(resultBuffer, seedOffset, seedLength + dataLength + checksumLength, ctxArray1);
 
-        byte[] ctxArray2 = new byte[7];
-        WhiteningInit(ctxValue2, ctxArray2); // 0x26 (38): 1101110
+        Span<byte> ctxArray2 = stackalloc byte[7];
+        WhiteningInit(ctxValue2, ctxArray2);
         WhiteningEncode(resultBuffer, 0, resultBufferLength, ctxArray2);
 
-        Buffer.BlockCopy(resultBuffer, headerOffset, rfPayload, rfPayloadOffset, resultArrayLength);
+        // Copy result to rfPayload
+        resultBuffer.Slice(headerOffset, resultArrayLength).CopyTo(rfPayload.AsSpan(rfPayloadOffset, resultArrayLength));
 
         return resultArrayLength;
     }
@@ -119,101 +128,100 @@ public static class CryptTools
     }
 
     /// <summary>
-    /// calculate crc16
+    /// Computes the CRC-16 checksum for the given input byte arrays using the CRC-16-CCITT algorithm.
     /// </summary>
-    /// <param name="array1">first array</param>
-    /// <param name="array2">second array</param>
-    /// <returns></returns>
+    /// <remarks>This method processes the bytes in <paramref name="array1"/> in reverse order and the bytes
+    /// in <paramref name="array2"/> in their original order. The CRC-16-CCITT algorithm is used with an initial value
+    /// of 0xFFFF and a polynomial of 0x1021. The result is inverted and XORed with 0xFFFF before being
+    /// returned.</remarks>
+    /// <param name="array1">The first byte array to include in the CRC-16 calculation. Cannot be null.</param>
+    /// <param name="array2">The second byte array to include in the CRC-16 calculation. Cannot be null.</param>
+    /// <returns>A 16-bit unsigned integer representing the computed CRC-16 checksum.</returns>
     public static ushort CheckCRC16(byte[] array1, byte[] array2)
     {
-        int array1Length = array1.Length;
+        int result = 0xFFFF;
 
-        int result = 0xffff;
-        for (int index = 0; index < array1Length; index++)
+        // Process array1 in reverse order
+        for (int i = array1.Length - 1; i >= 0; i--)
         {
-            result ^= (ushort)(array1[array1Length -1 - index] << 8);
-
-            for (int local_24 = 0; local_24 < 8; local_24++)
+            result ^= array1[i] << 8;
+            for (int j = 0; j < 8; j++)
             {
-                if ((result & 0x8000) == 0)
-                {
-                    result = result << 1;
-                }
-                else
-                {
-                    result = result << 1 ^ 0x1021;
-                }
+                result = (result & 0x8000) == 0 ? result << 1 : (result << 1) ^ 0x1021;
             }
         }
 
-        int array2Length = array2.Length;
-        for (int index = 0; index < array2Length; index++)
+        // Process array2 in forward order, with bit inversion
+        for (int i = 0; i < array2.Length; i++)
         {
-            byte cVar1 = Reverse(array2[index]);
-
-            result = result ^ (ushort)(cVar1 << 8);
-
-            for (int local_2c = 0; local_2c < 8; local_2c++)
+            result ^= Reverse(array2[i]) << 8;
+            for (int j = 0; j < 8; j++)
             {
-                if ((result & 0x8000) == 0)
-                {
-                    result = result << 1;
-                }
-                else
-                {
-                    result = result << 1 ^ 0x1021;
-                }
+                result = (result & 0x8000) == 0 ? result << 1 : (result << 1) ^ 0x1021;
             }
         }
-        ushort result_inverse = Reverse((ushort)result);
-        return (ushort)(result_inverse ^ 0xffff);
+
+        // Final inversion and XOR
+        return (ushort)(Reverse((ushort)result) ^ 0xFFFF);
     }
-
+    
     /// <summary>
-    /// initialize ctx array
+    /// Initializes a whitening context by extracting individual bits from the specified value.
     /// </summary>
-    /// <param name="val">value to init</param>
-    /// <param name="ctx">byte[7] to be initialized</param>
-    public static void WhiteningInit(byte val, byte[] ctx)
+    /// <remarks>The <paramref name="ctx"/> span must have a length of at least 7. If the span is smaller, 
+    /// the method will throw an <see cref="IndexOutOfRangeException"/>.</remarks>
+    /// <param name="val">The input byte value from which bits are extracted.</param>
+    /// <param name="ctx">A span of bytes representing the whitening context. The first element is set to 1,  and the subsequent elements
+    /// <param name="ctx">A span of bytes representing the whitening context. The first element is set to 1, and the subsequent elements
+    /// (indices 1 through 6) are populated with the individual bits of <paramref name="val"/>, starting from the most
+    /// significant bit (bit 5) to the least significant bit (bit 0).</param>
+    public static void WhiteningInit(byte val, Span<byte> ctx)
     {
         ctx[0] = 1;
-        ctx[1] = (byte)(val >> 5 & 1);
-        ctx[2] = (byte)(val >> 4 & 1);
-        ctx[3] = (byte)(val >> 3 & 1);
-        ctx[4] = (byte)(val >> 2 & 1);
-        ctx[5] = (byte)(val >> 1 & 1);
+        ctx[1] = (byte)((val >> 5) & 1);
+        ctx[2] = (byte)((val >> 4) & 1);
+        ctx[3] = (byte)((val >> 3) & 1);
+        ctx[4] = (byte)((val >> 2) & 1);
+        ctx[5] = (byte)((val >> 1) & 1);
         ctx[6] = (byte)(val & 1);
     }
 
     /// <summary>
-    /// encode byte[]
+    /// Applies a whitening transformation to a specified segment of a byte array.
     /// </summary>
-    /// <param name="data">byte[]</param>
-    /// <param name="dataStartIndex">startindex of bytes to encode</param>
-    /// <param name="len">length of bytearray</param>
-    /// <param name="ctx">ctx array</param>
-    public static void WhiteningEncode(byte[] data, int dataStartIndex, int len, byte[] ctx)
+    /// <remarks>The whitening transformation modifies the specified segment of the <paramref name="data"/>
+    /// array in-place by XORing each bit with a value derived from the <paramref name="ctx"/>. Ensure that the
+    /// <paramref name="ctx"/> span is correctly initialized and that the range specified by <paramref
+    /// name="dataStartIndex"/> and <paramref name="len"/> is valid within the <paramref name="data"/> array.</remarks>
+    /// <param name="data">The byte array containing the data to be transformed. The transformation is applied in-place.</param>
+    /// <param name="dataStartIndex">The starting index in the <paramref name="data"/> array where the transformation begins.</param>
+    /// <param name="len">The number of bytes to transform, starting from <paramref name="dataStartIndex"/>.</param>
+    /// <param name="ctx">A span of bytes representing the context used for the whitening transformation. This must be properly
+    /// initialized before calling the method.</param>
+    public static void WhiteningEncode(Span<byte> data, int dataStartIndex, int len, Span<byte> ctx)
     {
         for (int index = 0; index < len; index++)
         {
             byte currentByte = data[dataStartIndex + index];
             int currentResult = 0;
-            for (byte bitIndex = 0; bitIndex < 8; bitIndex++)
+            for (int bitIndex = 0; bitIndex < 8; bitIndex++)
             {
                 byte uVar2 = WhiteningOutput(ctx);
-                currentResult = (int)((uVar2 ^ currentByte >> (bitIndex & 0x1f) & 1U) << (bitIndex & 0x1f)) + currentResult;
+                currentResult |= ((uVar2 ^ ((currentByte >> bitIndex) & 1)) << bitIndex);
             }
             data[dataStartIndex + index] = (byte)currentResult;
         }
-        return;
     }
 
     /// <summary>
-    /// 
+    /// Performs a whitening operation on the provided context and returns the updated value at the first position.
     /// </summary>
-    /// <param name="ctx"></param>
-    /// <returns></returns>
-    private static byte WhiteningOutput(byte[] ctx)
+    /// <remarks>This method modifies the input span in place by shifting and transforming its elements.  The
+    /// operation involves a bitwise XOR between specific elements of the span, and the result is stored in the fourth
+    /// position.</remarks>
+    /// <param name="ctx">A span of bytes representing the context to be transformed. The span must contain at least 7 elements.</param>
+    /// <returns>The byte value at the first position of the context after the whitening operation.</returns>
+    private static byte WhiteningOutput(Span<byte> ctx)
     {
         byte value_3 = ctx[3];
         byte value_6 = ctx[6];

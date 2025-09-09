@@ -406,11 +406,14 @@ namespace BrickController2.UI.ViewModels
                 return false;
             }
             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
-            return device != null;
+            return device != null &&
+                device.IsOutputTypeSupported(controllerAction.Channel, controllerAction.ChannelOutputType);
         }
 
         public class ControllerActionViewModel
         {
+            private readonly Device? _device;
+
             public ControllerActionViewModel(
                 ControllerAction controllerAction,
                 IDeviceManager deviceManager,
@@ -418,12 +421,12 @@ namespace BrickController2.UI.ViewModels
                 ITranslationService translationService)
             {
                 ControllerAction = controllerAction;
-                var device = deviceManager.GetDeviceById(controllerAction.DeviceId);
+                _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
 
                 ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
-                DeviceName = device != null ? device.Name : translationService.Translate("Missing");
+                DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
                 // primary take type from existing device or try to parse DeviceId
-                DeviceType = device != null ? device.DeviceType :
+                DeviceType = _device != null ? _device.DeviceType :
                     (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
                 Channel = controllerAction.Channel;
                 InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
@@ -435,6 +438,11 @@ namespace BrickController2.UI.ViewModels
             public DeviceType DeviceType { get; }
             public int Channel { get; }
             public string InvertName { get; }
+
+            public bool IsCurrentChannelOutputTypeSupported =>
+                _device is not null &&
+                (ControllerAction.ChannelOutputType == ChannelOutputType.ServoMotor || ControllerAction.ChannelOutputType == ChannelOutputType.StepperMotor) &&
+                _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
         }
 
         public class ControllerEventViewModel : List<ControllerActionViewModel>

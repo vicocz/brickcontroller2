@@ -30,7 +30,7 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
         // initialize properties
         GameControllerType gameControllerType = GetGameControllerType(controller);
 
-        Name = GetDisplayName(gameControllerType);
+        Name = GetDisplayName(controller, gameControllerType);
         ControllerNumber = (int)controller.PlayerIndex;
         ControllerId = GetControllerIdFromNumber(ControllerNumber);
 
@@ -212,9 +212,14 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
         };
     }
 
-    private static string GetDisplayName(GameControllerType device)
+    private static string GetDisplayName(GCController controller, GameControllerType gameControllerType)
     {
-        return device switch
+        if (!string.IsNullOrEmpty(controller.VendorName))
+        {
+            return controller.VendorName;
+        }
+
+        return gameControllerType switch
         {
             GameControllerType.Micro => "Micro Gamepad",
             GameControllerType.Standard => "Standard Gamepad",
@@ -222,5 +227,4 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
             _ => "Unknown Gamepad",
         };
     }
-
 }

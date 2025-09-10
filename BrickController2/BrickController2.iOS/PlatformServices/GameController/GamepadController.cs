@@ -171,9 +171,13 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
     {
         axis.ValueChangedHandler = (ax, value) =>
         {
-            if (value < -0.1F) value = -1.0F;
-            else if (value > 0.1F) value = 1.0F;
-            else value = 0.0F;
+            // adjust value
+            value = value switch
+            {
+                < -0.1f => AXIS_MIN_VALUE,
+                > 0.1f => AXIS_MAX_VALUE,
+                _ => AXIS_ZERO_VALUE
+            };
 
             if (HasValueChanged(name, value))
             {

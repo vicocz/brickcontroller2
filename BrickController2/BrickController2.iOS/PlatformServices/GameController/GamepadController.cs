@@ -139,7 +139,7 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
     {
         button.ValueChangedHandler = (btn, value, isPressed) =>
         {
-            value = isPressed ? 1.0F : 0.0F;
+            value = isPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
 
             if (HasValueChanged(name, value))
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using BrickController2.PlatformServices.GameController;
 using GameController;
 
@@ -17,8 +16,6 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
         Extended
     };
 
-    private readonly IDictionary<string, float> _lastControllerEventValueMap = new Dictionary<string, float>();
-
     /// <summary>
     /// Constructor
     /// </summary>
@@ -27,9 +24,9 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
     public GamepadController(GameControllerService service, GCController controller)
         : base(service, controller)
     {
-        // initialize properties
         GameControllerType gameControllerType = GetGameControllerType(controller);
 
+        // initialize properties
         Name = GetDisplayName(controller, gameControllerType);
         ControllerNumber = (int)controller.PlayerIndex;
         ControllerId = GetControllerIdFromNumber(ControllerNumber);
@@ -144,11 +141,9 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
         {
             value = isPressed ? 1.0F : 0.0F;
 
-            if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
+            if (HasValueChanged(name, value))
             {
                 RaiseEvent(GameControllerEventType.Button, name, value);
-
-                _lastControllerEventValueMap[name] = value;
             }
         };
     }
@@ -159,11 +154,9 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
         {
             value = value < 0.1 ? 0.0F : value;
 
-            if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
+            if (HasValueChanged(name, value))
             {
                 RaiseEvent(GameControllerEventType.Axis, name, value);
-
-                _lastControllerEventValueMap[name] = value;
             }
         };
     }
@@ -182,11 +175,9 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
             else if (value > 0.1F) value = 1.0F;
             else value = 0.0F;
 
-            if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
+            if (HasValueChanged(name, value))
             {
                 RaiseEvent(GameControllerEventType.Axis, name, value);
-
-                _lastControllerEventValueMap[name] = value;
             }
         };
     }
@@ -203,11 +194,9 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
         {
             value = AdjustControllerValue(value);
 
-            if (!_lastControllerEventValueMap.ContainsKey(name) || !AreAlmostEqual(_lastControllerEventValueMap[name], value))
+            if (HasValueChanged(name, value))
             {
                 RaiseEvent(GameControllerEventType.Axis, name, value);
-
-                _lastControllerEventValueMap[name] = value;
             }
         };
     }

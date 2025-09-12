@@ -123,11 +123,12 @@ namespace BrickController2.UI.ViewModels
                 else
                 {
                     // check if device supports the selected channel output type for given channel
-                    if (_selectedDevice is TechnicMoveDevice techniceDevice &&
-                        techniceDevice.EnablePlayVmMode &&
-                        (Action.Channel == 0 || Action.Channel == 1))
+                    if (_selectedDevice is TechnicMoveDevice technicDevice &&
+                        technicDevice.EnablePlayVmMode &&
+                        (Action.Channel <= 1))
                     {
-                        UpdateChanelAndType(TechnicMoveDevice.CHANNEL_VM, ChannelOutputType.NormalMotor);
+                        // channels A and B are not supported for PLAYVM mode
+                        UpdateChannelAndType(TechnicMoveDevice.CHANNEL_VM, ChannelOutputType.NormalMotor);
                     }
                     else
                     {
@@ -365,7 +366,7 @@ namespace BrickController2.UI.ViewModels
             {
                 if (_selectedDevice.IsOutputTypeSupported(channel, outputType))
                 {
-                    UpdateChanelAndType(channel, outputType);
+                    UpdateChannelAndType(channel, outputType);
                     return true;
                 }
             }
@@ -381,10 +382,10 @@ namespace BrickController2.UI.ViewModels
                 outputType = Enum.GetValues<ChannelOutputType>()
                     .First(t => _selectedDevice.IsOutputTypeSupported(channel, t));
             }
-            UpdateChanelAndType(channel, outputType);
+            UpdateChannelAndType(channel, outputType);
         }
 
-        private void UpdateChanelAndType(int channel, ChannelOutputType outputType)
+        private void UpdateChannelAndType(int channel, ChannelOutputType outputType)
         {
             // do not trigger unnecessary changes
             if (Action.Channel != channel)

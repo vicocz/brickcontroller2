@@ -89,7 +89,7 @@
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
                                         <controls:SwipeIcon Text="{extensions:Translate ChannelSetup}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.OpenControllerActionSetupCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"
-                                                            IsVisible="{Binding IsCurrentChannelOutputTypeSupported}"/>
+                                                            IsVisible="{Binding IsChannelSetupSupported}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <Grid Style="{StaticResource CollectionItemGridStyle}">

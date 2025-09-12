@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using BrickController2.CreationManagement;
-using BrickController2.UI.Commands;
-using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Dialog;
-using BrickController2.DeviceManagement;
-using BrickController2.UI.Services.Translation;
 using BrickController2.BusinessLogic;
-using BrickController2.PlatformServices.SharedFileStorage;
-using BrickController2.Helpers;
-using DeviceType = BrickController2.DeviceManagement.DeviceType;
+using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
+using BrickController2.DeviceManagement;
+using BrickController2.Extensions;
+using BrickController2.Helpers;
 using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.SharedFileStorage;
+using BrickController2.UI.Commands;
+using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Navigation;
+using BrickController2.UI.Services.Translation;
+using DeviceType = BrickController2.DeviceManagement.DeviceType;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -400,8 +400,7 @@ namespace BrickController2.UI.ViewModels
         private bool ValidateControllerActionChannelSetup(object? cmdParam)
         {
             if (cmdParam is not ControllerAction controllerAction ||
-                (controllerAction.ChannelOutputType != ChannelOutputType.ServoMotor &&
-                controllerAction.ChannelOutputType != ChannelOutputType.StepperMotor))
+                !controllerAction.ChannelOutputType.IsChannelSetupSupported())
             {
                 return false;
             }
@@ -439,9 +438,9 @@ namespace BrickController2.UI.ViewModels
             public int Channel { get; }
             public string InvertName { get; }
 
-            public bool IsCurrentChannelOutputTypeSupported =>
+            public bool IsChannelSetupSupported =>
                 _device is not null &&
-                (ControllerAction.ChannelOutputType == ChannelOutputType.ServoMotor || ControllerAction.ChannelOutputType == ChannelOutputType.StepperMotor) &&
+                ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
                 _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
         }
 

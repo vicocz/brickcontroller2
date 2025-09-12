@@ -77,6 +77,15 @@ namespace BrickController2.UI.ViewModels
                 Action.SequenceName = string.Empty;
             }
 
+            Action.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(Action.Channel))
+                {
+                    // validate output type for given channel change
+                    ValidateChannelType(Action.Channel, Action.ChannelOutputType);
+                }
+            };
+
             SaveControllerActionCommand = new SafeCommand(async () => await SaveControllerActionAsync(), () => SelectedDevice != null && !_dialogService.IsDialogOpen);
             SelectDeviceCommand = new SafeCommand(async () => await SelectDeviceAsync());
             OpenDeviceDetailsCommand = new SafeCommand(async () => await OpenDeviceDetailsAsync(), () => SelectedDevice != null);
@@ -105,7 +114,25 @@ namespace BrickController2.UI.ViewModels
 
                 if (_selectedDevice!.NumberOfChannels <= Action.Channel)
                 {
-                    Action.Channel = 0;
+                    // find first suitable channel to assign
+                    if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
+                    {
+                        ValidateChannelType(0, Action.ChannelOutputType);
+                    }
+                }
+                else
+                {
+                    // check if device supports the selected channel output type for given channel
+                    if (_selectedDevice is TechnicMoveDevice techniceDevice &&
+                        techniceDevice.EnablePlayVmMode &&
+                        (Action.Channel == 0 || Action.Channel == 1))
+                    {
+                        UpdateChanelAndType(TechnicMoveDevice.CHANNEL_VM, ChannelOutputType.NormalMotor);
+                    }
+                    else
+                    {
+                        ValidateChannelType(Action.Channel, Action.ChannelOutputType);
+                    }
                 }
 
                 RaisePropertyChanged();
@@ -329,6 +356,44 @@ namespace BrickController2.UI.ViewModels
             if (result.IsOk)
             {
                 Action.AxisCharacteristic = (ControllerAxisCharacteristic)Enum.Parse(typeof(ControllerAxisCharacteristic), result.SelectedItem);
+            }
+        }
+
+        private bool TryApplySuitableChannelChannel(ChannelOutputType outputType)
+        {
+            for (int channel = 0; channel < _selectedDevice!.NumberOfChannels; channel++)
+            {
+                if (_selectedDevice.IsOutputTypeSupported(channel, outputType))
+                {
+                    UpdateChanelAndType(channel, outputType);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void ValidateChannelType(int channel, ChannelOutputType outputType)
+        {
+            if (!_selectedDevice!.IsOutputTypeSupported(channel, outputType))
+            {
+                // select first supported output type for the channel
+                outputType = Enum.GetValues<ChannelOutputType>()
+                    .First(t => _selectedDevice.IsOutputTypeSupported(channel, t));
+            }
+            UpdateChanelAndType(channel, outputType);
+        }
+
+        private void UpdateChanelAndType(int channel, ChannelOutputType outputType)
+        {
+            // do not trigger unnecessary changes
+            if (Action.Channel != channel)
+            {
+                Action.Channel = channel;
+            }
+            if (Action.ChannelOutputType != outputType)
+            {
+                Action.ChannelOutputType = outputType;
             }
         }
     }

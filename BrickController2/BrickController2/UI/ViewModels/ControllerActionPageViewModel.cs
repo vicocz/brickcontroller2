@@ -125,7 +125,7 @@ namespace BrickController2.UI.ViewModels
                     // check if device supports the selected channel output type for given channel
                     if (_selectedDevice is TechnicMoveDevice technicDevice &&
                         technicDevice.EnablePlayVmMode &&
-                        (Action.Channel <= 1))
+                        Action.Channel <= 1)
                     {
                         // channels A and B are not supported for PLAYVM mode
                         UpdateChannelAndType(TechnicMoveDevice.CHANNEL_VM, ChannelOutputType.NormalMotor);

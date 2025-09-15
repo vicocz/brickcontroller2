@@ -77,6 +77,9 @@ namespace BrickController2.UI.ViewModels
                 Action.SequenceName = string.Empty;
             }
 
+            // do validation of current channel settings
+            ValidateCurrentChannelSettings();
+
             Action.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(Action.Channel))
@@ -112,29 +115,7 @@ namespace BrickController2.UI.ViewModels
                 _selectedDevice = value;
                 Action.DeviceId = value!.Id;
 
-                if (_selectedDevice!.NumberOfChannels <= Action.Channel)
-                {
-                    // find first suitable channel to assign
-                    if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
-                    {
-                        ValidateChannelType(0, Action.ChannelOutputType);
-                    }
-                }
-                else
-                {
-                    // check if device supports the selected channel output type for given channel
-                    if (_selectedDevice is TechnicMoveDevice technicDevice &&
-                        technicDevice.EnablePlayVmMode &&
-                        Action.Channel <= 1)
-                    {
-                        // channels A and B are not supported for PLAYVM mode
-                        UpdateChannelAndType(TechnicMoveDevice.CHANNEL_VM, ChannelOutputType.NormalMotor);
-                    }
-                    else
-                    {
-                        ValidateChannelType(Action.Channel, Action.ChannelOutputType);
-                    }
-                }
+                ValidateCurrentChannelSettings();
 
                 RaisePropertyChanged();
             }
@@ -357,6 +338,34 @@ namespace BrickController2.UI.ViewModels
             if (result.IsOk)
             {
                 Action.AxisCharacteristic = (ControllerAxisCharacteristic)Enum.Parse(typeof(ControllerAxisCharacteristic), result.SelectedItem);
+            }
+        }
+
+
+        private void ValidateCurrentChannelSettings()
+        {
+            if (_selectedDevice!.NumberOfChannels <= Action.Channel)
+            {
+                // find first suitable channel to assign
+                if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
+                {
+                    ValidateChannelType(0, Action.ChannelOutputType);
+                }
+            }
+            else
+            {
+                // check if device supports the selected channel output type for given channel
+                if (_selectedDevice is TechnicMoveDevice technicDevice &&
+                    technicDevice.EnablePlayVmMode &&
+                    Action.Channel <= 1)
+                {
+                    // channels A and B are not supported for PLAYVM mode
+                    UpdateChannelAndType(TechnicMoveDevice.CHANNEL_VM, ChannelOutputType.NormalMotor);
+                }
+                else
+                {
+                    ValidateChannelType(Action.Channel, Action.ChannelOutputType);
+                }
             }
         }
 

@@ -2,21 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using BrickController2.CreationManagement;
-using BrickController2.UI.Commands;
-using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Dialog;
-using BrickController2.DeviceManagement;
-using BrickController2.UI.Services.Translation;
 using BrickController2.BusinessLogic;
-using BrickController2.PlatformServices.SharedFileStorage;
-using BrickController2.Helpers;
-using DeviceType = BrickController2.DeviceManagement.DeviceType;
+using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
+using BrickController2.DeviceManagement;
+using BrickController2.Extensions;
+using BrickController2.Helpers;
 using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.SharedFileStorage;
+using BrickController2.UI.Commands;
+using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Navigation;
+using BrickController2.UI.Services.Translation;
+using DeviceType = BrickController2.DeviceManagement.DeviceType;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -400,17 +400,19 @@ namespace BrickController2.UI.ViewModels
         private bool ValidateControllerActionChannelSetup(object? cmdParam)
         {
             if (cmdParam is not ControllerAction controllerAction ||
-                (controllerAction.ChannelOutputType != ChannelOutputType.ServoMotor &&
-                controllerAction.ChannelOutputType != ChannelOutputType.StepperMotor))
+                !controllerAction.ChannelOutputType.IsChannelSetupSupported())
             {
                 return false;
             }
             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
-            return device != null;
+            return device != null &&
+                device.IsOutputTypeSupported(controllerAction.Channel, controllerAction.ChannelOutputType);
         }
 
         public class ControllerActionViewModel
         {
+            private readonly Device? _device;
+
             public ControllerActionViewModel(
                 ControllerAction controllerAction,
                 IDeviceManager deviceManager,
@@ -418,12 +420,12 @@ namespace BrickController2.UI.ViewModels
                 ITranslationService translationService)
             {
                 ControllerAction = controllerAction;
-                var device = deviceManager.GetDeviceById(controllerAction.DeviceId);
+                _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
 
                 ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
-                DeviceName = device != null ? device.Name : translationService.Translate("Missing");
+                DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
                 // primary take type from existing device or try to parse DeviceId
-                DeviceType = device != null ? device.DeviceType :
+                DeviceType = _device != null ? _device.DeviceType :
                     (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
                 Channel = controllerAction.Channel;
                 InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
@@ -435,6 +437,11 @@ namespace BrickController2.UI.ViewModels
             public DeviceType DeviceType { get; }
             public int Channel { get; }
             public string InvertName { get; }
+
+            public bool IsChannelSetupSupported =>
+                _device is not null &&
+                ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
+                _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
         }
 
         public class ControllerEventViewModel : List<ControllerActionViewModel>

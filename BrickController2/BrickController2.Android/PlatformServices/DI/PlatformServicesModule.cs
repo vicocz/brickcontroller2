@@ -23,7 +23,7 @@ namespace BrickController2.Droid.PlatformServices.DI
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<InfraredService>().As<IInfraredService>().SingleInstance();
-            builder.RegisterType<GameControllerService>().As<IInputDeviceService>().SingleInstance();
+            builder.RegisterType<GameControllerService>().AsSelf().As<IInputDeviceService>().SingleInstance();
             builder.RegisterType<BluetoothLEService>().As<IBluetoothLEService>().SingleInstance();
             builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
             builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();

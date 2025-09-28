@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -8,13 +9,13 @@ namespace BrickController2.UI.Services.Dialog
 {
     public class DialogService : IDialogService, IDialogServerHost
     {
-        private readonly IGameControllerService _gameControllerService;
+        private readonly IInputDeviceEventService _gameControllerService;
 
         private IDialogServer? _dialogServer;
 
         public bool IsDialogOpen => _dialogServer?.IsDialogOpen ?? false;
 
-        public DialogService(IGameControllerService gameControllerService)
+        public DialogService(IInputDeviceEventService gameControllerService)
         {
             _gameControllerService = gameControllerService;
         }
@@ -51,7 +52,7 @@ namespace BrickController2.UI.Services.Dialog
                 _dialogServer.GameControllerService = _gameControllerService;
             }
 
-            return _dialogServer?.ShowGameControllerEventDialogAsync(title, message, cancelButtonText, token) ?? Task.FromResult(new GameControllerEventDialogResult(false, GameControllerEventType.Axis, string.Empty));
+            return _dialogServer?.ShowGameControllerEventDialogAsync(title, message, cancelButtonText, token) ?? Task.FromResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
         }
 
         public void RegisterDialogServer(IDialogServer dialogServer)

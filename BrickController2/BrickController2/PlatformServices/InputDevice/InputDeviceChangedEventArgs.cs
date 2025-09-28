@@ -2,27 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BrickController2.PlatformServices.GameController;
+namespace BrickController2.PlatformServices.InputDevice;
 
-public class GameControllersChangedEventArgs : EventArgs
+public class InputDeviceChangedEventArgs : EventArgs
 {
-    public GameControllersChangedEventArgs(NotifyGameControllersChangedAction action, IEnumerable<IGameController> controllers)
+    public InputDeviceChangedEventArgs(NotifyInputDevicessChangedAction action, IEnumerable<IInputDevice> controllers)
     {
         Action = action;
         Items = controllers.ToArray();
     }
 
-    public GameControllersChangedEventArgs(NotifyGameControllersChangedAction action, IGameController controller)
+    public InputDeviceChangedEventArgs(NotifyInputDevicessChangedAction action, IInputDevice controller)
     {
         Action = action;
         Items = [controller];
     }
 
-    public NotifyGameControllersChangedAction Action { get; }
-    public IReadOnlyCollection<IGameController> Items { get; }
+    public NotifyInputDevicessChangedAction Action { get; }
+    public IReadOnlyCollection<IInputDevice> Items { get; }
 }
 
-public enum NotifyGameControllersChangedAction
+public enum NotifyInputDevicessChangedAction
 {
     Connected = 0,
     Disconnected = 1

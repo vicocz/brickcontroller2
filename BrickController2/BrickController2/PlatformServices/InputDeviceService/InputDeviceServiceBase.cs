@@ -1,172 +1,51 @@
-﻿using BrickController2.Extensions;
+﻿using BrickController2.InputDeviceManagement;
+using BrickController2.PlatformServices.InputDevice;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
-namespace BrickController2.PlatformServices.GameController;
+namespace BrickController2.PlatformServices.InputDeviceService;
 
 /// <summary>
-/// Base class for implementation of <see cref="IGameControllerService"/>
+/// abstract base class for inputdevice services (i.e. gamecontroller service, MCP server service)
 /// </summary>
-public abstract class GameControllerServiceBase : IGameControllerServiceInternal
+public abstract class InputDeviceServiceBase : IInputDeviceService
 {
     protected readonly object _lockObject = new();
     protected readonly ILogger _logger;
+    protected readonly IInputDeviceManagerService _inputDeviceManagerService;
 
-    private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
-
-    /// <summary>
-    /// Collection of available gamepads having <see cref="IGameController.ControllerId"/>
-    /// </summary>
-    private readonly List<IGameController> _availableControllers = [];
-
-    protected GameControllerServiceBase(ILogger logger)
+    protected InputDeviceServiceBase(IInputDeviceManagerService inputDeviceManagerService, ILogger logger)
     {
+        _inputDeviceManagerService = inputDeviceManagerService;
         _logger = logger;
-    }
 
-    public abstract bool IsControllerIdSupported { get; }
-
-    public event EventHandler<GameControllerEventArgs> GameControllerEvent
-    {
-        add
-        {
-            lock (_lockObject)
-            {
-                if (GameControllerEventInternal == null)
-                {
-                    RemoveAllControllers();
-                    InitializeCurrentControllers();
-                }
-
-                GameControllerEventInternal += value;
-            }
-        }
-
-        remove
-        {
-            lock (_lockObject)
-            {
-                GameControllerEventInternal -= value;
-
-                if (GameControllerEventInternal == null)
-                {
-                    RemoveAllControllers();
-                }
-            }
-        }
-    }
-
-    public event EventHandler<GameControllersChangedEventArgs>? GameControllersChangedEvent;
-
-    protected bool CanProcessEvents
-    {
-        get
-        {
-            lock (_lockObject)
-            {
-                return GameControllerEventInternal != null;
-            }
-        }
-    }
-
-    public void RaiseEvent(GameControllerEventArgs eventArgs)
-    {
-        GameControllerEventInternal?.Invoke(this, eventArgs);
+        // register to inputdevicemanager service
+        _inputDeviceManagerService.RegisterInputDeviceService(this);
     }
 
     /// <summary>
-    /// Initialize collection of avilable controllers (including listening of connected/disconnected controller)
+    /// Initialize collection of available inputdevices (including listening of connected/disconnected controller)
     /// </summary>
-    protected abstract void InitializeCurrentControllers();
+    public abstract void Initialize();
 
     /// <summary>
-    /// Remove and stop all available controllers
+    /// Remove and stop all available inputdevices
     /// </summary>
-    /// <remarks>this is expected to be called under the lock</remarks>
-    protected virtual void RemoveAllControllers()
-    {
-        if (_availableControllers.Count == 0)
-        {
-            return;
-        }
-        var controllers = _availableControllers.ToArray();
-        foreach (var controller in _availableControllers)
-        {
-            controller.Stop();
+    public abstract void Stop();
 
-            (controller as IDisposable)?.Dispose();
-        }
-        _availableControllers.Clear();
-        // notify removal
-        OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controllers);
+    /// <summary>
+    /// returns the first unused inputdevice number in inputdevice management
+    /// </summary>
+    protected int GetFirstUnusedInputDeviceNumber()
+    {
+        return _inputDeviceManagerService.GetFirstUnusedInputDeviceNumber();
     }
 
     /// <summary>
-    /// returns the first unused controller number in controller management
+    /// add inputdevice to inputdevicemanager service
     /// </summary>
-    protected int GetFirstUnusedControllerNumber()
+    /// <param name="inputDevice">inputdevice to be added</param>
+    protected void AddInputDevice(IInputDevice inputDevice)
     {
-        lock (_lockObject)
-        {
-            int unusedNumber = 1;
-            while (_availableControllers.Any(gamepadController => gamepadController.ControllerNumber == unusedNumber))
-            {
-                unusedNumber++;
-            }
-            return unusedNumber;
-        }
-    }
-
-    protected void AddController(IGameController controller)
-    {
-        lock (_lockObject)
-        {
-            _availableControllers.Add(controller);
-            controller.Start();
-            // notify adding
-            OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Connected, controller);
-        }
-    }
-
-    protected bool TryRemove<TGameController>(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
-        where TGameController : class, IGameController
-    {
-        lock (_lockObject)
-        {
-            // remove and stop the controller
-            if (_availableControllers.Remove(x => x is TGameController tc && predicate(tc), out var removed))
-            {
-                controller = (TGameController)removed; // safe due to pattern match above
-                controller.Stop();
-
-                // notify removal
-                OnGameControllersChangedEvent(NotifyGameControllersChangedAction.Disconnected, controller);
-
-                (controller as IDisposable)?.Dispose();
-
-                return true;
-            }
-
-            controller = null;
-            return false;
-        }
-    }
-
-    protected bool TryGetController<TGameController>(Predicate<TGameController> predicate, [MaybeNullWhen(false)] out TGameController controller)
-        where TGameController : class, IGameController
-    {
-        lock (_lockObject)
-        {
-            controller = _availableControllers.OfType<TGameController>().FirstOrDefault(x => predicate(x));
-            return controller is not null;
-        }
-    }
-
-    private void OnGameControllersChangedEvent(NotifyGameControllersChangedAction action, params IGameController[] controllers)
-    {
-        GameControllersChangedEvent?.Invoke(this, new(action, controllers));
+        _inputDeviceManagerService.AddInputDevice(inputDevice);
     }
 }

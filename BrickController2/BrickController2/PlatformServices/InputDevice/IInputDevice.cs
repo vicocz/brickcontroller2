@@ -1,30 +1,30 @@
-﻿namespace BrickController2.PlatformServices.GameController;
+﻿namespace BrickController2.PlatformServices.InputDevice;
 
-public interface IGameController
+public interface IInputDevice
 {
     /// <summary>
-    /// String to identify the controller like "Controller 1"
+    /// String to identify the inputdevice like "Controller 1"
     /// </summary>
-    string ControllerId { get; }
+    string InputDeviceId { get; }
 
     /// <summary>
-    /// Get logical controller number
+    /// Get logical inputdevice number
     /// </summary>
     /// <remarks>Starts from 1</remarks>
-    int ControllerNumber { get; }
+    int InputDeviceNumber { get; }
 
     /// <summary>
-    /// Controller name
+    /// inputdevice name
     /// </summary>
     string Name { get; }
 
     /// <summary>
-    /// Start the controller and publishing of its events
+    /// Start the inputdevice and publishing of its events
     /// </summary>
     void Start();
 
     /// <summary>
-    /// Stop the controller and publishing of its events
+    /// Stop the inputdevice and publishing of its events
     /// </summary>
     void Stop();
 }

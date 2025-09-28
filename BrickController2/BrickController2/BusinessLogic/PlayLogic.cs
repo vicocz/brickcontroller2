@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
 
 namespace BrickController2.BusinessLogic
 {
@@ -16,7 +16,7 @@ namespace BrickController2.BusinessLogic
         private readonly IDictionary<(string DeviceId, int Channel), float[]> _previousOutputs = new Dictionary<(string, int), float[]>();
         private readonly IDictionary<(string EventCode, string DeviceId, int Channel), float> _previousAxisOutputs = new Dictionary<(string, string, int), float>();
         private readonly IDictionary<(string DeviceId, int Channel), bool> _disabledOutputForAxises = new Dictionary<(string, int), bool>();
-        private readonly IDictionary<(string DeviceId, int Channel), IDictionary<(GameControllerEventType EventType, string EventCode), float>> _axisOutputValues = new Dictionary<(string, int), IDictionary<(GameControllerEventType, string), float>>();
+        private readonly IDictionary<(string DeviceId, int Channel), IDictionary<(InputDeviceEventType EventType, string EventCode), float>> _axisOutputValues = new Dictionary<(string, int), IDictionary<(InputDeviceEventType, string), float>>();
 
         public PlayLogic(
             ICreationManager creationManager,
@@ -69,19 +69,19 @@ namespace BrickController2.BusinessLogic
             _sequencePlayer.StopPlayer();
         }
 
-        public void ProcessGameControllerEvent(GameControllerEventArgs e)
+        public void ProcessGameControllerEvent(InputDeviceEventArgs e)
         {
             if (ActiveProfile == null)
             {
                 return;
             }
 
-            foreach (var gameControllerEvent in e.ControllerEvents)
+            foreach (var gameControllerEvent in e.InputDeviceEvents)
             {
                 foreach (var controllerEvent in ActiveProfile.ControllerEvents)
                 {
                     if ((string.IsNullOrEmpty(controllerEvent.ControllerId) ||      // for backward compatibility with undef ControllerId
-                        e.ControllerId == controllerEvent.ControllerId) &&
+                        e.InputDeviceId == controllerEvent.ControllerId) &&
                         gameControllerEvent.Key.EventType == controllerEvent.EventType &&
                         gameControllerEvent.Key.EventCode == controllerEvent.EventCode)
                     {
@@ -90,7 +90,7 @@ namespace BrickController2.BusinessLogic
                             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
                             var channel = controllerAction.Channel;
 
-                            if (gameControllerEvent.Key.EventType == GameControllerEventType.Button)
+                            if (gameControllerEvent.Key.EventType == InputDeviceEventType.Button)
                             {
                                 var isPressed = gameControllerEvent.Value > 0.5;
                                 if (!ShouldProcessButtonEvent(isPressed, controllerAction))
@@ -101,7 +101,7 @@ namespace BrickController2.BusinessLogic
                                 var outputValue = ProcessButtonEvent(isPressed, controllerAction, device!.DeviceType);
                                 device.SetOutput(channel, outputValue);
                             }
-                            else if (gameControllerEvent.Key.EventType == GameControllerEventType.Axis)
+                            else if (gameControllerEvent.Key.EventType == InputDeviceEventType.Axis)
                             {
                                 var (useAxisValue, axisValue) = ProcessAxisEvent(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction, device!.DeviceType);
                                 if (useAxisValue)
@@ -354,12 +354,12 @@ namespace BrickController2.BusinessLogic
             _previousAxisOutputs[(gameControllerEventCode, controllerAction.DeviceId, controllerAction.Channel)] = value;
         }
 
-        private void StoreAxisOutputValue(float outputValue, string deviceId, int channel, GameControllerEventType controllerEventType, string controllerEventCode)
+        private void StoreAxisOutputValue(float outputValue, string deviceId, int channel, InputDeviceEventType controllerEventType, string controllerEventCode)
         {
             var axisOutputValuesKey = (deviceId, channel);
             if (!_axisOutputValues.ContainsKey(axisOutputValuesKey))
             {
-                _axisOutputValues[axisOutputValuesKey] = new Dictionary<(GameControllerEventType, string), float>();
+                _axisOutputValues[axisOutputValuesKey] = new Dictionary<(InputDeviceEventType, string), float>();
             }
 
             _axisOutputValues[axisOutputValuesKey][(controllerEventType, controllerEventCode)] = outputValue;

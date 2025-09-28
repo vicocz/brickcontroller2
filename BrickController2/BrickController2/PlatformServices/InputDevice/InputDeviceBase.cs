@@ -1,51 +1,63 @@
-﻿using System.Collections.Generic;
+﻿using BrickController2.PlatformServices.InputDeviceService;
+using System.Collections.Generic;
 using System.Linq;
-using static BrickController2.PlatformServices.GameController.GameControllers;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
-namespace BrickController2.PlatformServices.GameController;
+namespace BrickController2.PlatformServices.InputDevice;
 
-public abstract class GamepadControllerBase<TControllerDevice> : IGameController where TControllerDevice : class
+/// <summary>
+/// abstract base class for input devices
+/// </summary>
+/// <typeparam name="TInputDeviceDevice">Type of native instance of inputdevice device</typeparam>
+public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice 
+    where TInputDeviceDevice : class
 {
     /// <summary>stored last value per axis to detect changes</summary>
     private readonly Dictionary<string, float> _lastAxisValues = [];
 
-    /// <summary>Controller service that owns/manages the controller</summary>
-    private readonly IGameControllerServiceInternal _controllerService;
+    /// <summary>inputdevicemanager service that owns/manages the inputdevice</summary>
+    private readonly IInputDeviceEventServiceInternal _inputDeviceManagerService;
 
-    protected GamepadControllerBase(IGameControllerServiceInternal controllerService,
-        TControllerDevice controllerDevice)
+    protected InputDeviceBase(IInputDeviceEventServiceInternal inputDeviceManagerService,
+        TInputDeviceDevice inputDeviceDevice)
     {
-        _controllerService = controllerService;
-        ControllerDevice = controllerDevice;
+        _inputDeviceManagerService = inputDeviceManagerService;
+        InputDeviceDevice = inputDeviceDevice;
     }
 
     /// <summary>
-    /// Index of this controller inside the controller management
+    /// Index of this inputdevice inside the inputdevice management
     /// </summary>
-    public int ControllerNumber { get; protected init; }
+    public int InputDeviceNumber { get; protected init; }
 
     /// <summary>
-    /// string to identify the controller like "Controller 1"
+    /// string to identify the inputdevice like "Controller 1"
     /// </summary>
-    public string ControllerId { get; protected init; } = default!;
+    public string InputDeviceId { get; protected init; } = default!;
 
     /// <summary>
-    /// DisplayName of the controller
+    /// DisplayName of the inputdevice
     /// </summary>
     public string Name { get; protected init; } = default!;
 
 
     /// <summary>
-    /// Native instance of controller device
+    /// Native instance of inputdevice device
     /// </summary>
-    public TControllerDevice ControllerDevice { get; }
+    public TInputDeviceDevice InputDeviceDevice { get; }
 
+    /// <summary>
+    /// start the inputdevice and publishing of its events
+    /// </summary>
     public virtual void Start()
     {
         // initialize
         _lastAxisValues.Clear();
     }
 
+    /// <summary>
+    /// stop the inputdevice and publishing of its events
+    /// </summary>
     public virtual void Stop()
     {
         // reset last values
@@ -68,17 +80,17 @@ public abstract class GamepadControllerBase<TControllerDevice> : IGameController
         return true;
     }
 
-    protected void RaiseEvent(IDictionary<(GameControllerEventType, string), float> events)
+    protected void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
     {
         if (!events.Any())
         {
             return;
         }
-        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, events));
+        _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, events));
     }
 
-    protected void RaiseEvent(GameControllerEventType eventType, string eventCode, float value)
+    protected void RaiseEvent(InputDeviceEventType eventType, string eventCode, float value)
     {
-        _controllerService.RaiseEvent(new GameControllerEventArgs(ControllerId, eventType, eventCode, value));
+        _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, eventType, eventCode, value));
     }
 }

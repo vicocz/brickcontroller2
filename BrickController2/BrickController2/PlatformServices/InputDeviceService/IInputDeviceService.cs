@@ -1,16 +1,16 @@
-﻿using System;
-
-namespace BrickController2.PlatformServices.GameController
+﻿namespace BrickController2.PlatformServices.InputDeviceService
 {
-    public interface IGameControllerService
+    public interface IInputDeviceService
     {
-        event EventHandler<GameControllerEventArgs> GameControllerEvent;
+        /// <summary>
+        /// Initialize inputdevice service.
+        /// Add collection of available controllers (including listening of connected/disconnected controller)
+        /// </summary>
+        void Initialize();
 
         /// <summary>
-        /// Event raised when a game controller is connected / disconnected
+        /// Stop inputdevice service.
         /// </summary>
-        event EventHandler<GameControllersChangedEventArgs> GameControllersChangedEvent;
-
-        bool IsControllerIdSupported { get; }
+        void Stop();
     }
 }

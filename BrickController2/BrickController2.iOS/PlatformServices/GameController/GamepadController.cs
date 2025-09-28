@@ -1,12 +1,11 @@
 ﻿using System;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 using GameController;
 
-using static BrickController2.PlatformServices.GameController.GameControllers;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
-using BrickController2.iOS.PlatformServices.GameController;
-
-internal class GamepadController : GamepadControllerBase<GCController>, IDisposable
+internal class GamepadController : InputDeviceBase<GCController>, IDisposable
 {
     private enum GameControllerType
     {
@@ -21,22 +20,22 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
     /// </summary>
     /// <param name="service">reference to GameControllerService</param>
     /// <param name="controller">reference to InputDevice</param>
-    public GamepadController(GameControllerService service, GCController controller)
+    public GamepadController(IInputDeviceEventServiceInternal service, GCController controller)
         : base(service, controller)
     {
         GameControllerType gameControllerType = GetGameControllerType(controller);
 
         // initialize properties
         Name = GetDisplayName(controller, gameControllerType);
-        ControllerNumber = (int)controller.PlayerIndex;
-        ControllerId = GetControllerIdFromNumber(ControllerNumber);
+        InputDeviceNumber = (int)controller.PlayerIndex;
+        InputDeviceId = GetControllerIdFromNumber(InputDeviceNumber);
 
         SetupController(controller, gameControllerType);
     }
 
     public void Dispose()
     {
-        ControllerDevice.Dispose();
+        InputDeviceDevice.Dispose();
     }
 
     private void SetupController(GCController gameController, GameControllerType gameControllerType)
@@ -143,7 +142,7 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (HasValueChanged(name, value))
             {
-                RaiseEvent(GameControllerEventType.Button, name, value);
+                RaiseEvent(InputDeviceEventType.Button, name, value);
             }
         };
     }
@@ -156,7 +155,7 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (HasValueChanged(name, value))
             {
-                RaiseEvent(GameControllerEventType.Axis, name, value);
+                RaiseEvent(InputDeviceEventType.Axis, name, value);
             }
         };
     }
@@ -181,7 +180,7 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (HasValueChanged(name, value))
             {
-                RaiseEvent(GameControllerEventType.Axis, name, value);
+                RaiseEvent(InputDeviceEventType.Axis, name, value);
             }
         };
     }
@@ -200,7 +199,7 @@ internal class GamepadController : GamepadControllerBase<GCController>, IDisposa
 
             if (HasValueChanged(name, value))
             {
-                RaiseEvent(GameControllerEventType.Axis, name, value);
+                RaiseEvent(InputDeviceEventType.Axis, name, value);
             }
         };
     }

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace BrickController2.PlatformServices.GameController;
+namespace BrickController2.PlatformServices.InputDevice;
 
-public static class GameControllers
+public static class InputDevices
 {
     public const float BUTTON_PRESSED = 1.0f;
     public const float BUTTON_PRESSED_INV = -1.0f;

@@ -1,4 +1,4 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.Helpers;
 
 namespace BrickController2.UI.ViewModels
@@ -7,14 +7,14 @@ namespace BrickController2.UI.ViewModels
     {
         private float _value;
 
-        public GameControllerEventViewModel(GameControllerEventType eventType, string eventCode, float value)
+        public GameControllerEventViewModel(InputDeviceEventType eventType, string eventCode, float value)
         {
             EventType = eventType;
             EventCode = eventCode;
             Value = value;
         }
 
-        public GameControllerEventType EventType { get; }
+        public InputDeviceEventType EventType { get; }
         public string EventCode { get; }
 
         public float Value

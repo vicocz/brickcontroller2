@@ -1,18 +1,18 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
 using System;
 using System.Collections.ObjectModel;
 
 namespace BrickController2.UI.ViewModels;
 public class GameControllerGroupViewModel : ObservableCollection<GameControllerEventViewModel>, IComparable<GameControllerGroupViewModel>
 {
-    public GameControllerGroupViewModel(IGameController controller) : this (controller.ControllerId, controller)
+    public GameControllerGroupViewModel(IInputDevice controller) : this (controller.InputDeviceId, controller)
     {
     }
 
-    public GameControllerGroupViewModel(string controllerId, IGameController? controller)
+    public GameControllerGroupViewModel(string controllerId, IInputDevice? controller)
     {
         ControllerId = controllerId;
-        ControllerNumber = controller?.ControllerNumber ?? default;
+        ControllerNumber = controller?.InputDeviceNumber ?? default;
         ControllerName = controller?.Name ?? "";
     }
 

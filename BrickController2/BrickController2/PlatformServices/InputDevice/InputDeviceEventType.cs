@@ -1,6 +1,6 @@
-﻿namespace BrickController2.PlatformServices.GameController
+﻿namespace BrickController2.PlatformServices.InputDevice
 {
-    public enum GameControllerEventType
+    public enum InputDeviceEventType
     {
         Button,
         Axis

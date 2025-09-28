@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace BrickController2.PlatformServices.GameController
+namespace BrickController2.PlatformServices.InputDevice
 {
-    public class GameControllerEventArgs : EventArgs
+    public class InputDeviceEventArgs : EventArgs
     {
-        public GameControllerEventArgs(string controllerId, GameControllerEventType eventType, string eventCode, float value)
+        public InputDeviceEventArgs(string inputDeviceId, InputDeviceEventType eventType, string eventCode, float value)
         {
-            ControllerId = controllerId;
-            ControllerEvents = new Dictionary<(GameControllerEventType, string), float>
+            InputDeviceId = inputDeviceId;
+            InputDeviceEvents = new Dictionary<(InputDeviceEventType, string), float>
             {
                 [(eventType, eventCode)] = value
             };
         }
 
-        public GameControllerEventArgs(string controllerId, IDictionary<(GameControllerEventType, string), float> events)
+        public InputDeviceEventArgs(string inputDeviceId, IDictionary<(InputDeviceEventType, string), float> events)
         {
-            ControllerId = controllerId;
-            ControllerEvents = new ReadOnlyDictionary<(GameControllerEventType, string), float>(events);
+            InputDeviceId = inputDeviceId;
+            InputDeviceEvents = new ReadOnlyDictionary<(InputDeviceEventType, string), float>(events);
         }
 
-        public IReadOnlyDictionary<(GameControllerEventType EventType, string EventCode), float> ControllerEvents { get; }
-        public string ControllerId { get; }
+        public IReadOnlyDictionary<(InputDeviceEventType EventType, string EventCode), float> InputDeviceEvents { get; }
+        public string InputDeviceId { get; }
     }
 }

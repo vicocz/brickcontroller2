@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.InputDeviceManagement;
+using BrickController2.PlatformServices.InputDeviceService;
 using Foundation;
 using GameController;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,7 @@ using System.Linq;
 
 namespace BrickController2.iOS.PlatformServices.GameController
 {
-    internal class GameControllerService : GameControllerServiceBase
+    internal class GameControllerService : InputDeviceServiceBase
     {
         private static readonly GCControllerPlayerIndex[] ValidPlayerIndexes = Enum.GetValues(typeof(GCControllerPlayerIndex))
             .Cast<GCControllerPlayerIndex>()
@@ -18,14 +19,13 @@ namespace BrickController2.iOS.PlatformServices.GameController
         private NSObject? _didConnectNotification;
         private NSObject? _didDisconnectNotification;
 
-        public GameControllerService(ILogger<GameControllerService> logger) 
-            : base(logger)
+        public GameControllerService(IInputDeviceManagerService inputDeviceManagerService, 
+            ILogger<GameControllerService> logger) 
+            : base(inputDeviceManagerService, logger)
         {
         }
 
-        public override bool IsControllerIdSupported => true;
-
-        protected override void InitializeCurrentControllers()
+        public override void Initialize()
         {
             // get all available gamepads
             if (GCController.Controllers.Any())
@@ -53,24 +53,22 @@ namespace BrickController2.iOS.PlatformServices.GameController
         }
 
 
-        protected override void RemoveAllControllers()
+        public override void Stop()
         {
             GCController.StopWirelessControllerDiscovery();
             _didConnectNotification?.Dispose();
             _didDisconnectNotification?.Dispose();
             _didConnectNotification = null;
             _didDisconnectNotification = null;
-
-            base.RemoveAllControllers();
         }
 
         private void ControllerRemoved(GCController controller)
         {
             lock (_lockObject)
             {
-                if (TryRemove<GamepadController>(x => x.ControllerDevice == controller, out var controllerDevice))
+                if (_inputDeviceManagerService.TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == controller, out var controllerDevice))
                 {
-                    _logger.LogInformation("Controller device has been removed ControllerId:{controllerId}", controllerDevice.ControllerId);
+                    _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controllerDevice.InputDeviceId);
                 }
             }
         }
@@ -90,9 +88,9 @@ namespace BrickController2.iOS.PlatformServices.GameController
                     AssignNextAvailablePlayerIndex(controller);
 
                     // get first unused number and apply it
-                    var newController = new GamepadController(this, controller);
+                    var newController = new GamepadController(_inputDeviceManagerService, controller);
 
-                    AddController(newController);
+                    AddInputDevice(newController);
                 }
             }
         }

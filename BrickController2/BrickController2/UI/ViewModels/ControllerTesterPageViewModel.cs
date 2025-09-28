@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
@@ -7,20 +8,20 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 
-using static BrickController2.PlatformServices.GameController.GameControllers;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.UI.ViewModels
 {
     public class ControllerTesterPageViewModel : PageViewModelBase
     {
-        private readonly IGameControllerService _gameControllerService;
+        private readonly IInputDeviceEventService _gameControllerService;
         private readonly ObservableCollection<GameControllerEventViewModel> _events = [];
         private ObservableCollection<GameControllerGroupViewModel> _groups = [];
 
         public ControllerTesterPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
-            IGameControllerService gameControllerService)
+            IInputDeviceEventService gameControllerService)
             : base(navigationService, translationService)
         {
             _gameControllerService = gameControllerService;
@@ -33,37 +34,37 @@ namespace BrickController2.UI.ViewModels
         {
             if (IsGrouped)
             {
-                _gameControllerService.GameControllersChangedEvent += GameControllersChangedEventHandler;
-                _gameControllerService.GameControllerEvent += GameControllerEventHandler_Grouping!;
+                _gameControllerService.InputDevicesChangedEvent += GameControllersChangedEventHandler;
+                _gameControllerService.InputDeviceEvent += GameControllerEventHandler_Grouping!;
             }
             else
             {
-                _gameControllerService.GameControllerEvent += GameControllerEventHandler!;
+                _gameControllerService.InputDeviceEvent += GameControllerEventHandler!;
             }
         }
 
         public override void OnDisappearing()
         {
             // unregister all
-            _gameControllerService.GameControllerEvent -= GameControllerEventHandler_Grouping!;
-            _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
-            _gameControllerService.GameControllersChangedEvent -= GameControllersChangedEventHandler;
+            _gameControllerService.InputDeviceEvent -= GameControllerEventHandler_Grouping!;
+            _gameControllerService.InputDeviceEvent -= GameControllerEventHandler!;
+            _gameControllerService.InputDevicesChangedEvent -= GameControllersChangedEventHandler;
         }
 
-        private void GameControllersChangedEventHandler(object? sender, GameControllersChangedEventArgs e)
+        private void GameControllersChangedEventHandler(object? sender, InputDeviceChangedEventArgs e)
         {
             switch (e.Action)
             {
-                case NotifyGameControllersChangedAction.Connected:
+                case NotifyInputDevicessChangedAction.Connected:
                     // recreate collection due to MAUI could not handle adding of them
                     _groups = new(_groups.Concat(e.Items.Select(x => new GameControllerGroupViewModel(x)))
                         .OrderBy(x => x.ControllerNumber));
                     // notify
                     RaisePropertyChanged(nameof(ControllerEventList));
                     break;
-                case NotifyGameControllersChangedAction.Disconnected:
+                case NotifyInputDevicessChangedAction.Disconnected:
                     // MAUI could not handle removal of a group
-                    var removedItems = e.Items.Select(x => x.ControllerId).ToHashSet();
+                    var removedItems = e.Items.Select(x => x.InputDeviceId).ToHashSet();
                     _groups = new(_groups.Where(x => !removedItems.Contains(x.ControllerId)));
                     // notify
                     RaisePropertyChanged(nameof(ControllerEventList));
@@ -71,31 +72,31 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private void GameControllerEventHandler_Grouping(object sender, GameControllerEventArgs args)
+        private void GameControllerEventHandler_Grouping(object sender, InputDeviceEventArgs args)
         {
-            foreach (var controllerEvent in args.ControllerEvents)
+            foreach (var controllerEvent in args.InputDeviceEvents)
             {
-                var group = _groups.FirstOrDefault(x => x.ControllerId == args.ControllerId);
+                var group = _groups.FirstOrDefault(x => x.ControllerId == args.InputDeviceId);
                 if (group is null)
                 {
                     // create proxy model
-                    group = new GameControllerGroupViewModel(args.ControllerId, default);
+                    group = new GameControllerGroupViewModel(args.InputDeviceId, default);
                     _groups.Add(group);
                 }
                 ProcessEvent(group, controllerEvent);
             }
         }
 
-        private void GameControllerEventHandler(object sender, GameControllerEventArgs args)
+        private void GameControllerEventHandler(object sender, InputDeviceEventArgs args)
         {
-            foreach (var controllerEvent in args.ControllerEvents)
+            foreach (var controllerEvent in args.InputDeviceEvents)
             {
                 ProcessEvent(_events, controllerEvent);
             }
         }
 
         private static void ProcessEvent(ICollection<GameControllerEventViewModel> events,
-            KeyValuePair<(GameControllerEventType EventType, string EventCode), float> controllerEvent)
+            KeyValuePair<(InputDeviceEventType EventType, string EventCode), float> controllerEvent)
         {
             var controllerEventViewModel = events.FirstOrDefault(ce => ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
             if (AXIS_DELTA_VALUE < Math.Abs(controllerEvent.Value))

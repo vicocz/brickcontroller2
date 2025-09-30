@@ -3,15 +3,16 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android</TargetFrameworks>
-    <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
-    <TargetPlatformVersion>35.0</TargetPlatformVersion>
-    <OutputType>Exe</OutputType>
+		<SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
+		<TargetPlatformVersion>35.0</TargetPlatformVersion>
+		<OutputType>Exe</OutputType>
 		<RootNamespace>BrickController2.Droid</RootNamespace>
+		<AssemblyName>BrickController Legacy</AssemblyName>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<AndroidResgenClass>Resource</AndroidResgenClass>
 		<AndroidKeyStore>false</AndroidKeyStore>
 		<AndroidSigningKeyStore>C:\Users\imurv\AppData\Local\Xamarin\Mono for Android\Keystore\keystore\keystore.keystore</AndroidSigningKeyStore>
-  </PropertyGroup>
+	</PropertyGroup>
 
   <ItemGroup>
 		<None Remove="Resources\mipmap-hdpi\ic_launcher.png" />

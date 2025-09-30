@@ -21,7 +21,7 @@ public class ControllerProfileViewModel : NotifyPropertyChangedSource
 
     public bool IsActive => _parent.ActiveProfile == this;
 
-    internal void Notify()
+    internal void NotifyPropertyChanges()
     {
         RaisePropertyChanged(nameof(IsActive));
         RaisePropertyChanged(nameof(Show));

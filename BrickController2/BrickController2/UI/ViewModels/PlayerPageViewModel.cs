@@ -48,7 +48,7 @@ namespace BrickController2.UI.ViewModels
             Creation = parameters.Get<Creation>("creation");
 
             ControllerProfiles = new ObservableCollection<ControllerProfileViewModel>(Creation.ControllerProfiles.Select(profile => new ControllerProfileViewModel(this, profile)));
-            // apply choosen profile (if present) or the first one 
+            // apply chosen profile (if present) or the first one 
             _playLogic.ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
 
             CollectDevices();
@@ -71,7 +71,7 @@ namespace BrickController2.UI.ViewModels
                     // notify all profiles
                     foreach (var profile in ControllerProfiles)
                     {
-                        profile.Notify();
+                        profile.NotifyPropertyChanges();
                     }
                 }
             }

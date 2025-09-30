@@ -17,13 +17,13 @@ public class ControllerProfileViewModel : NotifyPropertyChangedSource
     public ControllerProfile Profile { get; }
     public string Name => Profile.Name;
 
-    public bool Show => IsActive && _parent.ControllerProfiles.Count > 1;
+    public bool ShowCurrentProfile => IsActive && _parent.ControllerProfiles.Count > 1;
 
     public bool IsActive => _parent.ActiveProfile == this;
 
     internal void NotifyPropertyChanges()
     {
         RaisePropertyChanged(nameof(IsActive));
-        RaisePropertyChanged(nameof(Show));
+        RaisePropertyChanged(nameof(ShowCurrentProfile));
     }
 }

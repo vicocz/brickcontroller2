@@ -62,18 +62,10 @@ namespace BrickController2.UI.ViewModels
 
         public ControllerProfileViewModel ActiveProfile
         {
-            get => ControllerProfiles.First(x => _playLogic.ActiveProfile == x.Profile);
+            get => ControllerProfiles.First(x => ActiveProfileInternal == x.Profile);
             set
             {
-                if (_playLogic.ActiveProfile != value.Profile)
-                {
-                    _playLogic.ActiveProfile = value.Profile;
-                    // notify all profiles
-                    foreach (var profile in ControllerProfiles)
-                    {
-                        profile.NotifyPropertyChanges();
-                    }
-                }
+                ActiveProfileInternal = value.Profile;
             }
         }
 
@@ -85,6 +77,23 @@ namespace BrickController2.UI.ViewModels
 
         public int BuWizzOutputLevel { get; set; } = 1;
         public int BuWizz2OutputLevel { get; set; } = 1;
+
+        internal ControllerProfile ActiveProfileInternal
+        {
+            get => _playLogic.ActiveProfile!;
+            set
+            {
+                if (_playLogic.ActiveProfile != value)
+                {
+                    _playLogic.ActiveProfile = value;
+                    // notify all profiles
+                    foreach (var profile in ControllerProfiles)
+                    {
+                        profile.NotifyPropertyChanges();
+                    }
+                }
+            }
+        }
 
         public override async void OnAppearing()
         {

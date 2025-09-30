@@ -13,7 +13,7 @@ namespace BrickController2.UI.Controls
             TapRecognizer.Command = new Command(() =>
             {
                 Checked = !Checked;
-            }, canExecute: () => !ReadOnly);
+            }, canExecute: CanChangeCheckbox);
         }
 
         public static readonly BindableProperty CheckedProperty = BindableProperty.Create(nameof(Checked), typeof(bool), typeof(CheckBox), false, BindingMode.TwoWay, null, CheckedChanged);
@@ -54,5 +54,7 @@ namespace BrickController2.UI.Controls
             UncheckedShape.IsVisible = !Checked;
             CheckedShape.IsVisible = Checked;
         }
+
+        private bool CanChangeCheckbox() => !ReadOnly;
     }
 }

@@ -6,7 +6,7 @@
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
 		<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-		<ApplicationId>com.scn.BrickController2</ApplicationId>
+		<ApplicationId>cz.vico.brickcontrollerlegacy</ApplicationId>
 		<RootNamespace>BrickController2.iOS</RootNamespace>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>

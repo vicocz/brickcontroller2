@@ -7,6 +7,7 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,8 +46,10 @@ namespace BrickController2.UI.ViewModels
             _playLogic = playLogic;
 
             Creation = parameters.Get<Creation>("creation");
+
+            ControllerProfiles = new ObservableCollection<ControllerProfileViewModel>(Creation.ControllerProfiles.Select(profile => new ControllerProfileViewModel(this, profile)));
             // apply choosen profile (if present) or the first one 
-            ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
+            _playLogic.ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
 
             CollectDevices();
 
@@ -55,10 +58,23 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Creation Creation { get; }
-        public ControllerProfile? ActiveProfile
+        public ObservableCollection<ControllerProfileViewModel> ControllerProfiles { get; }
+
+        public ControllerProfileViewModel ActiveProfile
         {
-            get => _playLogic.ActiveProfile;
-            set => _playLogic.ActiveProfile = value;
+            get => ControllerProfiles.First(x => _playLogic.ActiveProfile == x.Profile);
+            set
+            {
+                if (_playLogic.ActiveProfile != value.Profile)
+                {
+                    _playLogic.ActiveProfile = value.Profile;
+                    // notify all profiles
+                    foreach (var profile in ControllerProfiles)
+                    {
+                        profile.Notify();
+                    }
+                }
+            }
         }
 
         public bool HasBuWizzDevice => _buwizzDevices.Count > 0;

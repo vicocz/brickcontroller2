@@ -54,11 +54,12 @@
                         </StackLayout>
 
                         <!-- Controller profiles -->
-                        <CollectionView Grid.Row="3" ItemsSource="{Binding Creation.ControllerProfiles}" SelectedItem="{Binding ActiveProfile, Mode=TwoWay}" SelectionMode="Single">
+                        <CollectionView Grid.Row="3" ItemsSource="{Binding ControllerProfiles}" SelectedItem="{Binding ActiveProfile, Mode=TwoWay}" SelectionMode="Single">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Style="{StaticResource CollectionItemGridStyle}">
-                                        <Label Text="{Binding Name}" FontSize="Large" FontAttributes="Bold"/>
+                                    <Grid Style="{StaticResource CollectionItemGridStyle}" ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding Name}" FontSize="Large" FontAttributes="Bold" Grid.Column="0"/>
+                                        <controls:CheckBox Grid.Column="1" Checked="{Binding IsActive, Mode=OneWay}" ReadOnly="True" IsVisible="{Binding ShowCurrentProfile, Mode=OneWay}" />
                                     </Grid>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>

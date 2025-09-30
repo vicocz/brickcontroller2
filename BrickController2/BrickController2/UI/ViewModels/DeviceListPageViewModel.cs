@@ -8,11 +8,13 @@ using Device = BrickController2.DeviceManagement.Device;
 using BrickController2.UI.Commands;
 using System.Threading;
 using BrickController2.UI.Services.Translation;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.UI.ViewModels
 {
     public class DeviceListPageViewModel : PageViewModelBase
     {
+        private readonly IBluetoothLEService _bluetoothLEService;
         private readonly IDialogService _dialogService;
 
         private bool _isDisappearing = false;
@@ -20,28 +22,41 @@ namespace BrickController2.UI.ViewModels
         public DeviceListPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
+            IBluetoothLEService bluetoothLEService,
             IDeviceManager deviceManager,
             IDialogService dialogService) 
             : base(navigationService, translationService)
         {
             DeviceManager = deviceManager;
+            _bluetoothLEService = bluetoothLEService;
             _dialogService = dialogService;
 
             ScanCommand = new SafeCommand(async () => await ScanAsync(), () => !DeviceManager.IsScanning);
+            ShowManualDeviceListPageCommand = new SafeCommand(async () => await ShowManualDeviceListPageAsync(), () => !DeviceManager.IsScanning);
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
+            DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
+            RenameDeviceCommand = new SafeCommand<Device>(RenameDeviceAsync);
         }
 
         public IDeviceManager DeviceManager { get; }
 
         public ICommand ScanCommand { get; }
+        public ICommand ShowManualDeviceListPageCommand { get; }
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
+        public ICommand DeviceSettingsCommand { get; }
+        public ICommand RenameDeviceCommand { get; }
 
-        public override void OnAppearing()
+        public bool IsBLEAdvertisingSupported { get; private set; }
+
+        public override async void OnAppearing()
         {
             _isDisappearing = false;
             base.OnAppearing();
+
+            IsBLEAdvertisingSupported = await _bluetoothLEService.IsBluetoothLEAdvertisingSupportedAsync();
+            RaisePropertyChanged(nameof(IsBLEAdvertisingSupported));
         }
 
         public override void OnDisappearing()
@@ -72,9 +87,58 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private async Task OpenDeviceSettingsAsync(Device device)
+        {
+            try
+            {
+                await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (device));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task RenameDeviceAsync(Device device)
+        {
+            try
+            {
+                var result = await _dialogService.ShowInputDialogAsync(
+                    device.Name,
+                    Translate("DeviceName"),
+                    Translate("Rename"),
+                    Translate("Cancel"),
+                    KeyboardType.Text,
+                    (deviceName) => !string.IsNullOrEmpty(deviceName),
+                    DisappearingToken);
+
+                if (result.IsOk)
+                {
+                    await _dialogService.ShowProgressDialogAsync(
+                        false,
+                        (progressDialog, token) => device.RenameDeviceAsync(result.Result),
+                        Translate("Renaming"),
+                        token: DisappearingToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task ShowManualDeviceListPageAsync()
+        {
+            try
+            {
+                await NavigationService.NavigateToAsync<ManualDeviceListPageViewModel>(new());
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
         private async Task ScanAsync()
         {
-            if (!DeviceManager.IsBluetoothOn)
+            if (!await DeviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),

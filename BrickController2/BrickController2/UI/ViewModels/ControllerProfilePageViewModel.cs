@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using BrickController2.CreationManagement;
-using BrickController2.UI.Commands;
-using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Dialog;
-using BrickController2.DeviceManagement;
-using BrickController2.UI.Services.Translation;
 using BrickController2.BusinessLogic;
-using BrickController2.PlatformServices.SharedFileStorage;
-using BrickController2.Helpers;
-using DeviceType = BrickController2.DeviceManagement.DeviceType;
+using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
+using BrickController2.DeviceManagement;
+using BrickController2.Extensions;
+using BrickController2.Helpers;
+using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.SharedFileStorage;
+using BrickController2.UI.Commands;
+using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Navigation;
+using BrickController2.UI.Services.Translation;
+using DeviceType = BrickController2.DeviceManagement.DeviceType;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -26,6 +27,7 @@ namespace BrickController2.UI.ViewModels
         private readonly ISharingManager<ControllerProfile> _sharingManager;
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
+        private readonly IGameControllerService _gameControllerService;
 
         private List<ControllerEventViewModel> _controllerEvents = new List<ControllerEventViewModel>();
 
@@ -38,6 +40,7 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
+            IGameControllerService gameControllerService,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -47,18 +50,21 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
             SharedFileStorageService = sharedFileStorageService;
             _playLogic = playLogic;
+            _gameControllerService = gameControllerService;
 
             ControllerProfile = parameters.Get<ControllerProfile>("controllerprofile");
 
             ExportControllerProfileCommand = new SafeCommand(async () => await ExportControllerProfileAsync(), () => SharedFileStorageService.IsSharedStorageAvailable);
             CopyControllerProfileCommand = new SafeCommand(CopyControllerProfileAsync);
             RenameProfileCommand = new SafeCommand(async () => await RenameControllerProfileAsync());
-            AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync());
+            AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false));
+            AddControllerEventForSpecificControllerIdCommand = new SafeCommand(async () => await AddControllerEventAsync(true));
             PlayCommand = new SafeCommand(async () => await PlayAsync());
-            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(async controllerActionViewModel => await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controlleraction", controllerActionViewModel.ControllerAction))));
+            ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             AddAnotherActionCommand = new SafeCommand<ControllerEvent>(AddAnotherActionAsync);
             DeleteControllerActionCommand = new SafeCommand<ControllerAction>(async controllerAction => await DeleteControllerActionAsync(controllerAction));
+            OpenControllerActionSetupCommand = new SafeCommand<ControllerAction>(OpenControllerActionChannelSetupAsync, ValidateControllerActionChannelSetup);
 
             PopulateControllerEvents();
         }
@@ -80,16 +86,20 @@ namespace BrickController2.UI.ViewModels
             set { _controllerEvents = value; RaisePropertyChanged(); }
         }
 
+        public bool IsControllerIdSupported => _gameControllerService.IsControllerIdSupported;
+
         public ICommand ExportControllerProfileCommand { get; }
         public ICommand CopyControllerProfileCommand { get; }
         public ICommand RenameProfileCommand { get; }
         public ICommand AddControllerEventCommand { get; }
+        public ICommand AddControllerEventForSpecificControllerIdCommand { get; }
         public ICommand PlayCommand { get; }
         public ICommand ControllerActionTappedCommand { get; }
         public ICommand DeleteControllerEventCommand { get; }
         public ICommand AddAnotherActionCommand { get; }
-        
+
         public ICommand DeleteControllerActionCommand { get; }
+        public ICommand OpenControllerActionSetupCommand { get; }
 
         private void PopulateControllerEvents()
         {
@@ -200,7 +210,7 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task AddControllerEventAsync()
+        private async Task AddControllerEventAsync(bool addControllerId)
         {
             try
             {
@@ -224,12 +234,33 @@ namespace BrickController2.UI.ViewModels
                     ControllerEvent? controllerEvent = null;
                     await _dialogService.ShowProgressDialogAsync(
                         false,
-                        async (progressDialog, token) => controllerEvent = await _creationManager.AddOrGetControllerEventAsync(ControllerProfile, result.EventType, result.EventCode),
+                        async (progressDialog, token) => controllerEvent = await _creationManager.AddOrGetControllerEventAsync(ControllerProfile, addControllerId ? result.ControllerId : string.Empty, result.EventType, result.EventCode),
                         Translate("Creating"),
                         token: DisappearingToken);
 
                     await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent!)));
                 }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task ShowActionAsync(ControllerActionViewModel controllerActionViewModel)
+        {
+            try
+            {
+                if (_deviceManager.Devices.Count == 0)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("MissingDevices"),
+                        Translate("Ok"),
+                        DisappearingToken);
+                    return;
+                }
+
+                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new (controllerActionViewModel.ControllerAction, "controlleraction"));
             }
             catch (OperationCanceledException)
             {
@@ -287,7 +318,7 @@ namespace BrickController2.UI.ViewModels
 
                 await _dialogService.ShowProgressDialogAsync(
                     false,
-                    async (progressDialog, token) => await _creationManager.AddOrGetControllerEventAsync(ControllerProfile, controllerEvent.EventType, controllerEvent.EventCode),
+                    async (progressDialog, token) => await _creationManager.AddOrGetControllerEventAsync(ControllerProfile, controllerEvent.ControllerId, controllerEvent.EventType, controllerEvent.EventCode),
                     Translate("Creating"),
                     token: DisappearingToken);
 
@@ -359,8 +390,29 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private Task OpenControllerActionChannelSetupAsync(ControllerAction controllerAction)
+        {
+            var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+            return NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", device!),
+                        ("controlleraction", controllerAction)));
+        }
+
+        private bool ValidateControllerActionChannelSetup(object? cmdParam)
+        {
+            if (cmdParam is not ControllerAction controllerAction ||
+                !controllerAction.ChannelOutputType.IsChannelSetupSupported())
+            {
+                return false;
+            }
+            var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+            return device != null &&
+                device.IsOutputTypeSupported(controllerAction.Channel, controllerAction.ChannelOutputType);
+        }
+
         public class ControllerActionViewModel
         {
+            private readonly Device? _device;
+
             public ControllerActionViewModel(
                 ControllerAction controllerAction,
                 IDeviceManager deviceManager,
@@ -368,11 +420,13 @@ namespace BrickController2.UI.ViewModels
                 ITranslationService translationService)
             {
                 ControllerAction = controllerAction;
-                var device = deviceManager.GetDeviceById(controllerAction.DeviceId);
+                _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
 
                 ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
-                DeviceName = device != null ? device.Name : translationService.Translate("Missing");
-                DeviceType = device != null ? device.DeviceType : DeviceType.Unknown;
+                DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
+                // primary take type from existing device or try to parse DeviceId
+                DeviceType = _device != null ? _device.DeviceType :
+                    (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
                 Channel = controllerAction.Channel;
                 InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
             }
@@ -383,6 +437,11 @@ namespace BrickController2.UI.ViewModels
             public DeviceType DeviceType { get; }
             public int Channel { get; }
             public string InvertName { get; }
+
+            public bool IsChannelSetupSupported =>
+                _device is not null &&
+                ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
+                _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
         }
 
         public class ControllerEventViewModel : List<ControllerActionViewModel>

@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using System;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement
 {
@@ -11,5 +12,6 @@ namespace BrickController2.DeviceManagement
 
         public override DeviceType DeviceType => DeviceType.DuploTrainHub;
         public override int NumberOfChannels => 1;
+        protected override TimeSpan ResendDelay_NormalMotor => TimeSpan.FromMilliseconds(500);
     }
 }

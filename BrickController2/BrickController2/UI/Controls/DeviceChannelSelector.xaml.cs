@@ -1,7 +1,8 @@
-﻿using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Xaml;
-using BrickController2.DeviceManagement;
+﻿using BrickController2.DeviceManagement;
 using BrickController2.UI.Commands;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Xaml;
+using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.Controls
 {
@@ -44,15 +45,58 @@ namespace BrickController2.UI.Controls
             CircuitCubesC.Command = new SafeCommand(() => SelectedChannel = 2);
             WedoChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             WedoChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            TechnicMoveChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
+            TechnicMoveChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
+            TechnicMoveChannelAB.Command = new SafeCommand(() => SelectedChannel = TechnicMoveDevice.CHANNEL_VM);
+            TechnicMoveChannelC.Command = new SafeCommand(() => SelectedChannel = 2);
+            TechnicMoveChannel1.Command = new SafeCommand(() => SelectedChannel = 3);
+            TechnicMoveChannel2.Command = new SafeCommand(() => SelectedChannel = 4);
+            TechnicMoveChannel3.Command = new SafeCommand(() => SelectedChannel = 5);
+            TechnicMoveChannel4.Command = new SafeCommand(() => SelectedChannel = 6);
+            TechnicMoveChannel5.Command = new SafeCommand(() => SelectedChannel = 7);
+            TechnicMoveChannel6.Command = new SafeCommand(() => SelectedChannel = 8);
+            PfxBrickChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
+            PfxBrickChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
+            PfxBrickChannel1.Command = new SafeCommand(() => SelectedChannel = 2);
+            PfxBrickChannel2.Command = new SafeCommand(() => SelectedChannel = 3);
+            PfxBrickChannel3.Command = new SafeCommand(() => SelectedChannel = 4);
+            PfxBrickChannel4.Command = new SafeCommand(() => SelectedChannel = 5);
+            PfxBrickChannel5.Command = new SafeCommand(() => SelectedChannel = 6);
+            PfxBrickChannel6.Command = new SafeCommand(() => SelectedChannel = 7);
+            PfxBrickChannel7.Command = new SafeCommand(() => SelectedChannel = 8);
+            PfxBrickChannel8.Command = new SafeCommand(() => SelectedChannel = 9);
+            MK3_8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK3_8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK3_8Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK3_8Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK3_8Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            MK4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK4Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK5Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK5Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK5Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK5Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK5Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            MK6Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK6Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK6Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK6Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            MK6Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            MK6Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
+            CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
         }
 
-        public static BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelSelector), default(DeviceType), BindingMode.OneWay, null, OnDeviceTypeChanged);
-        public static BindableProperty SelectedChannelProperty = BindableProperty.Create(nameof(SelectedChannel), typeof(int), typeof(DeviceChannelSelector), 0, BindingMode.TwoWay, null, OnSelectedChannelChanged);
+        public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);
+        public static readonly BindableProperty SelectedChannelProperty = BindableProperty.Create(nameof(SelectedChannel), typeof(int), typeof(DeviceChannelSelector), 0, BindingMode.TwoWay, null, OnSelectedChannelChanged);
 
-        public DeviceType DeviceType
+        public Device Device
         {
-            get => (DeviceType)GetValue(DeviceTypeProperty);
-            set => SetValue(DeviceTypeProperty, value);
+            get => (Device)GetValue(DeviceProperty);
+            set => SetValue(DeviceProperty, value);
         }
 
         public int SelectedChannel
@@ -61,11 +105,11 @@ namespace BrickController2.UI.Controls
             set => SetValue(SelectedChannelProperty, value);
         }
 
-        private static void OnDeviceTypeChanged(BindableObject bindable, object oldValue, object newValue)
+        private static void OnDeviceChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            if (bindable is DeviceChannelSelector dcs)
+            if (bindable is DeviceChannelSelector dcs && newValue is Device device)
             {
-                var deviceType = (DeviceType)newValue;
+                var deviceType = device.DeviceType;
                 dcs.SbrickSection.IsVisible = deviceType == DeviceType.SBrick;
                 dcs.BuWizzSection.IsVisible = deviceType == DeviceType.BuWizz || deviceType == DeviceType.BuWizz2;
                 dcs.BuWizz3Section.IsVisible = deviceType == DeviceType.BuWizz3;
@@ -76,6 +120,19 @@ namespace BrickController2.UI.Controls
                 dcs.DuploTrainHubSection.IsVisible = deviceType == DeviceType.DuploTrainHub;
                 dcs.CircuitCubes.IsVisible = deviceType == DeviceType.CircuitCubes;
                 dcs.Wedo2Section.IsVisible = deviceType == DeviceType.WeDo2;
+                // Technic Move enablement
+                var isPlayVm = device is TechnicMoveDevice moveDevice && moveDevice.EnablePlayVmMode;
+                dcs.TechnicMoveSection.IsVisible = deviceType == DeviceType.TechnicMove;
+                dcs.TechnicMoveChannelA.IsVisible = !isPlayVm;
+                dcs.TechnicMoveChannelB.IsVisible = !isPlayVm;
+                dcs.TechnicMoveChannelAB.IsVisible = isPlayVm;
+                dcs.PfxBrickSection.IsVisible = deviceType == DeviceType.PfxBrick;
+                dcs.MK3_8Section.IsVisible = deviceType == DeviceType.MK3_8;
+                dcs.MK4Section.IsVisible = deviceType == DeviceType.MK4;
+                dcs.MK5Section.IsVisible = deviceType == DeviceType.MK5;
+                dcs.MK6Section.IsVisible = deviceType == DeviceType.MK6;
+                dcs.MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
+                dcs.CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
             }
         }
 
@@ -116,6 +173,53 @@ namespace BrickController2.UI.Controls
                 dcs.CircuitCubesC.SelectedChannel = selectedChannel;
                 dcs.WedoChannel0.SelectedChannel = selectedChannel;
                 dcs.WedoChannel1.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannelA.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannelB.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannelAB.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannelC.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel1.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel2.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel3.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel4.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel5.SelectedChannel = selectedChannel;
+                dcs.TechnicMoveChannel6.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannelA.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannelB.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel1.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel2.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel3.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel4.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel5.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel6.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel7.SelectedChannel = selectedChannel;
+                dcs.PfxBrickChannel8.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel0.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel1.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel2.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel3.SelectedChannel = selectedChannel;
+                dcs.MK3_8Channel4.SelectedChannel = selectedChannel;
+                dcs.MK4Channel0.SelectedChannel = selectedChannel;
+                dcs.MK4Channel1.SelectedChannel = selectedChannel;
+                dcs.MK4Channel2.SelectedChannel = selectedChannel;
+                dcs.MK4Channel3.SelectedChannel = selectedChannel;
+                dcs.MK5Channel0.SelectedChannel = selectedChannel;
+                dcs.MK5Channel1.SelectedChannel = selectedChannel;
+                dcs.MK5Channel2.SelectedChannel = selectedChannel;
+                dcs.MK5Channel3.SelectedChannel = selectedChannel;
+                dcs.MK5Channel4.SelectedChannel = selectedChannel;
+                dcs.MK6Channel0.SelectedChannel = selectedChannel;
+                dcs.MK6Channel1.SelectedChannel = selectedChannel;
+                dcs.MK6Channel2.SelectedChannel = selectedChannel;
+                dcs.MK6Channel3.SelectedChannel = selectedChannel;
+                dcs.MK6Channel4.SelectedChannel = selectedChannel;
+                dcs.MK6Channel5.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel0.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel1.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel2.SelectedChannel = selectedChannel;
+                dcs.MK_DIYChannel3.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel0.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel1.SelectedChannel = selectedChannel;
+                dcs.CaDARaceCarChannel2.SelectedChannel = selectedChannel;
             }
         }
     }

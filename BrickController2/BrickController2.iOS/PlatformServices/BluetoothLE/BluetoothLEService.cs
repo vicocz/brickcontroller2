@@ -9,6 +9,8 @@ using CoreFoundation;
 using Foundation;
 using BrickController2.PlatformServices.BluetoothLE;
 
+using static BrickController2.Protocols.BluetoothLowEnergy;
+
 namespace BrickController2.iOS.PlatformServices.BluetoothLE
 {
     public class BluetoothLEService : CBCentralManagerDelegate, IBluetoothLEService
@@ -26,12 +28,12 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
 #pragma warning restore CA1422 // Validate platform compatibility
         }
 
-        public bool IsBluetoothLESupported => true;
-        public bool IsBluetoothOn => _centralManager.State == CBManagerState.PoweredOn;
-
+        public Task<bool> IsBluetoothLESupportedAsync() => Task.FromResult(true);
+        public Task<bool> IsBluetoothLEAdvertisingSupportedAsync() => Task.FromResult(true);
+        public Task<bool> IsBluetoothOnAsync() => Task.FromResult(_centralManager.State == CBManagerState.PoweredOn);
         public async Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token)
         {
-            if (!IsBluetoothLESupported || !IsBluetoothOn || _centralManager.IsScanning)
+            if (!await IsBluetoothLESupportedAsync() || !await IsBluetoothOnAsync() || _centralManager.IsScanning)
             {
                 return false;
             }
@@ -55,18 +57,18 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             }
         }
 
-        public IBluetoothLEDevice? GetKnownDevice(string address)
+        public Task<IBluetoothLEDevice?> GetKnownDeviceAsync(string address)
         {
             var peripheral = _centralManager?.RetrievePeripheralsWithIdentifiers(new NSUuid(address)).FirstOrDefault();
             if (peripheral is null)
             {
-                return null;
+                return Task.FromResult<IBluetoothLEDevice?>(default);
             }
 
             var device = new BluetoothLEDevice(_centralManager!, peripheral);
             _peripheralMap[peripheral] = device;
 
-            return device;
+            return Task.FromResult<IBluetoothLEDevice?>(device);
         }
 
         public override void UpdatedState(CBCentralManager central)
@@ -77,7 +79,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         {
             lock(_lock)
             {
-                if (peripheral is null || peripheral.Identifier is null || string.IsNullOrEmpty(peripheral.Name))
+                if (peripheral is null || peripheral.Identifier is null)
                 {
                     return;
                 }
@@ -105,20 +107,27 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             device.OnDeviceDisconnected();
         }
 
-        private IDictionary<byte, byte[]> ProcessAdvertisementData(NSDictionary advertisementData)
+        private Dictionary<byte, byte[]> ProcessAdvertisementData(NSDictionary advertisementData)
         {
             var result = new Dictionary<byte, byte[]>();
 
             var manufacturerData = GetDataForKey(advertisementData, CBAdvertisement.DataManufacturerDataKey);
             if (manufacturerData is not null)
             {
-                result[0xFF] = manufacturerData;
+                result[ADTYPE_MANUFACTURER_SPECIFIC] = manufacturerData;
             }
 
             var completeDeviceName = GetDataForKey(advertisementData, CBAdvertisement.DataLocalNameKey);
             if (completeDeviceName is not null)
             {
-                result[0x09] = completeDeviceName;
+                result[ADTYPE_LOCAL_NAME_COMPLETE] = completeDeviceName;
+            }
+
+            var serviceUuid = GetServiceUuidForKey(advertisementData, CBAdvertisement.DataServiceUUIDsKey);
+            if (serviceUuid is not null)
+            {
+                // set it as incomplete service UUID (even though it might be the complete list)
+                result[ADTYPE_INCOMPLETE_SERVICE_128BIT] = serviceUuid;
             }
 
             // TODO: add the rest of the advertisementdata...
@@ -144,6 +153,33 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             }
 
             return null;
+        }
+
+        private static byte[]? GetServiceUuidForKey(NSDictionary advertisementData, NSString key)
+        {
+            if (advertisementData != null &&
+                advertisementData.TryGetValue(key, out var rawObject) &&
+                rawObject is NSArray arrayObject)
+            {
+                // find first available 128-bit UUID
+                for (nuint i = 0; i < arrayObject.Count; i++)
+                {
+                    var cbuuid = arrayObject.GetItem<CBUUID>(i);
+                    if (cbuuid.Data.Length == 16)
+                    {
+                        // Service UUID's are read backwards (little endian) according to specs
+                        var serviceUUid = cbuuid.Data.ToArray();
+                        Array.Reverse(serviceUUid);
+                        return serviceUUid;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice()
+        {
+            return new BluetoothLEAdvertiserDevice();
         }
     }
 }

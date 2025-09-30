@@ -1,134 +1,156 @@
-﻿using System;
-using System.Collections.Generic;
-using Android.Runtime;
-using Android.Views;
+﻿using Android.Views;
+using Android.Hardware.Input;
+using Android.Content;
 using BrickController2.PlatformServices.GameController;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
-    public class GameControllerService : IGameControllerService
+    internal class GameControllerService : GameControllerServiceBase<GamepadController>
     {
-        private readonly IDictionary<Axis, float> _lastAxisValues = new Dictionary<Axis, float>();
-        private readonly object _lockObject = new object();
+        private readonly InputManager _inputManager;
 
-        private event EventHandler<GameControllerEventArgs>? GameControllerEventInternal;
-
-        public event EventHandler<GameControllerEventArgs> GameControllerEvent
+        public GameControllerService(Context context, ILogger<GameControllerService> logger) :base(logger)
         {
-            add
-            {
-                lock (_lockObject)
-                {
-                    if (GameControllerEventInternal == null)
-                    {
-                        _lastAxisValues.Clear();
-                    }
+            _inputManager = (InputManager)context.GetSystemService(Context.InputService)!;
+        }
 
-                    GameControllerEventInternal += value;
+        public override bool IsControllerIdSupported => true;
+
+        /// <summary>
+        /// Handler called from MainActivity when an InputDevice is added
+        /// </summary>
+        /// <param name="deviceId">deviceId of InputDevice</param>
+        internal void MainActivityOnInputDeviceAdded(int deviceId)
+        {
+            if (CanProcessEvents && TryGetGamepadDevice(deviceId, out var device))
+            {
+                AddGameControllerDevice(device);
+            }
+        }
+
+        /// <summary>
+        /// Handler called from MainActivity when an InputDevice is removed 
+        /// </summary>
+        /// <param name="deviceId">deviceId of InputDevice</param>
+        internal void MainActivityOnInputDeviceRemoved(int deviceId)
+        {
+            if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
+            {
+                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                    deviceId, controller.ControllerId);
+            }
+        }
+
+        /// <summary>
+        /// Handler called from MainActivity when an InputDevice is changed 
+        /// </summary>
+        /// <param name="deviceId">deviceId of InputDevice</param>
+        internal void MainActivityOnInputDeviceChanged(int deviceId)
+        {
+            var device = InputDevice.GetDevice(deviceId);
+            if (device is not null)
+            {
+                if (CanProcessEvents && IsGamapadDevice(device))
+                {
+                    // if there is no existing controller present - add it
+                    if (TryGetControllerByDeviceId(deviceId, out var controller) &&
+                        controller.ControllerNumber == device.ControllerNumber)
+                    {
+                        // ignore it, it's some update
+                        return;
+                    }
+                    else if (controller != null)
+                    {
+                        // handle change - remove and then add it again
+                        TryRemove(x => x.Gamepad.Id == deviceId, out _);
+                    }
+                    AddGameControllerDevice(device);
                 }
             }
-
-            remove
+            else if (TryRemove(x => x.Gamepad.Id == deviceId, out var controller))
             {
-                lock (_lockObject)
+                _logger.LogInformation("Gamepad has been removed DeviceId:{id}, ControllerId:{controllerId}",
+                    deviceId, controller.ControllerId);
+            }
+        }
+
+        internal bool OnGameControllerButtonEvent(KeyEvent e, float buttonValue)
+        {
+            if (!TryGetControllerByDeviceId(e.DeviceId, out var gamepadController)) // fetch matching GamepadController from table
+            {
+                return false;
+            }
+
+            return gamepadController.OnButtonEvent(e, buttonValue);
+        }
+
+        internal bool OnGameControllerAxisEvent(MotionEvent e)
+        {
+            if (!TryGetControllerByDeviceId(e.DeviceId, out var gamepadController)) // fetch matching GamepadController from table
+            {
+                return false;
+            }
+
+            return gamepadController.OnAxisEvent(e);
+        }
+
+        protected override void InitializeCurrentControllers()
+        {
+            // add any connected game controller
+            var deviceIds = _inputManager?.GetInputDeviceIds() ?? [];
+            foreach (int deviceId in deviceIds)
+            {
+                if (TryGetGamepadDevice(deviceId, out var device))
                 {
-                    GameControllerEventInternal -= value;
+                    AddGameControllerDevice(device);
                 }
             }
         }
 
-        public bool OnKeyDown([GeneratedEnum] Keycode keyCode, KeyEvent e)
+        /// <summary>
+        /// Add game controller device represented by native instance of <paramref name="gamepad"/>
+        /// </summary>
+        private void AddGameControllerDevice(InputDevice gamepad)
         {
-            if ((((int)e.Source & (int)InputSourceType.Gamepad) == (int)InputSourceType.Gamepad) && e.RepeatCount == 0)
+            lock (_lockObject)
             {
-                GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(GameControllerEventType.Button, e.KeyCode.ToString(), 1.0F));
-                return true;
+                var newController = new GamepadController(this, gamepad);
+                AddController(newController);
+            }
+        }
+
+        private bool TryGetControllerByDeviceId(int deviceId, [MaybeNullWhen(false)] out GamepadController controller)
+            => TryGetController(x => x.Gamepad.Id == deviceId, out controller);
+
+        private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
+        {
+            device = InputDevice.GetDevice(deviceId);
+            return IsGamapadDevice(device);
+        }
+
+        private static bool IsGamapadDevice(InputDevice? device)
+        {
+            // skip if device is missing or is strange one present
+            if (device is null || device.Name?.StartsWith("uinput-") == true) // drop all gamepads with name starting with "uinput-"
+            {
+                // JK: Bug - Device 0 already taken by fingerprint reader on Android
+                // https://github.com/godotengine/godot/issues/47656
+                //
+                // Input name       | Company Name
+                // uinput-fpc       | Fingerprint Cards AB
+                // uinput-goodix    | Goodix
+                // uinput-synaptics | Synaptics
+                // uinput-elan      | ElanTech
+                // uinput-vfs       | Validity Sensors(acquired by Synaptics)
+                // uinput-atrus     | Atrua Technologies
+                return false;
             }
 
-            return false;
-        }
-
-        public bool OnKeyUp([GeneratedEnum] Keycode keyCode, KeyEvent e)
-        {
-            if ((((int)e.Source & (int)InputSourceType.Gamepad) == (int)InputSourceType.Gamepad) && e.RepeatCount == 0)
-            {
-                GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(GameControllerEventType.Button, e.KeyCode.ToString(), 0.0F));
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool OnGenericMotionEvent(MotionEvent e)
-        {
-            if (e.Source == InputSourceType.Joystick && e.Action == MotionEventActions.Move)
-            {
-                var events = new Dictionary<(GameControllerEventType, string), float>();
-                foreach (Axis axisCode in Enum.GetValues(typeof(Axis)))
-                {
-                    var axisValue = e.GetAxisValue(axisCode);
-
-                    if ((axisCode == Axis.Rx || axisCode == Axis.Ry) && 
-                        e.Device?.VendorId == 1356 && 
-                        (e.Device?.ProductId == 2508 || e.Device?.ProductId == 1476))
-                    {
-                        // DualShock 4 hack for the triggers ([-1:1] -> [0:1])
-                        if (!_lastAxisValues.ContainsKey(axisCode) && axisValue == 0.0F)
-                        {
-                            continue;
-                        }
-
-                        axisValue = (axisValue + 1) / 2;
-                    }
-
-                    if (e.Device?.VendorId == 0x057e && 
-                        (/*e.Device.ProductId == 0x2006 || e.Device.ProductId == 0x2007 ||*/ e.Device.ProductId == 0x2009))
-                    {
-                        // Nintendo Switch Pro controller hack ([-0.69:0.7] -> [-1:1])
-                        // 2006 and 2007 are for the Nintendo Joy-Con controller (haven't reported issues with it)
-                        axisValue = Math.Min(1, Math.Max(-1, axisValue / 0.69F));
-                    }
-
-                    if (e.Device?.VendorId == 1118 && e.Device?.ProductId == 765 &&
-                        axisCode == Axis.Generic1)
-                    {
-                        // XBox One controller reports a constant value on Generic 1 - filter it out
-                        continue;
-                    }
-
-                    axisValue = AdjustControllerValue(axisValue);
-
-                    if (_lastAxisValues.TryGetValue(axisCode, out float lastValue))
-                    {
-                        if (AreAlmostEqual(axisValue, lastValue))
-                        {
-                            // axisValue == lastValue
-                            continue;
-                        }
-                    }
-
-                    _lastAxisValues[axisCode] = axisValue;
-                    events[(GameControllerEventType.Axis, axisCode.ToString())] = axisValue;
-                }
-
-                GameControllerEventInternal?.Invoke(this, new GameControllerEventArgs(events));
-                return true;
-            }
-
-            return false;
-        }
-
-        private static float AdjustControllerValue(float value)
-        {
-            value = Math.Abs(value) < 0.05 ? 0.0F : value;
-            value = value > 0.95 ? 1.0F : value;
-            value = value < -0.95 ? -1.0F : value;
-            return value;
-        }
-
-        private static bool AreAlmostEqual(float a, float b)
-        {
-            return Math.Abs(a - b) < 0.001;
+            // All input devices which are not gamepads or joysticks will be assigned a controller number of 0.
+            return device.ControllerNumber > 0 &&
+                (device.Sources.IsButtonEventSource() || device.Sources.IsAxisEventSource());
         }
     }
 }

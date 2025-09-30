@@ -1,8 +1,9 @@
-﻿namespace BrickController2.DeviceManagement
+﻿using System.Threading.Tasks;
+
+namespace BrickController2.DeviceManagement
 {
     internal interface IBluetoothDeviceManager : IDeviceScanner
     {
-        bool IsBluetoothLESupported { get; }
-        bool IsBluetoothOn { get; }
+        Task<bool> IsBluetoothOnAsync();
     }
 }

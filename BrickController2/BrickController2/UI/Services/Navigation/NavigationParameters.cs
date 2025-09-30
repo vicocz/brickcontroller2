@@ -1,18 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace BrickController2.UI.Services.Navigation
 {
     public class NavigationParameters
     {
-        private readonly IDictionary<string, object> _parameters = new Dictionary<string, object>();
+        // ignore casing
+        private readonly IDictionary<string, object> _parameters = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
         public NavigationParameters(params (string Key, object Value)[] parameters)
         {
-            foreach(var entry in parameters)
+            foreach(var (Key, Value) in parameters)
             {
-                _parameters[entry.Key] = entry.Value;
+                _parameters[Key] = Value;
             }
+        }
+
+        public NavigationParameters(object value, [CallerArgumentExpression(nameof(value))] string key = "")
+        {
+            _parameters[key] = value;
         }
 
         public bool Contains(string key)
@@ -22,34 +29,32 @@ namespace BrickController2.UI.Services.Navigation
 
         public T Get<T>(string key)
         {
-            if (!_parameters.ContainsKey(key))
+            if (!_parameters.TryGetValue(key, out object? value))
             {
                 throw new ArgumentException($"No parameter for key '{key}'.");
             }
 
-            var value = _parameters[key];
-            if (!(value is T))
+            if (value is not T typedValue)
             {
                 throw new ArgumentException($"Parameter for '{key}' is not type of '{typeof(T).Name}'.");
             }
 
-            return (T)value;
+            return typedValue;
         }
 
         public T Get<T>(string key, T defaultValue)
         {
-            if (!_parameters.ContainsKey(key))
+            if (!_parameters.TryGetValue(key, out object? value))
             {
                 return defaultValue;
             }
 
-            var value = _parameters[key];
-            if (!(value is T))
+            if (value is not T typedValue)
             {
                 return defaultValue;
             }
 
-            return (T)value;
+            return typedValue;
         }
     }
 }

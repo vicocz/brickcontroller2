@@ -31,6 +31,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <!-- Theme -->
@@ -38,6 +40,11 @@
                     <Button Grid.Column="1" Grid.Row="0" Text="{Binding CurrentTheme}" Command="{Binding SelectThemeCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
 
                     <BoxView Grid.ColumnSpan="2" Grid.Row="1" Style="{StaticResource DividerBoxViewStyle}" Margin="5,10,5,10"/>
+                    <!-- Language -->
+                    <Label Grid.Column="0" Grid.Row="2" Text="{extensions:Translate Language}" FontSize="Large" VerticalOptions="Center"/>
+                    <Button Grid.Column="1" Grid.Row="2" Text="{Binding CurrentLanguage}" Command="{Binding SelectLanguageCommand}" Style="{StaticResource PickerButtonStyle}" HorizontalOptions="FillAndExpand"/>
+
+                    <BoxView Grid.ColumnSpan="2" Grid.Row="3" Style="{StaticResource DividerBoxViewStyle}" Margin="5,10,5,10"/>                    
                 </Grid>
 
             </Grid>

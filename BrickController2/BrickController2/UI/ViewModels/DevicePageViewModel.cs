@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
+using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
 using BrickController2.UI.Commands;
@@ -12,6 +13,7 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
+using static BrickController2.CreationManagement.ControllerDefaults;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -37,15 +39,21 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             Device = parameters.Get<Device>("device");
+            BuWizzOutputLevel = Device.DefaultOutputLevel;
+            BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs =  Enumerable
                 .Range(0, Device.NumberOfChannels)
-                .Select(channel => new DeviceOutputViewModel(Device, channel))
+                .Select(channel => new DeviceOutputViewModel(navigationService, Device, channel))
                 .ToArray();
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
+            ActivateShelfModeCommand = new SafeCommand(ActivateShelfModeCommandAsync,
+                () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (Device)),
+                () => CanOpenSettings);
         }
 
         public Device Device { get; }
@@ -56,13 +64,23 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool CanOpenSettings => Device.HasSettings &&
+            Device.DeviceState == DeviceState.Connected &&
+            !_deviceManager.IsScanning;
+
+        public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
+
+        public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
+
         public ICommand RenameCommand { get; }
         public ICommand BuWizzOutputLevelChangedCommand { get; }
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
+        public ICommand ActivateShelfModeCommand { get; }
         public ICommand ScanCommand { get; }
+        public ICommand OpenDeviceSettingsPageCommand { get; }
 
-        public int BuWizzOutputLevel { get; set; } = 1;
-        public int BuWizz2OutputLevel { get; set; } = 1;
+        public int BuWizzOutputLevel { get; set; }
+        public int BuWizz2OutputLevel { get; set; }
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
@@ -73,7 +91,7 @@ namespace BrickController2.UI.ViewModels
 
             if (Device.DeviceType != DeviceType.Infrared)
             {
-                if (!_deviceManager.IsBluetoothOn)
+                if (!await _deviceManager.IsBluetoothOnAsync())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -131,7 +149,7 @@ namespace BrickController2.UI.ViewModels
 
                     await _dialogService.ShowProgressDialogAsync(
                         false,
-                        async (progressDialog, token) => await Device.RenameDeviceAsync(Device, result.Result),
+                        async (progressDialog, token) => await Device.RenameDeviceAsync(result.Result),
                         Translate("Renaming"),
                         token: DisappearingToken);
                 }
@@ -208,7 +226,7 @@ namespace BrickController2.UI.ViewModels
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
                             // update command enablement
-                            ScanCommand.RaiseCanExecuteChanged();
+                            UpdateCommandsAvailability();
                         }
                     }
                 }
@@ -219,9 +237,45 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private async Task ActivateShelfModeCommandAsync()
+        {
+            if (await _dialogService.ShowQuestionDialogAsync(
+                Translate("ActivateShelfMode"),
+                Translate("ActivateShelfModeConfirm"),
+                Translate("Yes"),
+                Translate("No"),
+                DisappearingToken))
+            {
+                try
+                {
+                    await _dialogService.ShowProgressDialogAsync(
+                        false,
+                        async (progressDialog, token) =>
+                        {
+                            // send command and later cancel connection
+                            await Device.ActiveShelfModeAsync();
+                            _connectionTokenSource?.Cancel();
+                            // disconnection is expected to be triggered by Back
+                            await Task.Delay(500, DisappearingToken);
+                            await NavigationService.NavigateBackAsync();
+                        },
+                        Translate("Applying"),
+                        token: DisappearingToken);
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("ActivateShelfModeFailed", ex),
+                        Translate("Ok"),
+                        DisappearingToken);
+                }
+            }
+        }
+
         private async Task ScanAsync()
         {
-            if (!_deviceManager.IsBluetoothOn)
+            if (!await _deviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),
@@ -281,6 +335,17 @@ namespace BrickController2.UI.ViewModels
 
         private void OnDeviceDisconnected(Device device)
         {
+            // update command enablement
+            UpdateCommandsAvailability();
+        }
+
+        private void UpdateCommandsAvailability()
+        {
+            ScanCommand.RaiseCanExecuteChanged();
+            ActivateShelfModeCommand.RaiseCanExecuteChanged();
+            OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
+            // to ensure that servo/stepper commands are enabled / disabled properly
+            RaisePropertyChanged(nameof(IsServoOrStepperSupported));
         }
 
         private void SetBuWizzOutputLevel(int level)
@@ -290,15 +355,18 @@ namespace BrickController2.UI.ViewModels
 
         public class DeviceOutputViewModel : NotifyPropertyChangedSource
         {
+            private readonly INavigationService _navigationService;
             private int _output;
 
-            public DeviceOutputViewModel(Device device, int channel)
+            public DeviceOutputViewModel(INavigationService navigationService, Device device, int channel)
             {
+                _navigationService= navigationService;
                 Device = device;
                 Channel = channel;
                 Output = 0;
 
                 TouchUpCommand = new Command(() => Output = 0);
+                TestServoStepperCommand = new SafeCommand(OpenChannelSetupAsync, () => IsServoOrStepperSupported);
             }
 
             public Device Device { get; }
@@ -318,7 +386,31 @@ namespace BrickController2.UI.ViewModels
                 }
             }
 
+            public bool IsServoOrStepperSupported =>
+                Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) ||
+                Device.IsOutputTypeSupported(Channel, ChannelOutputType.StepperMotor);
+
             public ICommand TouchUpCommand { get; }
+            public ICommand TestServoStepperCommand { get; }
+
+            private async Task OpenChannelSetupAsync()
+            {
+                var action = new ControllerAction
+                {
+                    DeviceId = Device.Id,
+                    Channel = Channel,
+                    MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE,
+                    ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE,
+                    StepperAngle = DEFAULT_STEPPER_ANGLE,
+                    // choose first supported output type
+                    ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) 
+                        ? ChannelOutputType.ServoMotor
+                        : ChannelOutputType.StepperMotor,
+                };
+                await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
+                    ("controlleraction", action),
+                    ("ischanneltest", true)));
+            }
         }
     }
 }

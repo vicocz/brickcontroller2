@@ -5,14 +5,15 @@ using Microsoft.Maui.Controls;
 using Autofac;
 using BrickController2.CreationManagement;
 using BrickController2.UI.Commands;
-using BrickController2.UI.Services.MainThread;
+using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
-using BrickController2.UI.Services.Translation;
 using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Localization;
+using BrickController2.UI.Services.MainThread;
+using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.Services.Theme;
-using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Pages;
+using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
 
 namespace BrickController2.UI.DI
@@ -29,6 +30,7 @@ namespace BrickController2.UI.DI
             builder.RegisterType<TranslationService>().AsSelf().As<ITranslationService>().SingleInstance();
             builder.RegisterType<PreferencesService>().AsSelf().As<IPreferencesService>().SingleInstance();
             builder.RegisterType<ThemeService>().AsSelf().As<IThemeService>().SingleInstance();
+            builder.RegisterType<LocalizationService>().AsSelf().As<ILocalizationService>().SingleInstance();
 
             // Register Dialogs
             builder.RegisterType<DialogService>().As<IDialogService>().As<IDialogServerHost>().SingleInstance();

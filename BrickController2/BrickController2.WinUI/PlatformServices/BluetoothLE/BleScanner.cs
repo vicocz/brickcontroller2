@@ -20,6 +20,7 @@ public class BleScanner
     private static readonly IReadOnlySet<byte> AdvertismentDataTypes = new HashSet<byte>(
     [
         BluetoothLEAdvertisementDataTypes.ManufacturerSpecificData,
+        BluetoothLEAdvertisementDataTypes.CompleteService128BitUuids,
         BluetoothLEAdvertisementDataTypes.IncompleteService128BitUuids,
         BluetoothLEAdvertisementDataTypes.CompleteLocalName
     ]);
@@ -54,6 +55,20 @@ public class BleScanner
         if (deviceName.IsValidDeviceName())
         {
             _deviceNameCache.AddOrUpdate(args.BluetoothAddress, deviceName, (key, oldValue) => deviceName);
+        }
+        else if (args.Advertisement.DataSections?.Count > 0)
+        {
+            // allow processing of advertised data from a device
+            var advertismentData = args.Advertisement.DataSections
+                .Where(s => AdvertismentDataTypes.Contains(s.DataType))
+                .ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
+
+            var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
+
+            // if no local name is set, try to get it from the cache
+            _deviceNameCache.TryGetValue(args.BluetoothAddress, out deviceName);
+
+            _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
         }
     }
 

@@ -1,4 +1,10 @@
 ﻿using Autofac;
+using BrickController2.DeviceManagement.BuWizz;
+using BrickController2.DeviceManagement.CaDA;
+using BrickController2.DeviceManagement.Lego;
+using BrickController2.DeviceManagement.Vendors;
+using BrickController2.Extensions;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement.DI
 {
@@ -11,6 +17,7 @@ namespace BrickController2.DeviceManagement.DI
 
             builder.RegisterType<DeviceRepository>().As<IDeviceRepository>().SingleInstance();
             builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance();
+            builder.RegisterType<ManualDeviceManager>().As<IManualDeviceManager>().SingleInstance();
 
             builder.RegisterType<SBrickDevice>().Keyed<Device>(DeviceType.SBrick);
             builder.RegisterType<BuWizzDevice>().Keyed<Device>(DeviceType.BuWizz);
@@ -23,12 +30,30 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<DuploTrainHubDevice>().Keyed<Device>(DeviceType.DuploTrainHub);
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
             builder.RegisterType<Wedo2Device>().Keyed<Device>(DeviceType.WeDo2);
+            builder.RegisterType<TechnicMoveDevice>().Keyed<Device>(DeviceType.TechnicMove);
+            builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
+            builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 
             builder.Register<DeviceFactory>(c =>
             {
                 IComponentContext ctx = c.Resolve<IComponentContext>();
-                return (deviceType, name, address, deviceData) => ctx.ResolveOptionalKeyed<Device>(deviceType, new NamedParameter("name", name), new NamedParameter("address", address), new NamedParameter("deviceData", deviceData));
+                return (deviceType, name, address, deviceData, settings) => ctx.ResolveOptionalKeyed<Device>(deviceType,
+                    new NamedParameter("name", name),
+                    new NamedParameter("address", address),
+                    new NamedParameter("deviceData", deviceData),
+                    new NamedParameter("settings", settings));
             });
+
+            // device managers
+            builder.RegisterDeviceManager<BuWizzDeviceManager>();
+            builder.RegisterDeviceManager<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>();
+            builder.RegisterDeviceManager<CircuitCubeDeviceManager>();
+            builder.RegisterDeviceManager<LegoDeviceManager>();
+            builder.RegisterDeviceManager<PfxBrickDeviceManager>();
+            builder.RegisterDeviceManager<SBrickDeviceManager>();
+
+            // execute registration per vendors
+            builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);
         }
     }
 }

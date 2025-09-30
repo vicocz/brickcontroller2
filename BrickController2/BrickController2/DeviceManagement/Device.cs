@@ -1,6 +1,9 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.CreationManagement;
+using BrickController2.Helpers;
+using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,6 +12,7 @@ namespace BrickController2.DeviceManagement
     public abstract class Device : NotifyPropertyChangedSource
     {
         private readonly IDeviceRepository _deviceRepository;
+        private readonly Dictionary<string, NamedSetting> _settings = [];
         protected readonly AsyncLock _asyncLock = new AsyncLock();
 
         private string _name;
@@ -31,7 +35,7 @@ namespace BrickController2.DeviceManagement
 
         public abstract DeviceType DeviceType { get; }
         public string Address { get; }
-        public string Id => $"{DeviceType}#{Address}";
+        public string Id => DeviceId.Get(DeviceType, Address);
 
         public string Name
         {
@@ -71,7 +75,13 @@ namespace BrickController2.DeviceManagement
         public virtual int NumberOfOutputLevels => 1;
         public virtual int DefaultOutputLevel => 1;
 
-        public virtual bool CanChangeOutputType(int channel) => false;
+        /// <summary>
+        /// Check whether the output type specified in <paramref name="outputType"/> is supported
+        /// for given channel <paramref name="channel"/> 
+        /// </summary>
+        public virtual bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
+            // by default support motor output type only
+            => outputType == ChannelOutputType.NormalMotor;
 
         public abstract Task<DeviceConnectionResult> ConnectAsync(
             bool reconnect,
@@ -102,14 +112,64 @@ namespace BrickController2.DeviceManagement
 
         public virtual bool CanBePowerSource => false;
 
-        public async Task RenameDeviceAsync(Device device, string newName)
+        public virtual bool CanActivateShelfMode => false;
+
+        public virtual Task ActiveShelfModeAsync(CancellationToken token = default)
+            => throw new InvalidOperationException("Shelf mode is not supported for this type of device.");
+
+        public async Task RenameDeviceAsync(string newName)
         {
             using (await _asyncLock.LockAsync())
             {
-                await _deviceRepository.UpdateDeviceAsync(device.DeviceType, device.Address, newName);
-                device.Name = newName;
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, newName);
+                Name = newName;
             }
         }
+
+        public async Task UpdateDeviceSettingsAsync(IEnumerable<NamedSetting> settings)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                // update provided settings, but existing with matching type only
+                foreach (var setting in settings ?? [])
+                {
+                    if (_settings.TryGetValue(setting.Name, out var storedSetting) && setting.Type == storedSetting.Type)
+                    {
+                        storedSetting.Value = setting.Value;
+                    }
+                }
+
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, CurrentSettings);
+            }
+        }
+        public bool HasSettings => _settings.Values.Any();
+        public IReadOnlyCollection<NamedSetting> CurrentSettings => _settings.Values;
+
+        protected TValue GetSettingValue<TValue>(string settingName, TValue defaultValue = default!)
+        {
+            if (_settings.TryGetValue(settingName, out var setting) && setting.Value is TValue value)
+            {
+                return value;
+            }
+
+            return defaultValue;
+        }
+
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<NamedSetting>? settings, string group, TValue defaultValue)
+            where TValue: struct
+        {
+            var foundSetting = settings?.FirstOrDefault(s => s.Name == settingName);
+            _settings[settingName] = new NamedSetting
+            {
+                Name = settingName,
+                Value = foundSetting.GetValue(defaultValue),
+                Group = group,
+                DefaultValue = defaultValue
+            };
+        }
+        protected void SetSettingValue<TValue>(string settingName, IEnumerable<NamedSetting>? settings, TValue defaultValue)
+            where TValue : struct
+            => SetSettingValue(settingName, settings, string.Empty, defaultValue);
 
         public override string ToString()
         {

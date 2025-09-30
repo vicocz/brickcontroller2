@@ -1,19 +1,24 @@
-using System;
+using BrickController2.UI.DI;
+using BrickController2.UI.Pages;
+using BrickController2.UI.Services.Background;
+using BrickController2.UI.Services.Localization;
+using BrickController2.UI.Services.Theme;
+using BrickController2.UI.ViewModels;
+using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Graphics;
-using BrickController2.UI.DI;
-using BrickController2.UI.ViewModels;
-using BrickController2.UI.Pages;
-using BrickController2.UI.Services.Background;
-using BrickController2.UI.Services.Theme;
+using System;
 
-[assembly: XamlCompilation (XamlCompilationOptions.Skip)]
+[assembly: XamlCompilation(XamlCompilationOptions.Skip)]
 namespace BrickController2
 {
 	public partial class App : Application
 	{
+        private readonly ViewModelFactory _viewModelFactory;
+        private readonly PageFactory _pageFactory;
+        private readonly Func<Page, NavigationPage> _navigationPageFactory;
         private readonly BackgroundService _backgroundService;
 
 		public App(
@@ -21,10 +26,14 @@ namespace BrickController2
             PageFactory pageFactory, 
             Func<Page, NavigationPage> navigationPageFactory,
             BackgroundService backgroundService,
-			IThemeService themeService)
+			IThemeService themeService,
+			ILocalizationService localizationService)
 		{
 			InitializeComponent();
 
+            _viewModelFactory = viewModelFactory;
+            _pageFactory = pageFactory;
+            _navigationPageFactory = navigationPageFactory;
             _backgroundService = backgroundService;
 
 			Application.Current!.RequestedThemeChanged += (s, e) =>
@@ -37,18 +46,41 @@ namespace BrickController2
 				};
 				themeService.ApplyCurrentTheme();
 			};
-			themeService.ApplyCurrentTheme();
 
-            var vm = viewModelFactory(typeof(CreationListPageViewModel), null);
-		    var page = pageFactory(typeof(CreationListPage), vm);
-		    var navigationPage = navigationPageFactory(page);
-            navigationPage.BarBackgroundColor = Colors.Red;
-            navigationPage.BarTextColor = Colors.White;
-
-            MainPage = navigationPage;
+            localizationService.ApplyCurrentLanguage();
+            themeService.ApplyCurrentTheme();
 		}
 
-		protected override void OnStart()
+        internal void ReloadRootPage()
+        {
+            // recreate the root page to apply the change
+            if (Windows[0].Page is NavigationPage navigationPage &&
+                navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
+            {
+                // reset view model
+                navigationPage.RootPage.BindingContext = null;
+                // apply new page with the existing view model
+                Windows[0].Page = GetMainPage(viewModel);
+            }
+        }
+
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            NavigationPage navigationPage = GetMainPage();
+            return new Window(navigationPage);
+        }
+
+        private NavigationPage GetMainPage(CreationListPageViewModel? viewModel = default)
+        {
+            var vm = viewModel ?? _viewModelFactory(typeof(CreationListPageViewModel), null);
+            var page = _pageFactory(typeof(CreationListPage), vm);
+            var navigationPage = _navigationPageFactory(page);
+            navigationPage.BarBackgroundColor = Colors.Red;
+            navigationPage.BarTextColor = Colors.White;
+            return navigationPage;
+        }
+
+        protected override void OnStart()
 		{
 		}
 

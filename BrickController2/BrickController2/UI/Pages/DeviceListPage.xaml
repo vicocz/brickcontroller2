@@ -33,6 +33,17 @@
                                         <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteDeviceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate Settings}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            IsVisible="{Binding HasSettings}"
+                                                            Command="{Binding BindingContext.DeviceSettingsCommand, Source={x:Reference Page}}"
+                                                            CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Rename}" Icon="edit" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding BindingContext.RenameDeviceCommand, Source={x:Reference Page}}"
+                                                            CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>
@@ -58,6 +69,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding ShowManualDeviceListPageCommand}" ToolTipProperties.Text="{extensions:Translate OpenAddDevicesManually}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10" IsVisible="{Binding IsBLEAdvertisingSupported}"/>
                 <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" Command="{Binding ScanCommand}" ToolTipProperties.Text="{extensions:Translate ScanForDevices}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>

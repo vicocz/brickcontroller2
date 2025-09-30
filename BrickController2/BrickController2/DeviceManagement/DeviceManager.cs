@@ -47,7 +47,7 @@ namespace BrickController2.DeviceManagement
             set { _isScanning = value; RaisePropertyChanged(); }
         }
 
-        public bool IsBluetoothOn => _bluetoothDeviceManager.IsBluetoothOn;
+        public Task<bool> IsBluetoothOnAsync() => _bluetoothDeviceManager.IsBluetoothOnAsync();
 
         public async Task LoadDevicesAsync()
         {
@@ -58,12 +58,20 @@ namespace BrickController2.DeviceManagement
                 var deviceDTOs = await _deviceRepository.GetDevicesAsync();
                 foreach (var deviceDTO in deviceDTOs)
                 {
-                    var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData);
-                    if (device != null)
+                    try
                     {
-                        Devices.Add(device);
+                        var device = _deviceFactory(deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address, deviceDTO.DeviceData, deviceDTO.Settings);
+                        if (device != null)
+                        {
+                            Devices.Add(device);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
+                                deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);
+                        }
                     }
-                    else
+                    catch
                     {
                         _logger.LogWarning("Failed to load device [DeviceType:{deviceType}, Name:{name}, Address:{address}]",
                             deviceDTO.DeviceType, deviceDTO.Name, deviceDTO.Address);
@@ -80,8 +88,8 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    var infraScan = _infraredDeviceManager.ScanAsync(FoundDevice!, token);
-                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(FoundDevice!, token);
+                    var infraScan = _infraredDeviceManager.ScanAsync(CreateDeviceAsync!, token);
+                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
 
                     await Task.WhenAll(infraScan, bluetoothScan);
 
@@ -97,22 +105,23 @@ namespace BrickController2.DeviceManagement
                 }
             }
 
-            async Task FoundDevice(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        }
+
+        public async Task CreateDeviceAsync(DeviceType deviceType, string deviceName, string deviceAddress, byte[] deviceData)
+        {
+            using (await _foundDeviceLock.LockAsync())
             {
-                using (await _foundDeviceLock.LockAsync())
+                if (Devices.Any(d => d.DeviceType == deviceType && d.Address == deviceAddress))
                 {
-                    if (Devices.Any(d => d.DeviceType == deviceType && d.Address == deviceAddress))
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData);
-                    if (device != null)
-                    {
-                        await _deviceRepository.InsertDeviceAsync(device.DeviceType, device.Name, device.Address, deviceData);
+                var device = _deviceFactory(deviceType, deviceName, deviceAddress, deviceData, []);
+                if (device != null)
+                {
+                    await _deviceRepository.InsertDeviceAsync(device.DeviceType, device.Name, device.Address, deviceData, device.CurrentSettings);
 
-                        await _uiThreadService.RunOnMainThread(() => Devices.Add(device));
-                    }
+                    await _uiThreadService.RunOnMainThread(() => Devices.Add(device));
                 }
             }
         }
@@ -125,15 +134,12 @@ namespace BrickController2.DeviceManagement
                 return null;
             }
 
-            var deviceTypeAndAddress = id.Split('#');
-            if (!Enum.TryParse<DeviceType>(deviceTypeAndAddress[0], out var deviceType))
+            if (!DeviceId.TryParse(id, out var deviceType, out var deviceAddress))
             {
-                _logger.LogWarning("Device ID [{id}] contains unsupported DeviceType:{deviceType}.",
-                    id, deviceTypeAndAddress[0]);
+                _logger.LogWarning("Device ID [{id}] contains unsupported DeviceType or has bad format.", id);
                 return null;
             }
 
-            var deviceAddress = deviceTypeAndAddress[1];
             return Devices.FirstOrDefault(d => d.DeviceType == deviceType && d.Address == deviceAddress);
         }
 

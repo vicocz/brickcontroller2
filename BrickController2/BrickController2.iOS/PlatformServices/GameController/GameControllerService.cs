@@ -11,10 +11,10 @@ namespace BrickController2.iOS.PlatformServices.GameController
 {
     internal class GameControllerService : InputDeviceServiceBase
     {
-        private static readonly GCControllerPlayerIndex[] ValidPlayerIndexes = Enum.GetValues(typeof(GCControllerPlayerIndex))
-            .Cast<GCControllerPlayerIndex>()
-            .Where(i => i != GCControllerPlayerIndex.Unset)
-            .ToArray();
+        private static readonly GCControllerPlayerIndex[] ValidPlayerIndexes =
+            Enum.GetValues<GCControllerPlayerIndex>()
+                .Except([GCControllerPlayerIndex.Unset])
+                .ToArray();
 
         private NSObject? _didConnectNotification;
         private NSObject? _didDisconnectNotification;

@@ -150,7 +150,7 @@ public sealed class InputDeviceManagerService : IInputDeviceManagerService
             inputDevice.Start();
 
             // notify adding
-            RaiseInputDevicesChanged(NotifyInputDevicessChangedAction.Connected, inputDevice);
+            RaiseInputDevicesChanged(NotifyInputDevicesChangedAction.Connected, inputDevice);
         }
     }
 
@@ -173,7 +173,7 @@ public sealed class InputDeviceManagerService : IInputDeviceManagerService
                 inputDevice.Stop();
 
                 // notify removal
-                RaiseInputDevicesChanged(NotifyInputDevicessChangedAction.Disconnected, inputDevice);
+                RaiseInputDevicesChanged(NotifyInputDevicesChangedAction.Disconnected, inputDevice);
 
                 (inputDevice as IDisposable)?.Dispose();
 
@@ -223,13 +223,13 @@ public sealed class InputDeviceManagerService : IInputDeviceManagerService
         _availableInputDevices.Clear();
 
         // notify removal
-        RaiseInputDevicesChanged(NotifyInputDevicessChangedAction.Disconnected, inputDevices);
+        RaiseInputDevicesChanged(NotifyInputDevicesChangedAction.Disconnected, inputDevices);
     }
 
     /// <summary>
     /// raise inputdevices changed event
     /// </summary>
-    private void RaiseInputDevicesChanged(NotifyInputDevicessChangedAction action, params IInputDevice[] inputDevices)
+    private void RaiseInputDevicesChanged(NotifyInputDevicesChangedAction action, params IInputDevice[] inputDevices)
     {
         InputDevicesChangedEvent?.Invoke(this, new(action, inputDevices));
     }

@@ -55,14 +55,14 @@ namespace BrickController2.UI.ViewModels
         {
             switch (e.Action)
             {
-                case NotifyInputDevicessChangedAction.Connected:
+                case NotifyInputDevicesChangedAction.Connected:
                     // recreate collection due to MAUI could not handle adding of them
                     _groups = new(_groups.Concat(e.Items.Select(x => new GameControllerGroupViewModel(x)))
                         .OrderBy(x => x.ControllerNumber));
                     // notify
                     RaisePropertyChanged(nameof(ControllerEventList));
                     break;
-                case NotifyInputDevicessChangedAction.Disconnected:
+                case NotifyInputDevicesChangedAction.Disconnected:
                     // MAUI could not handle removal of a group
                     var removedItems = e.Items.Select(x => x.InputDeviceId).ToHashSet();
                     _groups = new(_groups.Where(x => !removedItems.Contains(x.ControllerId)));

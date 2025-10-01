@@ -86,6 +86,7 @@ namespace BrickController2.UI.ViewModels
             set { _controllerEvents = value; RaisePropertyChanged(); }
         }
 
+        public bool IsControllerIdSupported => _gameControllerService.IsControllerIdSupported;
         public ICommand ExportControllerProfileCommand { get; }
         public ICommand CopyControllerProfileCommand { get; }
         public ICommand RenameProfileCommand { get; }

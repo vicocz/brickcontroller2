@@ -84,11 +84,6 @@ public sealed class InputDeviceManagerService : IInputDeviceManagerService
     }
 
     /// <summary>
-    /// returns true if the service supports controller ids
-    /// </summary>
-    public bool IsControllerIdSupported => true; // to be removed later, because all inputdevice services support ControllerId now
-
-    /// <summary>
     /// Register an inputdevice service (i.e. gamecontroller service, MCP server service)
     /// </summary>
     /// <param name="inputDeviceService">inputdevice service to be registered</param>

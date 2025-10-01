@@ -86,7 +86,8 @@ namespace BrickController2.UI.ViewModels
             set { _controllerEvents = value; RaisePropertyChanged(); }
         }
 
-        public bool IsControllerIdSupported => _gameControllerService.IsControllerIdSupported;
+        // TODO: Removed IsControllerIdSupported property as all inputdevice services support ControllerId now.
+        public bool IsControllerIdSupported => true;
         public ICommand ExportControllerProfileCommand { get; }
         public ICommand CopyControllerProfileCommand { get; }
         public ICommand RenameProfileCommand { get; }

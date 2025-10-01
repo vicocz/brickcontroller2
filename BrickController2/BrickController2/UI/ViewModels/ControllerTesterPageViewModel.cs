@@ -27,7 +27,8 @@ namespace BrickController2.UI.ViewModels
             _gameControllerService = gameControllerService;
         }
 
-        public bool IsGrouped => _gameControllerService.IsControllerIdSupported;
+        // TODO: Removed IsControllerIdSupported property as all inputdevice services support ControllerId now.
+        public bool IsGrouped => true;
         public IEnumerable<INotifyPropertyChanged> ControllerEventList => IsGrouped ? _groups : _events;
 
         public override void OnAppearing()

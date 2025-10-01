@@ -17,10 +17,5 @@ namespace BrickController2.PlatformServices.InputDeviceService
         /// Event raised when inputdevices are connected or disconnected
         /// </summary>
         event EventHandler<InputDeviceChangedEventArgs> InputDevicesChangedEvent;
-
-        /// <summary>
-        /// returns true if the service supports controller ids
-        /// </summary>
-        bool IsControllerIdSupported { get; } // to be removed later, because all inputdevice services support ControllerId now
     }
 }

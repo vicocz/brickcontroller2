@@ -96,7 +96,7 @@
                     </Frame>
                     <Frame Grid.Column="1" HorizontalOptions="Fill" Padding="2" BackgroundColor="Transparent" HasShadow="False">
                         <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding NavigateToControllerTesterCommand}"/>
+                            <TapGestureRecognizer Command="{Binding NavigateToInputDeviceTesterCommand}"/>
                         </Frame.GestureRecognizers>
                         <VerticalStackLayout HorizontalOptions="CenterAndExpand" Spacing="6">
                             <controls:ColorImage Icon="sports_esports" Style="{StaticResource FooterColorImageStyle}"/>

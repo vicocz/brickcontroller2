@@ -12,12 +12,12 @@ using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.UI.ViewModels
 {
-    public class ControllerTesterPageViewModel : PageViewModelBase
+    public class InputDeviceTesterPageViewModel : PageViewModelBase
     {
         private readonly IInputDeviceEventService _gameControllerService;
         private ObservableCollection<GameControllerGroupViewModel> _groups = [];
 
-        public ControllerTesterPageViewModel(
+        public InputDeviceTesterPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
             IInputDeviceEventService gameControllerService)

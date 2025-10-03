@@ -15,7 +15,6 @@ namespace BrickController2.UI.ViewModels
     public class ControllerTesterPageViewModel : PageViewModelBase
     {
         private readonly IInputDeviceEventService _gameControllerService;
-        private readonly ObservableCollection<GameControllerEventViewModel> _events = [];
         private ObservableCollection<GameControllerGroupViewModel> _groups = [];
 
         public ControllerTesterPageViewModel(
@@ -27,28 +26,18 @@ namespace BrickController2.UI.ViewModels
             _gameControllerService = gameControllerService;
         }
 
-        // TODO: Removed IsControllerIdSupported property as all inputdevice services support ControllerId now.
-        public bool IsGrouped => true;
-        public IEnumerable<INotifyPropertyChanged> ControllerEventList => IsGrouped ? _groups : _events;
+        public IEnumerable<INotifyPropertyChanged> ControllerEventList => _groups;
 
         public override void OnAppearing()
         {
-            if (IsGrouped)
-            {
-                _gameControllerService.InputDevicesChangedEvent += GameControllersChangedEventHandler;
-                _gameControllerService.InputDeviceEvent += GameControllerEventHandler_Grouping!;
-            }
-            else
-            {
-                _gameControllerService.InputDeviceEvent += GameControllerEventHandler!;
-            }
+            _gameControllerService.InputDevicesChangedEvent += GameControllersChangedEventHandler;
+            _gameControllerService.InputDeviceEvent += GameControllerEventHandler_Grouping!;
         }
 
         public override void OnDisappearing()
         {
             // unregister all
             _gameControllerService.InputDeviceEvent -= GameControllerEventHandler_Grouping!;
-            _gameControllerService.InputDeviceEvent -= GameControllerEventHandler!;
             _gameControllerService.InputDevicesChangedEvent -= GameControllersChangedEventHandler;
         }
 
@@ -85,14 +74,6 @@ namespace BrickController2.UI.ViewModels
                     _groups.Add(group);
                 }
                 ProcessEvent(group, controllerEvent);
-            }
-        }
-
-        private void GameControllerEventHandler(object sender, InputDeviceEventArgs args)
-        {
-            foreach (var controllerEvent in args.InputDeviceEvents)
-            {
-                ProcessEvent(_events, controllerEvent);
             }
         }
 

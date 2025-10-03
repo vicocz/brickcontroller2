@@ -24,7 +24,7 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Controller event list -->
-                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="{Binding IsGrouped,Mode=OneTime}">
+                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="True">
                     <CollectionView.ItemsLayout>
                         <OnIdiom x:TypeArguments="IItemsLayout" Default="VerticalList">
                             <OnIdiom.Desktop>

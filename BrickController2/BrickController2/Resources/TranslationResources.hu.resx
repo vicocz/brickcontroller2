@@ -240,9 +240,6 @@
   <data name="ControllerProfile" xml:space="preserve">
     <value>Vezérlő profil</value>
   </data>
-  <data name="ControllerTester" xml:space="preserve">
-    <value>Vezérlő teszt</value>
-  </data>
   <data name="ControlPoint" xml:space="preserve">
     <value>Kontrol pont</value>
   </data>

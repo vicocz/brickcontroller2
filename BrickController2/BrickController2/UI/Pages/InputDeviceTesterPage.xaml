@@ -8,7 +8,7 @@
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     xmlns:vm="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.InputDeviceTesterPage"
-    Title="{extensions:Translate ControllerTester}"
+    Title="{extensions:Translate InputDeviceTester}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 

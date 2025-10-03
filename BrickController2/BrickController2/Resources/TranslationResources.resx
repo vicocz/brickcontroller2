@@ -240,9 +240,6 @@
   <data name="ControllerProfile" xml:space="preserve">
     <value>Controller profile</value>
   </data>
-  <data name="ControllerTester" xml:space="preserve">
-    <value>Controller tester</value>
-  </data>
   <data name="ControlPoint" xml:space="preserve">
     <value>Control point</value>
   </data>
@@ -716,5 +713,8 @@
   </data>
   <data name="Language" xml:space="preserve">
     <value>Language</value>
+  </data>
+  <data name="InputDeviceTester" xml:space="preserve">
+    <value>Inputdevice tester</value>
   </data>
 </root>

@@ -657,9 +657,9 @@ namespace BrickController2.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Controller tester.
         /// </summary>
-        internal static string ControllerTester {
+        internal static string InputDeviceTester {
             get {
-                return ResourceManager.GetString("ControllerTester", resourceCulture);
+                return ResourceManager.GetString("InputDeviceTester", resourceCulture);
             }
         }
         

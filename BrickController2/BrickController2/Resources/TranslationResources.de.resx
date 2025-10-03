@@ -717,4 +717,10 @@
   <data name="InputDeviceTester" xml:space="preserve">
     <value>Eingabegerät-Test</value>
   </data>
+  <data name="InputDevice" xml:space="preserve">
+    <value>Eingabegerät</value>
+  </data>
+  <data name="InputDevices" xml:space="preserve">
+    <value>Eingabegräte</value>
+  </data>
 </root>

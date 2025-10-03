@@ -717,4 +717,10 @@
   <data name="InputDeviceTester" xml:space="preserve">
     <value>Inputdevice tester</value>
   </data>
+  <data name="InputDevice" xml:space="preserve">
+    <value>Inputdevice</value>
+  </data>
+  <data name="InputDevices" xml:space="preserve">
+    <value>Inputdevices</value>
+  </data>
 </root>

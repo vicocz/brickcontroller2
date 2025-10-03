@@ -100,7 +100,7 @@
                         </Frame.GestureRecognizers>
                         <VerticalStackLayout HorizontalOptions="CenterAndExpand" Spacing="6">
                             <controls:ColorImage Icon="sports_esports" Style="{StaticResource FooterColorImageStyle}"/>
-                            <Label Text="{extensions:Translate Controller}" FontSize="Small"/>
+                            <Label Text="{extensions:Translate InputDevices}" FontSize="Small"/>
                         </VerticalStackLayout>
                     </Frame>
                     <Frame Grid.Column="2" HorizontalOptions="Fill" Padding="2" BackgroundColor="Transparent" HasShadow="False">

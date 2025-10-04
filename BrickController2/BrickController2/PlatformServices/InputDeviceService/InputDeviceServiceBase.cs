@@ -1,4 +1,5 @@
-﻿using BrickController2.InputDeviceManagement;
+﻿using Autofac;
+using BrickController2.InputDeviceManagement;
 using BrickController2.PlatformServices.InputDevice;
 using Microsoft.Extensions.Logging;
 
@@ -7,7 +8,8 @@ namespace BrickController2.PlatformServices.InputDeviceService;
 /// <summary>
 /// abstract base class for inputdevice services (i.e. gamecontroller service, MCP server service)
 /// </summary>
-public abstract class InputDeviceServiceBase : IInputDeviceService
+public abstract class InputDeviceServiceBase : IInputDeviceService,
+    IStartable // ensure it's started as soon as the container is built in Autofac
 {
     protected readonly object _lockObject = new();
     protected readonly ILogger _logger;
@@ -47,5 +49,9 @@ public abstract class InputDeviceServiceBase : IInputDeviceService
     protected void AddInputDevice(IInputDevice inputDevice)
     {
         _inputDeviceManagerService.AddInputDevice(inputDevice);
+    }
+
+    void IStartable.Start()
+    {
     }
 }

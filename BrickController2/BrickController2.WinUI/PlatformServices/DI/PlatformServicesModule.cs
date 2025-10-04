@@ -23,7 +23,7 @@ public class PlatformServicesModule : Module
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterType<InfraredService>().As<IInfraredService>().SingleInstance();
-        builder.RegisterType<GameControllerService>().As<IInputDeviceService>().SingleInstance();
+        builder.RegisterType<GameControllerService>().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
         builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
         builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
         builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();

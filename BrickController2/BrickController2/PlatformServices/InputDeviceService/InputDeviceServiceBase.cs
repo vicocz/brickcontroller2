@@ -35,14 +35,6 @@ public abstract class InputDeviceServiceBase : IInputDeviceService,
     public abstract void Stop();
 
     /// <summary>
-    /// returns the first unused inputdevice number in inputdevice management
-    /// </summary>
-    protected int GetFirstUnusedInputDeviceNumber()
-    {
-        return _inputDeviceManagerService.GetFirstUnusedInputDeviceNumber();
-    }
-
-    /// <summary>
     /// add inputdevice to inputdevicemanager service
     /// </summary>
     /// <param name="inputDevice">inputdevice to be added</param>

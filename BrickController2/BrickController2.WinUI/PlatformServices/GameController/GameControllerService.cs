@@ -86,4 +86,21 @@ internal class GameControllerService : InputDeviceServiceBase
             }
         }
     }
+
+    /// <summary>
+    /// get first unused inputdevice number (starts from 1)
+    /// </summary>
+    /// <returns>first unused inputdevice number (starts from 1)</returns>
+    private int GetFirstUnusedInputDeviceNumber()
+    {
+        lock (_lockObject)
+        {
+            int unusedNumber = 1;
+            while (_inputDeviceManagerService.TryGetInputDevice<GamepadController>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            {
+                unusedNumber++;
+            }
+            return unusedNumber;
+        }
+    }
 }

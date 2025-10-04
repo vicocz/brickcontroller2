@@ -117,23 +117,6 @@ public sealed class InputDeviceManagerService : IInputDeviceManagerService
     }
 
     /// <summary>
-    /// get first unused inputdevice number (starts from 1)
-    /// </summary>
-    /// <returns>first unused inputdevice number (starts from 1)</returns>
-    public int GetFirstUnusedInputDeviceNumber()
-    {
-        lock (_lockObject)
-        {
-            int unusedNumber = 1;
-            while (_availableInputDevices.Any(inputDevice => inputDevice.InputDeviceNumber == unusedNumber))
-            {
-                unusedNumber++;
-            }
-            return unusedNumber;
-        }
-    }
-
-    /// <summary>
     /// add inputdevice to the manager
     /// </summary>
     /// <param name="inputdevice">inputdevice to be added</param>

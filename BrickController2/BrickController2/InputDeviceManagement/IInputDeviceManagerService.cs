@@ -43,10 +43,4 @@ public interface IInputDeviceManagerService : IInputDeviceEventServiceInternal
     /// <returns>True on success</returns>
     bool TryRemoveInputDevice<TInputDevice>(Predicate<TInputDevice> predicate, [MaybeNullWhen(false)] out TInputDevice inputDevice)
         where TInputDevice : class, IInputDevice;
-
-    /// <summary>
-    /// get first unused inputdevice number (starts from 1)
-    /// </summary>
-    /// <returns>first unused inputdevice number (starts from 1)</returns>
-    int GetFirstUnusedInputDeviceNumber();
 }

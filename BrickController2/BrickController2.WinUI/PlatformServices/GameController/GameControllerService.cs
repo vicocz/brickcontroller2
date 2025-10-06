@@ -17,7 +17,8 @@ internal class GameControllerService : InputDeviceServiceBase
     public GameControllerService(IMainThreadService mainThreadService,
         IDispatcherProvider dispatcherProvider,
         IInputDeviceManagerService inputDeviceManagerService,
-        ILogger<GameControllerService> logger) : base(inputDeviceManagerService, logger)
+        ILogger<GameControllerService> logger) 
+        : base(inputDeviceManagerService, logger)
     {
         _mainThreadService = mainThreadService;
         _dispatcherProvider = dispatcherProvider;
@@ -50,7 +51,7 @@ internal class GameControllerService : InputDeviceServiceBase
             // ensure stopped in UI thread
             _ = _mainThreadService.RunOnMainThread(() =>
             {
-                if (_inputDeviceManagerService.TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == gamepad, out var controller))
+                if (TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == gamepad, out var controller))
                 {
                     _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
                 }
@@ -79,7 +80,7 @@ internal class GameControllerService : InputDeviceServiceBase
                 }
                 // get first unused number and apply it
                 int controllerNumber = GetFirstUnusedInputDeviceNumber();
-                var newController = new GamepadController(_inputDeviceManagerService, gamepad!, rawController, controllerNumber, dispatcher!.CreateTimer());
+                var newController = new GamepadController(InputDeviceEventService, gamepad!, rawController, controllerNumber, dispatcher!.CreateTimer());
 
                 // UniquePersistantDeviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
                 AddInputDevice(newController);
@@ -96,7 +97,7 @@ internal class GameControllerService : InputDeviceServiceBase
         lock (_lockObject)
         {
             int unusedNumber = 1;
-            while (_inputDeviceManagerService.TryGetInputDevice<GamepadController>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            while (TryGetInputDevice<GamepadController>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
             {
                 unusedNumber++;
             }

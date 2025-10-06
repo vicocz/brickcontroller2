@@ -66,7 +66,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
         {
             lock (_lockObject)
             {
-                if (_inputDeviceManagerService.TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == controller, out var controllerDevice))
+                if (TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == controller, out var controllerDevice))
                 {
                     _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controllerDevice.InputDeviceId);
                 }
@@ -88,7 +88,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
                     AssignNextAvailablePlayerIndex(controller);
 
                     // get first unused number and apply it
-                    var newController = new GamepadController(_inputDeviceManagerService, controller);
+                    var newController = new GamepadController(InputDeviceEventService, controller);
 
                     AddInputDevice(newController);
                 }

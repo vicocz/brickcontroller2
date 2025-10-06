@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Droid.PlatformServices.GameController
 {
-    internal class GameControllerService : InputDeviceServiceBase
+    internal class GameControllerService : InputDeviceServiceBase<GamepadController>
     {
         private readonly InputManager _inputManager;
 
@@ -38,7 +38,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceRemoved(int deviceId)
         {
-            if (TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice.Id == deviceId, out var controller))
+            if (TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out var controller))
             {
                 _logger.LogInformation("InputDeviceDevice has been removed DeviceId:{id}, InputDeviceId:{controllerId}",
                     deviceId, controller.InputDeviceId);
@@ -66,12 +66,12 @@ namespace BrickController2.Droid.PlatformServices.GameController
                     else if (controller != null)
                     {
                         // handle change - remove and then add it again
-                        TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice.Id == deviceId, out _);
+                        TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out _);
                     }
                     AddGameControllerDevice(device);
                 }
             }
-            else if (TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice.Id == deviceId, out var controller))
+            else if (TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out var controller))
             {
                 _logger.LogInformation("InputDeviceDevice has been removed DeviceId:{id}, InputDeviceId:{controllerId}",
                     deviceId, controller.InputDeviceId);

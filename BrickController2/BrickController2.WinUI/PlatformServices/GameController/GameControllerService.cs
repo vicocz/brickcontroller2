@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
-internal class GameControllerService : InputDeviceServiceBase
+internal class GameControllerService : InputDeviceServiceBase<GamepadController>
 {
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
@@ -51,7 +51,7 @@ internal class GameControllerService : InputDeviceServiceBase
             // ensure stopped in UI thread
             _ = _mainThreadService.RunOnMainThread(() =>
             {
-                if (TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == gamepad, out var controller))
+                if (TryRemoveInputDevice(x => x.InputDeviceDevice == gamepad, out var controller))
                 {
                     _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
                 }
@@ -97,7 +97,7 @@ internal class GameControllerService : InputDeviceServiceBase
         lock (_lockObject)
         {
             int unusedNumber = 1;
-            while (TryGetInputDevice<GamepadController>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            while (TryGetInputDevice(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
             {
                 unusedNumber++;
             }

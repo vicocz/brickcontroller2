@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace BrickController2.iOS.PlatformServices.GameController
 {
-    internal class GameControllerService : InputDeviceServiceBase
+    internal class GameControllerService : InputDeviceServiceBase<GamepadController>
     {
         private static readonly GCControllerPlayerIndex[] ValidPlayerIndexes =
             Enum.GetValues<GCControllerPlayerIndex>()
@@ -66,7 +66,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
         {
             lock (_lockObject)
             {
-                if (TryRemoveInputDevice<GamepadController>(x => x.InputDeviceDevice == controller, out var controllerDevice))
+                if (TryRemoveInputDevice(x => x.InputDeviceDevice == controller, out var controllerDevice))
                 {
                     _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controllerDevice.InputDeviceId);
                 }

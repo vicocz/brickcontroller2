@@ -10,8 +10,9 @@ namespace BrickController2.PlatformServices.InputDeviceService;
 /// <summary>
 /// abstract base class for inputdevice services (i.e. gamecontroller service, MCP server service)
 /// </summary>
-public abstract class InputDeviceServiceBase : IInputDeviceService,
+public abstract class InputDeviceServiceBase<TInputDevice> : IInputDeviceService,
     IStartable // ensure it's started as soon as the container is built in Autofac
+    where TInputDevice : class, IInputDevice
 {
     private readonly IInputDeviceManagerService _inputDeviceManagerService;
     protected readonly object _lockObject = new();
@@ -43,7 +44,7 @@ public abstract class InputDeviceServiceBase : IInputDeviceService,
     /// add inputdevice to inputdevicemanager service
     /// </summary>
     /// <param name="inputDevice">inputdevice to be added</param>
-    protected void AddInputDevice(IInputDevice inputDevice)
+    protected void AddInputDevice(TInputDevice inputDevice)
     {
         _inputDeviceManagerService.AddInputDevice(inputDevice);
     }
@@ -51,12 +52,10 @@ public abstract class InputDeviceServiceBase : IInputDeviceService,
     /// <summary>
     /// try to remove inputdevice from the manager
     /// </summary>
-    /// <typeparam name="TInputDevice">type of inputdevice</typeparam>
     /// <param name="predicate">predicate to find inputdevice</param>
     /// <param name="inputDevice">inputdevice to be removed</param>
     /// <returns>True on success</returns>
-    protected bool TryRemoveInputDevice<TInputDevice>(Predicate<TInputDevice> predicate, [MaybeNullWhen(false)] out TInputDevice inputDevice)
-        where TInputDevice : class, IInputDevice
+    protected bool TryRemoveInputDevice(Predicate<TInputDevice> predicate, [MaybeNullWhen(false)] out TInputDevice inputDevice)
     {
         return _inputDeviceManagerService.TryRemoveInputDevice(predicate, out inputDevice);
     }
@@ -64,12 +63,10 @@ public abstract class InputDeviceServiceBase : IInputDeviceService,
     /// <summary>
     /// try to get inputdevice from the manager
     /// </summary>
-    /// <typeparam name="TInputDevice">type of inputdevice</typeparam>
     /// <param name="predicate">predicate to find inputdevice</param>
     /// <param name="inputDevice">inputdevice to be removed</param>
     /// <returns>True on success</returns>
-    protected bool TryGetInputDevice<TInputDevice>(Predicate<TInputDevice> predicate, [MaybeNullWhen(false)] out TInputDevice inputDevice)
-        where TInputDevice : class, IInputDevice
+    protected bool TryGetInputDevice(Predicate<TInputDevice> predicate, [MaybeNullWhen(false)] out TInputDevice inputDevice)
     {
         return _inputDeviceManagerService.TryGetInputDevice(predicate, out inputDevice);
     }

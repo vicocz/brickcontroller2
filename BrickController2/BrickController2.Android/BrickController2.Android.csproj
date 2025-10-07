@@ -17,8 +17,7 @@
 		<AndroidSigningKeyAlias>brickcontroller2</AndroidSigningKeyAlias>
 		<AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore>
 		<PublishTrimmed>true</PublishTrimmed>
-		<PublishReadyToRun>true</PublishReadyToRun>
-	    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+		<PublishReadyToRun>false</PublishReadyToRun>
 	</PropertyGroup>
 
 	<ItemGroup>

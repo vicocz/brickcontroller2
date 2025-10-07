@@ -18,6 +18,7 @@
 		<AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore>
 		<PublishTrimmed>true</PublishTrimmed>
 		<PublishReadyToRun>true</PublishReadyToRun>
+	    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
 	</PropertyGroup>
 
 	<ItemGroup>

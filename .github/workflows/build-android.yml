@@ -60,8 +60,17 @@ jobs:
             
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
+    - name: Setup Android signing 
+      shell: bash   
+      run: (echo "${{secrets.KEYSTORE}}" | base64 --decode) > BrickController2/BrickController2.Android/keystore.jks
     - name: Build MAUI Android
-      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj -c Release -f net9.0-android --no-restore -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}"
+      run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj `
+        -c Release `
+        -f net9.0-android `
+        --no-restore `
+        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
+        -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}} `
+        -p:AndroidSigningStorePass=${{secrets.KEYSTORE_PASSWORD}}
 
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v4

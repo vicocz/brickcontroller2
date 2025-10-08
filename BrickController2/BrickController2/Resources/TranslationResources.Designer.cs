@@ -1121,40 +1121,34 @@ namespace BrickController2.Resources {
                 return ResourceManager.GetString("Information", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to InputDevice.
+        ///   Looks up a localized string similar to Inputdevice.
         /// </summary>
-        internal static string InputDevice
-        {
-            get
-            {
+        internal static string InputDevice {
+            get {
                 return ResourceManager.GetString("InputDevice", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to InputDevices.
+        ///   Looks up a localized string similar to Inputdevices.
         /// </summary>
-        internal static string InputDevices
-        {
-            get
-            {
+        internal static string InputDevices {
+            get {
                 return ResourceManager.GetString("InputDevices", resourceCulture);
             }
         }
-
+        
         /// <summary>
-        ///   Looks up a localized string similar to InputDevice tester.
+        ///   Looks up a localized string similar to Inputdevice tester.
         /// </summary>
-        internal static string InputDeviceTester
-        {
-            get
-            {
+        internal static string InputDeviceTester {
+            get {
                 return ResourceManager.GetString("InputDeviceTester", resourceCulture);
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized string similar to Interpolate.
         /// </summary>

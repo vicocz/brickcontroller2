@@ -10,10 +10,17 @@
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<AndroidResgenClass>Resource</AndroidResgenClass>
 		<AndroidKeyStore>false</AndroidKeyStore>
-		<AndroidSigningKeyStore>C:\Users\imurv\AppData\Local\Xamarin\Mono for Android\Keystore\keystore\keystore.keystore</AndroidSigningKeyStore>
-  </PropertyGroup>
+    </PropertyGroup>
 
-  <ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<AndroidKeyStore>true</AndroidKeyStore>
+		<AndroidSigningKeyAlias>brickcontroller2</AndroidSigningKeyAlias>
+		<AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore>
+		<PublishTrimmed>true</PublishTrimmed>
+		<PublishReadyToRun>false</PublishReadyToRun>
+	</PropertyGroup>
+
+	<ItemGroup>
 		<None Remove="Resources\mipmap-hdpi\ic_launcher.png" />
 		<None Remove="Resources\mipmap-mdpi\ic_launcher.png" />
 		<None Remove="Resources\mipmap-xhdpi\ic_launcher.png" />

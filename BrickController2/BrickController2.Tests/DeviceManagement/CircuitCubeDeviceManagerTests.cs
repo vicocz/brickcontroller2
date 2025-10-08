@@ -26,6 +26,17 @@ public class CircuitCubeDeviceManagerTests : DeviceManagerTestBase<CircuitCubeDe
     }
 
     [Fact]
+    public void TryGetDevice_CircuitCubeServiceUuidWithEmptyName_CircuitCubeDeviceReturned()
+    {
+        var scanResult = CreateScanResult(deviceName: "", serviceUuid: new Guid("6e400001-b5a3-f393-e0a9-e50e24dcca9e"));
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeFalse();
+        device.DeviceType.Should().Be(DeviceType.Unknown);
+    }
+
+    [Fact]
     public void TryGetDevice_ServiceGuidDoesNotMatch_ReturnsFalse()
     {
         var scanResult = CreateScanResult("Wrong-ServiceUuid", new Dictionary<byte, byte[]>

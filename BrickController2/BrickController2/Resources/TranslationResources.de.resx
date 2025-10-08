@@ -714,4 +714,7 @@
   <data name="TestDeviceChannel" xml:space="preserve">
     <value>Testen des Kanals</value>
   </data>
+  <data name="Language" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
 </root>

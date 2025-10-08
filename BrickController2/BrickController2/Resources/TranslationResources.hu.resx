@@ -141,6 +141,9 @@
   <data name="AdvancedSettings" xml:space="preserve">
     <value>Haladó beállítások</value>
   </data>
+  <data name="ApplyChanges" xml:space="preserve">
+    <value>Alkalmazza a módosításokat</value>
+  </data>
   <data name="AreYouSureToDeleteControllerAction" xml:space="preserve">
     <value>Biztos törölni szeretnéd ezt az akciót?</value>
   </data>
@@ -180,6 +183,9 @@
   <data name="AxisType" xml:space="preserve">
     <value>Joy típusa</value>
   </data>
+  <data name="BaseAngle" xml:space="preserve">
+    <value>Alapszög</value>
+  </data>
   <data name="Battery" xml:space="preserve">
     <value>Elem</value>
   </data>
@@ -197,6 +203,9 @@
   </data>
   <data name="BuWizz2OutputLevel" xml:space="preserve">
     <value>BuWizz 2 kimeneti szint</value>
+  </data>
+  <data name="BuWizz2SwapChannels" xml:space="preserve">
+    <value>Csatornát cserélni</value>
   </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz kimeneti szint</value>
@@ -237,6 +246,15 @@
   <data name="ControlPoint" xml:space="preserve">
     <value>Kontrol pont</value>
   </data>
+  <data name="CopyControllerProfile" xml:space="preserve">
+    <value>Vezérlőprofil másolása a vágólapra</value>
+  </data>
+  <data name="CopyCreation" xml:space="preserve">
+    <value>Létrehozás másolása a vágólapra</value>
+  </data>
+  <data name="CopySequence" xml:space="preserve">
+    <value>Másolja a sorozatot a vágólapra</value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>Létrehozás</value>
   </data>
@@ -276,6 +294,9 @@
   <data name="Devices" xml:space="preserve">
     <value>Eszközök</value>
   </data>
+  <data name="DeviceSettings" xml:space="preserve">
+    <value>Eszközbeállítások</value>
+  </data>
   <data name="DeviceType" xml:space="preserve">
     <value>Eszköz típusa</value>
   </data>
@@ -312,6 +333,15 @@
   <data name="ErrorDuringScanning" xml:space="preserve">
     <value>Hiba történt szkennelés közben.</value>
   </data>
+  <data name="ExportControllerProfile" xml:space="preserve">
+    <value>Exportálja a vezérlőprofilt</value>
+  </data>
+  <data name="ExportCreation" xml:space="preserve">
+    <value>Exportálja az alkotást</value>
+  </data>
+  <data name="ExportSequence" xml:space="preserve">
+    <value>Exportálja a sorozatot</value>
+  </data>
   <data name="ExportSuccessful" xml:space="preserve">
     <value>Sikeres exportálás:</value>
   </data>
@@ -344,6 +374,18 @@
   </data>
   <data name="IconSet" xml:space="preserve">
     <value>Ikonok</value>
+  </data>
+  <data name="ImportControllerProfile" xml:space="preserve">
+    <value>Vezérlőprofil importálása</value>
+  </data>
+  <data name="ImportCreation" xml:space="preserve">
+    <value>Létrehozás importálása</value>
+  </data>
+  <data name="ImportSequence" xml:space="preserve">
+    <value>Sorozat importálása</value>
+  </data>
+  <data name="ImportSuccessful" xml:space="preserve">
+    <value>Sikeres importálás:</value>
   </data>
   <data name="Information" xml:space="preserve">
     <value>Információ</value>
@@ -405,6 +447,15 @@
   <data name="OutputLevel" xml:space="preserve">
     <value>Kimeneti szint</value>
   </data>
+  <data name="PasteControllerProfile" xml:space="preserve">
+    <value>Vezérlőprofil importálása a vágólapról</value>
+  </data>
+  <data name="PasteCreation" xml:space="preserve">
+    <value>Létrehozás importálása a vágólapról</value>
+  </data>
+  <data name="PasteSequence" xml:space="preserve">
+    <value>Sorozat importálása a vágólapról</value>
+  </data>
   <data name="PermissionRequest" xml:space="preserve">
     <value>Hozzáférés kérés</value>
   </data>
@@ -453,6 +504,9 @@
   <data name="Scanning" xml:space="preserve">
     <value>Szkennelés...</value>
   </data>
+  <data name="ScanQr" xml:space="preserve">
+    <value>QR-kód beolvasása</value>
+  </data>
   <data name="SearchingForDevices" xml:space="preserve">
     <value>Eszközök keresése.</value>
   </data>
@@ -485,6 +539,9 @@
   </data>
   <data name="Settings" xml:space="preserve">
     <value>Beállítások</value>
+  </data>
+  <data name="Share" xml:space="preserve">
+    <value>Részesedés</value>
   </data>
   <data name="ShortChannel" xml:space="preserve">
     <value>Cs</value>
@@ -524,5 +581,140 @@
   </data>
   <data name="Yes" xml:space="preserve">
     <value>Igen</value>
+  </data>
+  <data name="AddCreation" xml:space="preserve">
+    <value>Új alkotás hozzáadása</value>
+  </data>
+  <data name="ScanForDevices" xml:space="preserve">
+    <value>Keressen új eszközöket</value>
+  </data>
+  <data name="AddControlPoint" xml:space="preserve">
+    <value>Új kontrollpont hozzáadása</value>
+  </data>
+  <data name="AddControllerProfile" xml:space="preserve">
+    <value>Új vezérlőprofil hozzáadása</value>
+  </data>
+  <data name="AddControllerEvent" xml:space="preserve">
+    <value>Új vezérlő esemény hozzáadása</value>
+  </data>
+  <data name="AddControllerEventForSpecificControllerId" xml:space="preserve">
+    <value>Új kontrolleresemény hozzáadása adott játékvezérlőhöz</value>
+  </data>
+  <data name="OpenDeviceDetails" xml:space="preserve">
+    <value>Mutassa meg az eszköz adatait</value>
+  </data>
+  <data name="OpenSequenceEditor" xml:space="preserve">
+    <value>Szerkessze a sorozatot</value>
+  </data>
+  <data name="AddSequence" xml:space="preserve">
+    <value>Új sorozat hozzáadása</value>
+  </data>
+  <data name="OpenChannelSetup" xml:space="preserve">
+    <value>Állítsa be a csatornát</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Másolat</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Hozzáadás</value>
+  </data>
+  <data name="ShareCreationAsFile" xml:space="preserve">
+    <value>Létrehozás megosztása fájlként</value>
+  </data>
+  <data name="ShareCreationAsText" xml:space="preserve">
+    <value>Oszd meg az alkotást szövegként</value>
+  </data>
+  <data name="ShareSequenceAsFile" xml:space="preserve">
+    <value>A sorozat megosztása fájlként</value>
+  </data>
+  <data name="ShareSequenceAsText" xml:space="preserve">
+    <value>Oszd meg a sorozatot szövegként</value>
+  </data>
+  <data name="ImportCreationFromFile" xml:space="preserve">
+    <value>Létrehozás importálása fájlból</value>
+  </data>
+  <data name="ImportSequenceFromFile" xml:space="preserve">
+    <value>Szekvencia importálása fájlból</value>
+  </data>
+  <data name="ChooseJsonFileToImport" xml:space="preserve">
+    <value>Válasszon ki egy JSON fájlt az importáláshoz</value>
+  </data>
+  <data name="ActivateShelfMode" xml:space="preserve">
+    <value>Aktiválja a polc módot</value>
+  </data>
+  <data name="ActivateShelfModeFailed" xml:space="preserve">
+    <value>A polc üzemmód aktiválása sikertelen:</value>
+  </data>
+  <data name="ActivateShelfModeConfirm" xml:space="preserve">
+    <value>Biztosan aktiválni szeretné a polc módot ehhez a BuWizz eszközhöz? Ez leválasztja az akkumulátort az eszközről, és általában megköveteli a felhasználótól, hogy csatlakoztassa a töltőt az eszköz felébresztéséhez.</value>
+  </data>
+  <data name="Applying" xml:space="preserve">
+    <value>Jelentkezés...</value>
+  </data>
+  <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
+    <value>Alapértelmezett kimeneti szint</value>
+  </data>
+  <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
+    <value>Alapértelmezett kimeneti szint</value>
+  </data>
+  <data name="On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ResetToDefaults" xml:space="preserve">
+    <value>Állítsa vissza a beállításokat az alapértelmezettre</value>
+  </data>
+  <data name="_defaultGroup" xml:space="preserve">
+    <value>Általános beállítások</value>
+  </data>
+  <data name="BuWizz3CurentLimitPoweredUp" xml:space="preserve">
+    <value>PU csatornák áramkorlátai (mA)</value>
+  </data>
+  <data name="BuWizz3CurentLimitPowerFunctions" xml:space="preserve">
+    <value>PF csatornák áramkorlátai (mA)</value>
+  </data>
+  <data name="BuWizz3Channel0" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="BuWizz3Channel1" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="BuWizz3Channel2" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="BuWizz3Channel3" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="BuWizz3ChannelA" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="BuWizz3ChannelB" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="PlayVmEnabled" xml:space="preserve">
+    <value>Könnyű felvételi mód (PLAYVM)</value>
+  </data>
+  <data name="OpenAddDevicesManually" xml:space="preserve">
+    <value>Eszközök manuális hozzáadása</value>
+  </data>
+  <data name="AddDevicesManually" xml:space="preserve">
+    <value>Eszközök manuális hozzáadása</value>
+  </data>
+  <data name="AddDevice" xml:space="preserve">
+    <value>Eszköz hozzáadása</value>
+  </data>
+  <data name="StepBack" xml:space="preserve">
+    <value>Lépj hátra</value>
+  </data>
+  <data name="StepForward" xml:space="preserve">
+    <value>Következő lépés</value>
+  </data>
+  <data name="TestDeviceChannel" xml:space="preserve">
+    <value>Tesztelje a csatornát</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Nyelv</value>
   </data>
 </root>

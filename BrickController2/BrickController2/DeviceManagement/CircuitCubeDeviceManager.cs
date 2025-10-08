@@ -9,7 +9,7 @@ public class CircuitCubeDeviceManager : BluetoothDeviceManagerBase
 {
     protected override bool TryGetDeviceByServiceUiid(FoundDevice template, Guid serviceGuid, out FoundDevice device)
     {
-        if (serviceGuid == CircuitCubeDevice.SERVICE_UUID)
+        if (serviceGuid == CircuitCubeDevice.SERVICE_UUID && !string.IsNullOrEmpty(template.DeviceName))
         {
             device = template with { DeviceType = DeviceType.CircuitCubes };
             return true;

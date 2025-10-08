@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net9.0</TargetFramework>
-	<RootNamespace>BrickController2</RootNamespace>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>BrickController2</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -69,7 +69,7 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
-    <ItemGroup>
+  <ItemGroup>
     <Compile Update="Resources\TranslationResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

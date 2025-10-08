@@ -79,12 +79,10 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Resources\TranslationResources.de.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TranslationResources.de.Designer.cs</LastGenOutput>
+      <DependentUpon>TranslationResources.resx</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\TranslationResources.hu.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TranslationResources.hu.Designer.cs</LastGenOutput>
+      <DependentUpon>TranslationResources.resx</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\TranslationResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

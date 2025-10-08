@@ -1,0 +1,82 @@
+name: Build BrickController iOS 
+
+on:
+  push:
+    branches:
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*ios.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.iOS/**'
+  pull_request:
+    branches:    
+      - default
+      - 'releases/**'
+    paths:
+      - '.github/**/*ios.yml'
+      - 'BrickController2/*.props'
+      - 'BrickController2/*.sln'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.iOS/**'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    name: BrickController iOS Build
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    # fix error with missing XCode 16.4
+    - name: Select Xcode 16.4
+      run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        
+    - name: Install MAUI workload
+      run: dotnet workload install maui
+
+    - name: Import Code-Signing Certificates
+      uses: Apple-Actions/import-codesign-certs@v1
+      with:
+        p12-filepath: 'AppleSigningCertificate.p12'
+        p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+
+    - name: Download Apple Provisioning Profiles
+      uses: Apple-Actions/download-provisioning-profiles@v1
+      with:
+        bundle-id: 'cz.vico.brickcontrollerlegacy'
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+    - name: List Keychain Certificates
+      run: security find-identity -v -p codesigning
+            
+    - name: Restore Dependencies
+      run: dotnet restore BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
+    - name: Build MAUI iOS
+      run: dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj --no-restore -c Release -f net9.0-iOS -p:ArchiveOnBuild=true -p:EnableAssemblyILStripping=false
+
+    - name: List build output
+      run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/
+
+    # - name: Upload app to TestFlight
+    #   uses: Apple-Actions/upload-testflight-build@v1
+    #   with:
+    #     app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/BrickController2.ipa'
+    #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+    #     api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+    #     api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+

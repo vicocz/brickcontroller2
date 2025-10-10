@@ -33,6 +33,8 @@ jobs:
   build-ios:
     runs-on: macos-15
     name: BrickController iOS Build
+    env:
+      APP_DISPLAY_VERSION: ""
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -47,10 +49,24 @@ jobs:
     - name: Install MAUI workload
       run: dotnet workload install maui
 
+    - name: Find Current Release Info
+      if: github.event_name == 'release' && github.event.action == 'published'
+      id: get_release
+      uses: octokit/request-action@v2.x
+      with:
+        route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set APP_DISPLAY_VERSION for release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      shell: bash 
+      run: echo "APP_DISPLAY_VERSION=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')" >> $GITHUB_ENV
+
     - name: Import Code-Signing Certificates
       uses: Apple-Actions/import-codesign-certs@v1
       with:
-        p12-filepath: 'AppleSigningCertificate.p12'
+        p12-file-base64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
         p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
 
     - name: Download Apple Provisioning Profiles
@@ -76,6 +92,7 @@ jobs:
         -p:EnableAssemblyILStripping=false
         -p:CodesignKey="iPhone Distribution"
         -p:CodesignProvision=Automatic
+        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}"
 
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/
@@ -86,7 +103,19 @@ jobs:
         name: brickcontroller-ios-ci-build
         path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
 
+    - name: Upload Artifact to Release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
+        asset_path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
+        asset_name: BrickControllerLegacy_${{env.APP_DISPLAY_VERSION}}.apk
+        asset_content_type: application/vnd.android.package-archive
+      env:
+        GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}
+
     - name: Upload app to TestFlight
+      if: github.event_name == 'release' && github.event.action == 'published'
       uses: Apple-Actions/upload-testflight-build@v1
       with:
         app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa'

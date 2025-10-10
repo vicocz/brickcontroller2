@@ -86,11 +86,11 @@ jobs:
         name: brickcontroller-ios-ci-build
         path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
 
-    # - name: Upload app to TestFlight
-    #   uses: Apple-Actions/upload-testflight-build@v1
-    #   with:
-    #     app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/BrickController2.ipa'
-    #     issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-    #     api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
-    #     api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+    - name: Upload app to TestFlight
+      uses: Apple-Actions/upload-testflight-build@v1
+      with:
+        app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa'
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 

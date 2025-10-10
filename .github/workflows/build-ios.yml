@@ -67,10 +67,24 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
     - name: Build MAUI iOS
-      run: dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj --no-restore -c Release -f net9.0-iOS -p:ArchiveOnBuild=true -p:EnableAssemblyILStripping=false -p:CodesignKey="iPhone Distribution" -p:CodesignProvision=Automatic
+      run: >-
+        dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
+        --no-restore
+        -c Release
+        -f net9.0-iOS
+        -p:ArchiveOnBuild=true
+        -p:EnableAssemblyILStripping=false
+        -p:CodesignKey="iPhone Distribution"
+        -p:CodesignProvision=Automatic
 
     - name: List build output
-      run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/publish/
+      run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/
+
+    - name: Upload IOS Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: brickcontroller-ios-ci-build
+        path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
 
     # - name: Upload app to TestFlight
     #   uses: Apple-Actions/upload-testflight-build@v1

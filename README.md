@@ -1,6 +1,8 @@
-# BrickController 2
+# BrickController Legacy
 
-Cross platform mobile application for controlling your creations using a bluetooth gamepad.
+Cross-platform application, forked from [BrickController 2](https://github.com/imurvai/brickcontroller2), for controlling LEGO® and compatible brick creations using a Bluetooth gamepad.
+
+This app lets you control your motorized builds — whether made from LEGO® or other compatible brick systems—using a standard Bluetooth game controller.
 
 ## Supported platforms
 
@@ -32,7 +34,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 
 ## Project details
 
-BrickController 2 is a MAUI application and can be compiled using Visual Studio 2022 (Professional, Enterprise and Community Editions)
+BrickController Legacy is a MAUI application and can be compiled using Visual Studio 2022 (Professional, Enterprise and Community Editions)
 or Visual Studio for Mac.
 
 ## 3rd party libraries used

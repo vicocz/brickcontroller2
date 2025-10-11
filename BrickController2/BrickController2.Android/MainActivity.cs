@@ -15,7 +15,7 @@ using static BrickController2.PlatformServices.GameController.GameControllers;
 namespace BrickController2.Droid
 {
     [Activity(
-        Label = "BrickController2",
+        Label = "BrickControllerLegacy",
         Icon = "@mipmap/ic_launcher",
         Theme = "@style/MainTheme",
         MainLauncher = true,

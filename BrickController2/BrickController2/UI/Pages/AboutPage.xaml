@@ -19,7 +19,8 @@
                 <ScrollView>
                     <VerticalStackLayout Padding="20" Spacing="6">
 
-                        <Label Text="BrickController 2" FontSize="Medium" FontAttributes="Bold"/>
+                        <Label Text="BrickController" FontSize="Medium" FontAttributes="Bold"/>
+                        <Label Text="A fork of BrickController 2"/>
 
                         <HorizontalStackLayout Spacing="6">
                             <Label Text="{extensions:Translate Version}  "/>
@@ -28,7 +29,8 @@
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 
-                        <Label Text="Copyright © 2025, István Murvai (SCN)"/>
+                        <Label Text="Copyright © 2025"/>
+                        <Label Text="István Murvai (SCN), Vít Německý (Vico)"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 
@@ -47,7 +49,7 @@
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 
                         <Label Text="{extensions:Translate Disclaimer}" FontAttributes="Bold"/>
-                        <Label Text="LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application" FontSize="Small"/>
+                        <Label Text="LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application." FontSize="Small"/>
 
                     </VerticalStackLayout>
                 </ScrollView>

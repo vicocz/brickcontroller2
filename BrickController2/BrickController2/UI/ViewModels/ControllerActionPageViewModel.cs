@@ -60,7 +60,7 @@ namespace BrickController2.UI.ViewModels
             }
             else
             {
-                var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "com.scn.BrickController2.ControllerActionPage");
+                var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "ControllerActionPage");
                 SelectedDevice = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
                 Action.Channel = 0;
                 Action.IsInvert = false;
@@ -136,7 +136,7 @@ namespace BrickController2.UI.ViewModels
 
         public override void OnDisappearing()
         {
-            _preferences.Set<string>("LastSelectedDeviceId", _selectedDevice!.Id, "com.scn.BrickController2.ControllerActionPage");
+            _preferences.Set<string>("LastSelectedDeviceId", _selectedDevice!.Id, "ControllerActionPage");
 
             base.OnDisappearing();
         }

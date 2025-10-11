@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.scn.BrickController2" android:installLocation="auto">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="cz.vico.brickcontroller" android:installLocation="auto">
 	<!--<uses-sdk android:targetSdkVersion="34" android:minSdkVersion="21" />-->
 	<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
 	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
@@ -14,5 +14,5 @@
 	<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
 	<uses-feature android:name="android.hardware.bluetooth" android:required="true" />
 	<uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
-	<application android:label="BrickController2.Android" android:icon="@mipmap/ic_launcher"></application>
+	<application android:label="BrickController" android:icon="@mipmap/ic_launcher"></application>
 </manifest>

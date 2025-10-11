@@ -3,10 +3,11 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
-    <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
-    <TargetPlatformVersion>36.0</TargetPlatformVersion>
-    <OutputType>Exe</OutputType>
+		<SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
+		<TargetPlatformVersion>36.0</TargetPlatformVersion>
+		<OutputType>Exe</OutputType>
 		<RootNamespace>BrickController2.Droid</RootNamespace>
+		<AssemblyName>BrickController</AssemblyName>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<AndroidResgenClass>Resource</AndroidResgenClass>
 		<AndroidKeyStore>false</AndroidKeyStore>

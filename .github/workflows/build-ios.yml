@@ -109,7 +109,7 @@ jobs:
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
         asset_path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
-        asset_name: BrickControllerLegacy_${{env.APP_DISPLAY_VERSION}}.apk
+        asset_name: BrickControllerLegacy_${{env.APP_DISPLAY_VERSION}}.ipa
         asset_content_type: application/vnd.android.package-archive
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

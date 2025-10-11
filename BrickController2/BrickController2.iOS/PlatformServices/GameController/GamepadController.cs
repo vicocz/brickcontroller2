@@ -130,8 +130,21 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
 
         SetupDPadInput(gamePad.DPad, "DPad");
 
+        SetupDigitalOptionalButtonInput(gamePad.LeftThumbstickButton, "LeftThumbStick_Button");
+        SetupDigitalOptionalButtonInput(gamePad.RightThumbstickButton, "RightThumbStick_Button");
+
         SetupJoyInput(gamePad.LeftThumbstick, "LeftThumbStick");
         SetupJoyInput(gamePad.RightThumbstick, "RightThumbStick");
+    }
+
+    private void SetupDigitalOptionalButtonInput(GCControllerButtonInput? button, string name)
+    {
+        if (button is null)
+        {
+            return;
+        }
+
+        SetupDigitalButtonInput(button, name);
     }
 
     private void SetupDigitalButtonInput(GCControllerButtonInput button, string name)

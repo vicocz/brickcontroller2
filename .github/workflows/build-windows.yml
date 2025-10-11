@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - default
-      - 'releases/**'
+      - 'release/**'
     paths:
       - '.github/**/*windows.yml'
       - 'BrickController2/*.props'
@@ -14,7 +14,7 @@ on:
   pull_request:
     branches:    
       - default
-      - 'releases/**'
+      - 'release/**'
     paths:
       - '.github/**/*windows.yml'
       - 'BrickController2/*.props'

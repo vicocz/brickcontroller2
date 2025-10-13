@@ -92,7 +92,7 @@ jobs:
         -p:EnableAssemblyILStripping=false
         -p:CodesignKey="iPhone Distribution"
         -p:CodesignProvision=Automatic
-        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}"
+        -p:ApplicationDisplayVersion="3.4.2504"
 
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/

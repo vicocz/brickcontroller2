@@ -108,6 +108,6 @@ jobs:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
         asset_path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/cz.vico.BrickControllerLegacy-Signed.aab
         asset_name: BrickControllerLegacy_${{env.APP_DISPLAY_VERSION}}.aab
-        asset_content_type: application/vnd.android.package-archive
+        asset_content_type: application/x-authorware-bin
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

@@ -20,7 +20,7 @@
   </PropertyGroup>
   <!--App information-->
   <PropertyGroup>
-    <ApplicationDisplayVersion>3.4.2505</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>3.425.500</ApplicationDisplayVersion>
     <ApplicationVersion>51</ApplicationVersion>
   </PropertyGroup>
 </Project>

@@ -55,3 +55,4 @@ or Visual Studio for Mac.
 ## Author
 
 István Murvai
+Vít Německý

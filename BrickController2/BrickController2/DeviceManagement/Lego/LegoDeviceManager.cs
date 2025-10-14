@@ -28,7 +28,7 @@ public class LegoDeviceManager : BluetoothDeviceManagerBase
                     _ => DeviceType.Unknown
                 }
             };
-            return device.DeviceType != DeviceType.Unknown;
+            return device.DeviceType != DeviceType.Unknown && !string.IsNullOrEmpty(device.DeviceName);
         }
         // no match
         device = default;
@@ -37,7 +37,7 @@ public class LegoDeviceManager : BluetoothDeviceManagerBase
 
     protected override bool TryGetDeviceByServiceUiid(FoundDevice template, Guid serviceGuid, out FoundDevice device)
     {
-        if (serviceGuid == Wedo2Device.SERVICE_UUID)
+        if (serviceGuid == Wedo2Device.SERVICE_UUID && !string.IsNullOrEmpty(template.DeviceName))
         {
             device = template with { DeviceType = DeviceType.WeDo2 };
             return true;

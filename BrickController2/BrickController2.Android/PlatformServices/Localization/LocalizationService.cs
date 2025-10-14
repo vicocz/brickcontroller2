@@ -1,57 +1,61 @@
 ﻿using System.Globalization;
 using System.Threading;
-using Microsoft.Maui.Controls;
 using BrickController2.PlatformServices.Localization;
+using Microsoft.Maui.Controls;
 
 [assembly:Dependency(typeof(BrickController2.Droid.PlatformServices.Localization.LocalizationService))]
 namespace BrickController2.Droid.PlatformServices.Localization
 {
     public class LocalizationService : ILocalizationService
     {
-        private Java.Util.Locale? _androidLocale;
         private CultureInfo? _ci = null;
 
-        public CultureInfo CurrentCultureInfo
+        public CultureInfo DefaultCultureInfo
         {
             get
             {
                 var netLanguage = "en";
                 var androidLocale = Java.Util.Locale.Default;
+                netLanguage = AndroidToDotnetLanguage(androidLocale?.ToString()?.Replace("_", "-") ?? netLanguage);
 
-                if (_ci == null || androidLocale != _androidLocale)
+                try
                 {
-                    _androidLocale = androidLocale;
-                    netLanguage = AndroidToDotnetLanguage(_androidLocale?.ToString()?.Replace("_", "-") ?? netLanguage);
-
+                    return new CultureInfo(netLanguage);
+                }
+                catch (CultureNotFoundException)
+                {
                     try
                     {
-                        _ci = new CultureInfo(netLanguage);
+                        var fallback = ToDotnetFallbackLanguage(new PlatformCulture(netLanguage));
+                        return new CultureInfo(fallback);
                     }
                     catch (CultureNotFoundException)
                     {
-                        try
-                        {
-                            var fallback = ToDotnetFallbackLanguage(new PlatformCulture(netLanguage));
-                            _ci = new CultureInfo(fallback);
-                        }
-                        catch (CultureNotFoundException)
-                        {
-                            _ci = new CultureInfo("en");
-                        }
+                        return new CultureInfo("en");
                     }
                 }
+            }
+        }
+
+        public CultureInfo CurrentCultureInfo
+        {
+            get
+            {
+                _ci ??= DefaultCultureInfo;
 
                 return _ci;
             }
 
             set
             {
+                _ci = value;
+                CultureInfo.CurrentUICulture = value;
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
             }
         }
 
-        private string AndroidToDotnetLanguage(string androidLanguage)
+        private static string AndroidToDotnetLanguage(string androidLanguage)
         {
             var netLanguage = androidLanguage;
 
@@ -78,7 +82,7 @@ namespace BrickController2.Droid.PlatformServices.Localization
             return netLanguage;
         }
 
-        private string ToDotnetFallbackLanguage(PlatformCulture platCulture)
+        private static string ToDotnetFallbackLanguage(PlatformCulture platCulture)
         {
             var netLanguage = platCulture.LanguageCode; // use the first part of the identifier (two chars, usually);
             switch (platCulture.LanguageCode)

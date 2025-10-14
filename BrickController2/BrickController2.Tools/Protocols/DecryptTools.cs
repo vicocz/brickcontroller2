@@ -59,12 +59,12 @@ public static class DecryptTools
         byte[] seedReversed = new byte[seedLength];
         for (int i = 0; i < headerLength; i++)
         {
-            header[i] = CryptTools.Invert8(resultBuffer[headerOffset + i]);
+            header[i] = CryptTools.Reverse(resultBuffer[headerOffset + i]);
         }
 
         for (int i = 0; i < seedLength; i++)
         {
-            seedReversed[i] = CryptTools.Invert8(resultBuffer[headerOffset + headerLength + i]);
+            seedReversed[i] = CryptTools.Reverse(resultBuffer[headerOffset + headerLength + i]);
         }
 
         // Reverse the seed array to get the original order

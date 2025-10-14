@@ -42,7 +42,7 @@ jobs:
       with:
         dotnet-version: 9.0.x
 
-    # fix error with missing XCode 16.4
+    # fix error with missing XCode 26
     - name: Select Xcode 16.4
       run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
         

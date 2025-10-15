@@ -36,9 +36,6 @@ jobs:
   build-winui:
     runs-on: windows-2025
     name: BrickController WinUI Build
-    env:
-      APP_DISPLAY_VERSION: ""
-      APP_PACKAGE_VERSION: ""
 
     steps:
     - uses: actions/checkout@v4
@@ -56,19 +53,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set app version for release
-      if: github.event_name == 'release' && github.event.action == 'published'
-      shell: bash
-      run: |
-        TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
-        # Split the tag into parts, remove leading zeros and add missing parts as zeros
-        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"  
-        for i in "${!VERSION_PARTS[@]}"; do  
-          VERSION_PARTS[$i]=$(echo "${VERSION_PARTS[$i]}" | sed 's/^0*//')  
-        done  
-        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV  
-        echo "APP_PACKAGE_VERSION=${VERSION_PARTS[0]:-0}.${VERSION_PARTS[1]:-0}.${VERSION_PARTS[2]:-0}.${VERSION_PARTS[3]:-0}" >> $GITHUB_ENV
-
     - name: Decode Signing Certificate
       run: |
         echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
@@ -85,9 +69,7 @@ jobs:
         -c Release `
         -r win10-x64 `
         -p:Platform=x64 `
-        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
-        -p:ApplicationVersion="0" `
-        -p:PackageVersion="${{ env.APP_PACKAGE_VERSION }}"
+        -p:ApplicationVersion="${{ github.run_number }}"
 
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} `
@@ -110,7 +92,7 @@ jobs:
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
         asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
-        asset_name: BrickControllerLegacy_${{env.APP_DISPLAY_VERSION}}.msix
+        asset_name: BrickControllerLegacy_${{env.APP_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

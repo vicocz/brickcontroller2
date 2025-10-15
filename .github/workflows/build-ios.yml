@@ -47,8 +47,7 @@ jobs:
     - name: Get App Version from Build Properties
       shell: bash
       run: |
-        # Extract ApplicationDisplayVersion from Directory.Build.props using grep and sed
-        APP_VERSION=$(grep -oP '<ApplicationDisplayVersion>\K[^<]*' Directory.Build.props)
+        APP_VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)
         echo "Found version: $APP_VERSION"
 
     - name: Find Current Release Info

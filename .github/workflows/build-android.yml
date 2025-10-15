@@ -44,9 +44,7 @@ jobs:
 
     - name: Get App Version from Build Properties
       shell: bash
-      run: |
-        APP_VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)
-        echo "Found version: $APP_VERSION"
+      run: echo "APP_VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)" >> $GITHUB_ENV
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'

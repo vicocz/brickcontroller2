@@ -66,7 +66,7 @@ jobs:
     - name: Build MAUI Android
       run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj `
         -c Release `
-        -f net9.0-android `
+        -f net10.0-android `
         --no-restore `
         -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
         -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}} `

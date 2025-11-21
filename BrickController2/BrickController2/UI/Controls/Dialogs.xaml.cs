@@ -245,14 +245,14 @@ namespace BrickController2.UI.Controls
             using (token.Register(() =>
             {
                 GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
-                GameControllerService!.InputDeviceEvent -= gameControllerEventHandler!;
+                GameControllerService!.InputDeviceEvent -= inputDeviceEventHandler!;
                 HideViewImmediately(GameControllerEventDialog);
                 tcs.TrySetResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
             }))
             {
                 await ShowView(GameControllerEventDialog);
                 GameControllerEventDialogCancelButton.Clicked += buttonHandler!;
-                GameControllerService!.InputDeviceEvent += gameControllerEventHandler!;
+                GameControllerService!.InputDeviceEvent += inputDeviceEventHandler!;
 
                 return await tcs.Task;
             }
@@ -260,12 +260,12 @@ namespace BrickController2.UI.Controls
             async void buttonHandler(object sender, EventArgs args)
             {
                 GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
-                GameControllerService!.InputDeviceEvent -= gameControllerEventHandler!;
+                GameControllerService!.InputDeviceEvent -= inputDeviceEventHandler!;
                 await HideView(GameControllerEventDialog);
                 tcs.TrySetResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
             }
 
-            async void gameControllerEventHandler(object sender, InputDeviceEventArgs args)
+            async void inputDeviceEventHandler(object sender, InputDeviceEventArgs args)
             {
                 if (args.InputDeviceEvents.Count == 0)
                 {
@@ -278,7 +278,7 @@ namespace BrickController2.UI.Controls
                         (controllerEvent.Key.EventType == InputDeviceEventType.Button && Math.Abs(controllerEvent.Value) < 0.05))
                     {
                         GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
-                        GameControllerService.InputDeviceEvent -= gameControllerEventHandler!;
+                        GameControllerService.InputDeviceEvent -= inputDeviceEventHandler!;
                         await HideView(GameControllerEventDialog);
 
                         var gameControllerEventType = controllerEvent.Key.EventType;

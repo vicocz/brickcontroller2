@@ -49,7 +49,7 @@ namespace BrickController2.UI.Services.Dialog
         {
             if (_dialogServer is not null)
             {
-                _dialogServer.GameControllerService = _gameControllerService;
+                _dialogServer.InputDeviceEventService = _gameControllerService;
             }
 
             return _dialogServer?.ShowGameControllerEventDialogAsync(title, message, cancelButtonText, token) ?? Task.FromResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));

@@ -20,7 +20,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
-        private readonly IInputDeviceEventService _gameControllerService;
+        private readonly IInputDeviceEventService _inputDeviceEventService;
         private readonly IPlayLogic _playLogic;
 
         private readonly IList<Device> _devices = new List<Device>();
@@ -43,7 +43,7 @@ namespace BrickController2.UI.ViewModels
         {
             _deviceManager = deviceManager;
             _dialogService = dialogService;
-            _gameControllerService = gameControllerService;
+            _inputDeviceEventService = gameControllerService;
             _playLogic = playLogic;
 
             Creation = parameters.Get<Creation>("creation");
@@ -113,7 +113,7 @@ namespace BrickController2.UI.ViewModels
                 return;
             }
 
-            _gameControllerService.InputDeviceEvent += GameControllerEventHandler!;
+            _inputDeviceEventService.InputDeviceEvent += GameControllerEventHandler!;
 
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectDevicesAsync();
@@ -124,7 +124,7 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = true;
             base.OnDisappearing();
 
-            _gameControllerService.InputDeviceEvent -= GameControllerEventHandler!;
+            _inputDeviceEventService.InputDeviceEvent -= GameControllerEventHandler!;
 
             StopPlay();
 

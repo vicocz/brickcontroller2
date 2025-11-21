@@ -715,12 +715,12 @@
     <value>Language</value>
   </data>
   <data name="InputDeviceTester" xml:space="preserve">
-    <value>Inputdevice tester</value>
+    <value>Input device tester</value>
   </data>
   <data name="InputDevice" xml:space="preserve">
-    <value>Inputdevice</value>
+    <value>Input device</value>
   </data>
   <data name="InputDevices" xml:space="preserve">
-    <value>Inputdevices</value>
+    <value>Input devices</value>
   </data>
 </root>

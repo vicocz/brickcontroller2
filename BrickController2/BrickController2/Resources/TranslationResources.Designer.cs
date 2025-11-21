@@ -1123,7 +1123,7 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inputdevice.
+        ///   Looks up a localized string similar to Input device.
         /// </summary>
         internal static string InputDevice {
             get {
@@ -1132,7 +1132,7 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inputdevices.
+        ///   Looks up a localized string similar to Input devices.
         /// </summary>
         internal static string InputDevices {
             get {
@@ -1141,7 +1141,7 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Inputdevice tester.
+        ///   Looks up a localized string similar to Input device tester.
         /// </summary>
         internal static string InputDeviceTester {
             get {

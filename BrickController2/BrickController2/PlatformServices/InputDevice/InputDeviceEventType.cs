@@ -1,8 +1,7 @@
-﻿namespace BrickController2.PlatformServices.InputDevice
+﻿namespace BrickController2.PlatformServices.InputDevice;
+
+public enum InputDeviceEventType
 {
-    public enum InputDeviceEventType
-    {
-        Button,
-        Axis
-    }
+    Button,
+    Axis
 }

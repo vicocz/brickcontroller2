@@ -10,94 +10,93 @@ using System.Linq;
 
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
-namespace BrickController2.UI.ViewModels
+namespace BrickController2.UI.ViewModels;
+
+public class InputDeviceTesterPageViewModel : PageViewModelBase
 {
-    public class InputDeviceTesterPageViewModel : PageViewModelBase
+    private readonly IInputDeviceEventService _inputDeviceEventService;
+    private ObservableCollection<InputDeviceGroupViewModel> _inputDeviceEventList = [];
+
+    public InputDeviceTesterPageViewModel(
+        INavigationService navigationService,
+        ITranslationService translationService,
+        IInputDeviceEventService inputDeviceEventService)
+        : base(navigationService, translationService)
     {
-        private readonly IInputDeviceEventService _gameControllerService;
-        private ObservableCollection<GameControllerGroupViewModel> _groups = [];
+        _inputDeviceEventService = inputDeviceEventService;
+    }
 
-        public InputDeviceTesterPageViewModel(
-            INavigationService navigationService,
-            ITranslationService translationService,
-            IInputDeviceEventService gameControllerService)
-            : base(navigationService, translationService)
+    public IEnumerable<INotifyPropertyChanged> InputDeviceEventList => _inputDeviceEventList;
+
+    public override void OnAppearing()
+    {
+        _inputDeviceEventService.InputDevicesChangedEvent += InputDevicesChangedEventHandler;
+        _inputDeviceEventService.InputDeviceEvent += InputDeviceEventHandler!;
+    }
+
+    public override void OnDisappearing()
+    {
+        // unregister all
+        _inputDeviceEventService.InputDeviceEvent -= InputDeviceEventHandler!;
+        _inputDeviceEventService.InputDevicesChangedEvent -= InputDevicesChangedEventHandler;
+    }
+
+    private void InputDevicesChangedEventHandler(object? sender, InputDeviceChangedEventArgs e)
+    {
+        switch (e.Action)
         {
-            _gameControllerService = gameControllerService;
+            case NotifyInputDevicesChangedAction.Connected:
+                // recreate collection due to MAUI could not handle adding of them
+                _inputDeviceEventList = new(_inputDeviceEventList.Concat(e.Items.Select(x => new InputDeviceGroupViewModel(x)))
+                    .OrderBy(x => x.InputDeviceNumber));
+                // notify
+                RaisePropertyChanged(nameof(InputDeviceEventList));
+                break;
+            case NotifyInputDevicesChangedAction.Disconnected:
+                // MAUI could not handle removal of a group
+                var removedItems = e.Items.Select(x => x.InputDeviceId).ToHashSet();
+                _inputDeviceEventList = new(_inputDeviceEventList.Where(x => !removedItems.Contains(x.InputDeviceId)));
+                // notify
+                RaisePropertyChanged(nameof(InputDeviceEventList));
+                break;
         }
+    }
 
-        public IEnumerable<INotifyPropertyChanged> ControllerEventList => _groups;
-
-        public override void OnAppearing()
+    private void InputDeviceEventHandler(object sender, InputDeviceEventArgs args)
+    {
+        foreach (var controllerEvent in args.InputDeviceEvents)
         {
-            _gameControllerService.InputDevicesChangedEvent += GameControllersChangedEventHandler;
-            _gameControllerService.InputDeviceEvent += GameControllerEventHandler_Grouping!;
-        }
-
-        public override void OnDisappearing()
-        {
-            // unregister all
-            _gameControllerService.InputDeviceEvent -= GameControllerEventHandler_Grouping!;
-            _gameControllerService.InputDevicesChangedEvent -= GameControllersChangedEventHandler;
-        }
-
-        private void GameControllersChangedEventHandler(object? sender, InputDeviceChangedEventArgs e)
-        {
-            switch (e.Action)
+            var group = _inputDeviceEventList.FirstOrDefault(x => x.InputDeviceId == args.InputDeviceId);
+            if (group is null)
             {
-                case NotifyInputDevicesChangedAction.Connected:
-                    // recreate collection due to MAUI could not handle adding of them
-                    _groups = new(_groups.Concat(e.Items.Select(x => new GameControllerGroupViewModel(x)))
-                        .OrderBy(x => x.ControllerNumber));
-                    // notify
-                    RaisePropertyChanged(nameof(ControllerEventList));
-                    break;
-                case NotifyInputDevicesChangedAction.Disconnected:
-                    // MAUI could not handle removal of a group
-                    var removedItems = e.Items.Select(x => x.InputDeviceId).ToHashSet();
-                    _groups = new(_groups.Where(x => !removedItems.Contains(x.ControllerId)));
-                    // notify
-                    RaisePropertyChanged(nameof(ControllerEventList));
-                    break;
+                // create proxy model
+                group = new InputDeviceGroupViewModel(args.InputDeviceId, default);
+                _inputDeviceEventList.Add(group);
             }
+            ProcessEvent(group, controllerEvent);
         }
+    }
 
-        private void GameControllerEventHandler_Grouping(object sender, InputDeviceEventArgs args)
+    private static void ProcessEvent(ICollection<InputDeviceEventViewModel> events,
+        KeyValuePair<(InputDeviceEventType EventType, string EventCode), float> inputDeviceEvent)
+    {
+        var inputDeviceEventViewModel = events.FirstOrDefault(ce => ce.EventType == inputDeviceEvent.Key.EventType && ce.EventCode == inputDeviceEvent.Key.EventCode);
+        if (AXIS_DELTA_VALUE < Math.Abs(inputDeviceEvent.Value))
         {
-            foreach (var controllerEvent in args.InputDeviceEvents)
+            if (inputDeviceEventViewModel != null)
             {
-                var group = _groups.FirstOrDefault(x => x.ControllerId == args.InputDeviceId);
-                if (group is null)
-                {
-                    // create proxy model
-                    group = new GameControllerGroupViewModel(args.InputDeviceId, default);
-                    _groups.Add(group);
-                }
-                ProcessEvent(group, controllerEvent);
-            }
-        }
-
-        private static void ProcessEvent(ICollection<GameControllerEventViewModel> events,
-            KeyValuePair<(InputDeviceEventType EventType, string EventCode), float> controllerEvent)
-        {
-            var controllerEventViewModel = events.FirstOrDefault(ce => ce.EventType == controllerEvent.Key.EventType && ce.EventCode == controllerEvent.Key.EventCode);
-            if (AXIS_DELTA_VALUE < Math.Abs(controllerEvent.Value))
-            {
-                if (controllerEventViewModel != null)
-                {
-                    controllerEventViewModel.Value = controllerEvent.Value;
-                }
-                else
-                {
-                    events.Add(new GameControllerEventViewModel(controllerEvent.Key.EventType, controllerEvent.Key.EventCode, controllerEvent.Value));
-                }
+                inputDeviceEventViewModel.Value = inputDeviceEvent.Value;
             }
             else
             {
-                if (controllerEventViewModel != null)
-                {
-                    events.Remove(controllerEventViewModel);
-                }
+                events.Add(new InputDeviceEventViewModel(inputDeviceEvent.Key.EventType, inputDeviceEvent.Key.EventCode, inputDeviceEvent.Value));
+            }
+        }
+        else
+        {
+            if (inputDeviceEventViewModel != null)
+            {
+                events.Remove(inputDeviceEventViewModel);
             }
         }
     }

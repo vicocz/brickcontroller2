@@ -23,6 +23,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Lego Duplo Train Hub
 - Circuit Cubes
 - Mould King DIY Module
+- Mould King 3.8 Powered Module
 - Mould King 4.0 Powered Module
 - Mould King 5.0 Powered Module
 - Mould King 6.0 Powered Module

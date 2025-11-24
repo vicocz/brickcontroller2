@@ -89,8 +89,26 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         }
     }
 
+    /// <summary>
+    /// Determines whether the specified channel number represents a virtual channel.
+    /// </summary>
+    /// <remarks>This method can be overridden in a derived class to provide custom logic for identifying
+    /// virtual channels. By default, it always returns <see langword="false"/>.</remarks>
+    /// <param name="channelNo">The channel number to evaluate.</param>
+    /// <returns><see langword="true"/> if the specified channel number is a virtual channel; otherwise, <see langword="false"/>.</returns>
     protected virtual bool IsVirtualChannel(int channelNo) => false;
 
+    /// <summary>
+    /// Processes the specified channel value and returns a transformed result.
+    /// </summary>
+    /// <remarks>The exact transformation logic and conditions for success are determined by the implementing
+    /// class.</remarks>
+    /// <param name="channelNo">The channel number to process. Must be a non-negative integer.</param>
+    /// <param name="value">The input value associated with the channel to be processed.</param>
+    /// <returns>A tuple containing the processed result: <list type="bullet"> <item> <description><c>value</c>: A byte
+    /// representing the transformed value for the specified channel.</description> </item> <item>
+    /// <description><c>flag</c>: A boolean indicating whether the value is marked as zero (<see langword="true"/>) or
+    /// not (<see langword="false"/>).</description> </item> </list></returns>
     protected abstract (byte value, bool flag) ProcessChannelValue(int channelNo, float value);
 
     /// <summary>
@@ -125,6 +143,16 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         }
     }
 
+    /// <summary>
+    /// Sets the output value for the specified channel.
+    /// </summary>
+    /// <remarks>This method handles both virtual and real channels. For virtual channels, the value is
+    /// processed and the modification status is returned. For real channels, the method calculates the appropriate
+    /// byte offset and channel-specific parameters, processes the value, and updates  the channel state
+    /// accordingly.</remarks>
+    /// <param name="channelNo">The channel number for which the output value is to be set. Must be a valid channel identifier.</param>
+    /// <param name="value">The output value to set for the specified channel. The value is processed before being applied.</param>
+    /// <returns><see langword="true"/> if the channel's output value was modified; otherwise, <see langword="false"/>.</returns>
     protected bool SetChannelOutput(int channelNo, float value)
     {
         if (IsVirtualChannel(channelNo))
@@ -136,14 +164,13 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         else
         {
             // real channel
-            bool isOdd = (channelNo & 0x01) == 0x01;
-            int byteOffset = GetByteOffset(channelNo);
+            (int byteOffset, bool isLowerNibble) = GetTargetPosition(channelNo);
             int specificChannelNo = GetSpecificChannelNumber(channelNo);
 
             (byte setValue_nibble, bool zeroSet) = ProcessChannelValue(channelNo, value);
 
             _bluetoothAdvertisingDeviceHandler.SetChannelState(specificChannelNo, zeroSet); // set global channel state
-            return SetChannelValue(byteOffset, isOdd, setValue_nibble);
+            return SetChannelValue(byteOffset, isLowerNibble, setValue_nibble);
         }
     }
 
@@ -199,21 +226,29 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
             return _mkPlatformService.TryGetRfPayload(_telegram_Base, out payload);
         }
     }
-
+    
     /// <summary>
-    /// Calculates the byte offset for a given channel number within the current instance.
+    /// Calculates the target position of a channel within the current instance.
     /// </summary>
-    /// <remarks>The byte offset is determined based on the instance number, the maximum number of bytes
-    /// allocated per instance,  and the channel number. Each byte represents two channels.</remarks>
-    /// <param name="channelNo">The channel number for which to calculate the byte offset. Must be a non-negative integer.</param>
-    /// <returns>The byte offset corresponding to the specified channel number within the current instance.</returns>
-    private int GetByteOffset(int channelNo)
+    /// <remarks>The calculation takes into account the instance number and assumes that each instance
+    /// contains a fixed number of bytes for channels. Channels are packed two per byte, with the lower nibble
+    /// representing one channel and the upper nibble representing the other.</remarks>
+    /// <param name="channelNo">The channel number for which the position is calculated. Must be a non-negative integer.</param>
+    /// <returns>A tuple containing the byte offset and a boolean indicating whether the target position is in the lower nibble.
+    /// <list type="bullet"> <item><description><c>byteOffset</c>: The byte offset within the data structure where the
+    /// channel is located.</description></item> <item><description><c>isLowerNibble</c>: <see langword="true"/> if the
+    /// channel is in the lower nibble of the byte; otherwise, <see langword="false"/>.</description></item> </list></returns>
+    protected virtual (int byteOffset, bool isLowerNibble) GetTargetPosition(int channelNo)
     {
         // i.e. MK4.0 has 3 instances, each with 2 bytes for channels
         // instance 0: 3..4
         // instance 1: 5..6
         // instance 2: 7..8
-        return CHANNEL_START_OFFSET + _instanceNo * MAX_CHANNEL_BYTES_PER_INSTANCE + (channelNo >> 1); // div 2 -> 2 channels per byte
+
+        return (
+            CHANNEL_START_OFFSET + _instanceNo * MAX_CHANNEL_BYTES_PER_INSTANCE + (channelNo >> 1), // div 2 -> 2 channels per byte
+            (channelNo & 0x01) == 0x01
+        ); 
     }
 
     /// <summary>

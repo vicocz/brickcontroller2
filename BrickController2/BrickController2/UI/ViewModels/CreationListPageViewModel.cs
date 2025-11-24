@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -59,14 +58,14 @@ namespace BrickController2.UI.ViewModels
             ImportCreationFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
             ScanCreationCommand = new SafeCommand(ScanCreationAsync);
             PasteCreationCommand = commandFactory.PasteItemFromClipboardCommand(this);
-            OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
+            OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(new NavigationParameters(("parent", this))), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
             PlayCreationCommand = new SafeCommand<Creation>(PlayAsync);
             ShareCreationCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", creation))));
             NavigateToDevicesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<DeviceListPageViewModel>());
-            NavigateToControllerTesterCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<ControllerTesterPageViewModel>());
+            NavigateToInputDeviceTesterCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<InputDeviceTesterPageViewModel>());
             NavigateToSequencesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceListPageViewModel>());
             NavigateToAboutCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<AboutPageViewModel>());
         }
@@ -86,7 +85,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand PasteCreationCommand { get; }
         public ICommand ScanCreationCommand { get; }
         public ICommand NavigateToDevicesCommand { get; }
-        public ICommand NavigateToControllerTesterCommand { get; }
+        public ICommand NavigateToInputDeviceTesterCommand { get; }
         public ICommand NavigateToSequencesCommand { get; }
         public ICommand NavigateToAboutCommand { get; }
 
@@ -135,7 +134,7 @@ namespace BrickController2.UI.ViewModels
                     DisappearingToken.ThrowIfCancellationRequested();
                 }
 
-                if (SharedFileStorageService.SharedStorageDirectory != null)
+                if (SharedFileStorageService.SharedStorageBaseDirectory != null)
                 {
                     var storagePermissionStatus = await _readWriteExternalStoragePermission.CheckStatusAsync();
                     if (storagePermissionStatus != PermissionStatus.Granted && !_isStoragePermissionRequested)

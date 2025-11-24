@@ -1,16 +1,17 @@
-using System;
+using BrickController2.UI.DI;
+using BrickController2.UI.Pages;
+using BrickController2.UI.Services.Background;
+using BrickController2.UI.Services.Localization;
+using BrickController2.UI.Services.Theme;
+using BrickController2.UI.ViewModels;
 using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Graphics;
-using BrickController2.UI.DI;
-using BrickController2.UI.ViewModels;
-using BrickController2.UI.Pages;
-using BrickController2.UI.Services.Background;
-using BrickController2.UI.Services.Theme;
+using System;
 
-[assembly: XamlCompilation (XamlCompilationOptions.Skip)]
+[assembly: XamlCompilation(XamlCompilationOptions.Skip)]
 namespace BrickController2
 {
 	public partial class App : Application
@@ -25,7 +26,8 @@ namespace BrickController2
             PageFactory pageFactory, 
             Func<Page, NavigationPage> navigationPageFactory,
             BackgroundService backgroundService,
-			IThemeService themeService)
+			IThemeService themeService,
+			ILocalizationService localizationService)
 		{
 			InitializeComponent();
 
@@ -44,18 +46,38 @@ namespace BrickController2
 				};
 				themeService.ApplyCurrentTheme();
 			};
-			themeService.ApplyCurrentTheme();
+
+            localizationService.ApplyCurrentLanguage();
+            themeService.ApplyCurrentTheme();
 		}
+
+        internal void ReloadRootPage()
+        {
+            // recreate the root page to apply the change
+            if (Windows[0].Page is NavigationPage navigationPage &&
+                navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
+            {
+                // reset view model
+                navigationPage.RootPage.BindingContext = null;
+                // apply new page with the existing view model
+                Windows[0].Page = GetMainPage(viewModel);
+            }
+        }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var vm = _viewModelFactory(typeof(CreationListPageViewModel), null);
+            NavigationPage navigationPage = GetMainPage();
+            return new Window(navigationPage);
+        }
+
+        private NavigationPage GetMainPage(CreationListPageViewModel? viewModel = default)
+        {
+            var vm = viewModel ?? _viewModelFactory(typeof(CreationListPageViewModel), null);
             var page = _pageFactory(typeof(CreationListPage), vm);
             var navigationPage = _navigationPageFactory(page);
             navigationPage.BarBackgroundColor = Colors.Red;
             navigationPage.BarTextColor = Colors.White;
-
-            return new Window(navigationPage);
+            return navigationPage;
         }
 
         protected override void OnStart()

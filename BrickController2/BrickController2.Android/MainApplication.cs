@@ -12,6 +12,7 @@ using BrickController2.BusinessLogic.DI;
 using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
 using BrickController2.DeviceManagement.DI;
+using BrickController2.InputDeviceManagement.DI;
 using BrickController2.Extensions;
 using BrickController2.Droid.PlatformServices.DI;
 using BrickController2.Droid.UI.Services.DI;
@@ -55,6 +56,7 @@ namespace BrickController2.Droid
                     autofacBuilder.RegisterModule(new DatabaseModule());
                     autofacBuilder.RegisterModule(new CreationManagementModule());
                     autofacBuilder.RegisterModule(new DeviceManagementModule());
+                    autofacBuilder.RegisterModule(new InputDeviceManagementModule());
                     autofacBuilder.RegisterModule(new UiModule());
                 });
 

@@ -47,6 +47,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.TechnicMove:
                     return ResourceHelper.GetImageResource("technic_move_small.png");
 
+                case DeviceType.MK3_8:
+                    return ResourceHelper.GetImageResource("mk3_8_image_small.png");
+
                 case DeviceType.MK4:
                     return ResourceHelper.GetImageResource("mk4_image_small.png");
 

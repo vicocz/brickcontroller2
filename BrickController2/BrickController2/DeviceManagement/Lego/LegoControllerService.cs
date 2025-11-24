@@ -1,0 +1,41 @@
+﻿using BrickController2.InputDeviceManagement;
+using BrickController2.PlatformServices.InputDeviceService;
+using Microsoft.Extensions.Logging;
+using System.Linq;
+
+namespace BrickController2.DeviceManagement.Lego;
+
+internal class LegoControllerService : InputDeviceServiceBase<LegoController>
+{
+    private readonly IDeviceManager _deviceManager;
+    private readonly IInputDeviceEventServiceInternal _deviceEventServiceInternal;
+
+    public LegoControllerService(IDeviceManager deviceManager,
+        IInputDeviceManagerService inputDeviceManagerService,
+        IInputDeviceEventServiceInternal deviceEventServiceInternal,
+        ILogger<LegoControllerService> logger) 
+        : base(inputDeviceManagerService, logger)
+    {
+        _deviceManager = deviceManager;
+        _deviceEventServiceInternal = deviceEventServiceInternal;
+    }
+
+    public override void Initialize()
+    {
+        foreach (var remoteController in _deviceManager.Devices.OfType<LegoRemoteControl>())
+        {
+            var number = GetFirstUnusedInputDeviceNumber();
+            var controller = new LegoController(_deviceEventServiceInternal, remoteController, number);
+            AddInputDevice(controller);
+        }
+    }
+
+    public override void Stop()
+    {
+        while (TryRemoveInputDevice(x => true, out var controller))
+        {
+            controller.Stop();
+            _logger.LogInformation("Lego controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
+        }
+    }
+}

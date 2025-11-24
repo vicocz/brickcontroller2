@@ -22,10 +22,9 @@ public class LegoDeviceManager : BluetoothDeviceManagerBase
                     0x20 => DeviceType.DuploTrainHub,
                     0x40 => DeviceType.Boost,
                     0x41 => DeviceType.PoweredUp,
+                    0x42 => DeviceType.LegoRemoteControl,  // input device
                     0x80 => DeviceType.TechnicHub,
                     0x84 => DeviceType.TechnicMove,
-
-                    0x42 => DeviceType.LegoController,
 
                     _ => DeviceType.Unknown
                 }

@@ -1,71 +1,36 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using static BrickController2.Protocols.LegoWirelessProtocol;
-
+﻿using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 namespace BrickController2.DeviceManagement.Lego;
 
-internal class LegoController : ControlPlusDevice
+internal class LegoController : InputDeviceBase<LegoRemoteControl>
 {
-    public LegoController(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-    : base(name, address, deviceRepository, bleService)
+    public LegoController(IInputDeviceEventServiceInternal service, LegoRemoteControl remoteControl, int controllerNumber)
+        : base(service, remoteControl)
     {
+        Name = remoteControl.Name;
+        InputDeviceNumber = controllerNumber;
+        InputDeviceId = $"LEGO Controller #{InputDeviceNumber}";
     }
 
-    public override DeviceType DeviceType => DeviceType.LegoController;
-
-    public override int NumberOfChannels => 0;
-
-    protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
+    public override void Start()
     {
-        if (await base.AfterConnectSetupAsync(requestDeviceInformation, token))
-        {
-            // setup ports - 0x03 SI The SI value range
-            var remoteButtonA = BuildPortInputFormatSetup(0, PORT_MODE_3);
-            await WriteAsync(remoteButtonA, token);
-
-            var remoteButtonB = BuildPortInputFormatSetup(1, PORT_MODE_3);
-            return await WriteAsync(remoteButtonB, token);
-        }
-
-        return false;
+        base.Start();
+        // link LegoRemoteControl and connect
+        InputDeviceDevice.LinkLegoController(this);
+        _ = InputDeviceDevice.ConnectAsync(false, (d) => { }, [], false, false, default);
     }
 
-    protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
+    public override void Stop()
     {
-        if (data.Length < 4)
-        {
-            return;
-        }
+        base.Stop();
+        _ = InputDeviceDevice.DisconnectAsync();
+        // reset LegoRemoteControl link
+        InputDeviceDevice.LinkLegoController(default);
+    }
 
-        var messageCode = data[2];
-
-        switch (messageCode)
-        {
-            case 0x08: // HW network commands
-                if (data.Length == 5 && data[3] == 0x02)
-                {
-                    // HW button state
-                    bool  pressed = data[4] == 0x01;
-                    break;
-                }
-                break;
-            case 0x45: // 0x45	RemoteButton
-                if (data.Length == 5)
-                {
-                    // HW button state
-                    byte portId = data[3]; // port id
-                    bool pressed = data[4] == 0x01;
-                    break;
-                }
-                break;
-            default:
-                base.OnCharacteristicChanged(characteristicGuid, data);
-                break;
-        }
+    internal bool OnButtonEvent(string button, float buttonValue)
+    {
+        RaiseEvent(InputDeviceEventType.Button, button, buttonValue);
+        return true;
     }
 }

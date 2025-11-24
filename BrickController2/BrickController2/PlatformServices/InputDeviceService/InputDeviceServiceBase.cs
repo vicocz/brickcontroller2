@@ -71,6 +71,23 @@ public abstract class InputDeviceServiceBase<TInputDevice> : IInputDeviceService
         return _inputDeviceManagerService.TryGetInputDevice(predicate, out inputDevice);
     }
 
+    /// <summary>
+    /// get first unused inputdevice number (starts from 1)
+    /// </summary>
+    /// <returns>first unused inputdevice number (starts from 1)</returns>
+    protected int GetFirstUnusedInputDeviceNumber()
+    {
+        lock (_lockObject)
+        {
+            int unusedNumber = 1;
+            while (TryGetInputDevice(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            {
+                unusedNumber++;
+            }
+            return unusedNumber;
+        }
+    }
+
     void IStartable.Start()
     {
     }

@@ -72,15 +72,16 @@ public abstract class InputDeviceServiceBase<TInputDevice> : IInputDeviceService
     }
 
     /// <summary>
-    /// get first unused inputdevice number (starts from 1)
+    /// get first unused input device number (starts from 1)
     /// </summary>
-    /// <returns>first unused inputdevice number (starts from 1)</returns>
+    /// <returns>first unused input device number (starts from 1)</returns>
     protected int GetFirstUnusedInputDeviceNumber()
     {
         lock (_lockObject)
         {
             int unusedNumber = 1;
-            while (TryGetInputDevice(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            // use generic IInputDevice in order to walk through all implementations
+            while (_inputDeviceManagerService.TryGetInputDevice<IInputDevice>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
             {
                 unusedNumber++;
             }

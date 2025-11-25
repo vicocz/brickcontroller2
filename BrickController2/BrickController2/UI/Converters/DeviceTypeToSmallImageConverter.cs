@@ -68,6 +68,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.PfxBrick:
                     return ResourceHelper.GetImageResource("pfx_brick_image_small.png");
 
+                case DeviceType.LegoRemoteControl:
+                    return ResourceHelper.GetImageResource("legoremotecontrol_image_small.png");
+
                 default:
                     return null;
             }

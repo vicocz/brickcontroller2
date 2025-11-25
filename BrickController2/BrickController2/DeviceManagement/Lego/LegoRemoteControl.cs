@@ -1,12 +1,14 @@
-﻿using BrickController2.InputDeviceManagement;
-using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.PlatformServices.InputDevice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 using static BrickController2.Protocols.LegoWirelessProtocol;
+
 namespace BrickController2.DeviceManagement.Lego;
 
 internal class LegoRemoteControl : BluetoothDevice
@@ -27,17 +29,6 @@ internal class LegoRemoteControl : BluetoothDevice
     public override int NumberOfChannels => 0;
 
     protected override bool AutoConnectOnFirstConnect => false;
-
-    public void Start()
-    {
-        //TODO
-        _ = base.ConnectAsync(false, (d) => { }, [], false, false, default);
-    }
-
-    public void Stop()
-    {
-        _ = base.DisconnectAsync();
-    }
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
@@ -63,12 +54,14 @@ internal class LegoRemoteControl : BluetoothDevice
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
-         // setup ports - 0x03 SI The SI value range
-         var remoteButtonA = BuildPortInputFormatSetup(0, PORT_MODE_3);
-         await _bleDevice!.WriteAsync(_characteristic!, remoteButtonA, token);
+        await Task.Delay(500, token);
 
-         var remoteButtonB = BuildPortInputFormatSetup(1, PORT_MODE_3);
-         return await _bleDevice!.WriteAsync(_characteristic!, remoteButtonB, token);
+        // setup ports - 0x04 - REMOTE_BUTTONS_MODE_KEYSD
+        var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYSD, interval: 1);
+        await _bleDevice!.WriteAsync(_characteristic!, remoteButtonA, token);
+
+        var remoteButtonB = BuildPortInputFormatSetup(REMOTE_BUTTONS_RIGHT, REMOTE_MODE_KEYSD, interval: 1);
+        return await _bleDevice!.WriteAsync(_characteristic!, remoteButtonB, token);
     }
 
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
@@ -86,24 +79,24 @@ internal class LegoRemoteControl : BluetoothDevice
                 if (data.Length == 5 && data[3] == 0x02)
                 {
                     // HW button state
-                    OnButtonEvent("Green", data[4] & 0x01);
+                    _legoController?.RaiseButtonEvent("Home", data[4] > 0);
                     break;
                 }
                 break;
             case 0x45: // 0x45	RemoteButton
-                if (data.Length == 5)
+                if (data.Length == 7)
                 {
-                    // port buttons
-                    string port = data[3] switch
+                    switch (data[3])
                     {
-                        0 => "ButtonA",
-                        1 => "ButtonB",
-                        _ => "Unknown"
-                    };
-                    OnButtonEvent(port + "+", data[4] & 0x01); // + button
-                    OnButtonEvent(port + "Red", data[4] & 0x02); // Red button
-                    OnButtonEvent(port + "-", data[4] & 0x04); // - button
-                    break;
+                        case REMOTE_BUTTONS_LEFT:
+                            OnButtonEvents("A.Plus", "A", "A.Minus", data.AsSpan(4));
+                            break;
+                        case REMOTE_BUTTONS_RIGHT:
+                            OnButtonEvents("B.Plus", "B", "B.Minus", data.AsSpan(4));
+                            break;
+                        default:
+                            break;
+                    }
                 }
                 break;
             default:
@@ -111,5 +104,11 @@ internal class LegoRemoteControl : BluetoothDevice
         }
     }
 
-    private void OnButtonEvent(string button, int flag) => _legoController?.OnButtonEvent(button, flag > 0 ? 1.0f : 0.0f);
+    private void OnButtonEvents(string plus, string stop, string minus, ReadOnlySpan<byte> flags)
+        => _legoController?.RaiseEvents(new()
+            {
+                { (InputDeviceEventType.Button, plus), flags[0] == 0 ? BUTTON_RELEASED : BUTTON_PRESSED },
+                { (InputDeviceEventType.Button, stop), flags[1] == 0 ? BUTTON_RELEASED : BUTTON_PRESSED },
+                { (InputDeviceEventType.Button, minus), flags[2] == 0 ? BUTTON_RELEASED : BUTTON_PRESSED }
+            });
 }

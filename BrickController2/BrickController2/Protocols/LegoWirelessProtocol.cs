@@ -62,6 +62,11 @@ internal static class LegoWirelessProtocol
     public const byte FEEDBACK_ACTION_ACTION_START = 0x10;
     public const byte FEEDBACK_ACTION_BOTH = 0x11;
 
+    // remote controller
+    public const byte REMOTE_MODE_KEYSD = 0x04;
+    public const byte REMOTE_BUTTONS_LEFT = 0x00;
+    public const byte REMOTE_BUTTONS_RIGHT = 0x01;
+
     // conversion methods
     public static void ToBytes(int value, out byte b0, out byte b1, out byte b2, out byte b3)
     {

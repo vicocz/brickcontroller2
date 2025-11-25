@@ -1,5 +1,8 @@
 ﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
+using System.Collections.Generic;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
+
 namespace BrickController2.DeviceManagement.Lego;
 
 internal class LegoController : InputDeviceBase<LegoRemoteControl>
@@ -9,7 +12,7 @@ internal class LegoController : InputDeviceBase<LegoRemoteControl>
     {
         Name = remoteControl.Name;
         InputDeviceNumber = controllerNumber;
-        InputDeviceId = $"LEGO Controller #{InputDeviceNumber}";
+        InputDeviceId = GetControllerIdFromNumber(controllerNumber);
     }
 
     public override void Start()
@@ -28,9 +31,8 @@ internal class LegoController : InputDeviceBase<LegoRemoteControl>
         InputDeviceDevice.LinkLegoController(default);
     }
 
-    internal bool OnButtonEvent(string button, float buttonValue)
-    {
-        RaiseEvent(InputDeviceEventType.Button, button, buttonValue);
-        return true;
-    }
+    internal void RaiseEvents(Dictionary<(InputDeviceEventType, string), float> events)
+        => RaiseEvent(events);
+    internal void RaiseButtonEvent(string eventCode, bool pressed)
+        => RaiseEvent(InputDeviceEventType.Button, eventCode, pressed ? BUTTON_PRESSED : BUTTON_RELEASED);
 }

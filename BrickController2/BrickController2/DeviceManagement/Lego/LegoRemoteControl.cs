@@ -54,7 +54,7 @@ internal class LegoRemoteControl : BluetoothDevice
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
-        await Task.Delay(500, token);
+        await Task.Delay(250, token);
 
         // setup ports - 0x04 - REMOTE_BUTTONS_MODE_KEYSD
         var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYSD, interval: 1);

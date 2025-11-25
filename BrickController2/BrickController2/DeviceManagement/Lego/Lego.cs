@@ -1,13 +1,11 @@
-﻿using Autofac;
-using BrickController2.DeviceManagement.DI;
+﻿using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
-using BrickController2.PlatformServices.InputDeviceService;
 
 namespace BrickController2.DeviceManagement.Lego;
 
 /// <summary>
-/// Vendor: LEGO and all it's device and implementation of IBluetoothLEDeviceManager
+/// Vendor: LEGO and all its device types and implementation of IBluetoothLEDeviceManager
 /// </summary>
 internal class Lego : Vendor<Lego>
 {
@@ -26,7 +24,7 @@ internal class Lego : Vendor<Lego>
 
         // input devices
         builder.ContainerBuilder.RegisterDevice<LegoRemoteControl>(DeviceType.LegoRemoteControl);
-        builder.ContainerBuilder.RegisterType<LegoControllerService>().AsSelf().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
+        builder.ContainerBuilder.RegisterInputDeviceService<LegoControllerService>();
 
         // device manager
         builder.RegisterDeviceManager<LegoDeviceManager>();

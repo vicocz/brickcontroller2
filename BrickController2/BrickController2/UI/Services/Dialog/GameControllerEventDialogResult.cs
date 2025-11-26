@@ -1,15 +1,15 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
 
 namespace BrickController2.UI.Services.Dialog
 {
     public class GameControllerEventDialogResult
     {
-        public GameControllerEventDialogResult(bool isOk, GameControllerEventType eventType, string eventCode)
+        public GameControllerEventDialogResult(bool isOk, InputDeviceEventType eventType, string eventCode)
             : this(isOk, string.Empty, eventType, eventCode)
         {
         }
 
-        public GameControllerEventDialogResult(bool isOk, string controllerId, GameControllerEventType eventType, string eventCode)
+        public GameControllerEventDialogResult(bool isOk, string controllerId, InputDeviceEventType eventType, string eventCode)
         {
             IsOk = isOk;
             EventType = eventType;
@@ -18,7 +18,7 @@ namespace BrickController2.UI.Services.Dialog
         }
 
         public bool IsOk { get; }
-        public GameControllerEventType EventType { get; }
+        public InputDeviceEventType EventType { get; }
         public string EventCode { get; }
         public string ControllerId { get; }
     }

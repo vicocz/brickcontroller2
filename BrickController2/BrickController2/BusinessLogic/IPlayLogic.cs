@@ -1,5 +1,5 @@
 ﻿using BrickController2.CreationManagement;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
 using System.Collections.Generic;
 
 namespace BrickController2.BusinessLogic
@@ -16,6 +16,6 @@ namespace BrickController2.BusinessLogic
         void StartPlay();
         void StopPlay();
 
-        void ProcessGameControllerEvent(GameControllerEventArgs e);
+        void ProcessGameControllerEvent(InputDeviceEventArgs e);
     }
 }

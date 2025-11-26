@@ -6,7 +6,7 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:creationManagement="clr-namespace:BrickController2.CreationManagement"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:gameController="clr-namespace:BrickController2.PlatformServices.GameController"
+    xmlns:gameController="clr-namespace:BrickController2.PlatformServices.InputDevice"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.ControllerActionPage"
@@ -159,7 +159,7 @@
                         <!-- Button type selector -->
                         <VerticalStackLayout IsVisible="False">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Button}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Button}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
@@ -204,7 +204,7 @@
                         <!-- Axis type selector -->
                         <VerticalStackLayout IsVisible="False">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Axis}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
@@ -224,7 +224,7 @@
                         <!-- Axis characteristic selector -->
                         <VerticalStackLayout IsVisible="False">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Axis}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
@@ -268,7 +268,7 @@
                         <!-- Axis active and dead zones percent -->
                         <VerticalStackLayout IsVisible="False" Margin="0,6">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Axis}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>

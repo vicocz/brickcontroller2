@@ -240,9 +240,6 @@
   <data name="ControllerProfile" xml:space="preserve">
     <value>Steuerungsprofil</value>
   </data>
-  <data name="ControllerTester" xml:space="preserve">
-    <value>Controller-Test</value>
-  </data>
   <data name="ControlPoint" xml:space="preserve">
     <value>Kontrollpunkt</value>
   </data>
@@ -716,5 +713,14 @@
   </data>
   <data name="Language" xml:space="preserve">
     <value>Sprache</value>
+  </data>
+  <data name="InputDeviceTester" xml:space="preserve">
+    <value>Eingabegerät-Test</value>
+  </data>
+  <data name="InputDevice" xml:space="preserve">
+    <value>Eingabegerät</value>
+  </data>
+  <data name="InputDevices" xml:space="preserve">
+    <value>Eingabegräte</value>
   </data>
 </root>

@@ -1,12 +1,14 @@
 ﻿using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +20,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
-        private readonly IGameControllerService _gameControllerService;
+        private readonly IInputDeviceEventService _inputDeviceEventService;
         private readonly IPlayLogic _playLogic;
 
         private readonly IList<Device> _devices = new List<Device>();
@@ -34,19 +36,21 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDeviceManager deviceManager,
             IDialogService dialogService,
-            IGameControllerService gameControllerService,
+            IInputDeviceEventService gameControllerService,
             IPlayLogic playLogic,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
             _deviceManager = deviceManager;
             _dialogService = dialogService;
-            _gameControllerService = gameControllerService;
+            _inputDeviceEventService = gameControllerService;
             _playLogic = playLogic;
 
             Creation = parameters.Get<Creation>("creation");
-            // apply choosen profile (if present) or the first one 
-            ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
+
+            ControllerProfiles = new ObservableCollection<ControllerProfileViewModel>(Creation.ControllerProfiles.Select(profile => new ControllerProfileViewModel(this, profile)));
+            // apply chosen profile (if present) or the first one 
+            _playLogic.ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
 
             CollectDevices();
 
@@ -55,10 +59,15 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Creation Creation { get; }
-        public ControllerProfile? ActiveProfile
+        public ObservableCollection<ControllerProfileViewModel> ControllerProfiles { get; }
+
+        public ControllerProfileViewModel ActiveProfile
         {
-            get => _playLogic.ActiveProfile;
-            set => _playLogic.ActiveProfile = value;
+            get => ControllerProfiles.First(x => ActiveProfileInternal == x.Profile);
+            set
+            {
+                ActiveProfileInternal = value.Profile;
+            }
         }
 
         public bool HasBuWizzDevice => _buwizzDevices.Count > 0;
@@ -69,6 +78,23 @@ namespace BrickController2.UI.ViewModels
 
         public int BuWizzOutputLevel { get; set; } = 1;
         public int BuWizz2OutputLevel { get; set; } = 1;
+
+        internal ControllerProfile ActiveProfileInternal
+        {
+            get => _playLogic.ActiveProfile!;
+            set
+            {
+                if (_playLogic.ActiveProfile != value)
+                {
+                    _playLogic.ActiveProfile = value;
+                    // notify all profiles
+                    foreach (var profile in ControllerProfiles)
+                    {
+                        profile.NotifyPropertyChanges();
+                    }
+                }
+            }
+        }
 
         public override async void OnAppearing()
         {
@@ -87,7 +113,7 @@ namespace BrickController2.UI.ViewModels
                 return;
             }
 
-            _gameControllerService.GameControllerEvent += GameControllerEventHandler!;
+            _inputDeviceEventService.InputDeviceEvent += GameControllerEventHandler!;
 
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectDevicesAsync();
@@ -98,7 +124,7 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = true;
             base.OnDisappearing();
 
-            _gameControllerService.GameControllerEvent -= GameControllerEventHandler!;
+            _inputDeviceEventService.InputDeviceEvent -= GameControllerEventHandler!;
 
             StopPlay();
 
@@ -289,7 +315,7 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private void GameControllerEventHandler(object sender, GameControllerEventArgs e)
+        private void GameControllerEventHandler(object sender, InputDeviceEventArgs e)
         {
             _playLogic?.ProcessGameControllerEvent(e);
         }

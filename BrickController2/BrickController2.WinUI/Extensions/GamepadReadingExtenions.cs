@@ -1,15 +1,15 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
 using System;
 using System.Collections.Generic;
 using Windows.Gaming.Input;
 
-using static BrickController2.PlatformServices.GameController.GameControllers;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.Windows.Extensions;
 
 internal static class GamepadReadingExtenions
 {
-    public static IEnumerable<(string Name, GameControllerEventType EventType, float Value)> Enumerate(this GamepadReading readings)
+    public static IEnumerable<(string Name, InputDeviceEventType EventType, float Value)> Enumerate(this GamepadReading readings)
     {
         // native axes
         yield return GetAxis("X", readings.LeftThumbstickX, AXIS_MAX_VALUE);
@@ -44,44 +44,44 @@ internal static class GamepadReadingExtenions
         // GamepadButtons.Paddle4
     }
 
-    private static (string Name, GameControllerEventType Type, float value) GetHybridButton(this GamepadReading readings, GamepadButtons button, GamepadButtons opositeButton, string name)
+    private static (string Name, InputDeviceEventType Type, float value) GetHybridButton(this GamepadReading readings, GamepadButtons button, GamepadButtons opositeButton, string name)
     {
         // get primary button
         if (readings.Buttons.HasFlag(button))
         {
-            return new(name, GameControllerEventType.Axis, AXIS_MAX_VALUE);
+            return new(name, InputDeviceEventType.Axis, AXIS_MAX_VALUE);
         }
         if (readings.Buttons.HasFlag(opositeButton))
         {
-            return new(name, GameControllerEventType.Axis, AXIS_MIN_VALUE);
+            return new(name, InputDeviceEventType.Axis, AXIS_MIN_VALUE);
         }
-        return new(name, GameControllerEventType.Axis, AXIS_ZERO_VALUE);
+        return new(name, InputDeviceEventType.Axis, AXIS_ZERO_VALUE);
     }
 
-    private static (string Name, GameControllerEventType Type, float value) GetButton(this GamepadReading readings, GamepadButtons button, string name)
+    private static (string Name, InputDeviceEventType Type, float value) GetButton(this GamepadReading readings, GamepadButtons button, string name)
     {
         // get primary button
         if (readings.Buttons.HasFlag(button))
         {
-            return new(name, GameControllerEventType.Button, BUTTON_PRESSED);
+            return new(name, InputDeviceEventType.Button, BUTTON_PRESSED);
         }
-        return new(name, GameControllerEventType.Button, BUTTON_RELEASED);
+        return new(name, InputDeviceEventType.Button, BUTTON_RELEASED);
     }
 
-    private static (string Name, GameControllerEventType Type, float value) GetAxis(string name, double value, float maxValue)
+    private static (string Name, InputDeviceEventType Type, float value) GetAxis(string name, double value, float maxValue)
     {
         if (Math.Abs(value) < AXIS_DELTA_VALUE)
         {
-            return (name, GameControllerEventType.Axis, AXIS_ZERO_VALUE);
+            return (name, InputDeviceEventType.Axis, AXIS_ZERO_VALUE);
         }
         if (value > 0.95)
         {
-            return (name, GameControllerEventType.Axis, maxValue);
+            return (name, InputDeviceEventType.Axis, maxValue);
         }
         if (value < -0.95)
         {
-            return (name, GameControllerEventType.Axis, -maxValue);
+            return (name, InputDeviceEventType.Axis, -maxValue);
         }
-        return (name, GameControllerEventType.Axis, maxValue * (float)value);
+        return (name, InputDeviceEventType.Axis, maxValue * (float)value);
     }
 }

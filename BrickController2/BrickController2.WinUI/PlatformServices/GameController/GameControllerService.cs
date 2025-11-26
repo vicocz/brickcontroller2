@@ -2,28 +2,29 @@
 using System.Linq;
 using Microsoft.Maui.Dispatching;
 using Windows.Gaming.Input;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.InputDeviceManagement;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.UI.Services.MainThread;
 using Microsoft.Extensions.Logging;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
-internal class GameControllerService : GameControllerServiceBase<GamepadController>, IGameControllerService
+internal class GameControllerService : InputDeviceServiceBase<GamepadController>
 {
     private readonly IMainThreadService _mainThreadService;
     private readonly IDispatcherProvider _dispatcherProvider;
 
     public GameControllerService(IMainThreadService mainThreadService,
         IDispatcherProvider dispatcherProvider,
-        ILogger<GameControllerService> logger) : base(logger)
+        IInputDeviceManagerService inputDeviceManagerService,
+        ILogger<GameControllerService> logger) 
+        : base(inputDeviceManagerService, logger)
     {
         _mainThreadService = mainThreadService;
         _dispatcherProvider = dispatcherProvider;
     }
 
-    public override bool IsControllerIdSupported => true;
-
-    protected override void InitializeCurrentControllers()
+    public override void Initialize()
     {
         // get all available gamepads
         if (Gamepad.Gamepads.Any())
@@ -36,14 +37,11 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
         Gamepad.GamepadAdded += Gamepad_GamepadAdded;
     }
 
-    protected override void RemoveAllControllers()
+    public override void Stop()
     {
         // cancel gamepad events
         Gamepad.GamepadRemoved -= Gamepad_GamepadRemoved;
         Gamepad.GamepadAdded -= Gamepad_GamepadAdded;
-
-        // do removal
-        base.RemoveAllControllers();
     }
 
     private void Gamepad_GamepadRemoved(object? sender, Gamepad gamepad)
@@ -53,9 +51,9 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
             // ensure stopped in UI thread
             _ = _mainThreadService.RunOnMainThread(() =>
             {
-                if (TryRemove(x => x.Gamepad == gamepad, out var controller))
+                if (TryRemoveInputDevice(x => x.InputDeviceDevice == gamepad, out var controller))
                 {
-                    _logger.LogInformation("Gamepad has been removed ControllerId:{controllerId}", controller.ControllerId);
+                    _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
                 }
             });
         }
@@ -81,12 +79,29 @@ internal class GameControllerService : GameControllerServiceBase<GamepadControll
                     continue;
                 }
                 // get first unused number and apply it
-                int controllerNumber = GetFirstUnusedControllerNumber();
-                var newController = new GamepadController(this, gamepad!, rawController, controllerNumber, dispatcher!.CreateTimer());
+                int controllerNumber = GetFirstUnusedInputDeviceNumber();
+                var newController = new GamepadController(InputDeviceEventService, gamepad!, rawController, controllerNumber, dispatcher!.CreateTimer());
 
                 // UniquePersistantDeviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
-                AddController(newController);
+                AddInputDevice(newController);
             }
+        }
+    }
+
+    /// <summary>
+    /// get first unused inputdevice number (starts from 1)
+    /// </summary>
+    /// <returns>first unused inputdevice number (starts from 1)</returns>
+    private int GetFirstUnusedInputDeviceNumber()
+    {
+        lock (_lockObject)
+        {
+            int unusedNumber = 1;
+            while (TryGetInputDevice(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            {
+                unusedNumber++;
+            }
+            return unusedNumber;
         }
     }
 }

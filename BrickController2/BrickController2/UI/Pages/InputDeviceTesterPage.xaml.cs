@@ -6,9 +6,9 @@ using Microsoft.Maui.Controls.Xaml;
 namespace BrickController2.UI.Pages
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class ControllerTesterPage
+	public partial class InputDeviceTesterPage
 	{
-		public ControllerTesterPage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
+		public InputDeviceTesterPage(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost)
 			: base(backgroundService, dialogServerHost)
         {
 			InitializeComponent();

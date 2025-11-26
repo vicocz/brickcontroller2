@@ -10,7 +10,7 @@ using BrickController2.CreationManagement.Sharing;
 using BrickController2.DeviceManagement;
 using BrickController2.Extensions;
 using BrickController2.Helpers;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -27,7 +27,7 @@ namespace BrickController2.UI.ViewModels
         private readonly ISharingManager<ControllerProfile> _sharingManager;
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
-        private readonly IGameControllerService _gameControllerService;
+        private readonly IInputDeviceEventService _gameControllerService;
 
         private List<ControllerEventViewModel> _controllerEvents = new List<ControllerEventViewModel>();
 
@@ -40,7 +40,7 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
-            IGameControllerService gameControllerService,
+            IInputDeviceEventService gameControllerService,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -85,8 +85,6 @@ namespace BrickController2.UI.ViewModels
             get { return _controllerEvents; }
             set { _controllerEvents = value; RaisePropertyChanged(); }
         }
-
-        public bool IsControllerIdSupported => _gameControllerService.IsControllerIdSupported;
 
         public ICommand ExportControllerProfileCommand { get; }
         public ICommand CopyControllerProfileCommand { get; }

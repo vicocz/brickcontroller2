@@ -655,15 +655,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Controller tester.
-        /// </summary>
-        internal static string ControllerTester {
-            get {
-                return ResourceManager.GetString("ControllerTester", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Control point.
         /// </summary>
         internal static string ControlPoint {
@@ -1128,6 +1119,33 @@ namespace BrickController2.Resources {
         internal static string Information {
             get {
                 return ResourceManager.GetString("Information", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input device.
+        /// </summary>
+        internal static string InputDevice {
+            get {
+                return ResourceManager.GetString("InputDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input devices.
+        /// </summary>
+        internal static string InputDevices {
+            get {
+                return ResourceManager.GetString("InputDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input device tester.
+        /// </summary>
+        internal static string InputDeviceTester {
+            get {
+                return ResourceManager.GetString("InputDeviceTester", resourceCulture);
             }
         }
         

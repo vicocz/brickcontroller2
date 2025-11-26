@@ -5,6 +5,7 @@ using BrickController2.CreationManagement.DI;
 using BrickController2.Database.DI;
 using BrickController2.DeviceManagement.DI;
 using BrickController2.Extensions;
+using BrickController2.InputDeviceManagement.DI;
 using BrickController2.UI.Controls;
 using BrickController2.UI.DI;
 using BrickController2.Windows.PlatformServices.DI;
@@ -54,6 +55,7 @@ public partial class App : MauiWinUIApplication
                 autofacBuilder.RegisterModule<DatabaseModule>();
                 autofacBuilder.RegisterModule<CreationManagementModule>();
                 autofacBuilder.RegisterModule<DeviceManagementModule>();
+                autofacBuilder.RegisterModule<InputDeviceManagementModule>();
                 autofacBuilder.RegisterModule<UiModule>();
             });
 

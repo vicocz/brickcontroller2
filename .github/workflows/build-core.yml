@@ -37,7 +37,7 @@ jobs:
       with:
         dotnet-version: 10.0.x
     - name: Install .NET MAUI Workload
-      run: dotnet workload install maui-base
+      run: dotnet workload install maui
           
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2/BrickController2.csproj

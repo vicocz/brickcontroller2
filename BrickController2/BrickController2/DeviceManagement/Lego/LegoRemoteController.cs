@@ -1,6 +1,9 @@
 ﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
+using Microsoft.Maui.ApplicationModel;
 using System.Collections.Generic;
+using System.Linq;
+
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.DeviceManagement.Lego;
@@ -12,7 +15,7 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
     {
         Name = remoteControl.Name;
         InputDeviceNumber = controllerNumber;
-        InputDeviceId = $"Remote Controller {remoteControl.Address}";
+        InputDeviceId = $"Controller {remoteControl.Address}";
     }
 
     public override void Start()
@@ -20,7 +23,11 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
         base.Start();
         // link Lego RemoteControl and connect
         InputDeviceDevice.LinkLegoController(this);
-        _ = InputDeviceDevice.ConnectAsync(false, (d) => { }, [], false, false, default);
+        // connect enabled controller only
+        if (InputDeviceDevice.IsEnabled)
+        {
+            _ = InputDeviceDevice.ConnectAsync(false, (d) => { }, [], false, false, default);
+        }
     }
 
     public override void Stop()
@@ -31,8 +38,17 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
         InputDeviceDevice.LinkLegoController(default);
     }
 
-    internal void RaiseEvents(Dictionary<(InputDeviceEventType, string), float> events)
-        => RaiseEvent(events);
-    internal void RaiseButtonEvent(string eventCode, bool pressed)
-        => RaiseEvent(InputDeviceEventType.Button, eventCode, pressed ? BUTTON_PRESSED : BUTTON_RELEASED);
+    internal void RaiseButtonEvents(IEnumerable<(string eventName, bool pressed)> buttonEvents)
+    {
+        var events = buttonEvents
+            .Where(e => HasValueChanged(e.eventName, e.pressed ? BUTTON_PRESSED : BUTTON_RELEASED))
+            .ToDictionary(e => (InputDeviceEventType.Button, e.eventName), e => e.pressed ? BUTTON_PRESSED : BUTTON_RELEASED);
+
+        if (events.Count == 0)
+        {
+            return;
+        }
+
+        MainThread.BeginInvokeOnMainThread(() => RaiseEvent(events));
+    }
 }

@@ -1,12 +1,11 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.PlatformServices.InputDevice;
+using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-using static BrickController2.PlatformServices.InputDevice.InputDevices;
 using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement.Lego;
@@ -16,17 +15,24 @@ namespace BrickController2.DeviceManagement.Lego;
 /// </summary>
 internal class RemoteControl : BluetoothDevice
 {
+    private const string EnabledSettingName = "Enabled";
+    private const string DefaultGroupName = "";
+    private const bool DefaultEnabled = true;
+
     private IGattCharacteristic? _characteristic;
     private LegoRemoteController? _legoController;
 
-    public RemoteControl(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
     : base(name, address, deviceRepository, bleService)
     {
+        SetSettingValue(EnabledSettingName, settings, DefaultGroupName, DefaultEnabled);
     }
 
     public override DeviceType DeviceType => DeviceType.RemoteControl;
 
     public override int NumberOfChannels => 0;
+
+    public bool IsEnabled => GetSettingValue(EnabledSettingName, DefaultEnabled);
 
     protected override bool AutoConnectOnFirstConnect => false;
 
@@ -79,11 +85,11 @@ internal class RemoteControl : BluetoothDevice
                 if (data.Length == 5 && data[3] == 0x02)
                 {
                     // HW button state
-                    _legoController?.RaiseButtonEvent("Home", data[4] > 0);
+                    _legoController?.RaiseButtonEvents([("Home", data[4] > 0)]);
                     break;
                 }
                 break;
-            case 0x45: // 0x45	RemoteButton
+            case 0x45: // 0x45 RemoteButton
                 if (data.Length == 7)
                 {
                     switch (data[3])
@@ -105,10 +111,10 @@ internal class RemoteControl : BluetoothDevice
     }
 
     private void OnButtonEvents(string plus, string stop, string minus, ReadOnlySpan<byte> flags)
-        => _legoController?.RaiseEvents(new()
-            {
-                { (InputDeviceEventType.Button, plus), flags[0] == 0 ? BUTTON_RELEASED : BUTTON_PRESSED },
-                { (InputDeviceEventType.Button, stop), flags[1] == 0 ? BUTTON_RELEASED : BUTTON_PRESSED },
-                { (InputDeviceEventType.Button, minus), flags[2] == 0 ? BUTTON_RELEASED : BUTTON_PRESSED }
-            });
+        => _legoController?.RaiseButtonEvents(
+            [
+                (plus, flags[0] != 0),
+                (stop, flags[1] != 0),
+                (minus, flags[2] != 0)
+            ]);
 }

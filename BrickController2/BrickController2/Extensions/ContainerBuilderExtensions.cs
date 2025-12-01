@@ -33,11 +33,11 @@ public static class ContainerBuilderExtensions
     /// <summary>
     /// Register input device service of <typeparamref name="TInputDeviceService"/> type.
     /// </summary>
-    /// <returns>Registration instance to suppport fluent API</returns>
+    /// <returns>Registration instance to support fluent API</returns>
     internal static ContainerBuilder RegisterInputDeviceService<TInputDeviceService>(this ContainerBuilder builder)
         where TInputDeviceService : IInputDeviceService, IStartable
     {
-        builder.RegisterType<LegoControllerService>()
+        builder.RegisterType<TInputDeviceService>()
             .As<IInputDeviceService>()
             .As<IStartable>()
             .SingleInstance(); // ensure it's started as soon as the container is built in Autofac

@@ -34,7 +34,6 @@ internal class LegoControllerService : InputDeviceServiceBase<LegoRemoteControll
     {
         while (TryRemoveInputDevice(x => true, out var controller))
         {
-            controller.Stop();
             _logger.LogInformation("Lego controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
         }
     }

@@ -72,16 +72,16 @@ public abstract class InputDeviceServiceBase<TInputDevice> : IInputDeviceService
     }
 
     /// <summary>
-    /// get first unused input device number (starts from 1)
+    /// Get first unused input device number (starts from 1) based on <typeparamref name="TInputDevice"/> type
     /// </summary>
-    /// <returns>first unused input device number (starts from 1)</returns>
+    /// <returns>First unused input device number in context of <typeparamref name="TInputDevice"/> (starts from 1)</returns>
     protected int GetFirstUnusedInputDeviceNumber()
     {
         lock (_lockObject)
         {
             int unusedNumber = 1;
             // use generic IInputDevice in order to walk through all implementations
-            while (_inputDeviceManagerService.TryGetInputDevice<IInputDevice>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
+            while (_inputDeviceManagerService.TryGetInputDevice<TInputDevice>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
             {
                 unusedNumber++;
             }

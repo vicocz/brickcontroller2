@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace BrickController2.DeviceManagement.Lego;
 
-internal class LegoControllerService : InputDeviceServiceBase<LegoController>
+internal class LegoControllerService : InputDeviceServiceBase<LegoRemoteController>
 {
     private readonly IDeviceManager _deviceManager;
     private readonly IInputDeviceEventServiceInternal _deviceEventServiceInternal;
@@ -22,10 +22,10 @@ internal class LegoControllerService : InputDeviceServiceBase<LegoController>
 
     public override void Initialize()
     {
-        foreach (var remoteController in _deviceManager.Devices.OfType<LegoRemoteControl>())
+        foreach (var remoteController in _deviceManager.Devices.OfType<RemoteControl>())
         {
             var number = GetFirstUnusedInputDeviceNumber();
-            var controller = new LegoController(_deviceEventServiceInternal, remoteController, number);
+            var controller = new LegoRemoteController(_deviceEventServiceInternal, remoteController, number);
             AddInputDevice(controller);
         }
     }

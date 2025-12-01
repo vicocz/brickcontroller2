@@ -73,7 +73,7 @@ namespace BrickController2.UI.Converters
                 case DeviceType.CaDA_RaceCar:
                     return ResourceHelper.GetImageResource("cada_racecar_image.png");
 
-                case DeviceType.LegoRemoteControl:
+                case DeviceType.RemoteControl:
                     return ResourceHelper.GetImageResource("legoremotecontrol_image_small.png");
 
                 default:

@@ -5,20 +5,20 @@ using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.DeviceManagement.Lego;
 
-internal class LegoController : InputDeviceBase<LegoRemoteControl>
+internal class LegoRemoteController : InputDeviceBase<RemoteControl>
 {
-    public LegoController(IInputDeviceEventServiceInternal service, LegoRemoteControl remoteControl, int controllerNumber)
+    public LegoRemoteController(IInputDeviceEventServiceInternal service, RemoteControl remoteControl, int controllerNumber)
         : base(service, remoteControl)
     {
         Name = remoteControl.Name;
         InputDeviceNumber = controllerNumber;
-        InputDeviceId = GetControllerIdFromNumber(controllerNumber);
+        InputDeviceId = $"Remote Controller {remoteControl.Address}";
     }
 
     public override void Start()
     {
         base.Start();
-        // link LegoRemoteControl and connect
+        // link Lego RemoteControl and connect
         InputDeviceDevice.LinkLegoController(this);
         _ = InputDeviceDevice.ConnectAsync(false, (d) => { }, [], false, false, default);
     }
@@ -27,7 +27,7 @@ internal class LegoController : InputDeviceBase<LegoRemoteControl>
     {
         base.Stop();
         _ = InputDeviceDevice.DisconnectAsync();
-        // reset LegoRemoteControl link
+        // reset Lego RemoteControl link
         InputDeviceDevice.LinkLegoController(default);
     }
 

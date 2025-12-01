@@ -9,6 +9,15 @@ namespace BrickController2.Protocols;
 /// </summary>
 internal static class LegoWirelessProtocol
 {
+    /// <summary>
+    /// LEGO wireless protocol v3 service UUID
+    /// </summary>
+    public static readonly Guid ServiceUuid = new("00001623-1212-efde-1623-785feabcd123");
+    /// <summary>
+    /// LEGO wireless protocol v3 characteristic UUID
+    /// </summary>
+    public static readonly Guid CharacteristicUuid = new("00001624-1212-efde-1623-785feabcd123");
+
     // TechnicMove hub ports
     public const byte PORT_DRIVE_MOTOR_1 = 0x32;
     public const byte PORT_DRIVE_MOTOR_2 = 0x33;

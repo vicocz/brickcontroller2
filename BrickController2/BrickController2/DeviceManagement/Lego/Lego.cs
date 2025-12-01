@@ -23,7 +23,7 @@ internal class Lego : Vendor<Lego>
             .RegisterDevice<TechnicMoveDevice>(DeviceType.TechnicMove);
 
         // input devices
-        builder.ContainerBuilder.RegisterDevice<LegoRemoteControl>(DeviceType.LegoRemoteControl);
+        builder.ContainerBuilder.RegisterDevice<RemoteControl>(DeviceType.RemoteControl);
         builder.ContainerBuilder.RegisterInputDeviceService<LegoControllerService>();
 
         // device manager

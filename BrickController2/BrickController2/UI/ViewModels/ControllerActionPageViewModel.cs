@@ -206,7 +206,7 @@ namespace BrickController2.UI.ViewModels
         {
             var result = await _dialogService.ShowSelectionDialogAsync(
                 // apply device filter for output channels only
-                Devices.Where(D => D.HasOutputChannel),
+                Devices.Where(d => d.HasOutputChannel),
                 Translate("SelectDevice"),
                 Translate("Cancel"),
                 DisappearingToken);

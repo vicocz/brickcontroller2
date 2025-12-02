@@ -212,7 +212,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                if (_deviceManager.Devices?.Count == 0)
+                if (!_deviceManager.ContainsAnyOutputDevice())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -248,7 +248,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                if (_deviceManager.Devices.Count == 0)
+                if (!_deviceManager.ContainsAnyOutputDevice())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -304,7 +304,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                if (_deviceManager.Devices?.Count == 0)
+                if (!_deviceManager.ContainsAnyOutputDevice())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),

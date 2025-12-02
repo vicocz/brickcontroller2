@@ -36,7 +36,7 @@ namespace BrickController2.DeviceManagement
         public abstract DeviceType DeviceType { get; }
         public string Address { get; }
         public string Id => DeviceId.Get(DeviceType, Address);
-
+        
         public string Name
         {
             get { return _name; }
@@ -70,6 +70,7 @@ namespace BrickController2.DeviceManagement
         }
 
         public int OutputLevel => _outputLevel;
+        public bool HasOutputChannel => NumberOfChannels > 0;
 
         public abstract int NumberOfChannels { get; }
         public virtual int NumberOfOutputLevels => 1;

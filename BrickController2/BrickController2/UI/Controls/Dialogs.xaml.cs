@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using BrickController2.PlatformServices.InputDevice;
@@ -279,7 +280,9 @@ namespace BrickController2.UI.Controls
                     {
                         GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
                         InputDeviceEventService.InputDeviceEvent -= inputDeviceEventHandler!;
-                        await HideView(GameControllerEventDialog);
+
+                        // ensure UI is changed in main thread
+                        await MainThread.InvokeOnMainThreadAsync(() => Task.FromResult(HideView(GameControllerEventDialog)));
 
                         var gameControllerEventType = controllerEvent.Key.EventType;
                         var gameControllerEventCode = controllerEvent.Key.EventCode;

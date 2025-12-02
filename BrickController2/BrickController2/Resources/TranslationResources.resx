@@ -723,4 +723,7 @@
   <data name="InputDevices" xml:space="preserve">
     <value>Input devices</value>
   </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
 </root>

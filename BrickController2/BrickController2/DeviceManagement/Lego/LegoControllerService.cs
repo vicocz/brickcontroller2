@@ -22,7 +22,10 @@ internal class LegoControllerService : InputDeviceServiceBase<LegoRemoteControll
 
     public override void Initialize()
     {
-        foreach (var remoteController in _deviceManager.Devices.OfType<RemoteControl>())
+        // process enabled only
+        foreach (var remoteController in _deviceManager.Devices
+            .OfType<RemoteControl>()
+            .Where(c => c.IsEnabled))
         {
             var number = GetFirstUnusedInputDeviceNumber();
             var controller = new LegoRemoteController(_deviceEventServiceInternal, remoteController, number);

@@ -723,4 +723,7 @@
   <data name="InputDevices" xml:space="preserve">
     <value>Eingabegräte</value>
   </data>
+  <data name="Enabled" xml:space="preserve">
+    <value>Ermöglicht</value>
+  </data>
 </root>

@@ -1,6 +1,5 @@
 ﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
-using Microsoft.Maui.ApplicationModel;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,7 +14,7 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
     {
         Name = remoteControl.Name;
         InputDeviceNumber = controllerNumber;
-        InputDeviceId = $"Controller {remoteControl.Address}";
+        InputDeviceId = $"Controller ({remoteControl.Address})";
     }
 
     public override void Start()
@@ -23,11 +22,7 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
         base.Start();
         // link Lego RemoteControl and connect
         InputDeviceDevice.LinkLegoController(this);
-        // connect enabled controller only
-        if (InputDeviceDevice.IsEnabled)
-        {
-            _ = InputDeviceDevice.ConnectAsync(false, (d) => { }, [], false, false, default);
-        }
+        _ = InputDeviceDevice.ConnectAsync(false, (d) => { }, [], false, false, default);
     }
 
     public override void Stop()
@@ -49,6 +44,6 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
             return;
         }
 
-        MainThread.BeginInvokeOnMainThread(() => RaiseEvent(events));
+        RaiseEvent(events);
     }
 }

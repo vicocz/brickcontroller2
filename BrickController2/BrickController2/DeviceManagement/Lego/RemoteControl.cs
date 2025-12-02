@@ -62,7 +62,7 @@ internal class RemoteControl : BluetoothDevice
     {
         await Task.Delay(100, token);
 
-        // setup ports - 0x04 - REMOTE_BUTTONS_MODE_KEYSD
+        // setup ports - 0x04 - REMOTE_MODE_KEYSD
         var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYSD, interval: 1);
         await _bleDevice!.WriteAsync(_characteristic!, remoteButtonA, token);
 

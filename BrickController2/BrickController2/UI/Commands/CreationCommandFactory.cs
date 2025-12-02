@@ -138,8 +138,9 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
 
     private async Task<bool> FixMissingDevicesAsync(PageViewModelBase viewModel, Creation creation)
     {
-        // get missing device IDs
-        var deviceIds = _playLogic.GetMissingDevices(creation)
+        // get source device IDs
+        var sourceDeviceIds = //TODO _playLogic.GetMissingDevices(creation)
+            creation.GetDeviceIds()
             .Select(id =>
             {
                 DeviceId.TryParse(id, out var deviceType, out var deviceAddress);
@@ -148,18 +149,20 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
             .Where(x => x.DeviceType != DeviceType.Unknown && x.Address != null)
             .ToList();
 
-        // get missing types
-        var missingTypes = deviceIds.Select(x => x.DeviceType).ToHashSet();
-        // missing types that have some existing device of such type present
-        var suitableTypes = missingTypes.Where(x => _deviceManager.Devices.Any(d => d.DeviceType == x))
+        // get source types
+        var sourceTypes = sourceDeviceIds.Select(x => x.DeviceType).ToHashSet();
+        var addresses = sourceDeviceIds.Select(x => x.Address!).ToHashSet();
+        // source types that have some existing device of such type present, but not used in creation
+        var suitableTypes = sourceTypes.Where(x => _deviceManager.Devices
+            .Any(d => d.DeviceType == x && !addresses.Contains(d.Address)))
             .ToHashSet();
 
-        if (missingTypes.Count == 0 || suitableTypes.Count == 0)
+        if (sourceTypes.Count == 0 || suitableTypes.Count == 0)
         {
-            // report error - no suitable missing devices
+            // report error - no suitable device to replace
             await DialogService.ShowMessageBoxAsync(
                 Translate("Information"),
-                Translate("No suitable device found to replace missing device."),
+                Translate("No suitable device found to remap a device."),
                 Translate("Ok"),
                 viewModel.DisappearingToken);
             return false;
@@ -172,13 +175,13 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
             return false;
         }
 
-        // have device type
-        var missingDeviceAddresses = deviceIds
+        // have source device type, get addresses of such type
+        var sourceDeviceAddresses = sourceDeviceIds
             .Where(x => x.DeviceType == sourceType.Value)
             .Select(x => x.Address!)
             .ToList();
 
-        var sourceDeviceAddress = await ChooseDeviceAddressToRemapAsync(viewModel, missingDeviceAddresses);
+        var sourceDeviceAddress = await ChooseDeviceAddressToRemapAsync(viewModel, sourceDeviceAddresses);
         if (sourceDeviceAddress is null)
         {
             // user cancelled
@@ -188,6 +191,7 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
         // choose target device by name
         var suitableDevices = _deviceManager.Devices
             .Where(d => d.DeviceType == sourceType.Value)
+            .OrderBy(x => x.Name)
             .ToList();
 
         var targetDevice = await DialogService.ShowSelectionDialogAsync(
@@ -198,17 +202,17 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
 
         if (targetDevice.IsOk)
         {
-            // replace all missing device IDs with the selected one
-            var missingDeviceId = DeviceId.Get(sourceType.Value, sourceDeviceAddress);
+            // replace all source device IDs with the selected one
+            var sourceDeviceId = DeviceId.Get(sourceType.Value, sourceDeviceAddress);
             var newDeviceId = targetDevice.SelectedItem!.Id;
-            var count = await _creationManager.RemapDevice(creation, missingDeviceId, newDeviceId);
+            var count = await _creationManager.RemapDevice(creation, sourceDeviceId, newDeviceId);
 
             // revalidate creation
             creation.ValidationResult = _playLogic.ValidateCreation(creation);
 
             await DialogService.ShowMessageBoxAsync(
                 Translate("Information"),
-                Translate($"Remapped {count} controller actions from device '{missingDeviceId}' to '{newDeviceId}'"),
+                Translate($"Remapped {count} controller actions from device '{sourceDeviceId}' to '{newDeviceId}'"),
                 Translate("Ok"),
                 viewModel.DisappearingToken);
         }
@@ -225,8 +229,8 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
 
         // choose address to remap
         var sourceDevice = await DialogService.ShowSelectionDialogAsync(
-            missingDeviceAddresses,
-            Translate("Missing device"),
+            missingDeviceAddresses.Order(),
+            Translate("Source device"),
             Translate("Cancel"),
             viewModel.DisappearingToken);
 
@@ -242,8 +246,8 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
 
         // choose device type to remap
         var deviceType = await DialogService.ShowSelectionDialogAsync(
-            suitableTypes,
-            Translate("Missing device type"),
+            suitableTypes.OrderBy(x => x.ToString()),
+            Translate("Source device type"),
             Translate("Cancel"),
             viewModel.DisappearingToken);
 

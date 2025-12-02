@@ -57,9 +57,9 @@ namespace BrickController2.CreationManagement
             return Name;
         }
 
-        public IEnumerable<string> GetDeviceIds()
+        public IReadOnlySet<string> GetDeviceIds()
         {
-            var deviceIds = new List<string>();
+            var deviceIds = new HashSet<string>();
 
             foreach (var profile in ControllerProfiles)
             {
@@ -67,11 +67,7 @@ namespace BrickController2.CreationManagement
                 {
                     foreach (var controllerAction in controllerEvent.ControllerActions)
                     {
-                        var deviceId = controllerAction.DeviceId;
-                        if (!deviceIds.Contains(deviceId))
-                        {
-                            deviceIds.Add(deviceId);
-                        }
+                        deviceIds.Add(controllerAction.DeviceId);
                     }
                 }
             }

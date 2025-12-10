@@ -8,7 +8,8 @@ This app lets you control your motorized builds — whether made from LEGO® or 
 
 - Android 5.0+
 - iOS 12.2+
-- Windows 10 (experimental)
+- Windows 10 version 1809 or higher
+- Windows 11
 
 ## Supported receivers
 
@@ -35,12 +36,12 @@ This app lets you control your motorized builds — whether made from LEGO® or 
 
 ## Project details
 
-BrickController Legacy is a MAUI application and can be compiled using Visual Studio 2022 (Professional, Enterprise and Community Editions)
+BrickController Legacy is a MAUI application and can be compiled using Visual Studio 2026 (Professional, Enterprise and Community Editions)
 or Visual Studio for Mac.
 
 ## 3rd party libraries used
 
-- Autofac IOC container
+- [Autofac IOC container](https://github.com/autofac/Autofac)
 - [SQLite-Net-Extensions Async](https://bitbucket.org/twincoders/sqlite-net-extensions)
 - [ZXing.Net.Maui](https://github.com/Redth/ZXing.Net.Maui)
 

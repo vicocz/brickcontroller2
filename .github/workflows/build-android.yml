@@ -40,7 +40,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
 
     - name: Install .NET MAUI Workload
       run: dotnet workload install maui-android
@@ -66,7 +66,7 @@ jobs:
     - name: Build MAUI Android (APK)
       run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj `
         -c Release `
-        -f net9.0-android `
+        -f net10.0-android `
         --no-restore `
         -p:ApplicationVersion="${{ github.run_number }}" `
         -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}} `
@@ -77,7 +77,7 @@ jobs:
       if: github.event_name == 'release' && github.event.action == 'published'  
       run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj `
         -c Release `
-        -f net9.0-android `
+        -f net10.0-android `
         --no-restore `
         -p:ApplicationVersion="${{ github.run_number }}" `
         -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}} `
@@ -88,14 +88,14 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/cz.vico.BrickControllerLegacy-Signed.apk
+        path: BrickController2/BrickController2.Android/bin/Release/net10.0-android/cz.vico.BrickControllerLegacy-Signed.apk
 
     - name: Upload APK Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/cz.vico.BrickControllerLegacy-Signed.apk
+        asset_path: BrickController2/BrickController2.Android/bin/Release/net10.0-android/cz.vico.BrickControllerLegacy-Signed.apk
         asset_name: BrickControllerLegacy_${{env.APP_VERSION}}.apk
         asset_content_type: application/vnd.android.package-archive
       env:
@@ -106,7 +106,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2/BrickController2.Android/bin/Release/net9.0-android/cz.vico.BrickControllerLegacy-Signed.aab
+        asset_path: BrickController2/BrickController2.Android/bin/Release/net10.0-android/cz.vico.BrickControllerLegacy-Signed.aab
         asset_name: BrickControllerLegacy_${{env.APP_VERSION}}.aab
         asset_content_type: application/x-authorware-bin
       env:

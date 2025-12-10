@@ -42,7 +42,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
         
     - name: Install MAUI workload
       run: dotnet workload install maui ios
@@ -93,7 +93,7 @@ jobs:
         dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
         --no-restore
         -c Release
-        -f net9.0-iOS
+        -f net10.0-iOS
         -p:ArchiveOnBuild=true
         -p:EnableAssemblyILStripping=false
         -p:CodesignKey="iPhone Distribution"
@@ -107,14 +107,14 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-ios-ci-build
-        path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
+        path: BrickController2/BrickController2.iOS/bin/Release/net10.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
 
     - name: Upload Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
+        asset_path: BrickController2/BrickController2.iOS/bin/Release/net10.0-ios/ios-arm64/publish/BrickController2.iOS.ipa
         asset_name: BrickControllerLegacy_${{env.APP_VERSION}}.ipa
         asset_content_type: application/octet-stream
       env:
@@ -124,7 +124,7 @@ jobs:
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: Apple-Actions/upload-testflight-build@v1
       with:
-        app-path: 'BrickController2/BrickController2.iOS/bin/Release/net9.0-ios/ios-arm64/publish/BrickController2.iOS.ipa'
+        app-path: 'BrickController2/BrickController2.iOS/bin/Release/net10.0-ios/ios-arm64/publish/BrickController2.iOS.ipa'
         issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}

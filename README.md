@@ -6,7 +6,8 @@ Cross platform mobile application for controlling your creations using a bluetoo
 
 - Android 5.0+
 - iOS 12.2+
-- Windows 11 and Windows 10 version 1809 or higher
+- Windows 10 version 1809 or higher
+- Windows 11
 
 ## Supported receivers
 
@@ -37,7 +38,7 @@ or Visual Studio for Mac.
 
 ## 3rd party libraries used
 
-- Autofac IOC container
+- [Autofac IOC container](https://github.com/autofac/Autofac)
 - [SQLite-Net-Extensions Async](https://bitbucket.org/twincoders/sqlite-net-extensions)
 - [ZXing.Net.Maui](https://github.com/Redth/ZXing.Net.Maui)
 

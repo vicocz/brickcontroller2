@@ -154,10 +154,10 @@
 
         <!-- Dialog related -->
 
-        <Style x:Key="DialogFrameStyle" TargetType="Frame">
+        <Style x:Key="DialogBorderStyle" TargetType="Border">
             <Setter Property="BackgroundColor" Value="{DynamicResource DialogBackgroundColor}"/>
-            <Setter Property="BorderColor" Value="{DynamicResource DialogBorderColor}"/>
-            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Stroke" Value="{DynamicResource DialogBorderColor}"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 10"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
             <Setter Property="VerticalOptions" Value="Center"/>
             <Setter Property="WidthRequest" Value="{OnIdiom 280, Desktop=360}"/>

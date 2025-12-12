@@ -18,6 +18,9 @@ internal static class LegoWirelessProtocol
     /// </summary>
     public static readonly Guid CharacteristicUuid = new("00001624-1212-efde-1623-785feabcd123");
 
+    // message types
+    public const byte MESSAGE_TYPE_HUB_PROPERTIES = 0x01;
+
     // TechnicMove hub ports
     public const byte PORT_DRIVE_MOTOR_1 = 0x32;
     public const byte PORT_DRIVE_MOTOR_2 = 0x33;
@@ -59,6 +62,13 @@ internal static class LegoWirelessProtocol
     public const byte HUB_LED_COLOR_ORANGE = 0x08;
     public const byte HUB_LED_COLOR_RED = 0x09;
     public const byte HUB_LED_COLOR_WHITE = 0xA;
+
+    // Hub Property Message(s)
+    public const byte HUB_PROPERTY_FW_VERESION = 0x03;
+    public const byte HUB_PROPERTY_HW_VERESION = 0x04;
+    public const byte HUB_PROPERTY_VOLTAGE = 0x06;
+
+    public const byte HUB_PROPERTY_OPERATION_UPDATE = 0x06;
 
     // input command (single)
     public const byte PORT_INPUT_COMMAND = 0x41;

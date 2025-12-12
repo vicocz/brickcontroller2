@@ -881,7 +881,7 @@ namespace BrickController2.DeviceManagement
                 var propertyId = data[3];
                 var propertyOperation = data[4];
 
-                if (messageId != 0x01 || propertyOperation != 0x06)
+                if (messageId != MESSAGE_TYPE_HUB_PROPERTIES || propertyOperation != HUB_PROPERTY_OPERATION_UPDATE)
                 {
                     // Operation is not 'update'
                     return;
@@ -889,7 +889,7 @@ namespace BrickController2.DeviceManagement
 
                 switch (propertyId)
                 {
-                    case 0x03: // FW version
+                    case HUB_PROPERTY_FW_VERESION: // FW version
                         var firmwareVersion = ProcessVersionNumber(data, 5);
                         if (!string.IsNullOrEmpty(firmwareVersion))
                         {
@@ -897,7 +897,7 @@ namespace BrickController2.DeviceManagement
                         }
                         break;
 
-                    case 0x04: // HW version
+                    case HUB_PROPERTY_HW_VERESION: // HW version
                         var hardwareVersion = ProcessVersionNumber(data, 5);
                         if (!string.IsNullOrEmpty(hardwareVersion))
                         {
@@ -905,7 +905,7 @@ namespace BrickController2.DeviceManagement
                         }
                         break;
 
-                    case 0x06: // Battery voltage
+                    case HUB_PROPERTY_VOLTAGE: // Battery voltage
                         var voltage = data[5];
                         BatteryVoltage = voltage.ToString("F0");
                         break;

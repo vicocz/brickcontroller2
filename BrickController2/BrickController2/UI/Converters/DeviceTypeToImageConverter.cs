@@ -74,7 +74,7 @@ namespace BrickController2.UI.Converters
                     return ResourceHelper.GetImageResource("cada_racecar_image.png");
 
                 case DeviceType.RemoteControl:
-                    return ResourceHelper.GetImageResource("legoremotecontrol_image_small.png");
+                    return ResourceHelper.GetImageResource("remotecontrol_image_small.png");
 
                 default:
                     return null;

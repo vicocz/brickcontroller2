@@ -80,7 +80,6 @@ public abstract class InputDeviceServiceBase<TInputDevice> : IInputDeviceService
         lock (_lockObject)
         {
             int unusedNumber = 1;
-            // use generic IInputDevice in order to walk through all implementations
             while (_inputDeviceManagerService.TryGetInputDevice<TInputDevice>(inputDevice => inputDevice.InputDeviceNumber == unusedNumber, out _))
             {
                 unusedNumber++;

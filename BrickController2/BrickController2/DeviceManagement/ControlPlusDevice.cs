@@ -889,7 +889,7 @@ namespace BrickController2.DeviceManagement
 
                 switch (propertyId)
                 {
-                    case HUB_PROPERTY_FW_VERESION: // FW version
+                    case HUB_PROPERTY_FW_VERSION: // FW version
                         var firmwareVersion = ProcessVersionNumber(data, 5);
                         if (!string.IsNullOrEmpty(firmwareVersion))
                         {
@@ -897,7 +897,7 @@ namespace BrickController2.DeviceManagement
                         }
                         break;
 
-                    case HUB_PROPERTY_HW_VERESION: // HW version
+                    case HUB_PROPERTY_HW_VERSION: // HW version
                         var hardwareVersion = ProcessVersionNumber(data, 5);
                         if (!string.IsNullOrEmpty(hardwareVersion))
                         {

@@ -66,8 +66,8 @@ internal static class LegoWirelessProtocol
     public const byte HUB_LED_COLOR_WHITE = 0xA;
 
     // Hub Property Message(s)
-    public const byte HUB_PROPERTY_FW_VERESION = 0x03;
-    public const byte HUB_PROPERTY_HW_VERESION = 0x04;
+    public const byte HUB_PROPERTY_FW_VERSION = 0x03;
+    public const byte HUB_PROPERTY_HW_VERSION = 0x04;
     public const byte HUB_PROPERTY_VOLTAGE = 0x06;
 
     public const byte HUB_PROPERTY_OPERATION_UPDATE = 0x06;
@@ -84,7 +84,7 @@ internal static class LegoWirelessProtocol
     public const byte FEEDBACK_ACTION_BOTH = 0x11;
 
     // remote controller
-    public const byte REMOTE_MODE_KEYSD = 0x04;
+    public const byte REMOTE_MODE_KEYS = 0x04;
     public const byte REMOTE_BUTTONS_LEFT = 0x00;
     public const byte REMOTE_BUTTONS_RIGHT = 0x01;
 

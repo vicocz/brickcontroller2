@@ -89,11 +89,11 @@ internal class RemoteControl : BluetoothDevice
             await Task.Delay(TimeSpan.FromMilliseconds(50), token);
         }
 
-        // setup ports - 0x04 - REMOTE_MODE_KEYSD
-        var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYSD, interval: 1);
+        // setup ports - 0x04 - REMOTE_MODE_KEYS
+        var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYS, interval: 1);
         await _bleDevice!.WriteAsync(_characteristic!, remoteButtonA, token);
 
-        var remoteButtonB = BuildPortInputFormatSetup(REMOTE_BUTTONS_RIGHT, REMOTE_MODE_KEYSD, interval: 1);
+        var remoteButtonB = BuildPortInputFormatSetup(REMOTE_BUTTONS_RIGHT, REMOTE_MODE_KEYS, interval: 1);
         return await _bleDevice!.WriteAsync(_characteristic!, remoteButtonB, token);
     }
 

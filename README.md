@@ -32,9 +32,9 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - PFx Brick (lights & Power Functions ports only)
 
 ## Supported controllers
-- generic Bluetooth / USB gamepads
-- Lego PowerFunctions infrared controller (8885, 8879) (Android devices having IR emitter)
-- Lego Controller (88010)
+- Generic Bluetooth / USB gamepads
+- LEGO® Power Functions infrared remotes (part numbers 8885 and 8879) — requires an Android device with an IR emitter
+- LEGO® Powered Up Remote (part number 88010)
 
 ## Project details
 

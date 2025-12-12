@@ -28,7 +28,7 @@ internal class LegoControllerService : InputDeviceServiceBase<LegoRemoteControll
             .Where(c => c.IsEnabled))
         {
             var deviceNumber = GetFirstUnusedInputDeviceNumber();
-            AddInputDevice(new LegoRemoteController(_deviceEventServiceInternal, remoteController, deviceNumber));
+            AddInputDevice(new LegoRemoteController(_deviceEventServiceInternal, remoteController, deviceNumber, _logger));
         }
     }
 

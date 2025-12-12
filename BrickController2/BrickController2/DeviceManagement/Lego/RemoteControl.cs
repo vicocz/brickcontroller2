@@ -32,6 +32,8 @@ internal class RemoteControl : BluetoothDevice
 
     public override int NumberOfChannels => 0;
 
+    public override string BatteryVoltageSign => "%";
+
     public bool IsEnabled => GetSettingValue(EnabledSettingName, DefaultEnabled);
 
     protected override bool AutoConnectOnFirstConnect => false;
@@ -42,6 +44,17 @@ internal class RemoteControl : BluetoothDevice
     {
         _legoController = legoController;
     }
+
+    internal void ResetEvents() => _legoController?.RaiseButtonEvents(
+    [
+        ("A", false),
+        ("B", false),
+        ("Home", false),
+        ("A.Minus", false),
+        ("A.Plus", false),
+        ("B.Minus", false),
+        ("B.Plus", false)
+    ]);
 
     protected override Task ProcessOutputsAsync(CancellationToken token) => throw new InvalidOperationException();
 
@@ -61,6 +74,20 @@ internal class RemoteControl : BluetoothDevice
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         await Task.Delay(100, token);
+
+        if (requestDeviceInformation)
+        {
+            // Request battery voltage
+            await _bleDevice!.WriteAsync(_characteristic!, [0x05, 0x00, 0x01, 0x06, 0x05], token);
+            var data = await _bleDevice!.ReadAsync(_characteristic!, token);
+
+            if (data != null && data.Length >= 6 &&
+                // messageId=data[2], propertyId = data[3], propertyOperation=data[4]
+                data[2] == 0x01 && data[3] == 0x06 && data[4] == 0x06)
+            {
+                BatteryVoltage = data[5].ToString("F0");
+            }
+        }
 
         // setup ports - 0x04 - REMOTE_MODE_KEYSD
         var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYSD, interval: 1);

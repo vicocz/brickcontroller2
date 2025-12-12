@@ -52,15 +52,15 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
         try
         {
             await InputDeviceDevice.ConnectAsync(false,
-                        (d) =>
-                        {
-                            // reset events on random disconnection
-                            InputDeviceDevice?.ResetEvents();
-                        },
-                        channelConfigurations: [],
-                        startOutputProcessing: false,
-                        requestDeviceInformation: false,
-                        token: token);
+                (d) =>
+                {
+                    // reset events on random disconnection
+                    InputDeviceDevice?.ResetEvents();
+                },
+                channelConfigurations: [],
+                startOutputProcessing: false,
+                requestDeviceInformation: false,
+                token: token);
         }
         catch (Exception ex)
         {

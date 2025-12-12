@@ -17,8 +17,8 @@ namespace BrickController2.DeviceManagement.Lego;
 /// </summary>
 internal class RemoteControl : BluetoothDevice
 {
-    private const string EnabledSettingName = "RemoteControlEnabled";
-    private const bool DefaultEnabled = false;
+    private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
+    private const bool DEFAULT_ENABLED = false;
 
     private IGattCharacteristic? _characteristic;
     private InputDeviceBase<RemoteControl>? _inputController;
@@ -26,7 +26,7 @@ internal class RemoteControl : BluetoothDevice
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
     : base(name, address, deviceRepository, bleService)
     {
-        SetSettingValue(EnabledSettingName, settings, DefaultEnabled);
+        SetSettingValue(ENABLED_SETTING_NAME, settings, DEFAULT_ENABLED);
     }
 
     public override DeviceType DeviceType => DeviceType.RemoteControl;
@@ -35,7 +35,7 @@ internal class RemoteControl : BluetoothDevice
 
     public override string BatteryVoltageSign => "%";
 
-    public bool IsEnabled => GetSettingValue(EnabledSettingName, DefaultEnabled);
+    public bool IsEnabled => GetSettingValue(ENABLED_SETTING_NAME, DEFAULT_ENABLED);
 
     protected override bool AutoConnectOnFirstConnect => false;
 

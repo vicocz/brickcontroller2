@@ -2,9 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net9.0-android</TargetFrameworks>
+		<TargetFrameworks>net10.0-android</TargetFrameworks>
     <SupportedOSPlatformVersion>23.0</SupportedOSPlatformVersion>
-    <TargetPlatformVersion>35.0</TargetPlatformVersion>
+    <TargetPlatformVersion>36.0</TargetPlatformVersion>
     <OutputType>Exe</OutputType>
 		<RootNamespace>BrickController2.Droid</RootNamespace>
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>

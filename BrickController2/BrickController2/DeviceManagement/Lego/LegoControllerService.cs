@@ -27,9 +27,8 @@ internal class LegoControllerService : InputDeviceServiceBase<LegoRemoteControll
             .OfType<RemoteControl>()
             .Where(c => c.IsEnabled))
         {
-            var number = GetFirstUnusedInputDeviceNumber();
-            var controller = new LegoRemoteController(_deviceEventServiceInternal, remoteController, number);
-            AddInputDevice(controller);
+            var deviceNumber = GetFirstUnusedInputDeviceNumber();
+            AddInputDevice(new LegoRemoteController(_deviceEventServiceInternal, remoteController, deviceNumber));
         }
     }
 
@@ -37,7 +36,7 @@ internal class LegoControllerService : InputDeviceServiceBase<LegoRemoteControll
     {
         while (TryRemoveInputDevice(x => true, out var controller))
         {
-            _logger.LogInformation("Lego controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
+            _logger.LogDebug("Lego controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
         }
     }
 }

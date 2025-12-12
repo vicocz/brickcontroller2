@@ -1,9 +1,5 @@
 ﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
-using System.Collections.Generic;
-using System.Linq;
-
-using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.DeviceManagement.Lego;
 
@@ -21,7 +17,7 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
     {
         base.Start();
         // link Lego RemoteControl and connect
-        InputDeviceDevice.LinkLegoController(this);
+        InputDeviceDevice.ConnectInputController(this);
         _ = InputDeviceDevice.ConnectAsync(false,
             (d) =>
             {
@@ -39,22 +35,6 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
         base.Stop();
         _ = InputDeviceDevice.DisconnectAsync();
         // reset Lego RemoteControl link
-        InputDeviceDevice.LinkLegoController(default);
+        InputDeviceDevice.DisconnectInputController();
     }
-
-    internal void RaiseButtonEvents(IEnumerable<(string eventName, bool pressed)> buttonEvents)
-    {
-        var events = buttonEvents
-            .Where(e => HasValueChanged(e.eventName, GetButtonValue(e)))
-            .ToDictionary(e => (InputDeviceEventType.Button, e.eventName), GetButtonValue);
-
-        if (events.Count == 0)
-        {
-            return;
-        }
-
-        RaiseEvent(events);
-    }
-
-    private static float GetButtonValue((string eventName, bool pressed) e) => e.pressed ? BUTTON_PRESSED : BUTTON_RELEASED;
 }

@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement.Lego;
@@ -19,7 +21,7 @@ internal class RemoteControl : BluetoothDevice
     private const bool DefaultEnabled = false;
 
     private IGattCharacteristic? _characteristic;
-    private LegoRemoteController? _legoController;
+    private InputDeviceBase<RemoteControl>? _inputController;
 
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
     : base(name, address, deviceRepository, bleService)
@@ -39,23 +41,28 @@ internal class RemoteControl : BluetoothDevice
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
-    internal void LinkLegoController(LegoRemoteController? legoController)
+    internal void ConnectInputController<TController>(TController inputController) where TController : InputDeviceBase<RemoteControl>
     {
-        _legoController = legoController;
+        _inputController = inputController;
     }
 
-    internal void ResetEvents() => _legoController?.RaiseButtonEvents(
+    internal void DisconnectInputController()
+    {
+        _inputController = default;
+    }
+
+    internal void ResetEvents() => RaiseButtonEvents(
     [
-        ("A", false),
-        ("B", false),
-        ("Home", false),
-        ("A.Minus", false),
-        ("A.Plus", false),
-        ("B.Minus", false),
-        ("B.Plus", false)
+        ("A", BUTTON_RELEASED),
+        ("B", BUTTON_RELEASED),
+        ("Home", BUTTON_RELEASED),
+        ("A.Minus", BUTTON_RELEASED),
+        ("A.Plus", BUTTON_RELEASED),
+        ("B.Minus", BUTTON_RELEASED),
+        ("B.Plus", BUTTON_RELEASED)
     ]);
 
-    protected override Task ProcessOutputsAsync(CancellationToken token) => throw new InvalidOperationException();
+    protected override Task ProcessOutputsAsync(CancellationToken token) => Task.CompletedTask;
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {
@@ -72,21 +79,14 @@ internal class RemoteControl : BluetoothDevice
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
-        await Task.Delay(100, token);
+        // wait until ports finish communicating with the hub
+        await Task.Delay(250, token);
 
         if (requestDeviceInformation)
         {
             // Request battery voltage
             await _bleDevice!.WriteAsync(_characteristic!, [0x05, 0x00, 0x01, 0x06, 0x05], token);
-            var data = await _bleDevice!.ReadAsync(_characteristic!, token);
-
-            if (data != null && data.Length >= 6 &&
-                data[2] == MESSAGE_TYPE_HUB_PROPERTIES &&
-                data[3] == HUB_PROPERTY_VOLTAGE &&
-                data[4] == HUB_PROPERTY_OPERATION_UPDATE)
-            {
-                BatteryVoltage = data[5].ToString("F0");
-            }
+            await Task.Delay(TimeSpan.FromMilliseconds(50), token);
         }
 
         // setup ports - 0x04 - REMOTE_MODE_KEYSD
@@ -108,15 +108,24 @@ internal class RemoteControl : BluetoothDevice
 
         switch (messageCode)
         {
-            case 0x08: // HW network commands
+            case MESSAGE_TYPE_HUB_PROPERTIES: // Hub properties
+                if (data.Length >= 6 &&
+                    data[3] == HUB_PROPERTY_VOLTAGE &&
+                    data[4] == HUB_PROPERTY_OPERATION_UPDATE)
+                {
+                    BatteryVoltage = data[5].ToString("F0");
+                }
+                break;
+
+            case MESSAGE_TYPE_HW_NETWORK_COMMANDS: // HW network commands
                 if (data.Length == 5 && data[3] == 0x02)
                 {
                     // HW button state
-                    _legoController?.RaiseButtonEvents([("Home", data[4] > 0)]);
+                    RaiseButtonEvents([("Home", GetButtonValue(data[4]))]);
                     break;
                 }
                 break;
-            case 0x45: // 0x45 RemoteButton
+            case MESSAGE_TYPE_PORT_VALUE: // 0x45 Port Value / RemoteButton
                 if (data.Length == 7)
                 {
                     switch (data[3])
@@ -138,10 +147,26 @@ internal class RemoteControl : BluetoothDevice
     }
 
     private void OnButtonEvents(string plus, string stop, string minus, ReadOnlySpan<byte> flags)
-        => _legoController?.RaiseButtonEvents(
+        => RaiseButtonEvents(
             [
-                (plus, flags[0] != 0),
-                (stop, flags[1] != 0),
-                (minus, flags[2] != 0)
+                (plus, GetButtonValue(flags[0])),
+                (stop, GetButtonValue(flags[1])),
+                (minus, GetButtonValue(flags[2]))
             ]);
+
+    private void RaiseButtonEvents((string eventName, float value)[] buttonEvents)
+    {
+        if (_inputController is null)
+        {
+            return;
+        }
+
+        var events = buttonEvents
+            .Where(e => _inputController.HasValueChanged(e.eventName, e.value))
+            .ToDictionary(e => (InputDeviceEventType.Button, e.eventName), e => e.value);
+
+        _inputController.RaiseEvent(events);
+    }
+
+    private static float GetButtonValue(byte flag) => flag != 0 ? BUTTON_PRESSED : BUTTON_RELEASED;
 }

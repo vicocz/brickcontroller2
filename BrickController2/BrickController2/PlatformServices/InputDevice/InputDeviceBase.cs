@@ -66,7 +66,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
 
     protected bool ContainsAxisValue(string axisName) => _lastAxisValues.ContainsKey(axisName);
 
-    protected bool HasValueChanged(string axisName, float value)
+    protected internal bool HasValueChanged(string axisName, float value)
     {
         // get last reported value or the default one
         _lastAxisValues.TryGetValue(axisName, out float lastValue);
@@ -80,7 +80,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
         return true;
     }
 
-    protected void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+    protected internal void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
     {
         if (!events.Any())
         {

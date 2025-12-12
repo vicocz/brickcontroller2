@@ -20,6 +20,8 @@ internal static class LegoWirelessProtocol
 
     // message types
     public const byte MESSAGE_TYPE_HUB_PROPERTIES = 0x01;
+    public const byte MESSAGE_TYPE_HW_NETWORK_COMMANDS = 0x08;
+    public const byte MESSAGE_TYPE_PORT_VALUE = 0x45;
 
     // TechnicMove hub ports
     public const byte PORT_DRIVE_MOTOR_1 = 0x32;

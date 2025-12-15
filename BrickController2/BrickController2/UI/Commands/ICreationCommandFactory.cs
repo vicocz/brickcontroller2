@@ -12,5 +12,5 @@ public interface ICreationCommandFactory : ICommandFactory<Creation>
 
     ICommand PlayControllerProfileCommand(PageViewModelBase viewModel);
 
-    ICommand FixCommand(PageViewModelBase viewModel, Creation creation);
+    ICommand RemapDeviceCommand(PageViewModelBase viewModel, Creation creation);
 }

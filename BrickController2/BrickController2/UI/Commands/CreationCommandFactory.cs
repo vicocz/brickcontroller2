@@ -47,8 +47,8 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
     public ICommand PlayControllerProfileCommand(PageViewModelBase viewModel)
     => new SafeCommand<ControllerProfile>((profile) => PlayAsync(viewModel, profile.Creation, profile));
 
-    public ICommand FixCommand(PageViewModelBase viewModel, Creation creation)
-        => new SafeCommand(() => FixItAsync(viewModel, creation));
+    public ICommand RemapDeviceCommand(PageViewModelBase viewModel, Creation creation)
+        => new SafeCommand(() => RemapDeviceAsync(viewModel, creation));
 
     protected override string ItemsTitle => Translate("Creations");
     protected override string ItemNameHint => Translate("CreationName");
@@ -104,43 +104,21 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
         }
     }
 
-    private async Task FixItAsync(PageViewModelBase viewModel, Creation creation)
+    private async Task RemapDeviceAsync(PageViewModelBase viewModel, Creation creation)
     {
         try
         {
-            var validationResult = _playLogic.ValidateCreation(creation);
-
-            if (validationResult == CreationValidationResult.MissingDevice)
-            {
-                await FixMissingDevicesAsync(viewModel, creation);
-            }
-            else if (validationResult == CreationValidationResult.MissingSequence)
-            {
-                await DialogService.ShowMessageBoxAsync(
-                    Translate("Warning"),
-                    Translate("MissingSequence"),
-                    Translate("Ok"),
-                    viewModel.DisappearingToken);
-            }
-            else if (validationResult == CreationValidationResult.MissingControllerAction)
-            {
-                await DialogService.ShowMessageBoxAsync(
-                    Translate("Warning"),
-                    Translate("NoControllerActions"),
-                    Translate("Ok"),
-                    viewModel.DisappearingToken);
-            }
+            await RemapDevicesAsync(viewModel, creation);
         }
         catch (OperationCanceledException)
         {
         }
     }
 
-    private async Task<bool> FixMissingDevicesAsync(PageViewModelBase viewModel, Creation creation)
+    private async Task<bool> RemapDevicesAsync(PageViewModelBase viewModel, Creation creation)
     {
         // get source device IDs
-        var sourceDeviceIds = //TODO _playLogic.GetMissingDevices(creation)
-            creation.GetDeviceIds()
+        var sourceDeviceIds = creation.GetDeviceIds()
             .Select(id =>
             {
                 DeviceId.TryParse(id, out var deviceType, out var deviceAddress);
@@ -188,9 +166,9 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
             return false;
         }
 
-        // choose target device by name
+        // choose target device by name but avoid the source one
         var suitableDevices = _deviceManager.Devices
-            .Where(d => d.DeviceType == sourceType.Value)
+            .Where(d => d.DeviceType == sourceType.Value && d.Address != sourceDeviceAddress)
             .OrderBy(x => x.Name)
             .ToList();
 
@@ -206,9 +184,6 @@ internal class CreationCommandFactory : ItemCommandFactoryBase<Creation>, IComma
             var sourceDeviceId = DeviceId.Get(sourceType.Value, sourceDeviceAddress);
             var newDeviceId = targetDevice.SelectedItem!.Id;
             var count = await _creationManager.RemapDevice(creation, sourceDeviceId, newDeviceId);
-
-            // revalidate creation
-            creation.ValidationResult = _playLogic.ValidateCreation(creation);
 
             await DialogService.ShowMessageBoxAsync(
                 Translate("Information"),

@@ -98,11 +98,6 @@ namespace BrickController2.UI.ViewModels
                 await LoadCreationsAndDevicesAsync();
                 await RequestPermissionsAsync();
             }
-            // update validation statuses
-            foreach (var creation in _creationManager.Creations)
-            {
-                creation.ValidationResult = _playLogic.ValidateCreation(creation);
-            }
         }
 
         public override void OnDisappearing()

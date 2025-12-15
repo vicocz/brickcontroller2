@@ -51,7 +51,7 @@ namespace BrickController2.UI.ViewModels
             ShareCreationCommand = new SafeCommand(ShareCreationAsync);
             ShareCreationAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Creation);
             PlayCommand = commandFactory.PlayCommand(this, Creation);
-            FixItCommand = commandFactory.FixCommand(this, Creation);
+            RemapDeviceCommand = commandFactory.RemapDeviceCommand(this, Creation);
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));
             DeleteControllerProfileCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await DeleteControllerProfileAsync(controllerProfile));
@@ -61,8 +61,6 @@ namespace BrickController2.UI.ViewModels
         public Creation Creation { get; }
 
         public bool HasMultipleControllerProfiles => Creation.ControllerProfiles.Count > 1;
-
-        public bool IsCreationValid => Creation.ValidationResult == CreationValidationResult.Ok;
 
         public ISharedFileStorageService SharedFileStorageService { get; }
         public ICommand ImportControllerProfileCommand { get; }
@@ -74,47 +72,11 @@ namespace BrickController2.UI.ViewModels
         public ICommand ShareCreationAsFileCommand { get; }
         public ICommand RenameCreationCommand { get; }
         public ICommand PlayCommand { get; }
-        public ICommand FixItCommand { get; }
+        public ICommand RemapDeviceCommand { get; }
         public ICommand AddControllerProfileCommand { get; }
         public ICommand ControllerProfileTappedCommand { get; }
         public ICommand DeleteControllerProfileCommand { get; }
         public ICommand PlayControllerProfileCommand { get; }
-
-        public override void OnAppearing()
-        {
-            base.OnAppearing();
-
-            // listen to creation changes
-            Creation.PropertyChanged += Creation_PropertyChanged;
-            Creation.ControllerProfiles.CollectionChanged += ControllerProfiles_CollectionChanged;
-            // recheck creation validity
-            RecheckCreationValidity();
-        }
-
-        public override void OnDisappearing()
-        {
-            Creation.PropertyChanged -= Creation_PropertyChanged;
-            Creation.ControllerProfiles.CollectionChanged -= ControllerProfiles_CollectionChanged;
-
-            base.OnDisappearing();
-        }
-
-        private void Creation_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            // notify update of creation validity
-            if (e.PropertyName == nameof(Creation.ValidationResult))
-            {
-                RaisePropertyChanged(nameof(IsCreationValid));
-            }
-        }
-
-        private void ControllerProfiles_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
-            RecheckCreationValidity();
-        }
-
-        private void RecheckCreationValidity() => Creation.ValidationResult = _playLogic.ValidateCreation(Creation);
 
         private async Task RenameCreationAsync()
         {

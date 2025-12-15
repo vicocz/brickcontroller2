@@ -22,5 +22,6 @@
         PfxBrick,
         MK5,
         MK3_8,
+        RemoteControl,
     }
 }

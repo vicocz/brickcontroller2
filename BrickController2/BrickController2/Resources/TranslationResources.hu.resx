@@ -714,4 +714,7 @@
   <data name="Language" xml:space="preserve">
     <value>Nyelv</value>
   </data>
+  <data name="RemoteControlEnabled" xml:space="preserve">
+    <value>Távirányító engedélyezése</value>
+  </data>
 </root>

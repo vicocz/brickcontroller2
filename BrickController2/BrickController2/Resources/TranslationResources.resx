@@ -723,4 +723,7 @@
   <data name="InputDevices" xml:space="preserve">
     <value>Input devices</value>
   </data>
+  <data name="RemoteControlEnabled" xml:space="preserve">
+    <value>Enable remote control</value>
+  </data>
 </root>

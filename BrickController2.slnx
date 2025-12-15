@@ -1,0 +1,25 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Tests/">
+    <Project Path="BrickController2/BrickController2.Tests/BrickController2.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="BrickController2/BrickController2.Tools/BrickController2.Tools.csproj" />
+  </Folder>
+  <Project Path="BrickController2/BrickController2.Android/BrickController2.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="BrickController2/BrickController2.iOS/BrickController2.iOS.csproj">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Deploy />
+  </Project>
+  <Project Path="BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Deploy />
+  </Project>
+  <Project Path="BrickController2/BrickController2/BrickController2.csproj" />
+</Solution>

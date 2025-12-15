@@ -61,7 +61,7 @@ namespace BrickController2.UI.ViewModels
             else
             {
                 var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "com.scn.BrickController2.ControllerActionPage");
-                SelectedDevice = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault();
+                SelectedDevice = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
                 Action.Channel = 0;
                 Action.IsInvert = false;
                 Action.ChannelOutputType = ChannelOutputType.NormalMotor;
@@ -205,7 +205,8 @@ namespace BrickController2.UI.ViewModels
         private async Task SelectDeviceAsync()
         {
             var result = await _dialogService.ShowSelectionDialogAsync(
-                Devices,
+                // apply device filter for output channels only
+                Devices.Where(d => d.HasOutputChannel),
                 Translate("SelectDevice"),
                 Translate("Cancel"),
                 DisappearingToken);

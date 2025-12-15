@@ -15,9 +15,6 @@ namespace BrickController2.DeviceManagement
     {
         private const int MAX_SEND_ATTEMPTS = 10;
 
-        private static readonly Guid SERVICE_UUID = new Guid("00001623-1212-efde-1623-785feabcd123");
-        private static readonly Guid CHARACTERISTIC_UUID = new Guid("00001624-1212-efde-1623-785feabcd123");
-
         private static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(10);
         private static readonly TimeSpan POSITION_EXPIRATION = TimeSpan.FromMilliseconds(200);
 
@@ -171,8 +168,8 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
         {
-            var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
-            _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID);
+            var service = services?.FirstOrDefault(s => s.Uuid == ServiceUuid);
+            _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CharacteristicUuid);
 
             if (_characteristic is not null)
             {
@@ -238,7 +235,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != CHARACTERISTIC_UUID || data.Length < 4)
+            if (characteristicGuid != CharacteristicUuid || data.Length < 4)
             {
                 return;
             }
@@ -884,7 +881,7 @@ namespace BrickController2.DeviceManagement
                 var propertyId = data[3];
                 var propertyOperation = data[4];
 
-                if (messageId != 0x01 || propertyOperation != 0x06)
+                if (messageId != MESSAGE_TYPE_HUB_PROPERTIES || propertyOperation != HUB_PROPERTY_OPERATION_UPDATE)
                 {
                     // Operation is not 'update'
                     return;
@@ -892,7 +889,7 @@ namespace BrickController2.DeviceManagement
 
                 switch (propertyId)
                 {
-                    case 0x03: // FW version
+                    case HUB_PROPERTY_FW_VERSION: // FW version
                         var firmwareVersion = ProcessVersionNumber(data, 5);
                         if (!string.IsNullOrEmpty(firmwareVersion))
                         {
@@ -900,7 +897,7 @@ namespace BrickController2.DeviceManagement
                         }
                         break;
 
-                    case 0x04: // HW version
+                    case HUB_PROPERTY_HW_VERSION: // HW version
                         var hardwareVersion = ProcessVersionNumber(data, 5);
                         if (!string.IsNullOrEmpty(hardwareVersion))
                         {
@@ -908,7 +905,7 @@ namespace BrickController2.DeviceManagement
                         }
                         break;
 
-                    case 0x06: // Battery voltage
+                    case HUB_PROPERTY_VOLTAGE: // Battery voltage
                         var voltage = data[5];
                         BatteryVoltage = voltage.ToString("F0");
                         break;

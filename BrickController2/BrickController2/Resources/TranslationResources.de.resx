@@ -723,4 +723,7 @@
   <data name="InputDevices" xml:space="preserve">
     <value>Eingabegräte</value>
   </data>
+  <data name="RemoteControlEnabled" xml:space="preserve">
+    <value>Fernbedienung aktivieren</value>
+  </data>
 </root>

@@ -27,7 +27,6 @@ namespace BrickController2.UI.ViewModels
         private readonly ISharingManager<ControllerProfile> _sharingManager;
         private readonly IDialogService _dialogService;
         private readonly IPlayLogic _playLogic;
-        private readonly IInputDeviceEventService _gameControllerService;
 
         private List<ControllerEventViewModel> _controllerEvents = new List<ControllerEventViewModel>();
 
@@ -51,7 +50,6 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
             SharedFileStorageService = sharedFileStorageService;
             _playLogic = playLogic;
-            _gameControllerService = gameControllerService;
 
             ControllerProfile = parameters.Get<ControllerProfile>("controllerprofile");
 
@@ -213,7 +211,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                if (_deviceManager.Devices?.Count == 0)
+                if (!_deviceManager.ContainsAnyOutputDevice())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -249,7 +247,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                if (_deviceManager.Devices.Count == 0)
+                if (!_deviceManager.ContainsAnyOutputDevice())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -270,7 +268,7 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                if (_deviceManager.Devices?.Count == 0)
+                if (!_deviceManager.ContainsAnyOutputDevice())
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),

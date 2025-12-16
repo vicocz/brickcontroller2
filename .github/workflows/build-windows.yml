@@ -45,7 +45,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
+
+    - name: Install .NET MAUI Workload
+      run: dotnet workload install maui-windows
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -83,7 +86,7 @@ jobs:
     - name: Build
       run: dotnet build ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win10-x64 `
+        -r win-x64 `
         -p:Platform=x64 `
         -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
         -p:ApplicationVersion="0" `
@@ -92,7 +95,7 @@ jobs:
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win10-x64 `
+        -r win-x64 `
         -p:Platform=x64 `
         -p:GenerateAppxPackageOnBuild=true `
         -p:AppxPackageSigningEnabled=true `
@@ -109,7 +112,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
+        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net10.0-windows10.0.19041.0\win-x64\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
         asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:

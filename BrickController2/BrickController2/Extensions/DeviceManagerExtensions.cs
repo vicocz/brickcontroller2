@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BrickController2.DeviceManagement;
 
@@ -26,4 +27,7 @@ public static class DeviceManagerExtensions
             await deviceManager.DeleteDeviceAsync(item);
         }
     }
+
+    internal static bool ContainsAnyOutputDevice(this IDeviceManager deviceManager)
+        => deviceManager.Devices.Any(x => x.HasOutputChannel);
 }

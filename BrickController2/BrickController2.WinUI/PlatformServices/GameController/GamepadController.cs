@@ -2,14 +2,15 @@
 using System.Linq;
 using Windows.Gaming.Input;
 using Microsoft.Maui.Dispatching;
-using BrickController2.PlatformServices.GameController;
 using BrickController2.Windows.Extensions;
+using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 
-using static BrickController2.PlatformServices.GameController.GameControllers;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.Windows.PlatformServices.GameController;
 
-internal class GamepadController : GamepadControllerBase<Gamepad>
+internal class GamepadController : InputDeviceBase<Gamepad>
 {
     private static readonly TimeSpan DefaultInterval = TimeSpan.FromMilliseconds(10);
 
@@ -21,16 +22,12 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
     /// <param name="service">reference to GameControllerService</param>
     /// <param name="gamepad">reference to UWP's Gamepad</param>
     /// <param name="controllerNumber">zero-based Index of device inside the controller management</param>
-    public GamepadController(GameControllerService service, Gamepad gamepad, RawGameController rawController, int controllerNumber, IDispatcherTimer timer)
+    public GamepadController(IInputDeviceEventServiceInternal service, Gamepad gamepad, RawGameController rawController, int controllerNumber, IDispatcherTimer timer)
         : base(service, gamepad)
     {
-        ControllerNumber = controllerNumber;
-        ControllerId = GetControllerIdFromNumber(controllerNumber);
-
-        UniquePersistantDeviceId = rawController.NonRoamableId;
         Name = rawController.DisplayName;
-        VendorId = rawController.HardwareVendorId;
-        ProductId = rawController.HardwareProductId;
+        InputDeviceNumber = controllerNumber;
+        InputDeviceId = GetControllerIdFromNumber(controllerNumber);
 
         _timer = timer;
 
@@ -55,7 +52,7 @@ internal class GamepadController : GamepadControllerBase<Gamepad>
 
     private void Timer_Tick(object? sender, object e)
     {
-        var currentReading = Gamepad.GetCurrentReading();
+        var currentReading = InputDeviceDevice.GetCurrentReading();
 
         var currentEvents = currentReading
             .Enumerate()

@@ -10,7 +10,7 @@ using BrickController2.iOS.PlatformServices.Localization;
 using BrickController2.iOS.PlatformServices.Permission;
 using BrickController2.iOS.PlatformServices.SharedFileStorage;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.Localization;
 using BrickController2.PlatformServices.Permission;
@@ -23,7 +23,7 @@ namespace BrickController2.iOS.PlatformServices.DI
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<InfraredService>().As<IInfraredService>().SingleInstance();
-            builder.RegisterType<GameControllerService>().AsSelf().As<IGameControllerService>().SingleInstance();
+            builder.RegisterType<GameControllerService>().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
             builder.RegisterType<BluetoothLEService>().As<IBluetoothLEService>().SingleInstance();
             builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
             builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();

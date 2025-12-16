@@ -7,8 +7,8 @@
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     xmlns:vm="clr-namespace:BrickController2.UI.ViewModels"
-    x:Class="BrickController2.UI.Pages.ControllerTesterPage"
-    Title="{extensions:Translate ControllerTester}"
+    x:Class="BrickController2.UI.Pages.InputDeviceTesterPage"
+    Title="{extensions:Translate InputDeviceTester}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
@@ -24,7 +24,7 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
 
                 <!-- Controller event list -->
-                <CollectionView ItemsSource="{Binding ControllerEventList}" SelectionMode="None" IsGrouped="{Binding IsGrouped,Mode=OneTime}">
+                <CollectionView ItemsSource="{Binding InputDeviceEventList}" SelectionMode="None" IsGrouped="True">
                     <CollectionView.ItemsLayout>
                         <OnIdiom x:TypeArguments="IItemsLayout" Default="VerticalList">
                             <OnIdiom.Desktop>
@@ -53,9 +53,9 @@
                                                    Margin="0,0,0,5" Padding="10">
                                 <controls:ColorImage Grid.Column="0" Icon="sports_esports" Color="{DynamicResource PrimaryColor}"
                                                      WidthRequest="30" HeightRequest="30" VerticalOptions="Center" Margin="0,0,10,0"/>
-                                <Label Text="{Binding ControllerId}" FontSize="Medium" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                                <Label Text="{Binding InputDeviceId}" FontSize="Medium" FontAttributes="Bold" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
                                 <Label Text="-" FontSize="Medium" Margin="5,0,5,0" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
-                                <Label Text="{Binding ControllerName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
+                                <Label Text="{Binding InputDeviceName}" FontSize="Medium" TextColor="{DynamicResource PrimaryTextColor}" VerticalOptions="Center" />
                             </HorizontalStackLayout>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>

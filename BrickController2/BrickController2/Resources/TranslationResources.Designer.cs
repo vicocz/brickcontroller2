@@ -19,7 +19,7 @@ namespace BrickController2.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class TranslationResources {
@@ -655,15 +655,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Controller tester.
-        /// </summary>
-        internal static string ControllerTester {
-            get {
-                return ResourceManager.GetString("ControllerTester", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Control point.
         /// </summary>
         internal static string ControlPoint {
@@ -1132,6 +1123,33 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Input device.
+        /// </summary>
+        internal static string InputDevice {
+            get {
+                return ResourceManager.GetString("InputDevice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input devices.
+        /// </summary>
+        internal static string InputDevices {
+            get {
+                return ResourceManager.GetString("InputDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input device tester.
+        /// </summary>
+        internal static string InputDeviceTester {
+            get {
+                return ResourceManager.GetString("InputDeviceTester", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interpolate.
         /// </summary>
         internal static string Interpolate {
@@ -1479,6 +1497,15 @@ namespace BrickController2.Resources {
         internal static string Red {
             get {
                 return ResourceManager.GetString("Red", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enable remote control.
+        /// </summary>
+        internal static string RemoteControlEnabled {
+            get {
+                return ResourceManager.GetString("RemoteControlEnabled", resourceCulture);
             }
         }
         

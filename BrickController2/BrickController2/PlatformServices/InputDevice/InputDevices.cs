@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace BrickController2.PlatformServices.GameController;
+namespace BrickController2.PlatformServices.InputDevice;
 
-public static class GameControllers
+public static class InputDevices
 {
     public const float BUTTON_PRESSED = 1.0f;
     public const float BUTTON_PRESSED_INV = -1.0f;
@@ -13,17 +13,6 @@ public static class GameControllers
     public const float AXIS_ZERO_VALUE = 0.0f;
     public const float AXIS_MIN_VALUE = - 1.0f;
     public const float AXIS_MAX_VALUE = 1.0f;
-
-    /// <summary>
-    /// Creates an identifier string for the controller from the given index
-    /// </summary>
-    /// <param name="controllerIndex">zero-based index</param>
-    /// <returns>Identifier</returns>
-    public static string GetControllerIdFromIndex(int controllerIndex)
-    {
-        // controllerIndex == 0 -> "Controller 1"
-        return $"Controller {controllerIndex + 1}";
-    }
 
     /// <summary>
     /// Creates an identifier string for the controller from the given <paramref name="controllerNumber"/>

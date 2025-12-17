@@ -54,7 +54,7 @@ jobs:
       run: xcodebuild -version
         
     - name: Install MAUI workload
-      run: dotnet workload install maui
+      run: dotnet workload install maui ios
 
     - name: Get App Version from Build Properties
       shell: bash
@@ -93,7 +93,7 @@ jobs:
         dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
         --no-restore
         -c Release
-        -f net10.0-iOS
+        -f net10.0-ios
         -p:ArchiveOnBuild=true
         -p:EnableAssemblyILStripping=false
         -p:CodesignKey="iPhone Distribution"

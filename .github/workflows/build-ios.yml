@@ -41,8 +41,12 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
+              # run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+      shell: bash
+      run: |
+        echo '##vso[task.setvariable variable=MD_APPLE_SDK_ROOT;]'/Applications/Xcode_26.2.app
+        sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
 
     # - name: Fix macOS SDK
     #   run: |

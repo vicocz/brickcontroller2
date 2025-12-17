@@ -98,7 +98,7 @@ jobs:
         --no-restore
         -c Release
         -f net10.0-ios
-        -p:RuntimeIdentifier=ios-arm64
+        -r ios-arm64
         -p:ArchiveOnBuild=true
         -p:EnableAssemblyILStripping=false
         -p:CodesignKey="iPhone Distribution"

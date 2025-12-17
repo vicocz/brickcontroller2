@@ -72,7 +72,7 @@ jobs:
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v1
       with:
-        bundle-id: 'cz.vico.brickcontrollerlegacy'
+        bundle-id: 'cz.vico.brickcontroller'
         issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}

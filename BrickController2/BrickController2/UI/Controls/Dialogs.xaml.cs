@@ -302,21 +302,21 @@ namespace BrickController2.UI.Controls
 
             await Task.WhenAll(new Task[]
             {
-                view.ScaleTo(1.2, 50),
-                view.FadeTo(1.0, 50)
+                view.ScaleToAsync(1.2, 50),
+                view.FadeToAsync(1.0, 50)
             });
 
-            await view.ScaleTo(1.0, 50);
+            await view.ScaleToAsync(1.0, 50);
         }
 
         private async Task HideView(View view)
         {
-            await view.ScaleTo(1.2, 50);
+            await view.ScaleToAsync(1.2, 50);
 
             await Task.WhenAll(new Task[]
             {
-                view.ScaleTo(1.0, 50),
-                view.FadeTo(0, 50)
+                view.ScaleToAsync(1.0, 50),
+                view.FadeToAsync(0, 50)
             });
 
             HideViewImmediately(view);

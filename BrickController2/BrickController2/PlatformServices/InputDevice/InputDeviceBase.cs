@@ -8,9 +8,9 @@ namespace BrickController2.PlatformServices.InputDevice;
 /// <summary>
 /// abstract base class for input devices
 /// </summary>
-/// <typeparam name="TInputDeviceDevice">Type of native instance of inputdevice device</typeparam>
-public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice 
-    where TInputDeviceDevice : class
+/// <typeparam name="TSourceInputDevice">Type of native instance of inputdevice device</typeparam>
+public abstract class InputDeviceBase<TSourceInputDevice> : IInputDevice<TSourceInputDevice> 
+    where TSourceInputDevice : class
 {
     /// <summary>stored last value per axis to detect changes</summary>
     private readonly Dictionary<string, float> _lastAxisValues = [];
@@ -19,10 +19,10 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
     private readonly IInputDeviceEventServiceInternal _inputDeviceManagerService;
 
     protected InputDeviceBase(IInputDeviceEventServiceInternal inputDeviceManagerService,
-        TInputDeviceDevice inputDeviceDevice)
+        TSourceInputDevice sourceInputDevice)
     {
         _inputDeviceManagerService = inputDeviceManagerService;
-        InputDeviceDevice = inputDeviceDevice;
+        SourceInputDevice = sourceInputDevice;
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
     /// <summary>
     /// Native instance of inputdevice device
     /// </summary>
-    public TInputDeviceDevice InputDeviceDevice { get; }
+    public TSourceInputDevice SourceInputDevice { get; }
 
     /// <summary>
     /// start the inputdevice and publishing of its events
@@ -66,7 +66,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
 
     protected bool ContainsAxisValue(string axisName) => _lastAxisValues.ContainsKey(axisName);
 
-    protected internal bool HasValueChanged(string axisName, float value)
+    public bool HasValueChanged(string axisName, float value)
     {
         // get last reported value or the default one
         _lastAxisValues.TryGetValue(axisName, out float lastValue);
@@ -80,7 +80,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
         return true;
     }
 
-    protected internal void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+    public void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
     {
         if (!events.Any())
         {

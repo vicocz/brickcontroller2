@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
@@ -32,6 +35,7 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDeviceManager deviceManager,
             IDialogService dialogService,
+            IServiceProvider serviceProvider,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -45,6 +49,8 @@ namespace BrickController2.UI.ViewModels
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(navigationService, Device, channel))
                 .ToArray();
+            // get optional linked input device, if exists
+            InputDevice = serviceProvider.GetKeyedService<IInputDevice>(Device.DeviceType);
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
@@ -57,6 +63,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Device Device { get; }
+        public IInputDevice? InputDevice { get; }
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
         public bool CanBePowerSource => Device.CanBePowerSource;
@@ -69,6 +76,8 @@ namespace BrickController2.UI.ViewModels
             !_deviceManager.IsScanning;
 
         public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
+
+        public bool IsInputDevice => Device is IDynamicInputDevice;
 
         public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
 
@@ -83,6 +92,8 @@ namespace BrickController2.UI.ViewModels
         public int BuWizz2OutputLevel { get; set; }
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
+
+        public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = new();
 
         public override async void OnAppearing()
         {
@@ -102,6 +113,11 @@ namespace BrickController2.UI.ViewModels
                     await NavigationService.NavigateBackAsync();
                     return;
                 }
+            }
+
+            if (InputDevice is not null)
+            {
+                //InputDevice.InputEventReceived += OnInputDeviceEventReceived;
             }
 
             _connectionTokenSource = new CancellationTokenSource();

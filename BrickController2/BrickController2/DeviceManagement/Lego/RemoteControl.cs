@@ -15,13 +15,13 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : BluetoothDevice
+internal class RemoteControl : BluetoothDevice, IDynamicInputDevice<RemoteControl>
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
 
     private IGattCharacteristic? _characteristic;
-    private InputDeviceBase<RemoteControl>? _inputController;
+    private IInputDevice<RemoteControl>? _inputController;
 
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
     : base(name, address, deviceRepository, bleService)
@@ -41,12 +41,12 @@ internal class RemoteControl : BluetoothDevice
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
-    internal void ConnectInputController<TController>(TController inputController) where TController : InputDeviceBase<RemoteControl>
+    public void ConnectInputController(IInputDevice<RemoteControl> inputController)
     {
         _inputController = inputController;
     }
 
-    internal void DisconnectInputController()
+    public void DisconnectInputController()
     {
         _inputController = default;
     }

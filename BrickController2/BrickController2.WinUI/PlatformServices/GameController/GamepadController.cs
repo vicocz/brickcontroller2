@@ -52,7 +52,7 @@ internal class GamepadController : InputDeviceBase<Gamepad>
 
     private void Timer_Tick(object? sender, object e)
     {
-        var currentReading = InputDeviceDevice.GetCurrentReading();
+        var currentReading = SourceInputDevice.GetCurrentReading();
 
         var currentEvents = currentReading
             .Enumerate()

@@ -38,7 +38,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceRemoved(int deviceId)
         {
-            if (TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out var controller))
+            if (TryRemoveInputDevice(x => x.SourceInputDevice.Id == deviceId, out var controller))
             {
                 _logger.LogInformation("InputDeviceDevice has been removed DeviceId:{id}, InputDeviceId:{controllerId}",
                     deviceId, controller.InputDeviceId);
@@ -66,12 +66,12 @@ namespace BrickController2.Droid.PlatformServices.GameController
                     else if (controller != null)
                     {
                         // handle change - remove and then add it again
-                        TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out _);
+                        TryRemoveInputDevice(x => x.SourceInputDevice.Id == deviceId, out _);
                     }
                     AddGameControllerDevice(device);
                 }
             }
-            else if (TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out var controller))
+            else if (TryRemoveInputDevice(x => x.SourceInputDevice.Id == deviceId, out var controller))
             {
                 _logger.LogInformation("InputDeviceDevice has been removed DeviceId:{id}, InputDeviceId:{controllerId}",
                     deviceId, controller.InputDeviceId);
@@ -127,7 +127,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         }
 
         private bool TryGetControllerByDeviceId(int deviceId, [MaybeNullWhen(false)] out GamepadController controller)
-            => TryGetInputDevice(x => x.InputDeviceDevice.Id == deviceId, out controller);
+            => TryGetInputDevice(x => x.SourceInputDevice.Id == deviceId, out controller);
 
         private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
         {

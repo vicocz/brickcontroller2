@@ -1,4 +1,6 @@
-﻿namespace BrickController2.PlatformServices.InputDevice;
+﻿using System.Collections.Generic;
+
+namespace BrickController2.PlatformServices.InputDevice;
 
 public interface IInputDevice
 {
@@ -27,4 +29,18 @@ public interface IInputDevice
     /// Stop the inputdevice and publishing of its events
     /// </summary>
     void Stop();
+}
+
+
+public interface IInputDevice<TDevice> : IInputDevice
+    where TDevice : class
+{
+    /// <summary>
+    /// Instance of source input device
+    /// </summary>
+    TDevice SourceInputDevice { get; }
+
+    internal bool HasValueChanged(string axisName, float value);
+
+    internal void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events);
 }

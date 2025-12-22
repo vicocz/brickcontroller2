@@ -29,6 +29,10 @@ on:
 permissions:
   contents: read
 
+env:
+  TARGET_FRAMEWORK: 'net10.0-android'
+  PUBLISH_TRIMMED: ${{ (github.event_name == 'release' && github.event.action == 'published') }}
+
 jobs:
   build-android:
     runs-on: windows-2025
@@ -66,36 +70,38 @@ jobs:
     - name: Build MAUI Android (APK)
       run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj `
         -c Release `
-        -f net10.0-android `
+        -f ${{ env.TARGET_FRAMEWORK }} `
         --no-restore `
         -p:ApplicationVersion="${{ github.run_number }}" `
         -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}} `
         -p:AndroidSigningStorePass=${{secrets.KEYSTORE_PASSWORD}} `
         -p:AndroidPackageFormat=apk
+        -p:PublishTrimmed=${{ env.PUBLISH_TRIMMED }}
 
     - name: Build MAUI Android (AAB) for Release
       if: github.event_name == 'release' && github.event.action == 'published'  
       run: dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj `
         -c Release `
-        -f net10.0-android `
+        -f ${{ env.TARGET_FRAMEWORK }} `
         --no-restore `
         -p:ApplicationVersion="${{ github.run_number }}" `
         -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}} `
         -p:AndroidSigningStorePass=${{secrets.KEYSTORE_PASSWORD}} `
         -p:AndroidPackageFormat=aab
+        -p:PublishTrimmed=${{ env.PUBLISH_TRIMMED }}
 
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/net10.0-android/cz.vico.BrickController-Signed.apk
+        path: BrickController2/BrickController2.Android/bin/Release/${{ env.TARGET_FRAMEWORK }}/cz.vico.BrickController-Signed.apk
 
     - name: Upload APK Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2/BrickController2.Android/bin/Release/net10.0-android/cz.vico.BrickController-Signed.apk
+        asset_path: BrickController2/BrickController2.Android/bin/Release/${{ env.TARGET_FRAMEWORK }}/cz.vico.BrickController-Signed.apk
         asset_name: BrickController_${{env.APP_VERSION}}.apk
         asset_content_type: application/vnd.android.package-archive
       env:
@@ -106,7 +112,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2/BrickController2.Android/bin/Release/net10.0-android/cz.vico.BrickController-Signed.aab
+        asset_path: BrickController2/BrickController2.Android/bin/Release/${{ env.TARGET_FRAMEWORK }}/cz.vico.BrickController-Signed.aab
         asset_name: BrickController_${{env.APP_VERSION}}.aab
         asset_content_type: application/x-authorware-bin
       env:

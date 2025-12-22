@@ -33,7 +33,7 @@ env:
   XCODE_VERSION: '26.2'
   TARGET_FRAMEWORK: 'net10.0-ios'
   TARGET_RUNTIME: 'ios-arm64'
-  PUBLISH_TRIMMED: ${{ (github.event_name == 'release' && github.event.action == 'published') }}
+  IOS_TRIM_MODE: ${{ (github.event_name == 'release' && github.event.action == 'published') && 'Full' || 'None' }}
 
 jobs:
   build-ios:
@@ -105,7 +105,7 @@ jobs:
         -p:CodesignKey="iPhone Distribution"
         -p:CodesignProvision=Automatic
         -p:EnableAssemblyILStripping=false
-        -p:PublishTrimmed=${{ env.PUBLISH_TRIMMED }}
+        -p:MtouchLink=${{ env.IOS_TRIM_MODE }}
 
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/

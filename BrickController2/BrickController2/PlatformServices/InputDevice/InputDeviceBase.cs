@@ -8,9 +8,9 @@ namespace BrickController2.PlatformServices.InputDevice;
 /// <summary>
 /// abstract base class for input devices
 /// </summary>
-/// <typeparam name="TSourceInputDevice">Type of native instance of inputdevice device</typeparam>
-public abstract class InputDeviceBase<TSourceInputDevice> : IInputDevice, IInputDeviceConnector
-    where TSourceInputDevice : class
+/// <typeparam name="TInputDeviceDevice">Type of native instance of inputdevice device</typeparam>
+public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInputDeviceConnector
+    where TInputDeviceDevice : class
 {
     /// <summary>stored last value per axis to detect changes</summary>
     private readonly Dictionary<string, float> _lastAxisValues = [];
@@ -19,10 +19,10 @@ public abstract class InputDeviceBase<TSourceInputDevice> : IInputDevice, IInput
     private readonly IInputDeviceEventServiceInternal _inputDeviceManagerService;
 
     protected InputDeviceBase(IInputDeviceEventServiceInternal inputDeviceManagerService,
-        TSourceInputDevice sourceInputDevice)
+        TInputDeviceDevice sourceInputDevice)
     {
         _inputDeviceManagerService = inputDeviceManagerService;
-        InputInputDevice = sourceInputDevice;
+        InputDeviceDevice = sourceInputDevice;
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public abstract class InputDeviceBase<TSourceInputDevice> : IInputDevice, IInput
     /// <summary>
     /// Native instance of inputdevice device
     /// </summary>
-    public TSourceInputDevice InputInputDevice { get; }
+    public TInputDeviceDevice InputDeviceDevice { get; }
 
     /// <summary>
     /// start the inputdevice and publishing of its events

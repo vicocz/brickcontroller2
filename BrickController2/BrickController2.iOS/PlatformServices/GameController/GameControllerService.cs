@@ -66,7 +66,7 @@ namespace BrickController2.iOS.PlatformServices.GameController
         {
             lock (_lockObject)
             {
-                if (TryRemoveInputDevice(x => x.InputInputDevice == controller, out var controllerDevice))
+                if (TryRemoveInputDevice(x => x.InputDeviceDevice == controller, out var controllerDevice))
                 {
                     _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controllerDevice.InputDeviceId);
                 }

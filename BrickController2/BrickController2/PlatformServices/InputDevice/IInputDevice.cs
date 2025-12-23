@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BrickController2.PlatformServices.InputDevice;
+﻿namespace BrickController2.PlatformServices.InputDevice;
 
 public interface IInputDevice
 {

@@ -19,10 +19,10 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     private readonly IInputDeviceEventServiceInternal _inputDeviceManagerService;
 
     protected InputDeviceBase(IInputDeviceEventServiceInternal inputDeviceManagerService,
-        TInputDeviceDevice sourceInputDevice)
+        TInputDeviceDevice inputDeviceDevice)
     {
         _inputDeviceManagerService = inputDeviceManagerService;
-        InputDeviceDevice = sourceInputDevice;
+        InputDeviceDevice = inputDeviceDevice;
     }
 
     /// <summary>

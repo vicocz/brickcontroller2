@@ -1,8 +1,6 @@
-﻿using Autofac;
-using BrickController2.DeviceManagement.DI;
+﻿using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
-using BrickController2.PlatformServices.InputDevice;
 
 namespace BrickController2.DeviceManagement.Lego;
 
@@ -26,7 +24,6 @@ internal class Lego : Vendor<Lego>
 
         // input devices
         builder.ContainerBuilder.RegisterDevice<RemoteControl>(DeviceType.RemoteControl);
-        builder.ContainerBuilder.RegisterType<LegoRemoteController>().Keyed<IInputDevice>(DeviceType.RemoteControl);
         builder.ContainerBuilder.RegisterInputDeviceService<LegoControllerService>();
 
         // device manager

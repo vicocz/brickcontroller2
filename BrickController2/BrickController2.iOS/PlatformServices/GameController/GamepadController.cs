@@ -35,7 +35,7 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
 
     public void Dispose()
     {
-        SourceInputDevice.Dispose();
+        InputInputDevice.Dispose();
     }
 
     private void SetupController(GCController gameController, GameControllerType gameControllerType)

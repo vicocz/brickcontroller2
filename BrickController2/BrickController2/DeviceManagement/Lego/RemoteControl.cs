@@ -15,13 +15,13 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : BluetoothDevice, IDynamicInputDevice<RemoteControl>
+internal class RemoteControl : BluetoothDevice, IDynamicInputDevice
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
 
     private IGattCharacteristic? _characteristic;
-    private IInputDevice<RemoteControl>? _inputController;
+    private IInputDeviceConnector? _inputDeviceConnector;
 
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
     : base(name, address, deviceRepository, bleService)
@@ -41,14 +41,14 @@ internal class RemoteControl : BluetoothDevice, IDynamicInputDevice<RemoteContro
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
-    public void ConnectInputController(IInputDevice<RemoteControl> inputController)
+    public void ConnectInputController(IInputDeviceConnector inputController)
     {
-        _inputController = inputController;
+        _inputDeviceConnector = inputController;
     }
 
     public void DisconnectInputController()
     {
-        _inputController = default;
+        _inputDeviceConnector = default;
     }
 
     internal void ResetEvents() => RaiseButtonEvents(
@@ -156,16 +156,16 @@ internal class RemoteControl : BluetoothDevice, IDynamicInputDevice<RemoteContro
 
     private void RaiseButtonEvents((string eventName, float value)[] buttonEvents)
     {
-        if (_inputController is null)
+        if (_inputDeviceConnector is null)
         {
             return;
         }
 
         var events = buttonEvents
-            .Where(e => _inputController.HasValueChanged(e.eventName, e.value))
+            .Where(e => _inputDeviceConnector.HasValueChanged(e.eventName, e.value))
             .ToDictionary(e => (InputDeviceEventType.Button, e.eventName), e => e.value);
 
-        _inputController.RaiseEvent(events);
+        _inputDeviceConnector.RaiseEvent(events);
     }
 
     private static float GetButtonValue(byte flag) => flag != 0 ? BUTTON_PRESSED : BUTTON_RELEASED;

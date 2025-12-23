@@ -27,7 +27,7 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
     {
         base.Start();
         // link Lego RemoteControl and connect
-        SourceInputDevice.ConnectInputController(this);
+        InputInputDevice.ConnectInputController(this);
         // trigger device connection, but do not wait here
         _ = ConnectInputDeviceAsync();
     }
@@ -36,7 +36,7 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
     {
         base.Stop();
         // trigger device disconnection, but do not wait here
-        _ = SourceInputDevice.DisconnectAsync().ContinueWith(t =>
+        _ = InputInputDevice.DisconnectAsync().ContinueWith(t =>
         {
             if (t.Exception != null)
             {
@@ -44,18 +44,18 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
             }
         }, TaskContinuationOptions.OnlyOnFaulted);
         // reset Lego RemoteControl link
-        SourceInputDevice.DisconnectInputController();
+        InputInputDevice.DisconnectInputController();
     }
 
     private async Task ConnectInputDeviceAsync(CancellationToken token = default)
     {
         try
         {
-            await SourceInputDevice.ConnectAsync(false,
+            await InputInputDevice.ConnectAsync(false,
                 (d) =>
                 {
                     // reset events on random disconnection
-                    SourceInputDevice?.ResetEvents();
+                    InputInputDevice?.ResetEvents();
                 },
                 channelConfigurations: [],
                 startOutputProcessing: false,

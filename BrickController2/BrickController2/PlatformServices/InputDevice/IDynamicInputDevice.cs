@@ -1,15 +1,7 @@
-﻿using System.Collections.Generic;
+﻿namespace BrickController2.PlatformServices.InputDevice;
 
-namespace BrickController2.PlatformServices.InputDevice;
-
-public interface IDynamicInputDevice
+internal interface IDynamicInputDevice
 {
-}
-
-
-public interface IDynamicInputDevice<TDevice> : IDynamicInputDevice
-    where TDevice : class
-{
-    void ConnectInputController(IInputDevice<TDevice> controller);
+    void ConnectInputController(IInputDeviceConnector controller);
     void DisconnectInputController();
 }

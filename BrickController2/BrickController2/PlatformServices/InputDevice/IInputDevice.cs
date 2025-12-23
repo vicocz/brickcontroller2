@@ -30,17 +30,3 @@ public interface IInputDevice
     /// </summary>
     void Stop();
 }
-
-
-public interface IInputDevice<TDevice> : IInputDevice
-    where TDevice : class
-{
-    /// <summary>
-    /// Instance of source input device
-    /// </summary>
-    TDevice SourceInputDevice { get; }
-
-    internal bool HasValueChanged(string axisName, float value);
-
-    internal void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events);
-}

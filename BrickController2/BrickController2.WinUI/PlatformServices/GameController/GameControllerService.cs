@@ -51,7 +51,7 @@ internal class GameControllerService : InputDeviceServiceBase<GamepadController>
             // ensure stopped in UI thread
             _ = _mainThreadService.RunOnMainThread(() =>
             {
-                if (TryRemoveInputDevice(x => x.SourceInputDevice == gamepad, out var controller))
+                if (TryRemoveInputDevice(x => x.InputInputDevice == gamepad, out var controller))
                 {
                     _logger.LogInformation("Controller device has been removed InputDeviceId:{controllerId}", controller.InputDeviceId);
                 }

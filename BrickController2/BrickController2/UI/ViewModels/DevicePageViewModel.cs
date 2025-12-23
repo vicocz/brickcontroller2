@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
@@ -17,13 +16,15 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
 using static BrickController2.CreationManagement.ControllerDefaults;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.UI.ViewModels
 {
-    public class DevicePageViewModel : PageViewModelBase
+    public class DevicePageViewModel : PageViewModelBase, IInputDeviceConnector
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
+        private readonly Dictionary<string, float> _lastAxisValues = [];
 
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
@@ -49,8 +50,6 @@ namespace BrickController2.UI.ViewModels
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(navigationService, Device, channel))
                 .ToArray();
-            // get optional linked input device, if exists
-            InputDevice = serviceProvider.GetKeyedService<IInputDevice>(Device.DeviceType);
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
@@ -63,7 +62,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Device Device { get; }
-        public IInputDevice? InputDevice { get; }
+        internal IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
         public bool CanBePowerSource => Device.CanBePowerSource;
@@ -115,10 +114,8 @@ namespace BrickController2.UI.ViewModels
                 }
             }
 
-            if (InputDevice is not null)
-            {
-                //InputDevice.InputEventReceived += OnInputDeviceEventReceived;
-            }
+            // connect input device if available
+            InputDevice?.ConnectInputController(this);
 
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectAsync();
@@ -128,6 +125,9 @@ namespace BrickController2.UI.ViewModels
         {
             base.OnDisappearing();
 
+            // disconnect input device if available
+            InputDevice?.DisconnectInputController();
+
             if (_connectionTokenSource is not null && _connectionTask is not null)
             {
                 _connectionTokenSource?.Cancel();
@@ -135,6 +135,42 @@ namespace BrickController2.UI.ViewModels
             }
 
             await Device.DisconnectAsync();
+        }
+
+
+        bool IInputDeviceConnector.HasValueChanged(string axisName, float value)
+        {
+            // get last reported value or the default one
+            _lastAxisValues.TryGetValue(axisName, out float lastValue);
+            // skip value if there is no change
+            if (AreAlmostEqual(value, lastValue))
+            {
+                return false;
+            }
+            // persist
+            _lastAxisValues[axisName] = value;
+            return true;
+        }
+
+        void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+        {
+            foreach (var inputDeviceEvent in events)
+            {
+                var item = InputEventList.FirstOrDefault(x => x.EventCode == inputDeviceEvent.Key.Item2);
+
+                if (AXIS_DELTA_VALUE >= Math.Abs(inputDeviceEvent.Value))
+                {
+                    InputEventList.Remove(item);
+                }
+                else if (item != null)
+                {
+                    item.Value = inputDeviceEvent.Value;
+                }
+                else
+                {
+                    InputEventList.Add(new InputDeviceEventViewModel(inputDeviceEvent.Key.Item1, inputDeviceEvent.Key.Item2, inputDeviceEvent.Value));
+                }
+            }
         }
 
         private async Task RenameDeviceAsync()

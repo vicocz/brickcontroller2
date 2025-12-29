@@ -19,6 +19,13 @@ namespace BrickController2.Helpers
             return new Releaser(_semaphore);
         }
 
+
+        public IDisposable Lock(CancellationToken token = default)
+        {
+            _semaphore.Wait(token);
+            return new Releaser(_semaphore);
+        }
+
         private struct Releaser : IDisposable
         {
             private SemaphoreSlim? _semaphore;

@@ -18,4 +18,9 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
+  <!--App information-->
+  <PropertyGroup>
+    <ApplicationDisplayVersion>3.4</ApplicationDisplayVersion>
+    <ApplicationVersion>50</ApplicationVersion>
+  </PropertyGroup>
 </Project>

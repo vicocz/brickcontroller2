@@ -70,6 +70,7 @@ namespace BrickController2.DeviceManagement
         }
 
         public int OutputLevel => _outputLevel;
+        public bool HasOutputChannel => NumberOfChannels > 0;
 
         public abstract int NumberOfChannels { get; }
         public virtual int NumberOfOutputLevels => 1;
@@ -117,12 +118,12 @@ namespace BrickController2.DeviceManagement
         public virtual Task ActiveShelfModeAsync(CancellationToken token = default)
             => throw new InvalidOperationException("Shelf mode is not supported for this type of device.");
 
-        public async Task RenameDeviceAsync(Device device, string newName)
+        public async Task RenameDeviceAsync(string newName)
         {
             using (await _asyncLock.LockAsync())
             {
-                await _deviceRepository.UpdateDeviceAsync(device.DeviceType, device.Address, newName);
-                device.Name = newName;
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, newName);
+                Name = newName;
             }
         }
 

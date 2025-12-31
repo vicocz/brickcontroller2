@@ -9,10 +9,9 @@ namespace BrickController2.iOS.PlatformServices.Localization
 {
     public class LocalizationService : ILocalizationService
     {
-        private string? _netLanguage;
         private CultureInfo? _ci;
 
-        public CultureInfo CurrentCultureInfo
+        public CultureInfo DefaultCultureInfo
         {
             get
             {
@@ -23,39 +22,43 @@ namespace BrickController2.iOS.PlatformServices.Localization
                     netLanguage = IOSToDotnetLanguage(iosPreferredLanguage);
                 }
 
-                if (_ci == null || _netLanguage != netLanguage)
+                try
                 {
-                    _netLanguage = netLanguage;
-
+                    return new CultureInfo(netLanguage);
+                }
+                catch (CultureNotFoundException)
+                {
                     try
                     {
-                        _ci = new CultureInfo(_netLanguage);
+                        var fallback = ToDotnetFallbackLanguage(new PlatformCulture(netLanguage));
+                        return new CultureInfo(fallback);
                     }
                     catch (CultureNotFoundException)
                     {
-                        try
-                        {
-                            var fallback = ToDotnetFallbackLanguage(new PlatformCulture(_netLanguage));
-                            _ci = new CultureInfo(fallback);
-                        }
-                        catch (CultureNotFoundException)
-                        {
-                            _ci = new CultureInfo("en");
-                        }
+                        return new CultureInfo("en");
                     }
                 }
+            }
+        }
 
+        public CultureInfo CurrentCultureInfo
+        {
+            get
+            {
+                _ci ??= DefaultCultureInfo;
                 return _ci;
             }
 
             set
             {
+                _ci = value;
+                CultureInfo.CurrentUICulture = value;
                 Thread.CurrentThread.CurrentCulture = value;
                 Thread.CurrentThread.CurrentUICulture = value;
             }
         }
 
-        private string IOSToDotnetLanguage(string iOSLanguage)
+        private static string IOSToDotnetLanguage(string iOSLanguage)
         {
             var netLanguage = iOSLanguage;
 
@@ -77,7 +80,7 @@ namespace BrickController2.iOS.PlatformServices.Localization
             return netLanguage;
         }
 
-        private string ToDotnetFallbackLanguage(PlatformCulture platCulture)
+        private static string ToDotnetFallbackLanguage(PlatformCulture platCulture)
         {
             var netLanguage = platCulture.LanguageCode; // use the first part of the identifier (two chars, usually);
             switch (platCulture.LanguageCode)

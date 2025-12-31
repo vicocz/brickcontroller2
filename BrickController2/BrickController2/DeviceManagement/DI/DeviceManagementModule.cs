@@ -24,13 +24,7 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<BuWizz2Device>().Keyed<Device>(DeviceType.BuWizz2);
             builder.RegisterType<BuWizz3Device>().Keyed<Device>(DeviceType.BuWizz3);
             builder.RegisterType<InfraredDevice>().Keyed<Device>(DeviceType.Infrared);
-            builder.RegisterType<PoweredUpDevice>().Keyed<Device>(DeviceType.PoweredUp);
-            builder.RegisterType<BoostDevice>().Keyed<Device>(DeviceType.Boost);
-            builder.RegisterType<TechnicHubDevice>().Keyed<Device>(DeviceType.TechnicHub);
-            builder.RegisterType<DuploTrainHubDevice>().Keyed<Device>(DeviceType.DuploTrainHub);
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
-            builder.RegisterType<Wedo2Device>().Keyed<Device>(DeviceType.WeDo2);
-            builder.RegisterType<TechnicMoveDevice>().Keyed<Device>(DeviceType.TechnicMove);
             builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 
@@ -48,7 +42,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceManager<BuWizzDeviceManager>();
             builder.RegisterDeviceManager<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>();
             builder.RegisterDeviceManager<CircuitCubeDeviceManager>();
-            builder.RegisterDeviceManager<LegoDeviceManager>();
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
             builder.RegisterDeviceManager<SBrickDeviceManager>();
 

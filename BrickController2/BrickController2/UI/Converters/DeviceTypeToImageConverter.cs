@@ -55,6 +55,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.PfxBrick:
                     return ResourceHelper.GetImageResource("pfx_brick_image.png");
 
+                case DeviceType.MK3_8:
+                    return ResourceHelper.GetImageResource("mk3_8_image.png");
+
                 case DeviceType.MK4:
                     return ResourceHelper.GetImageResource("mk4_image.png");
 
@@ -69,6 +72,9 @@ namespace BrickController2.UI.Converters
 
                 case DeviceType.CaDA_RaceCar:
                     return ResourceHelper.GetImageResource("cada_racecar_image.png");
+
+                case DeviceType.RemoteControl:
+                    return ResourceHelper.GetImageResource("remotecontrol_image_small.png");
 
                 default:
                     return null;

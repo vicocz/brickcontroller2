@@ -21,6 +21,13 @@ internal static class SBrickProtocol
     public const byte LIGHTS_FLAGS_BANK_1 = 0x01;
     public const byte LIGHTS_FLAGS_APPLY = 0x80;
 
+    // data records
+    public const byte DATA_RECORD_PRODUCT_TYPE = 0x00;
+
+    public const byte PRODUCT_ID_SBRICK = 0x00;
+    public const byte PRODUCT_ID_SBRICK_LIGHT = 0x01;
+    public const byte PRODUCT_ID_UNKNOWN = 0xFF;
+
     // message builders
     public static byte[] BuildSetAllLights(byte flags, ReadOnlySpan<byte> values)
     {

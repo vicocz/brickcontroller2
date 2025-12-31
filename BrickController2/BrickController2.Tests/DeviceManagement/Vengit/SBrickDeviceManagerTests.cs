@@ -8,9 +8,10 @@ namespace BrickController2.Tests.DeviceManagement.Vengit;
 public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManager>
 {
     [Fact]
-    public void TryGetDevice_VengitManufacturerId_ReturnsSBrickDevice()
+    public void TryGetDevice_VengitManufacturerIdWithSBrickProductId_ReturnsSBrickDevice()
     {
-        byte[] manufacturerData = [0x98, 0x01];
+        byte[] manufacturerData = [0x98, 0x01,
+            0x02, 0x00, 0x00];
         var scanResult = CreateScanResult(deviceName: default, manufacturerData: manufacturerData);
 
         var result = _manager.TryGetDevice(scanResult, out var device);
@@ -23,6 +24,52 @@ public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManage
             DeviceType = DeviceType.SBrick,
             ManufacturerData = manufacturerData
         });
+    }
+
+    [Fact]
+    public void TryGetDevice_VengitManufacturerIdWithSBrickLighProductId_ReturnsSBrickLightDevice()
+    {
+        byte[] manufacturerData = [0x98, 0x01,
+            0x02, 0x03, 0x00,
+            0x06, 0x00, 0x01, 0x05, 0x00, 0x05, 0x19];
+        var scanResult = CreateScanResult(deviceName: default, manufacturerData: manufacturerData);
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeTrue();
+        device.Should().BeEquivalentTo(new FoundDevice()
+        {
+            DeviceAddress = scanResult.DeviceAddress,
+            DeviceName = scanResult.DeviceName,
+            DeviceType = DeviceType.SBrickLight,
+            ManufacturerData = manufacturerData
+        });
+    }
+
+    [Fact]
+    public void TryGetDevice_VengitManufacturerIdWithUnknownProductId_ReturnsSBrickDevice()
+    {
+        byte[] manufacturerData = [0x98, 0x01,
+            0x06, 0x00, 0xAA, 0x00, 0x00, 0x00, 0x00];
+        var scanResult = CreateScanResult(deviceName: default, manufacturerData: manufacturerData);
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeFalse();
+        device.DeviceType.Should().Be(DeviceType.Unknown);
+    }
+
+    [Fact]
+    public void TryGetDevice_VengitManufacturerIdWithMissingProductId_ReturnsSBrickDevice()
+    {
+        byte[] manufacturerData = [0x98, 0x01,
+            0x02, 0x03, 0x00];
+        var scanResult = CreateScanResult(deviceName: default, manufacturerData: manufacturerData);
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeFalse();
+        device.DeviceType.Should().Be(DeviceType.Unknown);
     }
 
     [Fact]

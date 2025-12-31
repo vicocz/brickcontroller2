@@ -78,11 +78,11 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
 
                     if (Build.VERSION.SdkInt >= BuildVersionCodes.M)
                     {
-                        _bluetoothGatt = _bluetoothDevice.ConnectGatt(_context, autoConnect, this, BluetoothTransports.Le);
+                        _bluetoothGatt = _bluetoothDevice.ConnectGatt(_context, autoConnect: false, this, BluetoothTransports.Le);
                     }
                     else
                     {
-                        _bluetoothGatt = _bluetoothDevice.ConnectGatt(_context, autoConnect, this);
+                        _bluetoothGatt = _bluetoothDevice.ConnectGatt(_context, autoConnect: false, this);
                     }
 
                     if (_bluetoothGatt is null)

@@ -133,6 +133,20 @@ namespace BrickController2.DeviceManagement
             return base.GetServoCommand(channel, servoValue, servoSpeed);
         }
 
+        protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+        {
+            // better handle this type of device
+            if (services?.Any(s => s.Uuid == ServiceUuid && s.Characteristics.Any(c => c.Uuid == CharacteristicUuid)) == true)
+            {
+                // give some additional wait time for the device to be ready
+                await Task.Delay(TimeSpan.FromSeconds(1), token);
+
+                return await base.ValidateServicesAsync(services, token);
+            }
+
+            return false;
+        }
+
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
             if (await base.AfterConnectSetupAsync(requestDeviceInformation, token))

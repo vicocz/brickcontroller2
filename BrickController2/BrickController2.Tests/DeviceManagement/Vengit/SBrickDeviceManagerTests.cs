@@ -1,9 +1,9 @@
 ﻿using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.Lego;
+using BrickController2.DeviceManagement.Vengit;
 using FluentAssertions;
 using Xunit;
 
-namespace BrickController2.Tests.DeviceManagement;
+namespace BrickController2.Tests.DeviceManagement.Vengit;
 
 public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManager>
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using BrickController2.PlatformServices.BluetoothLE;
 
-namespace BrickController2.DeviceManagement;
+namespace BrickController2.DeviceManagement.Vengit;
 
 /// <summary>
 /// Manager for SBrick devices

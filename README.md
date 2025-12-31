@@ -12,6 +12,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 ## Supported receivers
 
 - SBrick - both normal and plus (output only)
+- SBrick Light
 - BuWizz 1
 - BuWizz 2
 - BuWizz 3

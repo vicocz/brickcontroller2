@@ -138,7 +138,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         {
             using (token.Register(() =>
             {
-                using (_lock.Lock(token))
+                using (_lock.Lock())
                 {
                     _descriptorWriteCompletionSource?.TrySetResult(false);
                 }

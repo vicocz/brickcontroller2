@@ -98,6 +98,10 @@ namespace BrickController2.UI.Controls
                     Text = $"{_sBrickLightChannelLetters[Channel / 3]}.{1 + Channel % 3}";
                     break;
 
+                case DeviceType.Unknown:
+                    Text = "";
+                    break;
+
                 default:
                     Text = $"{Channel + 1}";
                     break;

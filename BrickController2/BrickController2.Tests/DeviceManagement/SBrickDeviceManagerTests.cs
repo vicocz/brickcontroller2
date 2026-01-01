@@ -1,9 +1,8 @@
 ﻿using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.Vengit;
 using FluentAssertions;
 using Xunit;
 
-namespace BrickController2.Tests.DeviceManagement.Vengit;
+namespace BrickController2.Tests.DeviceManagement;
 
 public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManager>
 {
@@ -27,7 +26,7 @@ public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManage
     }
 
     [Fact]
-    public void TryGetDevice_VengitManufacturerIdWithSBrickLighProductId_ReturnsSBrickLightDevice()
+    public void TryGetDevice_VengitManufacturerIdWithSBrickLightProductId_ReturnsSBrickLightDevice()
     {
         byte[] manufacturerData = [0x98, 0x01,
             0x02, 0x03, 0x00,
@@ -47,7 +46,7 @@ public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManage
     }
 
     [Fact]
-    public void TryGetDevice_VengitManufacturerIdWithUnknownProductId_ReturnsSBrickDevice()
+    public void TryGetDevice_VengitManufacturerIdWithUnknownProductId_ReturnsFalse()
     {
         byte[] manufacturerData = [0x98, 0x01,
             0x06, 0x00, 0xAA, 0x00, 0x00, 0x00, 0x00];
@@ -60,7 +59,7 @@ public class SBrickDeviceManagerTests : DeviceManagerTestBase<SBrickDeviceManage
     }
 
     [Fact]
-    public void TryGetDevice_VengitManufacturerIdWithMissingProductId_ReturnsSBrickDevice()
+    public void TryGetDevice_VengitManufacturerIdWithMissingProductId_ReturnsFalse()
     {
         byte[] manufacturerData = [0x98, 0x01,
             0x02, 0x03, 0x00];

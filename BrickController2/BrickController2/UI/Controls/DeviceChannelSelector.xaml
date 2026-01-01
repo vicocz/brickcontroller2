@@ -72,7 +72,7 @@
                 <Label Text="3" FontSize="Small" Grid.Column="3" HorizontalOptions="Center" IsVisible="{OnIdiom True, Desktop=False}"/>
                 <Label Text="1" FontSize="Small" Grid.Column="6" HorizontalOptions="Center" IsVisible="{OnIdiom True, Desktop=False}"/>
                 <Label Text="2" FontSize="Small" Grid.Column="7" HorizontalOptions="Center" IsVisible="{OnIdiom True, Desktop=False}"/>
-                <Label Text="3" FontSize="Small" Grid.Column="9" HorizontalOptions="Center" IsVisible="{OnIdiom True, Desktop=False}"/>
+                <Label Text="3" FontSize="Small" Grid.Column="8" HorizontalOptions="Center" IsVisible="{OnIdiom True, Desktop=False}"/>
 
                 <controls:ChannelSelectorRadioButton x:Name="SBrickLightChannelA1" DeviceType="{OnIdiom Unknown, Desktop=SBrickLight}" Channel="0" Grid.Column="6" Grid.Row="1" HorizontalOptions="Center"/>
                 <controls:ChannelSelectorRadioButton x:Name="SBrickLightChannelA2" DeviceType="{OnIdiom Unknown, Desktop=SBrickLight}" Channel="1" Grid.Column="7" Grid.Row="1" HorizontalOptions="Center"/>

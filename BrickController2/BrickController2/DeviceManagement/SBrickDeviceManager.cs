@@ -3,7 +3,7 @@ using BrickController2.PlatformServices.BluetoothLE;
 
 using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
 
-namespace BrickController2.DeviceManagement.Vengit;
+namespace BrickController2.DeviceManagement;
 
 /// <summary>
 /// Manager for SBrick devices
@@ -35,7 +35,7 @@ public class SBrickDeviceManager : IBluetoothLEDeviceManager
 
     private static byte GetProductId(ReadOnlySpan<byte> manufacturerData)
     {
-        // walk throuh SBrick Data Records to look for 0x00 Product type
+        // walk through SBrick Data Records to look for 0x00 Product type
         int length = 2;
         ReadOnlySpan<byte> dataRecord = manufacturerData;
 

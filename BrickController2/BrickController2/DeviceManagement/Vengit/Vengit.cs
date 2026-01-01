@@ -5,7 +5,7 @@ using BrickController2.Extensions;
 namespace BrickController2.DeviceManagement.Vengit;
 
 /// <summary>
-/// Vendor: Vengit and all its device types: SBrick, SBrick PLus, SBrick Light and implementation of IBluetoothLEDeviceManager
+/// Vendor: Vengit and all its device types: SBrick, SBrick Plus, SBrick Light and implementation of IBluetoothLEDeviceManager
 /// </summary>
 internal class Vengit : Vendor<Vengit>
 {

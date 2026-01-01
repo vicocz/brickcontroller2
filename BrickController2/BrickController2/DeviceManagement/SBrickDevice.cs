@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrickController2.DeviceManagement.Vengit
+namespace BrickController2.DeviceManagement
 {
     internal class SBrickDevice : BluetoothDevice
     {

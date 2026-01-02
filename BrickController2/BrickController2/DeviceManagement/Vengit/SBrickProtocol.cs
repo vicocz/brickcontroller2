@@ -22,6 +22,11 @@ internal static class SBrickProtocol
         public static readonly Guid RemoteControlCommand = new("02b8cbcc-0e25-4bda-8790-a15f53e6010f");
     }
 
+    // SBrick Light configuration
+    public const byte LIGHT_PORTS_COUNT = 8;
+    public const byte LIGHT_BANK_0_SIZE = 16;
+    public const byte LIGHT_BANK_1_SIZE = 8;
+
     // Light flags
     public const byte LIGHTS_FLAGS_BANK_0 = 0x00;
     public const byte LIGHTS_FLAGS_BANK_1 = 0x01;

@@ -13,11 +13,8 @@ namespace BrickController2.DeviceManagement.Vengit;
 
 internal class SBrickLightDevice : BluetoothDevice
 {
-    private const int BANK_0_CHANNELS = 16;
-    private const int BANK_1_CHANNELS = 8;
-
-    private readonly OutputValuesGroup<byte> _bankOutputs0 = new(BANK_0_CHANNELS);
-    private readonly OutputValuesGroup<byte> _bankOutputs1 = new(BANK_1_CHANNELS);
+    private readonly OutputValuesGroup<byte> _bankOutputs0 = new(LIGHT_BANK_0_SIZE);
+    private readonly OutputValuesGroup<byte> _bankOutputs1 = new(LIGHT_BANK_1_SIZE);
 
     private IGattCharacteristic? _firmwareRevisionCharacteristic;
     private IGattCharacteristic? _hardwareRevisionCharacteristic;
@@ -30,7 +27,13 @@ internal class SBrickLightDevice : BluetoothDevice
 
     public override DeviceType DeviceType => DeviceType.SBrickLight;
     public override string BatteryVoltageSign => "V";
-    public override int NumberOfChannels => BANK_0_CHANNELS + BANK_1_CHANNELS;
+
+    /// <summary>
+    /// Publish both
+    /// - channels
+    /// - subchannels
+    /// </summary>
+    public override int NumberOfChannels => LIGHT_PORTS_COUNT + LIGHT_BANK_0_SIZE + LIGHT_BANK_1_SIZE;
     protected override bool AutoConnectOnFirstConnect => false;
 
     public override void SetOutput(int channel, float value)
@@ -41,14 +44,19 @@ internal class SBrickLightDevice : BluetoothDevice
         // for lights use 0-255 range
         var rawValue = (byte)(Math.Abs(value) * 255);
 
-        if (channel >= BANK_0_CHANNELS)
+        if (channel < LIGHT_PORTS_COUNT)
         {
-            int lightChannel = channel - BANK_0_CHANNELS;
-            _bankOutputs1.SetOutput(lightChannel, rawValue);
+            // each channel controls 3 subchannels
+            var subchannel = 3 * channel;
+            SetOutput(subchannel + 0, rawValue);
+            SetOutput(subchannel + 1, rawValue);
+            SetOutput(subchannel + 2, rawValue);
         }
         else
         {
-            _bankOutputs0.SetOutput(channel, rawValue);
+            // write directly subchannel
+            var subchannel = channel - LIGHT_PORTS_COUNT;
+            SetOutput(subchannel, rawValue);
         }
     }
 
@@ -108,6 +116,22 @@ internal class SBrickLightDevice : BluetoothDevice
         }
         catch
         {
+        }
+    }
+
+    private void SetOutput(int subchannel, byte value)
+    {
+        if (subchannel < LIGHT_BANK_0_SIZE)
+        {
+            _bankOutputs0.SetOutput(subchannel, value);
+        }
+        else if (subchannel < LIGHT_BANK_0_SIZE + LIGHT_BANK_1_SIZE)
+        {
+            _bankOutputs1.SetOutput(subchannel - LIGHT_BANK_0_SIZE, value);
+        }
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(subchannel));
         }
     }
 

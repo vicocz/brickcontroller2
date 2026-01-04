@@ -1,18 +1,31 @@
-﻿using System;
+﻿using BrickController2.DeviceManagement.IO;
+using BrickController2.Helpers;
+using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Protocols;
+using BrickController2.Settings;
+using Microsoft.Maui.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BrickController2.DeviceManagement.IO;
-using BrickController2.Helpers;
-using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
 using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
 
 namespace BrickController2.DeviceManagement.Vengit;
 
 internal class SBrickLightDevice : BluetoothDevice
 {
+    private const string ChannelASettingName = "ChannelAColor";
+    private const string ChannelBSettingName = "ChannelBColor";
+    private const string ChannelCSettingName = "ChannelCColor";
+    private const string ChannelDSettingName = "ChannelDColor";
+    private const string ChannelESettingName = "ChannelEColor";
+    private const string ChannelFSettingName = "ChannelFColor";
+    private const string ChannelGSettingName = "ChannelGColor";
+    private const string ChannelHSettingName = "ChannelHColor";
+
+    private static readonly RgbColor DEFAULT_CHANNEL_COLOR = new() { R = 1.0f, G = 1.0f, B = 1.0f };
+
     private readonly OutputValuesGroup<byte> _bankOutputs0 = new(LIGHT_BANK_0_SIZE);
     private readonly OutputValuesGroup<byte> _bankOutputs1 = new(LIGHT_BANK_1_SIZE);
 
@@ -20,9 +33,18 @@ internal class SBrickLightDevice : BluetoothDevice
     private IGattCharacteristic? _hardwareRevisionCharacteristic;
     private IGattCharacteristic? _remoteControlCharacteristic;
 
-    public SBrickLightDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    public SBrickLightDevice(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
+        // apply A-H channel color settings
+        SetSettingValue(ChannelASettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelBSettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelCSettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelDSettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelESettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelFSettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelGSettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelHSettingName, settings, DEFAULT_CHANNEL_COLOR);
     }
 
     public override DeviceType DeviceType => DeviceType.SBrickLight;
@@ -33,31 +55,52 @@ internal class SBrickLightDevice : BluetoothDevice
     /// - channels
     /// - subchannels
     /// </summary>
-    public override int NumberOfChannels => LIGHT_PORTS_COUNT + LIGHT_BANK_0_SIZE + LIGHT_BANK_1_SIZE;
+    public override int NumberOfChannels => LIGHT_PORTS_COUNT;
     protected override bool AutoConnectOnFirstConnect => false;
 
     public override void SetOutput(int channel, float value)
     {
         CheckChannel(channel);
-        value = CutOutputValue(value);
-
-        // for lights use 0-255 range
-        var rawValue = (byte)(Math.Abs(value) * 255);
+        // normalize value to 0..1
+        value = CutOutputValue(Math.Abs(value));
 
         if (channel < LIGHT_PORTS_COUNT)
         {
-            // each channel controls 3 subchannels
+            // get channel color and transform to HSL model to modify lightness
+            var color = GetDefaultChannelColor(channel);
+            color.WithLuminosity(color.GetLuminosity()*value)
+                .ToRgb(out var r, out var g, out var b);
+
+            // each channel controls 3 subchannels-RGB
             var subchannel = 3 * channel;
-            SetOutput(subchannel + 0, rawValue);
-            SetOutput(subchannel + 1, rawValue);
-            SetOutput(subchannel + 2, rawValue);
+            SetChannelOutput(subchannel + 0, r);
+            SetChannelOutput(subchannel + 1, g);
+            SetChannelOutput(subchannel + 2, b);
         }
         else
         {
             // write directly subchannel
             var subchannel = channel - LIGHT_PORTS_COUNT;
-            SetOutput(subchannel, rawValue);
+            SetChannelOutput(subchannel, value);
         }
+    }
+    public Color GetDefaultChannelColor(int channel)
+    {
+        CheckChannel(channel);
+        string settingName = channel switch
+        {
+            0 => ChannelASettingName,
+            1 => ChannelBSettingName,
+            2 => ChannelCSettingName,
+            3 => ChannelDSettingName,
+            4 => ChannelESettingName,
+            5 => ChannelFSettingName,
+            6 => ChannelGSettingName,
+            7 => ChannelHSettingName,
+            _ => throw new ArgumentOutOfRangeException(nameof(channel)),
+        };
+        var rgb = GetSettingValue(settingName, DEFAULT_CHANNEL_COLOR);
+        return Color.FromRgb(rgb.R, rgb.G, rgb.B);
     }
 
     protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
@@ -119,15 +162,19 @@ internal class SBrickLightDevice : BluetoothDevice
         }
     }
 
-    private void SetOutput(int subchannel, byte value)
+    private void SetChannelOutput(int subchannel, float value)
     {
+        // for lights use 0-255 range
+        var rawValue = (byte)(Math.Abs(value) * 255);
+
+        // adress correct bank
         if (subchannel < LIGHT_BANK_0_SIZE)
         {
-            _bankOutputs0.SetOutput(subchannel, value);
+            _bankOutputs0.SetOutput(subchannel, rawValue);
         }
         else if (subchannel < LIGHT_BANK_0_SIZE + LIGHT_BANK_1_SIZE)
         {
-            _bankOutputs1.SetOutput(subchannel - LIGHT_BANK_0_SIZE, value);
+            _bankOutputs1.SetOutput(subchannel - LIGHT_BANK_0_SIZE, rawValue);
         }
         else
         {

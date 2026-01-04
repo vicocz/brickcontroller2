@@ -13,6 +13,7 @@
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <converters:ColorToHexStringConverter x:Key="ColorToHex"/>
             <Style x:Key="settingLabel" TargetType="Label">
                 <Setter Property="HorizontalOptions" Value="Start" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -23,6 +24,12 @@
                 <Setter Property="Minimum" Value="35"/>
                 <Setter Property="Maximum" Value="3500"/>
                 <Setter Property="Step" Value="35"/>
+            </Style>
+            <Style x:Key="rgbColorSlider" TargetType="controls:ExtendedSlider">
+                <Setter Property="MinimumTrackColor" Value="{DynamicResource PositiveColor}"/>
+                <Setter Property="Minimum" Value="0"/>
+                <Setter Property="Maximum" Value="255"/>
+                <Setter Property="Step" Value="1"/>
             </Style>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
@@ -62,7 +69,7 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.EnumDataTemplate>
-                
+
                 <t:DataTemplatesSelector.DoubleDataTemplate>
                     <DataTemplate>
                         <Grid>
@@ -83,7 +90,35 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.DoubleDataTemplate>
-                
+
+                <t:DataTemplatesSelector.RgbColorDataTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}" Margin="10,0,0,0"/>
+                            <Button Grid.Column="0" BackgroundColor="{Binding Value}" WidthRequest="40" HeightRequest="40" CornerRadius="20" HorizontalOptions="End" Margin="0,0,10,0"/>
+                            <Label Grid.Column="2" Grid.Row="0" Text="{Binding Red}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0"/>
+                            <Label Grid.Column="2" Grid.Row="1" Text="{Binding Green}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0"/>
+                            <Label Grid.Column="2" Grid.Row="2" Text="{Binding Blue}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0"/>
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="0" Value="{Binding Red}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="1" Value="{Binding Green}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="2" Value="{Binding Blue}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
+                            <Label Grid.Column="0" Grid.Row="2" Text="{Binding Value, Converter={StaticResource ColorToHex}}" Style="{StaticResource Key=settingLabel}"
+                                   HorizontalOptions="End" Margin="0,0,10,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </t:DataTemplatesSelector.RgbColorDataTemplate>
+
             </t:DataTemplatesSelector>
         </ResourceDictionary>
     </ContentView.Resources>

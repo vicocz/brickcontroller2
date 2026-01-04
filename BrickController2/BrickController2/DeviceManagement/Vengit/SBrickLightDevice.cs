@@ -60,9 +60,10 @@ internal class SBrickLightDevice : BluetoothDevice
 
     public override void SetOutput(int channel, float value)
     {
-        CheckChannel(channel);
         // normalize value to 0..1
         value = CutOutputValue(Math.Abs(value));
+        var port = channel % LIGHT_PORTS_COUNT;
+        var baseChannel = 3 * port;
 
         if (channel < LIGHT_PORTS_COUNT)
         {
@@ -71,23 +72,22 @@ internal class SBrickLightDevice : BluetoothDevice
             color.WithLuminosity(color.GetLuminosity()*value)
                 .ToRgb(out var r, out var g, out var b);
 
-            // each channel controls 3 subchannels-RGB
-            var subchannel = 3 * channel;
-            SetChannelOutput(subchannel + 0, r);
-            SetChannelOutput(subchannel + 1, g);
-            SetChannelOutput(subchannel + 2, b);
+            // each channel controls 3 microchannels-RGB
+            SetChannelOutput(baseChannel + 0, r);
+            SetChannelOutput(baseChannel + 1, g);
+            SetChannelOutput(baseChannel + 2, b);
         }
         else
         {
-            // write directly subchannel
-            var subchannel = channel - LIGHT_PORTS_COUNT;
-            SetChannelOutput(subchannel, value);
+            // write directly
+            var microchannel = channel / LIGHT_PORTS_COUNT - 1;
+            SetChannelOutput(baseChannel + microchannel, value);
         }
     }
     public Color GetDefaultChannelColor(int channel)
     {
-        CheckChannel(channel);
-        string settingName = channel switch
+        var port = channel % LIGHT_PORTS_COUNT;
+        string settingName = port switch
         {
             0 => ChannelASettingName,
             1 => ChannelBSettingName,
@@ -162,23 +162,23 @@ internal class SBrickLightDevice : BluetoothDevice
         }
     }
 
-    private void SetChannelOutput(int subchannel, float value)
+    private void SetChannelOutput(int index, float value)
     {
         // for lights use 0-255 range
         var rawValue = (byte)(Math.Abs(value) * 255);
 
         // adress correct bank
-        if (subchannel < LIGHT_BANK_0_SIZE)
+        if (index < LIGHT_BANK_0_SIZE)
         {
-            _bankOutputs0.SetOutput(subchannel, rawValue);
+            _bankOutputs0.SetOutput(index, rawValue);
         }
-        else if (subchannel < LIGHT_BANK_0_SIZE + LIGHT_BANK_1_SIZE)
+        else if (index < LIGHT_BANK_0_SIZE + LIGHT_BANK_1_SIZE)
         {
-            _bankOutputs1.SetOutput(subchannel - LIGHT_BANK_0_SIZE, rawValue);
+            _bankOutputs1.SetOutput(index - LIGHT_BANK_0_SIZE, rawValue);
         }
         else
         {
-            throw new ArgumentOutOfRangeException(nameof(subchannel));
+            throw new ArgumentOutOfRangeException(nameof(index));
         }
     }
 

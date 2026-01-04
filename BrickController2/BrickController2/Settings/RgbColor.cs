@@ -5,21 +5,33 @@ namespace BrickController2.Settings;
 /// <summary>
 /// Represents serializable RGB color for settings.
 /// </summary>
+[JsonConverter(typeof(RgbColorJsonConverter))]
 public struct RgbColor
 {
-    [JsonProperty]
+    /// <summary>
+    /// The red component of the color, ranging from 0.0 to 1.0.
     /// </summary>
     public float R;
 
     /// <summary>
     /// The green component of the color, ranging from 0.0 to 1.0.
     /// </summary>
-    [JsonProperty]
     public float G;
 
     /// <summary>
     /// The blue component of the color, ranging from 0.0 to 1.0.
     /// </summary>
-    [JsonProperty]
     public float B;
+
+    public RgbColor()
+    {
+    }
+
+    public RgbColor(float r, float g, float b)
+    {
+        R = r;
+        G = g;
+        B = b;
+    }
+
 }

@@ -16,7 +16,7 @@ public class RgbColorSettingViewModel : SettingViewModelBase<Color>
     public override Color Value
     {
         get => ToColor(RgbValue);
-        set => SettingValue = new RgbColor { R = value!.Red, G = value!.Green, B = value!.Blue };
+        set => SettingValue = new RgbColor(value!.Red, value!.Green, value!.Blue);
     }
 
     public float Red

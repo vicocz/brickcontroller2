@@ -95,12 +95,12 @@ namespace BrickController2.UI.Controls
                     SetChannelText(_mk5ChannelLetters);
                     break;
 
-                case DeviceType.SBrickLight: // e.g. C.3
+                case DeviceType.SBrickLight: // e.g. C or C.3
                     Text = Channel < SBrickProtocol.LIGHT_PORTS_COUNT ?
-                        // base channels
+                        // channel as base port
                         _sBrickLightChannelLetters[Channel] :
-                        // subchannels
-                        $"{_sBrickLightChannelLetters[(Channel - SBrickProtocol.LIGHT_PORTS_COUNT) / 3]}.{1 + (Channel - SBrickProtocol.LIGHT_PORTS_COUNT) % 3}";
+                        // port with microchannel
+                        $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
                     break;
 
                 default:

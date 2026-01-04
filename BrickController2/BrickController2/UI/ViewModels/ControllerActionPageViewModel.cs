@@ -1,10 +1,12 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Vengit;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.Services.Translation;
+using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -122,6 +124,31 @@ namespace BrickController2.UI.ViewModels
         }
 
         public ControllerAction Action { get; } = new ControllerAction();
+
+        public bool SBrickUseRgbPortMode
+        {
+            get { return SelectedDevice is SBrickLightDevice && Action.Channel / 8 == 0; }
+            set
+            {
+                if (SBrickUseRgbPortMode != value)
+                {
+                    if (value)
+                    {
+                        // reset any microchannel
+                        Action.Channel = Action.Channel % 8;
+                    }
+                    else
+                    {
+                        // switch first mikrochannel
+                        Action.Channel += 8;
+                    }
+                    RaisePropertyChanged();
+                }
+            }
+        }
+        public Color SBrickChannelColor => SelectedDevice is SBrickLightDevice light ?
+            light.GetDefaultChannelColor(Action.Channel) :
+            Colors.Black;
 
         public ICommand SaveControllerActionCommand { get; }
         public ICommand SelectDeviceCommand { get; }

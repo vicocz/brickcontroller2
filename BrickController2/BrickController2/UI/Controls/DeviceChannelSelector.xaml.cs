@@ -17,38 +17,6 @@ namespace BrickController2.UI.Controls
             SBrickChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             SBrickChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
             SBrickChannel3.Command = new SafeCommand(() => SelectedChannel = 3);
-            SBrickLightChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
-            SBrickLightChannelB.Command = new SafeCommand(() => SelectedChannel = 1);
-            SBrickLightChannelC.Command = new SafeCommand(() => SelectedChannel = 2);
-            SBrickLightChannelD.Command = new SafeCommand(() => SelectedChannel = 3);
-            SBrickLightChannelE.Command = new SafeCommand(() => SelectedChannel = 4);
-            SBrickLightChannelF.Command = new SafeCommand(() => SelectedChannel = 5);
-            SBrickLightChannelG.Command = new SafeCommand(() => SelectedChannel = 6);
-            SBrickLightChannelH.Command = new SafeCommand(() => SelectedChannel = 7);
-            SBrickLightChannelA1.Command = new SafeCommand(() => SelectedChannel = 8);
-            SBrickLightChannelA2.Command = new SafeCommand(() => SelectedChannel = 9);
-            SBrickLightChannelA3.Command = new SafeCommand(() => SelectedChannel = 10);
-            SBrickLightChannelB1.Command = new SafeCommand(() => SelectedChannel = 11);
-            SBrickLightChannelB2.Command = new SafeCommand(() => SelectedChannel = 12);
-            SBrickLightChannelB3.Command = new SafeCommand(() => SelectedChannel = 13);
-            SBrickLightChannelC1.Command = new SafeCommand(() => SelectedChannel = 14);
-            SBrickLightChannelC2.Command = new SafeCommand(() => SelectedChannel = 15);
-            SBrickLightChannelC3.Command = new SafeCommand(() => SelectedChannel = 16);
-            SBrickLightChannelD1.Command = new SafeCommand(() => SelectedChannel = 17);
-            SBrickLightChannelD2.Command = new SafeCommand(() => SelectedChannel = 18);
-            SBrickLightChannelD3.Command = new SafeCommand(() => SelectedChannel = 19);
-            SBrickLightChannelE1.Command = new SafeCommand(() => SelectedChannel = 20);
-            SBrickLightChannelE2.Command = new SafeCommand(() => SelectedChannel = 21);
-            SBrickLightChannelE3.Command = new SafeCommand(() => SelectedChannel = 22);
-            SBrickLightChannelF1.Command = new SafeCommand(() => SelectedChannel = 23);
-            SBrickLightChannelF2.Command = new SafeCommand(() => SelectedChannel = 24);
-            SBrickLightChannelF3.Command = new SafeCommand(() => SelectedChannel = 25);
-            SBrickLightChannelG1.Command = new SafeCommand(() => SelectedChannel = 26);
-            SBrickLightChannelG2.Command = new SafeCommand(() => SelectedChannel = 27);
-            SBrickLightChannelG3.Command = new SafeCommand(() => SelectedChannel = 28);
-            SBrickLightChannelH1.Command = new SafeCommand(() => SelectedChannel = 29);
-            SBrickLightChannelH2.Command = new SafeCommand(() => SelectedChannel = 30);
-            SBrickLightChannelH3.Command = new SafeCommand(() => SelectedChannel = 31);
             BuWizzChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             BuWizzChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             BuWizzChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
@@ -120,6 +88,18 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            // SBrick Light - special handling
+            SBrickLightChannelA.Command = new SafeCommand(() => SelectedChannel = 0 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelB.Command = new SafeCommand(() => SelectedChannel = 1 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelC.Command = new SafeCommand(() => SelectedChannel = 2 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelD.Command = new SafeCommand(() => SelectedChannel = 3 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelE.Command = new SafeCommand(() => SelectedChannel = 4 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelF.Command = new SafeCommand(() => SelectedChannel = 5 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelG.Command = new SafeCommand(() => SelectedChannel = 6 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightChannelH.Command = new SafeCommand(() => SelectedChannel = 7 + SelectedChannel - SelectedChannel % 8);
+            SBrickLightMicroChannel1.Command = new SafeCommand(() => SelectedChannel = 8 + SelectedChannel % 8);
+            SBrickLightMicroChannel2.Command = new SafeCommand(() => SelectedChannel = 16 + SelectedChannel % 8);
+            SBrickLightMicroChannel3.Command = new SafeCommand(() => SelectedChannel = 24 + SelectedChannel % 8);
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);
@@ -178,38 +158,6 @@ namespace BrickController2.UI.Controls
                 dcs.SBrickChannel1.SelectedChannel = selectedChannel;
                 dcs.SBrickChannel2.SelectedChannel = selectedChannel;
                 dcs.SBrickChannel3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelA.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelB.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelC.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelD.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelE.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelF.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelG.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelH.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelA1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelA2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelA3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelB1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelB2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelB3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelC1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelC2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelC3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelD1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelD2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelD3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelE1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelE2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelE3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelF1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelF2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelF3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelG1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelG2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelG3.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelH1.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelH2.SelectedChannel = selectedChannel;
-                dcs.SBrickLightChannelH3.SelectedChannel = selectedChannel;
                 dcs.BuWizzChannel0.SelectedChannel = selectedChannel;
                 dcs.BuWizzChannel1.SelectedChannel = selectedChannel;
                 dcs.BuWizzChannel2.SelectedChannel = selectedChannel;
@@ -285,6 +233,20 @@ namespace BrickController2.UI.Controls
                 dcs.CaDARaceCarChannel0.SelectedChannel = selectedChannel;
                 dcs.CaDARaceCarChannel1.SelectedChannel = selectedChannel;
                 dcs.CaDARaceCarChannel2.SelectedChannel = selectedChannel;
+                // SBrick Light - special handling
+                var sBrickLightChannel = selectedChannel % 8;
+                var sBrickLightMicrochannel = selectedChannel < 8 ? 0 : selectedChannel / 8 - 1;
+                dcs.SBrickLightChannelA.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelB.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelC.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelD.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelE.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelF.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelG.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightChannelH.SelectedChannel = sBrickLightChannel;
+                dcs.SBrickLightMicroChannel1.SelectedChannel = sBrickLightMicrochannel;
+                dcs.SBrickLightMicroChannel2.SelectedChannel = sBrickLightMicrochannel;
+                dcs.SBrickLightMicroChannel3.SelectedChannel = sBrickLightMicrochannel;
             }
         }
     }

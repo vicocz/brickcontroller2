@@ -24,7 +24,7 @@ public class RgbColorSettingViewModel : SettingViewModelBase<Color>
         get => RgbValue.R * 255f;
         set
         {
-            Value = Color.FromRgb(value / 255f, Green, Blue);
+            Value = Color.FromRgb(value / 255f, RgbValue.G, RgbValue.B);
             RaisePropertyChanged();
         }
     }
@@ -33,7 +33,7 @@ public class RgbColorSettingViewModel : SettingViewModelBase<Color>
         get => RgbValue.G * 255f;
         set
         {
-            Value = Color.FromRgb(Red, value / 255f, Blue);
+            Value = Color.FromRgb(RgbValue.R, value / 255f, RgbValue.B);
             RaisePropertyChanged();
         }
     }
@@ -42,13 +42,21 @@ public class RgbColorSettingViewModel : SettingViewModelBase<Color>
         get => RgbValue.B * 255f;
         set
         {
-            Value = Color.FromRgb(Red, Green, value / 255f);
+            Value = Color.FromRgb(RgbValue.R, RgbValue.G, value / 255f);
             RaisePropertyChanged();
         }
     }
-    private RgbColor RgbValue
+
+    protected override void OnValueChanged(object value)
     {
-        get => (RgbColor)SettingValue;
+        base.OnValueChanged(value);
+        // notify UI about RGB component changes
+        RaisePropertyChanged(nameof(Red));
+        RaisePropertyChanged(nameof(Green));
+        RaisePropertyChanged(nameof(Blue));
     }
+
+    private RgbColor RgbValue => (RgbColor)SettingValue;
+
     private static Color ToColor(RgbColor color) => Color.FromRgb(color.R, color.G, color.B);
 }

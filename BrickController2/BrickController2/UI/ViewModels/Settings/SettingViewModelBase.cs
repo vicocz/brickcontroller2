@@ -59,10 +59,7 @@ public abstract class SettingViewModelBase : NotifyPropertyChangedSource
             if (!Setting.Value.Equals(value))
             {
                 Setting.Value = value!;
-                RaisePropertyChanged(nameof(SettingViewModelBase<int>.Value));
-                // update additional properties
-                HasChanged = !value.Equals(OriginalValue);
-                HasNonDefaultValue = !value.Equals(Setting.DefaultValue);
+                OnValueChanged(value);
             }
         }
     }
@@ -70,6 +67,14 @@ public abstract class SettingViewModelBase : NotifyPropertyChangedSource
     public virtual void ResetToDefault()
     {
         SettingValue = Setting.DefaultValue;
+    }
+
+    protected virtual void OnValueChanged(object value)
+    {
+        RaisePropertyChanged(nameof(SettingViewModelBase<>.Value));
+        // update additional properties
+        HasChanged = !value.Equals(OriginalValue);
+        HasNonDefaultValue = !value.Equals(Setting.DefaultValue);
     }
 }
 

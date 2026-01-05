@@ -13,7 +13,6 @@
     <ContentView.Resources>
         <ResourceDictionary>
             <converters:InverseBoolConverter x:Key="InverseBool"/>
-            <converters:ColorToHexStringConverter x:Key="ColorToHex"/>
             <Style x:Key="settingLabel" TargetType="Label">
                 <Setter Property="HorizontalOptions" Value="Start" />
                 <Setter Property="VerticalOptions" Value="Center" />
@@ -106,15 +105,13 @@
                             </Grid.RowDefinitions>
 
                             <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}" Margin="10,0,0,0"/>
-                            <Button Grid.Column="0" BackgroundColor="{Binding Value}" WidthRequest="40" HeightRequest="40" CornerRadius="20" HorizontalOptions="End" Margin="0,0,10,0"/>
-                            <Label Grid.Column="2" Grid.Row="0" Text="{Binding Red}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0"/>
-                            <Label Grid.Column="2" Grid.Row="1" Text="{Binding Green}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0"/>
-                            <Label Grid.Column="2" Grid.Row="2" Text="{Binding Blue}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0"/>
+                            <Border Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Stroke="Gray" BackgroundColor="{Binding Value}" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 10" VerticalOptions="Center" HorizontalOptions="End" Margin="0,0,10,0"/>
+                            <Label Grid.Column="2" Grid.Row="0" Text="{Binding Red}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
+                            <Label Grid.Column="2" Grid.Row="1" Text="{Binding Green}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
+                            <Label Grid.Column="2" Grid.Row="2" Text="{Binding Blue}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
                             <controls:ExtendedSlider Grid.Column="1" Grid.Row="0" Value="{Binding Red}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
                             <controls:ExtendedSlider Grid.Column="1" Grid.Row="1" Value="{Binding Green}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
                             <controls:ExtendedSlider Grid.Column="1" Grid.Row="2" Value="{Binding Blue}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
-                            <Label Grid.Column="0" Grid.Row="2" Text="{Binding Value, Converter={StaticResource ColorToHex}}" Style="{StaticResource Key=settingLabel}"
-                                   HorizontalOptions="End" Margin="0,0,10,0"/>
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.RgbColorDataTemplate>

@@ -89,17 +89,27 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
             // SBrick Light - special handling
-            SBrickLightChannelA.Command = new SafeCommand(() => SelectedChannel = 0 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelB.Command = new SafeCommand(() => SelectedChannel = 1 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelC.Command = new SafeCommand(() => SelectedChannel = 2 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelD.Command = new SafeCommand(() => SelectedChannel = 3 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelE.Command = new SafeCommand(() => SelectedChannel = 4 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelF.Command = new SafeCommand(() => SelectedChannel = 5 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelG.Command = new SafeCommand(() => SelectedChannel = 6 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightChannelH.Command = new SafeCommand(() => SelectedChannel = 7 + SelectedChannel - SelectedChannel % 8);
-            SBrickLightMicroChannel1.Command = new SafeCommand(() => SelectedChannel = 8 + SelectedChannel % 8);
-            SBrickLightMicroChannel2.Command = new SafeCommand(() => SelectedChannel = 16 + SelectedChannel % 8);
-            SBrickLightMicroChannel3.Command = new SafeCommand(() => SelectedChannel = 24 + SelectedChannel % 8);
+            SBrickLightChannelA.Command = new SafeCommand(() => UpdateSBrickPort(0));
+            SBrickLightChannelB.Command = new SafeCommand(() => UpdateSBrickPort(1));
+            SBrickLightChannelC.Command = new SafeCommand(() => UpdateSBrickPort(2));
+            SBrickLightChannelD.Command = new SafeCommand(() => UpdateSBrickPort(3));
+            SBrickLightChannelE.Command = new SafeCommand(() => UpdateSBrickPort(4));
+            SBrickLightChannelF.Command = new SafeCommand(() => UpdateSBrickPort(5));
+            SBrickLightChannelG.Command = new SafeCommand(() => UpdateSBrickPort(6));
+            SBrickLightChannelH.Command = new SafeCommand(() => UpdateSBrickPort(7));
+            SBrickLightMicroChannel1.Command = new SafeCommand(() => UpdateSBrickMicrochannel(8));
+            SBrickLightMicroChannel2.Command = new SafeCommand(() => UpdateSBrickMicrochannel(16));
+            SBrickLightMicroChannel3.Command = new SafeCommand(() => UpdateSBrickMicrochannel(24));
+
+            void UpdateSBrickPort(int channel)
+            {
+                SelectedChannel = channel + SelectedChannel - SelectedChannel % 8;
+            }
+
+            void UpdateSBrickMicrochannel(int microchannel)
+            {
+                SelectedChannel = microchannel + SelectedChannel % 8;
+            }
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged);

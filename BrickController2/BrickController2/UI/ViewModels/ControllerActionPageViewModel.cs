@@ -45,7 +45,6 @@ namespace BrickController2.UI.ViewModels
             var device = _deviceManager.GetDeviceById(ControllerAction?.DeviceId);
             if (ControllerAction is not null && device is not null)
             {
-                SelectedDevice = device;
                 Action.Channel = ControllerAction.Channel;
                 Action.IsInvert = ControllerAction.IsInvert;
                 Action.ChannelOutputType = ControllerAction.ChannelOutputType;
@@ -63,7 +62,7 @@ namespace BrickController2.UI.ViewModels
             else
             {
                 var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "ControllerActionPage");
-                SelectedDevice = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault();
+                device = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault();
                 Action.Channel = 0;
                 Action.IsInvert = false;
                 Action.ChannelOutputType = ChannelOutputType.NormalMotor;
@@ -78,9 +77,8 @@ namespace BrickController2.UI.ViewModels
                 Action.StepperAngle = 90;
                 Action.SequenceName = string.Empty;
             }
-
-            // do validation of current channel settings
-            ValidateCurrentChannelSettings();
+            // do validation of current channel settings via device assignment
+            SelectedDevice = device;
 
             Action.PropertyChanged += (s, e) =>
             {
@@ -88,6 +86,11 @@ namespace BrickController2.UI.ViewModels
                 {
                     // validate output type for given channel change
                     ValidateChannelType(Action.Channel, Action.ChannelOutputType);
+                    // notify change - special use cases
+                    if (SelectedDevice is SBrickLightDevice)
+                    {
+                        RaisePropertyChanged(nameof(SBrickChannelColor));
+                    }
                 }
             };
 
@@ -132,17 +135,15 @@ namespace BrickController2.UI.ViewModels
             {
                 if (SBrickUseRgbPortMode != value)
                 {
-                    if (value)
-                    {
+                    // apply switch change
+                    Action.Channel = value ?
                         // reset any microchannel
-                        Action.Channel = Action.Channel % 8;
-                    }
-                    else
-                    {
-                        // switch first mikrochannel
-                        Action.Channel += 8;
-                    }
+                        Action.Channel % 8 :
+                        // switch first micro channel
+                        Action.Channel + 8;
+
                     RaisePropertyChanged();
+                    RaisePropertyChanged(nameof(SBrickChannelColor));
                 }
             }
         }
@@ -373,8 +374,15 @@ namespace BrickController2.UI.ViewModels
         {
             if (_selectedDevice!.NumberOfChannels <= Action.Channel)
             {
+                if (_selectedDevice is SBrickLightDevice)
+                {
+                    if (Action.Channel / 8 > 3)
+                    {
+                        ValidateChannelType(Action.Channel / 8, Action.ChannelOutputType);
+                    }
+                }
                 // find first suitable channel to assign
-                if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
+                else if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
                 {
                     ValidateChannelType(0, Action.ChannelOutputType);
                 }

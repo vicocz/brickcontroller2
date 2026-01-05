@@ -11,6 +11,11 @@
         <ResourceDictionary>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToImage"/>
             <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <Style x:Key="settingLabel" TargetType="Label">
+                <Setter Property="HorizontalOptions" Value="Start" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="FontSize" Value="Small" />
+            </Style>
         </ResourceDictionary>
     </ContentView.Resources>
 
@@ -64,19 +69,21 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Label Grid.Column="0" Text="{extensions:Translate EnableSubChannels}" Style="{StaticResource Key=settingLabel}"/>
+                    <Label Grid.Column="0" Text="{extensions:Translate SBrickUseRgbPortMode}" Style="{StaticResource Key=settingLabel}"/>
                     <HorizontalStackLayout Grid.Column="1" Spacing="20">
                         <Switch IsToggled="{Binding SBrickUseRgbPortMode}" HorizontalOptions="Center" />
                         <Label Text="{extensions:Translate On}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding SBrickUseRgbPortMode}"/>
                         <Label Text="{extensions:Translate Off}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding SBrickUseRgbPortMode, Converter={StaticResource InverseBool}}"/>
                     </HorizontalStackLayout>
-                    <HorizontalStackLayout x:Name="SbrickLightMicroChannels" Grid.Column="1" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode, Converter={StaticResource InverseBool}}">
+                    <HorizontalStackLayout x:Name="SbrickLightMicroChannels" Grid.Column="0" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode, Converter={StaticResource InverseBool}}">
                         <controls:ChannelSelectorRadioButton x:Name="SBrickLightMicroChannel1" Channel="0" HorizontalOptions="Center"/>
                         <controls:ChannelSelectorRadioButton x:Name="SBrickLightMicroChannel2" Channel="1" HorizontalOptions="Center"/>
                         <controls:ChannelSelectorRadioButton x:Name="SBrickLightMicroChannel3" Channel="2" HorizontalOptions="Center"/>
                     </HorizontalStackLayout>
-                    <HorizontalStackLayout x:Name="SbrickLightRgb" Grid.Column="1" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode}">
-                        <Button BackgroundColor="{Binding SBrickChannelColor}" WidthRequest="40" HeightRequest="40"/>
+                    <HorizontalStackLayout x:Name="SbrickLightRgb" Grid.Column="0" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode}">
+                        <Border Stroke="Gray" BackgroundColor="{Binding SBrickChannelColor}" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 10" VerticalOptions="Center" HorizontalOptions="End"/>
+                        <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate Settings}"
+                                                       Command="{Binding PortColorSettingCommand}" Margin="10,0,0,0" HorizontalOptions="End"/>
                     </HorizontalStackLayout>
                 </Grid>
 

@@ -24,6 +24,8 @@ internal class SBrickLightDevice : BluetoothDevice
     private const string ChannelGSettingName = "ChannelGColor";
     private const string ChannelHSettingName = "ChannelHColor";
 
+    private const string ColorSettingGroupName = "ChannelColors";
+
     private static readonly RgbColor DEFAULT_CHANNEL_COLOR = new() { R = 1.0f, G = 1.0f, B = 1.0f };
 
     private readonly OutputValuesGroup<byte> _bankOutputs0 = new(LIGHT_BANK_0_SIZE);
@@ -37,14 +39,14 @@ internal class SBrickLightDevice : BluetoothDevice
         : base(name, address, deviceRepository, bleService)
     {
         // apply A-H channel color settings
-        SetSettingValue(ChannelASettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelBSettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelCSettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelDSettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelESettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelFSettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelGSettingName, settings, DEFAULT_CHANNEL_COLOR);
-        SetSettingValue(ChannelHSettingName, settings, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelASettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelBSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelCSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelDSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelESettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelFSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelGSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
+        SetSettingValue(ChannelHSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
     }
 
     public override DeviceType DeviceType => DeviceType.SBrickLight;
@@ -53,7 +55,7 @@ internal class SBrickLightDevice : BluetoothDevice
     /// <summary>
     /// Publish both
     /// - channels
-    /// - subchannels
+    /// - micro channels
     /// </summary>
     public override int NumberOfChannels => LIGHT_PORTS_COUNT;
     protected override bool AutoConnectOnFirstConnect => false;

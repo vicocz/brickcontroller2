@@ -25,7 +25,6 @@
                 <Setter Property="Step" Value="35"/>
             </Style>
             <Style x:Key="rgbColorSlider" TargetType="controls:ExtendedSlider">
-                <Setter Property="MinimumTrackColor" Value="{DynamicResource PositiveColor}"/>
                 <Setter Property="Minimum" Value="0"/>
                 <Setter Property="Maximum" Value="255"/>
                 <Setter Property="Step" Value="1"/>
@@ -109,9 +108,9 @@
                             <Label Grid.Column="2" Grid.Row="0" Text="{Binding Red}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
                             <Label Grid.Column="2" Grid.Row="1" Text="{Binding Green}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
                             <Label Grid.Column="2" Grid.Row="2" Text="{Binding Blue}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
-                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="0" Value="{Binding Red}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
-                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="1" Value="{Binding Green}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
-                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="2" Value="{Binding Blue}" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="FillAndExpand" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="0" Value="{Binding Red}" MinimumTrackColor="Red" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="Fill" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="1" Value="{Binding Green}" MinimumTrackColor="Green" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="Fill" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="2" Value="{Binding Blue}" MinimumTrackColor="Blue" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="Fill" />
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.RgbColorDataTemplate>

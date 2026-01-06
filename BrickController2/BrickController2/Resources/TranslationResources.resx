@@ -717,4 +717,31 @@
   <data name="Language" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="ChannelColors" xml:space="preserve">
+    <value>Channel colors</value>
+  </data>
+  <data name="ChannelAColor" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="ChannelBColor" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="ChannelCColor" xml:space="preserve">
+    <value>C</value>
+  </data>
+  <data name="ChannelDColor" xml:space="preserve">
+    <value>D</value>
+  </data>
+  <data name="ChannelEColor" xml:space="preserve">
+    <value>E</value>
+  </data>
+  <data name="ChannelFColor" xml:space="preserve">
+    <value>F</value>
+  </data>
+  <data name="ChannelGColor" xml:space="preserve">
+    <value>G</value>
+  </data>
+  <data name="ChannelHColor" xml:space="preserve">
+    <value>H</value>
+  </data>
 </root>

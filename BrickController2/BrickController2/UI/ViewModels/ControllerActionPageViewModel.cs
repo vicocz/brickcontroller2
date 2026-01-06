@@ -149,9 +149,18 @@ namespace BrickController2.UI.ViewModels
                 }
             }
         }
-        public Color SBrickChannelColor => SelectedDevice is SBrickLightDevice light ?
-            light.GetDefaultChannelColor(Action.Channel) :
-            Colors.Black;
+        public Color SBrickChannelColor
+        {
+            get
+            {
+                if (SelectedDevice is SBrickLightDevice light)
+                {
+                    var color = light.GetDefaultChannelColor(Action.Channel);
+                    return Color.FromRgb(color.R, color.G, color.B);
+                }
+                return Colors.Black;
+            }
+        }
 
         public ICommand SaveControllerActionCommand { get; }
         public ICommand SelectDeviceCommand { get; }

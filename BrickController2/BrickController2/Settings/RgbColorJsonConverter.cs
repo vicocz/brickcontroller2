@@ -9,5 +9,5 @@ public class RgbColorJsonConverter : JsonConverter<RgbColor>
         => throw new InvalidOperationException("Deserialization of RgbColor from JSON is not supported. This converter is intended for writing only.");
 
     public override void WriteJson(JsonWriter writer, RgbColor value, JsonSerializer serializer)
-        => writer.WriteValue(value.ColorValue);
+        => writer.WriteValue(value.ToInt());
 }

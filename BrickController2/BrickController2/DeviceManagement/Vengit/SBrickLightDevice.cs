@@ -71,15 +71,14 @@ internal class SBrickLightDevice : BluetoothDevice
 
         if (channel < LIGHT_PORTS_COUNT)
         {
-            // get channel color and transform to HSL model to modify lightness
-            var color = GetDefaultChannelColor(channel);
-            color.WithLuminosity(color.GetLuminosity()*value)
-                .ToRgb(out var r, out var g, out var b);
+            // get channel color and transform to HSV model to modify lightness
+            var defaultColor = GetDefaultChannelColor(channel);
+            var color = defaultColor.WithValueFactor(value);
 
             // each channel controls 3 microchannels-RGB
-            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_RED, r);
-            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_GREEN, g);
-            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_BLUE, b);
+            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_RED, color.R);
+            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_GREEN, color.G);
+            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_BLUE, color.B);
         }
         else
         {
@@ -88,7 +87,8 @@ internal class SBrickLightDevice : BluetoothDevice
             SetChannelOutput(baseChannel + microchannel, value);
         }
     }
-    public Color GetDefaultChannelColor(int channel)
+
+    public RgbColor GetDefaultChannelColor(int channel)
     {
         var port = channel % LIGHT_PORTS_COUNT;
         string settingName = port switch
@@ -103,8 +103,7 @@ internal class SBrickLightDevice : BluetoothDevice
             7 => ChannelHSettingName,
             _ => throw new ArgumentOutOfRangeException(nameof(channel)),
         };
-        var rgb = GetSettingValue(settingName, DEFAULT_CHANNEL_COLOR);
-        return Color.FromRgb(rgb.R, rgb.G, rgb.B);
+        return GetSettingValue(settingName, DEFAULT_CHANNEL_COLOR);
     }
 
     protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)

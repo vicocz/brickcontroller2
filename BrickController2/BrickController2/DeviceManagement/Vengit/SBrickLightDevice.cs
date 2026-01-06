@@ -1,14 +1,15 @@
-﻿using BrickController2.DeviceManagement.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using BrickController2.DeviceManagement.IO;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using BrickController2.Settings;
 using Microsoft.Maui.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
 
 namespace BrickController2.DeviceManagement.Vengit;
@@ -26,7 +27,7 @@ internal class SBrickLightDevice : BluetoothDevice
 
     private const string ColorSettingGroupName = "ChannelColors";
 
-    private static readonly RgbColor DEFAULT_CHANNEL_COLOR = new() { R = 1.0f, G = 1.0f, B = 1.0f };
+    private static readonly RgbColor DEFAULT_CHANNEL_COLOR = new(r: 1.0f, g: 1.0f, b: 1.0f);
 
     private readonly OutputValuesGroup<byte> _bankOutputs0 = new(LIGHT_BANK_0_SIZE);
     private readonly OutputValuesGroup<byte> _bankOutputs1 = new(LIGHT_BANK_1_SIZE);
@@ -64,8 +65,9 @@ internal class SBrickLightDevice : BluetoothDevice
     {
         // normalize value to 0..1
         value = CutOutputValue(Math.Abs(value));
+
         var port = channel % LIGHT_PORTS_COUNT;
-        var baseChannel = 3 * port;
+        var baseChannel = LIGHT_MICRO_CHANNEL_COUNT * port;
 
         if (channel < LIGHT_PORTS_COUNT)
         {
@@ -75,9 +77,9 @@ internal class SBrickLightDevice : BluetoothDevice
                 .ToRgb(out var r, out var g, out var b);
 
             // each channel controls 3 microchannels-RGB
-            SetChannelOutput(baseChannel + 0, r);
-            SetChannelOutput(baseChannel + 1, g);
-            SetChannelOutput(baseChannel + 2, b);
+            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_RED, r);
+            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_GREEN, g);
+            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_BLUE, b);
         }
         else
         {
@@ -169,7 +171,7 @@ internal class SBrickLightDevice : BluetoothDevice
         // for lights use 0-255 range
         var rawValue = (byte)(Math.Abs(value) * 255);
 
-        // adress correct bank
+        // address correct bank
         if (index < LIGHT_BANK_0_SIZE)
         {
             _bankOutputs0.SetOutput(index, rawValue);

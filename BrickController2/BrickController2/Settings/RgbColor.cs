@@ -8,22 +8,22 @@ namespace BrickController2.Settings;
 /// </summary>
 [TypeConverter(typeof(RgbColorConverter))]
 [JsonConverter(typeof(RgbColorJsonConverter))]
-public struct RgbColor
+public readonly struct RgbColor
 {
     /// <summary>
     /// The red component of the color, ranging from 0.0 to 1.0.
     /// </summary>
-    public float R;
+    public readonly float R;
 
     /// <summary>
     /// The green component of the color, ranging from 0.0 to 1.0.
     /// </summary>
-    public float G;
+    public readonly float G;
 
     /// <summary>
     /// The blue component of the color, ranging from 0.0 to 1.0.
     /// </summary>
-    public float B;
+    public readonly float B;
 
     public RgbColor()
     {

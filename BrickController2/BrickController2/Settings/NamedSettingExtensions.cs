@@ -25,9 +25,10 @@ public static class NamedSettingExtensions
             return typedValue;
 
         var converter = TypeDescriptor.GetConverter(typeof(TValue));
-        if (converter.CanConvertFrom(setting.Value.GetType()))
+        if (converter.CanConvertFrom(setting.Value.GetType()) &&
+            converter.ConvertFrom(setting.Value) is TValue convertedValue)
         {
-            return (TValue)converter.ConvertFrom(setting.Value);
+            return convertedValue;
         }
 
         return (TValue)Convert.ChangeType(setting.Value, typeof(TValue));

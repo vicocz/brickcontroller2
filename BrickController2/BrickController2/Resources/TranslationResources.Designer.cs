@@ -1294,6 +1294,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Micro channels.
+        /// </summary>
+        internal static string MicroChannelsPortMode {
+            get {
+                return ResourceManager.GetString("MicroChannelsPortMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing.
         /// </summary>
         internal static string Missing {
@@ -1609,11 +1618,29 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to RGB.
+        /// </summary>
+        internal static string RgbPortMode {
+            get {
+                return ResourceManager.GetString("RgbPortMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Saving....
         /// </summary>
         internal static string Saving {
             get {
                 return ResourceManager.GetString("Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Channel LED mode.
+        /// </summary>
+        internal static string SBrickUseRgbPortMode {
+            get {
+                return ResourceManager.GetString("SBrickUseRgbPortMode", resourceCulture);
             }
         }
         

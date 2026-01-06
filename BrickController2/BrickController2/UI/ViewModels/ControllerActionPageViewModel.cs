@@ -13,6 +13,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
+
 namespace BrickController2.UI.ViewModels
 {
     public class ControllerActionPageViewModel : PageViewModelBase
@@ -130,7 +132,7 @@ namespace BrickController2.UI.ViewModels
 
         public bool SBrickUseRgbPortMode
         {
-            get { return SelectedDevice is SBrickLightDevice && Action.Channel / 8 == 0; }
+            get { return SelectedDevice is SBrickLightDevice && SBrickLightMicrochannel == 0; }
             set
             {
                 if (SBrickUseRgbPortMode != value)
@@ -138,9 +140,9 @@ namespace BrickController2.UI.ViewModels
                     // apply switch change
                     Action.Channel = value ?
                         // reset any microchannel
-                        Action.Channel % 8 :
+                       SBrickLightPort :
                         // switch first micro channel
-                        Action.Channel + 8;
+                        Action.Channel + 1 * LIGHT_PORTS_COUNT;
 
                     RaisePropertyChanged();
                     RaisePropertyChanged(nameof(SBrickChannelColor));
@@ -168,6 +170,9 @@ namespace BrickController2.UI.ViewModels
 
             base.OnDisappearing();
         }
+
+        private int SBrickLightPort => Action.Channel % LIGHT_PORTS_COUNT;
+        private int SBrickLightMicrochannel => Action.Channel / LIGHT_PORTS_COUNT;
 
         private async Task SaveControllerActionAsync()
         {
@@ -376,9 +381,9 @@ namespace BrickController2.UI.ViewModels
             {
                 if (_selectedDevice is SBrickLightDevice)
                 {
-                    if (Action.Channel / 8 > 3)
+                    if (SBrickLightMicrochannel > LIGHT_MICRO_CHANNEL_COUNT)
                     {
-                        ValidateChannelType(Action.Channel / 8, Action.ChannelOutputType);
+                        ValidateChannelType(SBrickLightPort, Action.ChannelOutputType);
                     }
                 }
                 // find first suitable channel to assign

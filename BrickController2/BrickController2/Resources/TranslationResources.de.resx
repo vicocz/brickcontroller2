@@ -744,4 +744,13 @@
   <data name="ChannelHColor" xml:space="preserve">
     <value>H</value>
   </data>
+  <data name="SBrickUseRgbPortMode" xml:space="preserve">
+    <value>Kanal-LED-Modus</value>
+  </data>
+  <data name="RgbPortMode" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="MicroChannelsPortMode" xml:space="preserve">
+    <value>Mikrokanäle</value>
+  </data>
 </root>

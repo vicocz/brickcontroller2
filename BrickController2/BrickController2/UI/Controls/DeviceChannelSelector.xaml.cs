@@ -3,6 +3,7 @@ using BrickController2.UI.Commands;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using Device = BrickController2.DeviceManagement.Device;
+using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
 
 namespace BrickController2.UI.Controls
 {
@@ -103,12 +104,12 @@ namespace BrickController2.UI.Controls
 
             void UpdateSBrickPort(int channel)
             {
-                SelectedChannel = channel + SelectedChannel - SelectedChannel % 8;
+                SelectedChannel = channel + SelectedChannel - SelectedChannel % LIGHT_PORTS_COUNT;
             }
 
             void UpdateSBrickMicrochannel(int microchannel)
             {
-                SelectedChannel = microchannel + SelectedChannel % 8;
+                SelectedChannel = microchannel + SelectedChannel % LIGHT_PORTS_COUNT;
             }
         }
 
@@ -244,8 +245,8 @@ namespace BrickController2.UI.Controls
                 dcs.CaDARaceCarChannel1.SelectedChannel = selectedChannel;
                 dcs.CaDARaceCarChannel2.SelectedChannel = selectedChannel;
                 // SBrick Light - special handling
-                var sBrickLightChannel = selectedChannel % 8;
-                var sBrickLightMicrochannel = selectedChannel < 8 ? 0 : selectedChannel / 8 - 1;
+                var sBrickLightChannel = selectedChannel % LIGHT_PORTS_COUNT;
+                var sBrickLightMicrochannel = selectedChannel < LIGHT_PORTS_COUNT ? 0 : selectedChannel / LIGHT_PORTS_COUNT - 1;
                 dcs.SBrickLightChannelA.SelectedChannel = sBrickLightChannel;
                 dcs.SBrickLightChannelB.SelectedChannel = sBrickLightChannel;
                 dcs.SBrickLightChannelC.SelectedChannel = sBrickLightChannel;

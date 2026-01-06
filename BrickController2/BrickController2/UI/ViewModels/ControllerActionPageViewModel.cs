@@ -132,6 +132,7 @@ namespace BrickController2.UI.ViewModels
 
         public bool SBrickUseRgbPortMode
         {
+            // 0 micro channel means no micro channel but RGB port
             get { return SelectedDevice is SBrickLightDevice && SBrickLightMicrochannel == 0; }
             set
             {
@@ -141,8 +142,8 @@ namespace BrickController2.UI.ViewModels
                     Action.Channel = value ?
                         // reset any microchannel
                        SBrickLightPort :
-                        // switch first micro channel
-                        Action.Channel + 1 * LIGHT_PORTS_COUNT;
+                        // switch to the first micro channel
+                        Action.Channel + LIGHT_PORTS_COUNT * 1;
 
                     RaisePropertyChanged();
                     RaisePropertyChanged(nameof(SBrickChannelColor));

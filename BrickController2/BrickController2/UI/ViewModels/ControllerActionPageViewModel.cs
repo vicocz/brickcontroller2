@@ -106,6 +106,7 @@ namespace BrickController2.UI.ViewModels
             OpenSequenceEditorCommand = new SafeCommand(async () => await OpenSequenceEditorAsync());
             SelectAxisTypeCommand = new SafeCommand(async () => await SelectAxisTypeAsync());
             SelectAxisCharacteristicCommand = new SafeCommand(async () => await SelectAxisCharacteristicAsync());
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await OpenDeviceSettingsAsync(SelectedDevice!), () => SelectedDevice != null);
         }
 
         public ObservableCollection<Device> Devices => _deviceManager.Devices;
@@ -125,6 +126,7 @@ namespace BrickController2.UI.ViewModels
                 ValidateCurrentChannelSettings();
 
                 RaisePropertyChanged();
+                NotifySBrickLightChanges();
             }
         }
 
@@ -146,7 +148,7 @@ namespace BrickController2.UI.ViewModels
                         Action.Channel + LIGHT_PORTS_COUNT * 1;
 
                     RaisePropertyChanged();
-                    RaisePropertyChanged(nameof(SBrickChannelColor));
+                    NotifySBrickLightChanges();
                 }
             }
         }
@@ -173,6 +175,14 @@ namespace BrickController2.UI.ViewModels
         public ICommand OpenSequenceEditorCommand { get; }
         public ICommand SelectAxisTypeCommand { get; }
         public ICommand SelectAxisCharacteristicCommand { get; }
+        public ICommand OpenDeviceSettingsPageCommand { get; }
+
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            NotifySBrickLightChanges();
+        }
 
         public override void OnDisappearing()
         {
@@ -298,6 +308,8 @@ namespace BrickController2.UI.ViewModels
 
             await NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", SelectedDevice), ("controlleraction", Action)));
         }
+
+        private Task OpenDeviceSettingsAsync(Device device) => NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(device));
 
         private async Task SelectButtonTypeAsync()
         {
@@ -458,6 +470,14 @@ namespace BrickController2.UI.ViewModels
             if (Action.ChannelOutputType != outputType)
             {
                 Action.ChannelOutputType = outputType;
+            }
+        }
+        private void NotifySBrickLightChanges()
+        {
+            // enforce change - e.g. if device has changed settings or selected device has been changed
+            if (SBrickUseRgbPortMode)
+            {
+                RaisePropertyChanged(nameof(SBrickChannelColor));
             }
         }
     }

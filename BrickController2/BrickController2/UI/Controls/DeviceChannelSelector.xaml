@@ -83,7 +83,7 @@
                     <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode}">
                         <Border Stroke="Gray" BackgroundColor="{Binding SBrickChannelColor}" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 10" VerticalOptions="Center" HorizontalOptions="End"/>
                         <controls:FloatingActionButton Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate Settings}"
-                                                       Command="{Binding PortColorSettingCommand}" Margin="10,0,0,0" HorizontalOptions="End"/>
+                                                       Command="{Binding OpenDeviceSettingsPageCommand}" Margin="10,0,0,0" HorizontalOptions="End"/>
                     </HorizontalStackLayout>
                 </Grid>
 

@@ -18,7 +18,7 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _sBrickLightChannelLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
         public static readonly BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
-        public static readonly BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
+        public static readonly BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), -1, BindingMode.OneWay, null, OnChannelChanged);
 
         public DeviceType DeviceType
         {
@@ -96,11 +96,16 @@ namespace BrickController2.UI.Controls
                     break;
 
                 case DeviceType.SBrickLight: // e.g. C or C.3
-                    Text = Channel < SBrickProtocol.LIGHT_PORTS_COUNT ?
+                    if (Channel < SBrickProtocol.LIGHT_PORTS_COUNT)
+                    {
                         // channel as base port
-                        _sBrickLightChannelLetters[Channel] :
+                        SetChannelText(_sBrickLightChannelLetters);
+                    }
+                    else
+                    {
                         // port with microchannel
-                        $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
+                        Text = $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
+                    }
                     break;
 
                 default:

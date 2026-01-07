@@ -389,7 +389,11 @@ namespace BrickController2.UI.ViewModels
         {
             if (_selectedDevice!.NumberOfChannels <= Action.Channel)
             {
-                if (_selectedDevice is SBrickLightDevice)
+                if (_selectedDevice is TechnicMoveDevice technicDevice && technicDevice.EnablePlayVmMode)
+                {
+                    ValidateChannelType(TechnicMoveDevice.CHANNEL_VM, Action.ChannelOutputType);
+                }
+                else if (_selectedDevice is SBrickLightDevice)
                 {
                     if (SBrickLightMicrochannel > LIGHT_MICRO_CHANNEL_COUNT)
                     {

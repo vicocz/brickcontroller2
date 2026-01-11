@@ -105,12 +105,6 @@ namespace BrickController2.UI.Controls
             set => SetValue(SelectedChannelProperty, value);
         }
 
-        internal void Refresh()
-        {
-            OnDeviceChanged(Device);
-            OnSelectedChannelChanged(SelectedChannel);
-        }
-
         private static object OnCoerceDevice(BindableObject bindable, object value)
         {
             if (bindable is DeviceChannelSelector dcs && value is Device device)

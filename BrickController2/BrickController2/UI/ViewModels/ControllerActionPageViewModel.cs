@@ -21,6 +21,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IPreferencesService _preferences;
 
         private Device? _selectedDevice;
+        private bool _initialized;
 
         public ControllerActionPageViewModel(
             INavigationService navigationService,
@@ -136,9 +137,13 @@ namespace BrickController2.UI.ViewModels
         public override void OnAppearing()
         {
             base.OnAppearing();
-
-            // revalidate channel settings - e.g. Technic Move might have changed it's settings on a child page
-            ValidateCurrentChannelSettings();
+            if (_initialized)
+            {
+                // revalidate channel settings - e.g. Technic Move might have changed it's settings on a child page
+                RaisePropertyChanged(nameof(SelectedDevice));
+                ValidateCurrentChannelSettings();
+            }
+            _initialized = true;
         }
         public override void OnDisappearing()
         {

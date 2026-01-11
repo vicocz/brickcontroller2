@@ -139,7 +139,7 @@ namespace BrickController2.UI.ViewModels
             base.OnAppearing();
             if (_initialized)
             {
-                // revalidate channel settings - e.g. Technic Move might have changed it's settings on a child page
+                // revalidate channel settings - e.g. Technic Move might have changed its settings on a child page
                 RaisePropertyChanged(nameof(SelectedDevice));
                 ValidateCurrentChannelSettings();
             }
@@ -363,7 +363,7 @@ namespace BrickController2.UI.ViewModels
                     ValidateChannelType(TechnicMoveDevice.CHANNEL_VM, Action.ChannelOutputType);
                 }
                 // find first suitable channel to assign
-                else if(!TryApplySuitableChannelChannel(Action.ChannelOutputType))
+                else if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
                 {
                     ValidateChannelType(0, Action.ChannelOutputType);
                 }

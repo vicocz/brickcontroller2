@@ -90,11 +90,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     // validate output type for given channel change
                     ValidateChannelType(Action.Channel, Action.ChannelOutputType);
-                    // notify change - special use cases
-                    if (SelectedDevice is SBrickLightDevice)
-                    {
-                        RaisePropertyChanged(nameof(SBrickChannelColor));
-                    }
+                    NotifySBrickLightChanges();
                 }
             };
 

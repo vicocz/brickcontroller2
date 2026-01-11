@@ -25,6 +25,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IPreferencesService _preferences;
 
         private Device? _selectedDevice;
+        private bool _initialized;
 
         public ControllerActionPageViewModel(
             INavigationService navigationService,
@@ -79,7 +80,8 @@ namespace BrickController2.UI.ViewModels
                 Action.StepperAngle = 90;
                 Action.SequenceName = string.Empty;
             }
-            // do validation of current channel settings via device assignment
+
+            // do validation of current channel settings
             SelectedDevice = device;
 
             Action.PropertyChanged += (s, e) =>
@@ -184,6 +186,17 @@ namespace BrickController2.UI.ViewModels
             NotifySBrickLightChanges();
         }
 
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (_initialized)
+            {
+                // revalidate channel settings - e.g. Technic Move might have changed its settings on a child page
+                RaisePropertyChanged(nameof(SelectedDevice));
+                ValidateCurrentChannelSettings();
+            }
+            _initialized = true;
+        }
         public override void OnDisappearing()
         {
             _preferences.Set<string>("LastSelectedDeviceId", _selectedDevice!.Id, "ControllerActionPage");

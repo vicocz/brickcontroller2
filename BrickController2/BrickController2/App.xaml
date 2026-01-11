@@ -15,6 +15,7 @@
         </Style>
 
         <Style TargetType="controls:DeviceChannelLabel">
+            <Setter Property="Text" Value="1"/> <!--Workaround for default channel label if there is no device type defined-->
             <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
 

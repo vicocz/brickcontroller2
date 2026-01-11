@@ -105,7 +105,7 @@ namespace BrickController2.UI.Controls
 
             void UpdateSBrickPort(int channel)
             {
-                SelectedChannel = channel + SelectedChannel - SelectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
+                SelectedChannel = channel + (SelectedChannel / SBrickProtocol.LIGHT_PORTS_COUNT) * SBrickProtocol.LIGHT_PORTS_COUNT;
             }
 
             void UpdateSBrickMicrochannel(int microchannel)

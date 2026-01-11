@@ -61,7 +61,7 @@ namespace BrickController2.UI.ViewModels
             else
             {
                 var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "ControllerActionPage");
-                device = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
+                device = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault();
                 Action.Channel = 0;
                 Action.IsInvert = false;
                 Action.ChannelOutputType = ChannelOutputType.NormalMotor;

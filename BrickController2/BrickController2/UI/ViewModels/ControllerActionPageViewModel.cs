@@ -182,18 +182,12 @@ namespace BrickController2.UI.ViewModels
         public override void OnAppearing()
         {
             base.OnAppearing();
-
-            NotifySBrickLightChanges();
-        }
-
-        public override void OnAppearing()
-        {
-            base.OnAppearing();
             if (_initialized)
             {
                 // revalidate channel settings - e.g. Technic Move might have changed its settings on a child page
                 RaisePropertyChanged(nameof(SelectedDevice));
                 ValidateCurrentChannelSettings();
+                NotifySBrickLightChanges();
             }
             _initialized = true;
         }
@@ -409,7 +403,6 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-
         private void ValidateCurrentChannelSettings()
         {
             if (_selectedDevice!.NumberOfChannels <= Action.Channel)
@@ -485,6 +478,7 @@ namespace BrickController2.UI.ViewModels
                 Action.ChannelOutputType = outputType;
             }
         }
+
         private void NotifySBrickLightChanges()
         {
             // enforce change - e.g. if device has changed settings or selected device has been changed

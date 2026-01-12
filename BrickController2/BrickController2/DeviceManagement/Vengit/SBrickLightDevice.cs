@@ -8,7 +8,6 @@ using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using BrickController2.Settings;
-using Microsoft.Maui.Graphics;
 
 using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
 

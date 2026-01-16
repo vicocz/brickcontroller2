@@ -28,9 +28,9 @@ internal static class SBrickProtocol
     public const byte LIGHT_BANK_1_SIZE = 8;
 
     public const byte LIGHT_MICRO_CHANNEL_COUNT = 3;
-    public const byte LIGHT_MICRO_CHANNEL_RED = 2;
+    public const byte LIGHT_MICRO_CHANNEL_RED = 0;
     public const byte LIGHT_MICRO_CHANNEL_GREEN = 1;
-    public const byte LIGHT_MICRO_CHANNEL_BLUE = 0;
+    public const byte LIGHT_MICRO_CHANNEL_BLUE = 2;
 
     // Light flags
     public const byte LIGHTS_FLAGS_BANK_0 = 0x00;

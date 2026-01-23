@@ -233,6 +233,14 @@ namespace BrickController2.DeviceManagement
             return _servoSendBuffer;
         }
 
+        protected override void OnDeviceDisconnecting()
+        {
+            base.OnDeviceDisconnecting();
+
+            // reset any stored characteristic reference
+            _characteristic = null;
+        }
+
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
             if (characteristicGuid != CharacteristicUuid || data.Length < 4)

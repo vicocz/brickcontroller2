@@ -34,7 +34,7 @@ namespace BrickController2.DeviceManagement
             bool requestDeviceInformation,
             CancellationToken token)
         {
-            using (await _asyncLock.LockAsync())
+            using (await _asyncLock.LockAsync(token))
             {
                 if (_bleDevice != null || DeviceState != DeviceState.Disconnected)
                 {
@@ -110,15 +110,23 @@ namespace BrickController2.DeviceManagement
             return Task.FromResult(true);
         }
 
+        protected virtual void OnDeviceDisconnecting()
+        {
+        }
+
         private async Task DisconnectInternalAsync()
         {
             if (_bleDevice != null)
             {
                 await StopOutputTaskAsync();
                 DeviceState = DeviceState.Disconnecting;
+                // notify disconnection
+                OnDeviceDisconnecting();
+                // execute native device disconnection + cleanup
                 await _bleDevice.DisconnectAsync();
                 _bleDevice = null;
             }
+            _onDeviceDisconnected = null;
 
             DeviceState = DeviceState.Disconnected;
         }
@@ -129,8 +137,10 @@ namespace BrickController2.DeviceManagement
             {
                 using (await _asyncLock.LockAsync())
                 {
+                    var disconnectedCallback = _onDeviceDisconnected;
                     await DisconnectInternalAsync();
-                    _onDeviceDisconnected?.Invoke(this);
+                    // notify
+                    disconnectedCallback?.Invoke(this);
                 }
             });
         }

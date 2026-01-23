@@ -73,7 +73,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         {
             try
             {
-                var leScanner = new BluetoothLEScanner(scanCallback);
+                using var leScanner = new BluetoothLEScanner(scanCallback);
                 var settingsBuilder = new ScanSettings.Builder()?
                     .SetCallbackType(ScanCallbackType.AllMatches)?
                     .SetScanMode(global::Android.Bluetooth.LE.ScanMode.LowLatency);

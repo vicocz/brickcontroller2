@@ -2,8 +2,8 @@
 using BrickController2.DeviceManagement.CaDA;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.Infrared;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.Localization;
 using BrickController2.PlatformServices.Permission;
 using BrickController2.PlatformServices.SharedFileStorage;
@@ -15,6 +15,8 @@ using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Localization;
 using BrickController2.Windows.PlatformServices.Permission;
 using BrickController2.Windows.PlatformServices.SharedFileStorage;
+using Plugin.BLE;
+using Plugin.BLE.Abstractions.Contracts;
 
 namespace BrickController2.Windows.PlatformServices.DI;
 
@@ -22,9 +24,12 @@ public class PlatformServicesModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
+        builder.RegisterInstance(CrossBluetoothLE.Current).As<IBluetoothLE>();
+        builder.RegisterType<BrickController2.Core.PlatformServices.BluetoothLE.BleService>().As<IBluetoothLEService>().SingleInstance();
+
         builder.RegisterType<InfraredService>().As<IInfraredService>().SingleInstance();
         builder.RegisterType<GameControllerService>().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
-        builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
+        //builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
         builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
         builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
         builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();

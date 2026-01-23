@@ -3,6 +3,9 @@
     <Platform Name="ARM64" />
     <Platform Name="x64" />
   </Configurations>
+  <Folder Name="/Solution/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="BrickController2/BrickController2.Tests/BrickController2.Tests.csproj" />
   </Folder>
@@ -12,6 +15,7 @@
   <Project Path="BrickController2/BrickController2.Android/BrickController2.Android.csproj">
     <Deploy />
   </Project>
+  <Project Path="BrickController2/BrickController2.Core/BrickController2.Core.csproj" Id="282b9cfc-c8ab-4004-b8c0-93339a39a192" />
   <Project Path="BrickController2/BrickController2.iOS/BrickController2.iOS.csproj">
     <Platform Solution="*|ARM64" Project="ARM64" />
     <Deploy />

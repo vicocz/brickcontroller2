@@ -58,6 +58,7 @@
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
     <PackageReference Include="Microsoft.Maui.Essentials" />
     <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Plugin.BLE" />
     <PackageReference Include="sqlite-net-pcl" />
     <PackageReference Include="SQLiteNetExtensions" />
     <PackageReference Include="SQLiteNetExtensions.Async" />

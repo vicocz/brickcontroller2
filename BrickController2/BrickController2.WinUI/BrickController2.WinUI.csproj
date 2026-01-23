@@ -22,9 +22,11 @@
 		<PackageReference Include="Autofac" />
 		<PackageReference Include="Autofac.Extensions.DependencyInjection" />
 		<PackageReference Include="Microsoft.Maui.Controls" />
+		<PackageReference Include="Plugin.BLE" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\BrickController2.Core\BrickController2.Core.csproj" />
 		<ProjectReference Include="..\BrickController2\BrickController2.csproj" />
 	</ItemGroup>
 

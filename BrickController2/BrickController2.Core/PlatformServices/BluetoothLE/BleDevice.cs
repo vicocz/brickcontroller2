@@ -1,6 +1,7 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using Plugin.BLE.Abstractions;
+
 using BLE = Plugin.BLE.Abstractions.Contracts;
 
 namespace BrickController2.Core.PlatformServices.BluetoothLE;
@@ -8,9 +9,9 @@ namespace BrickController2.Core.PlatformServices.BluetoothLE;
 public class BleDevice : IBluetoothLEDevice
 {
     private readonly AsyncLock _lock = new();
+    private readonly BLE.IAdapter? _adapter;
 
     private BLE.IDevice? _device;
-    private BLE.IAdapter? _adapter;
     private ICollection<BleGattService>? _services;
 
     private TaskCompletionSource<ICollection<BleGattService>?>? _connectCompletionSource;
@@ -18,9 +19,9 @@ public class BleDevice : IBluetoothLEDevice
     private Action<Guid, byte[]>? _onCharacteristicChanged;
     private Action<IBluetoothLEDevice>? _onDeviceDisconnected;
 
-    public BleDevice(BLE.IAdapter bluetoothAdapter,string address)
+    public BleDevice(BLE.IAdapter bluetoothAdapter, string address)
     {
-        _adapter= bluetoothAdapter;
+        _adapter = bluetoothAdapter;
         Address = address;
     }
 
@@ -62,8 +63,15 @@ public class BleDevice : IBluetoothLEDevice
             State = BluetoothLEDeviceState.Connecting;
 
             _device?.Dispose();
-            var deviceId = Guid.Empty;
-            _device = await _adapter!.ConnectToKnownDeviceAsync(deviceId, new ConnectParameters(true, true), token).ConfigureAwait(false);
+
+            // get address as GUID
+            if (!Address.TryParseBluetoothAddressToGuid(out var deviceId))
+            {
+                deviceId = Guid.Parse(Address);
+            }
+
+            _device = await _adapter!.ConnectToKnownDeviceAsync(deviceId, new ConnectParameters(false, true), token)
+                .ConfigureAwait(false);
 
             if (_device == null)
             {
@@ -83,7 +91,7 @@ public class BleDevice : IBluetoothLEDevice
         }
 
         // enforce connection check
-        await OnConnection();
+        await OnConnectionAsync();
 
         var result = await _connectCompletionSource.Task;
         _connectCompletionSource = null;
@@ -95,8 +103,11 @@ public class BleDevice : IBluetoothLEDevice
     {
         using (await _lock.LockAsync())
         {
-            await _adapter!.DisconnectDeviceAsync(_device!);
-            
+            if (_device != null)
+            {
+                await _adapter!.DisconnectDeviceAsync(_device!);
+            }
+
             InternalDisconnect();
         }
     }
@@ -200,15 +211,26 @@ public class BleDevice : IBluetoothLEDevice
     //    }
     //}
 
-    private async Task OnConnection()
+    private async Task OnConnectionAsync(CancellationToken token)
     {
-        using (await _lock.LockAsync())
+        using (await _lock.LockAsync(token))
         {
             if (State == BluetoothLEDeviceState.Connecting)
             {
                 State = BluetoothLEDeviceState.Discovering;
 
-                await DiscoverServicesAsync();
+                if (_device != null)
+                {
+                    var availableServices = await _device.GetServicesAsync(token);
+
+                    if (availableServices is not null)
+                    {
+                        var services = availableServices.Select(s => new BleGattService(s)).ToArray();
+                        State = BluetoothLEDeviceState.Connected;
+                        _connectCompletionSource?.SetResult(services);
+                        return true;
+                    }
+                }
             }
             else if (State == BluetoothLEDeviceState.Connected)
             {
@@ -247,7 +269,7 @@ public class BleDevice : IBluetoothLEDevice
         }
     }
 
-    private async Task<bool> DiscoverServicesAsync(CancellationToken token=default)
+    private async Task<bool> DiscoverServicesAsync(CancellationToken token = default)
     {
         // expectation is the method is already called within lock
         if (_device != null && State == BluetoothLEDeviceState.Discovering)
@@ -256,7 +278,7 @@ public class BleDevice : IBluetoothLEDevice
 
             if (availableServices is not null)
             {
-                var services = availableServices.Select(s => new BleGattService(s, [])).ToArray();
+                var services = availableServices.Select(s => new BleGattService(s)).ToArray();
                 State = BluetoothLEDeviceState.Connected;
                 _connectCompletionSource?.SetResult(services);
                 return true;

@@ -26,29 +26,20 @@ public class BleService : IBluetoothLEService
         _bluetooth = bluetooth;
     }
 
-    public async Task<bool> IsBluetoothLESupportedAsync()
-    {
-        return _bluetooth.IsAvailable;
-    }
+    public async Task<bool> IsBluetoothLESupportedAsync() => _bluetooth.IsAvailable;
 
     public Task<bool> IsBluetoothLEAdvertisingSupportedAsync()
         => Task.FromResult(true);
- 
-    public async Task<bool> IsBluetoothOnAsync()
-    {
-        return _bluetooth.IsOn;
-    }
+
+    public async Task<bool> IsBluetoothOnAsync() => _bluetooth.IsOn;
 
     public async Task<bool> ScanDevicesAsync(Action<ScanResult> discoveryHandler, CancellationToken token = default)
     {
-        if (_bluetooth.Adapter.IsScanning ||
-            await IsBluetoothOnAsync() == false ||
-            await IsBluetoothLESupportedAsync() == false)
+        if (_bluetooth.Adapter.IsScanning || !_bluetooth.IsOn || !_bluetooth.IsAvailable)
         {
             return false;
         }
         _bluetooth.Adapter.ScanMode = BLE.ScanMode.Balanced;
-
         _bluetooth.Adapter.DeviceDiscovered += ReceivedHandler;
 
         token.Register(async () =>
@@ -71,7 +62,7 @@ public class BleService : IBluetoothLEService
             {
                 advertisementData[(byte)AdvertisementRecordType.CompleteLocalName] = Encoding.ASCII.GetBytes(args.Device.Name);
             }
-            discoveryHandler(new ScanResult(args.Device.Name, args.Device.Id.ToString(), advertisementData));
+            discoveryHandler(new ScanResult(args.Device.Name, args.Device.Id.ToBluetoothAddress(), advertisementData));
         }
     }
 

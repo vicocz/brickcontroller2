@@ -20,10 +20,11 @@ public static class ContainerBuilderExtensions
     /// Register device of <typeparamref name="TDevice"/> type as a keyed service with its DeviceType.
     /// </summary>
     /// <returns>Registration instance to suppport fluent API</returns>
-    internal static void RegisterDevice<TDevice>(this ContainerBuilder builder, DeviceType deviceType)
+    internal static ContainerBuilder RegisterDevice<TDevice>(this ContainerBuilder builder, DeviceType deviceType)
         where TDevice : Device
     {
         // register device as a keyed service with its DeviceType
         builder.RegisterType<TDevice>().Keyed<Device>(deviceType);
+        return builder;
     }
 }

@@ -13,6 +13,7 @@ This app lets you control your motorized builds — whether made from LEGO® or 
 ## Supported receivers
 
 - SBrick - both normal and plus (output only)
+- SBrick Light
 - BuWizz 1
 - BuWizz 2
 - BuWizz 3

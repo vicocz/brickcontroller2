@@ -1294,15 +1294,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Micro channels.
-        /// </summary>
-        internal static string MicroChannelsPortMode {
-            get {
-                return ResourceManager.GetString("MicroChannelsPortMode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Missing.
         /// </summary>
         internal static string Missing {
@@ -1857,6 +1848,15 @@ namespace BrickController2.Resources {
         internal static string StepperAngle {
             get {
                 return ResourceManager.GetString("StepperAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subchannels.
+        /// </summary>
+        internal static string SubchannelsPortMode {
+            get {
+                return ResourceManager.GetString("SubchannelsPortMode", resourceCulture);
             }
         }
         

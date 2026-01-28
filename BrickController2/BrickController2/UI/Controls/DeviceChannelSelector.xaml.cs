@@ -98,19 +98,18 @@ namespace BrickController2.UI.Controls
             SBrickLightChannelE.Command = new SafeCommand(() => UpdateSBrickPort(4));
             SBrickLightChannelF.Command = new SafeCommand(() => UpdateSBrickPort(5));
             SBrickLightChannelG.Command = new SafeCommand(() => UpdateSBrickPort(6));
-            SBrickLightChannelH.Command = new SafeCommand(() => UpdateSBrickPort(7));
-            SBrickLightMicroChannel1.Command = new SafeCommand(() => UpdateSBrickMicrochannel(8));
-            SBrickLightMicroChannel2.Command = new SafeCommand(() => UpdateSBrickMicrochannel(16));
-            SBrickLightMicroChannel3.Command = new SafeCommand(() => UpdateSBrickMicrochannel(24));
+            SBrickLightSubchannel1.Command = new SafeCommand(() => UpdateSBrickSubchannel(8));
+            SBrickLightSubchannel2.Command = new SafeCommand(() => UpdateSBrickSubchannel(16));
+            SBrickLightSubchannel3.Command = new SafeCommand(() => UpdateSBrickSubchannel(24));
 
             void UpdateSBrickPort(int channel)
             {
                 SelectedChannel = channel + (SelectedChannel / SBrickProtocol.LIGHT_PORTS_COUNT) * SBrickProtocol.LIGHT_PORTS_COUNT;
             }
 
-            void UpdateSBrickMicrochannel(int microchannel)
+            void UpdateSBrickSubchannel(int subchannel)
             {
-                SelectedChannel = microchannel + SelectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
+                SelectedChannel = subchannel + SelectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
             }
         }
 
@@ -268,7 +267,7 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel2.SelectedChannel = selectedChannel;
             // SBrick Light - special handling
             var sBrickLightChannel = selectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
-            var sBrickLightMicrochannel = selectedChannel < SBrickProtocol.LIGHT_PORTS_COUNT ?
+            var sBrickLightSubchannel = selectedChannel < SBrickProtocol.LIGHT_PORTS_COUNT ?
                 0 :
                 selectedChannel / SBrickProtocol.LIGHT_PORTS_COUNT - 1;
             SBrickLightChannelA.SelectedChannel = sBrickLightChannel;
@@ -279,9 +278,9 @@ namespace BrickController2.UI.Controls
             SBrickLightChannelF.SelectedChannel = sBrickLightChannel;
             SBrickLightChannelG.SelectedChannel = sBrickLightChannel;
             SBrickLightChannelH.SelectedChannel = sBrickLightChannel;
-            SBrickLightMicroChannel1.SelectedChannel = sBrickLightMicrochannel;
-            SBrickLightMicroChannel2.SelectedChannel = sBrickLightMicrochannel;
-            SBrickLightMicroChannel3.SelectedChannel = sBrickLightMicrochannel;
+            SBrickLightSubchannel1.SelectedChannel = sBrickLightSubchannel;
+            SBrickLightSubchannel2.SelectedChannel = sBrickLightSubchannel;
+            SBrickLightSubchannel3.SelectedChannel = sBrickLightSubchannel;
         }
     }
 }

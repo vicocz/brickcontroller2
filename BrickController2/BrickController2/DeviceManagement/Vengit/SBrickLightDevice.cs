@@ -52,11 +52,6 @@ internal class SBrickLightDevice : BluetoothDevice
     public override DeviceType DeviceType => DeviceType.SBrickLight;
     public override string BatteryVoltageSign => "V";
 
-    /// <summary>
-    /// Publish both
-    /// - channels
-    /// - micro channels
-    /// </summary>
     public override int NumberOfChannels => LIGHT_PORTS_COUNT;
     protected override bool AutoConnectOnFirstConnect => false;
 
@@ -66,7 +61,7 @@ internal class SBrickLightDevice : BluetoothDevice
         value = CutOutputValue(Math.Abs(value));
 
         var port = channel % LIGHT_PORTS_COUNT;
-        var baseChannel = LIGHT_MICRO_CHANNEL_COUNT * port;
+        var baseChannel = LIGHT_SUBCHANNEL_COUNT * port;
 
         if (channel < LIGHT_PORTS_COUNT)
         {
@@ -74,16 +69,16 @@ internal class SBrickLightDevice : BluetoothDevice
             var defaultColor = GetDefaultChannelColor(channel);
             var color = defaultColor.WithValueFactor(value);
 
-            // each channel controls 3 microchannels-RGB
-            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_RED, color.R);
-            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_GREEN, color.G);
-            SetChannelOutput(baseChannel + LIGHT_MICRO_CHANNEL_BLUE, color.B);
+            // each channel controls 3 subchannels-RGB
+            SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_RED, color.R);
+            SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_GREEN, color.G);
+            SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_BLUE, color.B);
         }
         else
         {
             // write directly
-            var microchannel = channel / LIGHT_PORTS_COUNT - 1;
-            SetChannelOutput(baseChannel + microchannel, value);
+            var subchannel = channel / LIGHT_PORTS_COUNT - 1;
+            SetChannelOutput(baseChannel + subchannel, value);
         }
     }
 

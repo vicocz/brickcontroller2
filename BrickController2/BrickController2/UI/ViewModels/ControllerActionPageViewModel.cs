@@ -133,14 +133,14 @@ namespace BrickController2.UI.ViewModels
         public bool SBrickUseRgbPortMode
         {
             // 0 micro channel means no micro channel but RGB port
-            get { return SelectedDevice is SBrickLightDevice && SBrickLightMicrochannel == 0; }
+            get { return SelectedDevice is SBrickLightDevice && SBrickLightSubchannel == 0; }
             set
             {
                 if (SBrickUseRgbPortMode != value)
                 {
                     // apply switch change
                     Action.Channel = value ?
-                        // reset any microchannel
+                        // reset any subchannel
                        SBrickLightPort :
                         // switch to the first micro channel
                         Action.Channel + LIGHT_PORTS_COUNT * 1;
@@ -195,7 +195,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         private int SBrickLightPort => Action.Channel % LIGHT_PORTS_COUNT;
-        private int SBrickLightMicrochannel => Action.Channel / LIGHT_PORTS_COUNT;
+        private int SBrickLightSubchannel => Action.Channel / LIGHT_PORTS_COUNT;
 
         private async Task SaveControllerActionAsync()
         {
@@ -409,7 +409,7 @@ namespace BrickController2.UI.ViewModels
                 }
                 else if (_selectedDevice is SBrickLightDevice)
                 {
-                    if (SBrickLightMicrochannel > LIGHT_MICRO_CHANNEL_COUNT)
+                    if (SBrickLightSubchannel > LIGHT_SUBCHANNEL_COUNT)
                     {
                         ValidateChannelType(SBrickLightPort, Action.ChannelOutputType);
                     }

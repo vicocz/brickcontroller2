@@ -750,7 +750,7 @@
   <data name="RgbPortMode" xml:space="preserve">
     <value>RGB</value>
   </data>
-  <data name="MicroChannelsPortMode" xml:space="preserve">
-    <value>Mikrokanäle</value>
+  <data name="SubChannelsPortMode" xml:space="preserve">
+    <value>Subkanäle</value>
   </data>
 </root>

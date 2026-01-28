@@ -73,12 +73,12 @@
                     <HorizontalStackLayout Grid.Column="1" Spacing="20">
                         <Switch IsToggled="{Binding SBrickUseRgbPortMode}" HorizontalOptions="Center" />
                         <Label Text="{extensions:Translate RgbPortMode}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding SBrickUseRgbPortMode}"/>
-                        <Label Text="{extensions:Translate MicroChannelsPortMode}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding SBrickUseRgbPortMode, Converter={StaticResource InverseBool}}"/>
+                        <Label Text="{extensions:Translate SubchannelsPortMode}" Style="{StaticResource Key=settingLabel}" IsVisible="{Binding SBrickUseRgbPortMode, Converter={StaticResource InverseBool}}"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode, Converter={StaticResource InverseBool}}">
-                        <controls:ChannelSelectorRadioButton x:Name="SBrickLightMicroChannel1" Channel="0" HorizontalOptions="Center"/>
-                        <controls:ChannelSelectorRadioButton x:Name="SBrickLightMicroChannel2" Channel="1" HorizontalOptions="Center"/>
-                        <controls:ChannelSelectorRadioButton x:Name="SBrickLightMicroChannel3" Channel="2" HorizontalOptions="Center"/>
+                        <controls:ChannelSelectorRadioButton x:Name="SBrickLightSubchannel1" Channel="0" HorizontalOptions="Center"/>
+                        <controls:ChannelSelectorRadioButton x:Name="SBrickLightSubchannel2" Channel="1" HorizontalOptions="Center"/>
+                        <controls:ChannelSelectorRadioButton x:Name="SBrickLightSubchannel3" Channel="2" HorizontalOptions="Center"/>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="20" IsVisible="{Binding SBrickUseRgbPortMode}">
                         <Border Stroke="Gray" BackgroundColor="{Binding SBrickChannelColor}" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 10" VerticalOptions="Center" HorizontalOptions="End"/>

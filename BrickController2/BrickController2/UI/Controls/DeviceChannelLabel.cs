@@ -103,7 +103,7 @@ namespace BrickController2.UI.Controls
                     }
                     else
                     {
-                        // port with microchannel
+                        // port with subchannel
                         Text = $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
                     }
                     break;

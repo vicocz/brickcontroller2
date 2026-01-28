@@ -7,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ZXing.Net.Maui;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -28,7 +29,7 @@ namespace BrickController2.UI.ViewModels
 
             ImportSequenceCommand = commandFactory.ImportItemFromFileCommand(this);
             ImportSequenceFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
-            ScanSequenceCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters()));
+            ScanSequenceCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters()), () => BarcodeScanning.IsSupported);
             PasteSequenceCommand = commandFactory.PasteItemFromClipboardCommand(this);
             AddSequenceCommand = new SafeCommand(async () => await AddSequenceAsync());
             ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", sequence))));

@@ -21,6 +21,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IPreferencesService _preferences;
 
         private Device? _selectedDevice;
+        private bool _initialized;
 
         public ControllerActionPageViewModel(
             INavigationService navigationService,
@@ -43,7 +44,6 @@ namespace BrickController2.UI.ViewModels
             var device = _deviceManager.GetDeviceById(ControllerAction?.DeviceId);
             if (ControllerAction is not null && device is not null)
             {
-                SelectedDevice = device;
                 Action.Channel = ControllerAction.Channel;
                 Action.IsInvert = ControllerAction.IsInvert;
                 Action.ChannelOutputType = ControllerAction.ChannelOutputType;
@@ -60,8 +60,8 @@ namespace BrickController2.UI.ViewModels
             }
             else
             {
-                var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "ControllerActionPage");
-                SelectedDevice = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
+                var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "com.scn.BrickController2.ControllerActionPage");
+                device = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
                 Action.Channel = 0;
                 Action.IsInvert = false;
                 Action.ChannelOutputType = ChannelOutputType.NormalMotor;
@@ -78,7 +78,7 @@ namespace BrickController2.UI.ViewModels
             }
 
             // do validation of current channel settings
-            ValidateCurrentChannelSettings();
+            SelectedDevice = device;
 
             Action.PropertyChanged += (s, e) =>
             {
@@ -134,6 +134,17 @@ namespace BrickController2.UI.ViewModels
         public ICommand SelectAxisTypeCommand { get; }
         public ICommand SelectAxisCharacteristicCommand { get; }
 
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (_initialized)
+            {
+                // revalidate channel settings - e.g. Technic Move might have changed its settings on a child page
+                RaisePropertyChanged(nameof(SelectedDevice));
+                ValidateCurrentChannelSettings();
+            }
+            _initialized = true;
+        }
         public override void OnDisappearing()
         {
             _preferences.Set<string>("LastSelectedDeviceId", _selectedDevice!.Id, "ControllerActionPage");
@@ -347,8 +358,12 @@ namespace BrickController2.UI.ViewModels
         {
             if (_selectedDevice!.NumberOfChannels <= Action.Channel)
             {
+                if (_selectedDevice is TechnicMoveDevice technicDevice && technicDevice.EnablePlayVmMode)
+                {
+                    ValidateChannelType(TechnicMoveDevice.CHANNEL_VM, Action.ChannelOutputType);
+                }
                 // find first suitable channel to assign
-                if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
+                else if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
                 {
                     ValidateChannelType(0, Action.ChannelOutputType);
                 }

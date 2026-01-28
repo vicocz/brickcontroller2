@@ -5,6 +5,8 @@ using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.PlatformServices.InputDevice;
 
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
+
 namespace BrickController2.BusinessLogic
 {
     public class PlayLogic : IPlayLogic
@@ -92,7 +94,7 @@ namespace BrickController2.BusinessLogic
 
                             if (gameControllerEvent.Key.EventType == InputDeviceEventType.Button)
                             {
-                                var isPressed = gameControllerEvent.Value > 0.5;
+                                var isPressed = gameControllerEvent.Value > BUTTON_PRESSED_THRESHOLD;
                                 if (!ShouldProcessButtonEvent(isPressed, controllerAction))
                                 {
                                     continue;

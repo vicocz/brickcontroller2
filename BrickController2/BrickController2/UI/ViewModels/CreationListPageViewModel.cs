@@ -12,6 +12,7 @@ using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using ZXing.Net.Maui;
 
 
 namespace BrickController2.UI.ViewModels
@@ -56,7 +57,7 @@ namespace BrickController2.UI.ViewModels
 
             ImportCreationCommand = commandFactory.ImportItemFromFileCommand(this);
             ImportCreationFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
-            ScanCreationCommand = new SafeCommand(ScanCreationAsync);
+            ScanCreationCommand = new SafeCommand(ScanCreationAsync, () => BarcodeScanning.IsSupported);
             PasteCreationCommand = commandFactory.PasteItemFromClipboardCommand(this);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(new NavigationParameters(("parent", this))), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());

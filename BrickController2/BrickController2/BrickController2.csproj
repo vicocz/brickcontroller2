@@ -41,6 +41,8 @@
     <EmbeddedResource Include="UI\Images\poweredup_image_small.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image_small.png" />
+    <EmbeddedResource Include="UI\Images\sbricklight_image.png" />
+    <EmbeddedResource Include="UI\Images\sbricklight_image_small.png" />
     <EmbeddedResource Include="UI\Images\technic_move.png" />
     <EmbeddedResource Include="UI\Images\technic_move_small.png" />
     <EmbeddedResource Include="UI\Images\wedo2hub_image.png" />

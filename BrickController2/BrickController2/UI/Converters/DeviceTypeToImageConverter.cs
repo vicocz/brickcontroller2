@@ -28,6 +28,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.SBrick:
                     return ResourceHelper.GetImageResource("sbrick_image.png");
 
+                case DeviceType.SBrickLight:
+                    return ResourceHelper.GetImageResource("sbricklight_image.png");
+
                 case DeviceType.Infrared:
                     return ResourceHelper.GetImageResource("infra_image.png");
 

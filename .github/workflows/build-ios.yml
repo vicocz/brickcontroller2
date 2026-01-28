@@ -31,7 +31,6 @@ permissions:
 
 env:
   XCODE_VERSION: '26.0'
-  TARGET_FRAMEWORK: 'net10.0-ios'
 
 jobs:
   build-ios:
@@ -49,7 +48,6 @@ jobs:
       run: dotnet workload install maui ios
 
     - name: Set XCode Version
-      if: runner.os == 'macOS'
       shell: bash
       run: |
         sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app"

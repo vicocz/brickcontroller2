@@ -82,7 +82,25 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
                 }
                 break;
 
-                // extend if needed to other CaDA devices
+            // extend if needed to other CaDA devices
+            case 0x11aa:
+                //TODO this check does not work as there are only 16 bytes
+                if (IsCadaRaceCar(manufacturerData))
+                {
+                    // the origin deviceAddress is changing on every scan-response
+                    // but inside the manufacturerData are 3 bytes identifying the device
+                    string deviceAddress = BitConverter.ToString(manufacturerData.Slice(4, 3).ToArray()).ToLower(); // change device address
+
+                    device = template with
+                    {
+                        DeviceType = DeviceType.CaDA_RaceCar,
+                        DeviceAddress = deviceAddress,        // change device address, 
+                        DeviceName = template.DeviceName ?? $"CaDA {deviceAddress}"  // an empty device name is given so create one
+                    };
+                    return true;
+                }
+                break;
+
         }
         // no match
         device = default;
@@ -105,14 +123,14 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     }
 
     /// <summary>
-    /// gets or creates an App-persistant AppIdentifier
+    /// gets or creates an App-persistent AppIdentifier
     /// </summary>
     /// <param name="preferencesService">reference to preferencesService singleton</param>
     /// <returns>byte array containing the AppIdentifier</returns>
     private static byte[] GetAppIdentifier(IPreferencesService preferencesService)
     {
         byte[] appIdChecksumMaskArray;
-        // gets or creates an App-persistant AppIdentifier
+        // gets or creates an App-persistent AppIdentifier
         try
         {
             if (preferencesService.ContainsKey(APPIDKEY, SECTION))

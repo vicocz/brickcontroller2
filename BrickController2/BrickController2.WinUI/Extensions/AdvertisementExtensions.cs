@@ -2,7 +2,7 @@
 
 namespace BrickController2.Windows.Extensions;
 
-public static class AdvertismentExtensions
+public static class AdvertisementExtensions
 {
     public static string GetLocalName(this BluetoothLEAdvertisementReceivedEventArgs args) => args.Advertisement.LocalName.TrimEnd();
 
@@ -10,5 +10,6 @@ public static class AdvertismentExtensions
 
     public static bool CanCarryData(this BluetoothLEAdvertisementReceivedEventArgs args) =>
         args.AdvertisementType == BluetoothLEAdvertisementType.ScanResponse ||
-        args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected;
+        args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected ||
+        args.AdvertisementType == BluetoothLEAdvertisementType.NonConnectableUndirected; // some per advertisement devices which are not directly connectable
 }

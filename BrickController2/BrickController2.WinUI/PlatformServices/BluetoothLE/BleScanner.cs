@@ -59,7 +59,7 @@ public class BleScanner
         else if (args.Advertisement.DataSections?.Count > 0)
         {
             // allow processing of advertised data from a device
-            var advertismentData = args.Advertisement.DataSections
+            var advertisementData = args.Advertisement.DataSections
                 .Where(s => AdvertismentDataTypes.Contains(s.DataType))
                 .ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
 
@@ -68,7 +68,7 @@ public class BleScanner
             // if no local name is set, try to get it from the cache
             _deviceNameCache.TryGetValue(args.BluetoothAddress, out deviceName);
 
-            _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
+            _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertisementData));
         }
     }
 
@@ -79,6 +79,7 @@ public class BleScanner
 
     private void _activeWatcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
     {
+        var bt = args.BluetoothAddress;
         if (!args.CanCarryData())
         {
             return;
@@ -92,17 +93,17 @@ public class BleScanner
 
         var bluetoothAddress = args.BluetoothAddress.ToBluetoothAddressString();
 
-        var advertismentData = args.Advertisement.DataSections
+        var advertisementData = args.Advertisement.DataSections
             .Where(s => AdvertismentDataTypes.Contains(s.DataType))
             .ToDictionary(s => s.DataType, s => s.Data.ToByteArray());
 
         // enrich data with name manually (SBrick do not like CompleteLocalName, but Buwizz3 requires it)
-        if (!advertismentData.ContainsKey(BluetoothLEAdvertisementDataTypes.CompleteLocalName))
+        if (!advertisementData.ContainsKey(BluetoothLEAdvertisementDataTypes.CompleteLocalName))
         {
-            advertismentData[BluetoothLEAdvertisementDataTypes.CompleteLocalName] = Encoding.ASCII.GetBytes(deviceName);
+            advertisementData[BluetoothLEAdvertisementDataTypes.CompleteLocalName] = Encoding.ASCII.GetBytes(deviceName);
         }
 
-        _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertismentData));
+        _scanCallback(new ScanResult(deviceName, bluetoothAddress, advertisementData));
     }
 
     public void Stop()

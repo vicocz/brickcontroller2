@@ -84,18 +84,11 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
 
             // extend if needed to other CaDA devices
             case 0x11aa:
-                //TODO this check does not work as there are only 16 bytes
-                if (IsCadaRaceCar(manufacturerData))
+                if (IsCadaRaceCarRev2(manufacturerData))
                 {
-                    // the origin deviceAddress is changing on every scan-response
-                    // but inside the manufacturerData are 3 bytes identifying the device
-                    string deviceAddress = BitConverter.ToString(manufacturerData.Slice(4, 3).ToArray()).ToLower(); // change device address
-
                     device = template with
                     {
-                        DeviceType = DeviceType.CaDA_RaceCar,
-                        DeviceAddress = deviceAddress,        // change device address, 
-                        DeviceName = template.DeviceName ?? $"CaDA {deviceAddress}"  // an empty device name is given so create one
+                        DeviceType = DeviceType.CaDA_RaceCar_Rev2
                     };
                     return true;
                 }
@@ -121,6 +114,15 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
             manufacturerData[8] == _appIdChecksumMaskArray[1] &&
             manufacturerData[9] == _appIdChecksumMaskArray[2];
     }
+
+    private bool IsCadaRaceCarRev2(ReadOnlySpan<byte> manufacturerData) => manufacturerData.Length == 16 &&
+        manufacturerData[2] == 0x11 &&
+        // default advertisement
+        (
+            (manufacturerData[3] == 0x00 && manufacturerData[4] == 0x00) ||
+            // response has to have the same appId
+            (manufacturerData[3] == _appIdChecksumMaskArray[0] && manufacturerData[4] == _appIdChecksumMaskArray[1])
+        );
 
     /// <summary>
     /// gets or creates an App-persistent AppIdentifier

@@ -25,7 +25,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<BuWizz3Device>().Keyed<Device>(DeviceType.BuWizz3);
             builder.RegisterType<InfraredDevice>().Keyed<Device>(DeviceType.Infrared);
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
-            builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 
             builder.Register<DeviceFactory>(c =>
@@ -40,7 +39,6 @@ namespace BrickController2.DeviceManagement.DI
 
             // device managers
             builder.RegisterDeviceManager<BuWizzDeviceManager>();
-            builder.RegisterDeviceManager<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>();
             builder.RegisterDeviceManager<CircuitCubeDeviceManager>();
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
             builder.RegisterDeviceManager<SBrickDeviceManager>();

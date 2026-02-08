@@ -16,22 +16,22 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
     private readonly byte[] _controlDataArray =
     // 16
     [
-            0x75, //  [0] const 0x75 (117)
-            0x13, //  [1] 0x13 (19) STATUS_CONTROL
-            0x00, //  [2] DeviceAddress
-            0x00, //  [3] DeviceAddress
-            0x00, //  [4] DeviceAddress
-            0x00, //  [5] AppID
-            0x00, //  [6] AppID
-            0x00, //  [7] AppID
-            0x00, //  [8] ChannelData random
-            0x00, //  [9] ChannelData random
-            0x80, // [10] ChannelData verticalValue (min= 0x80 (128))
-            0x80, // [11] ChannelData horizontalValue (min= 0x80 (128))
-            0x00, // [12] ChannelData lightValue
-            0x00, // [13] ChannelData 
-            0x00, // [14] ChannelData 
-            0x00, // [15] ChannelData 
+        0x75, //  [0] const 0x75 (117)
+        0x13, //  [1] 0x13 (19) STATUS_CONTROL
+        0x00, //  [2] DeviceAddress
+        0x00, //  [3] DeviceAddress
+        0x00, //  [4] DeviceAddress
+        0x00, //  [5] AppID
+        0x00, //  [6] AppID
+        0x00, //  [7] AppID
+        0x00, //  [8] ChannelData random
+        0x00, //  [9] ChannelData random
+        0x80, // [10] ChannelData verticalValue (min= 0x80 (128))
+        0x80, // [11] ChannelData horizontalValue (min= 0x80 (128))
+        0x00, // [12] ChannelData lightValue
+        0x00, // [13] ChannelData 
+        0x00, // [14] ChannelData 
+        0x00, // [15] ChannelData 
     ];
 
     private readonly ICaDAPlatformService _cadaPlatformService;
@@ -45,21 +45,20 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         // revisions
         if (deviceData?.Length == 16)
         {
-            // DeviceData-Array is the manufacturer specific data inside the response telegram sent when
-            // * scanning for the device.
-            // * loading the device from database
+            //// DeviceData-Array is the manufacturer specific data inside the response telegram sent when
+            //// * scanning for the device.
+            //// * loading the device from database
 
-            // It's containing:
-            // * DeviceAddress of the real CaDA device
-            // * AppID sent from this App on scanning
-            // These values are patched into the DataArray which is advertised to control the device.
-            _controlDataArray[2] = deviceData[4]; // DeviceAddress
-            _controlDataArray[3] = deviceData[5]; // DeviceAddress
-            _controlDataArray[4] = deviceData[6]; // DeviceAddress
+            //// It's containing:
+            //// * DeviceAddress of the real CaDA device
+            //// * AppID sent from this App on scanning
+            //// These values are patched into the DataArray which is advertised to control the device.
+            //_controlDataArray[2] = deviceData[4]; // DeviceAddress
+            //_controlDataArray[3] = deviceData[5]; // DeviceAddress
+            //_controlDataArray[4] = deviceData[6]; // DeviceAddress
 
-            _controlDataArray[5] = deviceData[7]; // AppID
-            _controlDataArray[6] = deviceData[8]; // AppID
-            _controlDataArray[7] = deviceData[9]; // AppID
+            _controlDataArray[5] = deviceData[3]; // AppID
+            _controlDataArray[6] = deviceData[4]; // AppID
         }
         else
         {

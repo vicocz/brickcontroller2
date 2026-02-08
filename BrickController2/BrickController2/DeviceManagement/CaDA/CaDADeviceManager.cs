@@ -115,14 +115,14 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
             manufacturerData[9] == _appIdChecksumMaskArray[2];
     }
 
-    private bool IsCadaRaceCarRev2(ReadOnlySpan<byte> manufacturerData) => manufacturerData.Length == 16 &&
+    private static bool IsCadaRaceCarRev2(ReadOnlySpan<byte> manufacturerData) => manufacturerData.Length == 16 &&
         manufacturerData[2] == 0x11 &&
-        // default advertisement
-        (
-            (manufacturerData[3] == 0x00 && manufacturerData[4] == 0x00) ||
-            // response has to have the same appId
-            (manufacturerData[3] == _appIdChecksumMaskArray[0] && manufacturerData[4] == _appIdChecksumMaskArray[1])
-        );
+        // response has 2 zeros as AppId - not connected yet
+        manufacturerData[3] == 0x00 &&
+        manufacturerData[4] == 0x00 &&
+        manufacturerData[5] == 0x20 &&
+        // flag not connected yet
+        manufacturerData[7] == 0x85;
 
     /// <summary>
     /// gets or creates an App-persistent AppIdentifier

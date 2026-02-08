@@ -31,6 +31,23 @@ public class CaDADeviceManagerTests
     }
 
     [Fact]
+    public void CreateScanData_IosPlatform_PatchesAppIdIntoScanData()
+    {
+        // arrange
+        _cadaPlatformService.TryGetRfPayload_ForIosPlatform();
+
+        var scanData = _manager.CreateScanData();
+
+        scanData.Should().BeEquivalentTo(new[]
+        {
+            0xC0, 0x3D, 0xCA, 0x66, 0x6D, 0x32, 0xB2, 0x9D,
+            0xD2, 0x57, 0xA1, 0x5C, 0xC5, 0x05, 0xB0, 0x75,
+            0xB1, 0x91, 0x48, 0x96, 0x77, 0xF8, 0x00, 0x8D,
+            0x18, 0x19
+        });
+    }
+
+    [Fact]
     public void TryGetDevice_CadaCarWithMatchingAppId_ReturnsCaDaRaceCarDevice()
     {
         byte[] manufacturerData =
@@ -65,7 +82,7 @@ public class CaDADeviceManagerTests
     }
 
     [Fact]
-    public void TryGetDevice_CadaCarWithDifferentAppId_ReturnsCaDaRaceCarDevice()
+    public void TryGetDevice_CadaCarWithDifferentAppId_ReturnsFalse()
     {
         byte[] manufacturerData =
         {
@@ -90,5 +107,68 @@ public class CaDADeviceManagerTests
 
         result.Should().BeFalse();
         device.DeviceType.Should().Be(DeviceType.Unknown);
+    }
+
+    [Fact]
+    public void TryGetDevice_CadaCarRev2WithZeroAppId_ReturnsCaDaRaceCarRev2Device()
+    {
+        byte[] manufacturerData =
+        [
+            // manufacturerId
+            0xAA,0x11,
+            // CADA RaceCar
+            0x11,
+            // 2 bytes AppID
+            0x00, 0x00,
+            // other data
+            0x20, 0xB9,
+            // flag
+            0x85,
+            0x00, 0x00, 0x00, 0xA1, 0xCC, 0xB8, 0x92, 0xA0
+        ];
+
+        var scanResult = new ScanResult("RaceCar-Revision2", "AA-BB-CC-DD", new Dictionary<byte, byte[]>()
+        {
+            { 0xFF, manufacturerData }
+        });
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeTrue();
+        device.Should().BeEquivalentTo(new FoundDevice()
+        {
+            DeviceAddress = "AA-BB-CC-DD",
+            DeviceName = "RaceCar-Revision2",
+            DeviceType = DeviceType.CaDA_RaceCar_Rev2,
+            ManufacturerData = manufacturerData
+        });
+    }
+
+    [Fact]
+    public void TryGetDevice_CadaCarRev2WithSomeAppId_ReturnsFalse()
+    {
+        byte[] manufacturerData =
+        [
+            // manufacturerId
+            0xAA,0x11,
+            // CADA RaceCar
+            0x11,
+            // 2 bytes AppID
+            0x12, 0x34,
+            // other data
+            0x20, 0xB9,
+            // flag
+            0x86,
+            0x00, 0x00, 0x00, 0xA1, 0xCC, 0xB8, 0x92, 0xA0
+        ];
+
+        var scanResult = new ScanResult("RaceCar-Revision2", "AA-BB-CC-DD", new Dictionary<byte, byte[]>()
+        {
+            { 0xFF, manufacturerData }
+        });
+
+        var result = _manager.TryGetDevice(scanResult, out var device);
+
+        result.Should().BeFalse();
     }
 }

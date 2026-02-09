@@ -50,12 +50,11 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
             //// * loading the device from database
 
             //// It's containing:
-            //// * DeviceAddress of the real CaDA device
+            //// * DeviceId of the real CaDA device
             //// * AppID sent from this App on scanning
             //// These values are patched into the DataArray which is advertised to control the device.
-            //_controlDataArray[2] = deviceData[4]; // DeviceAddress
-            //_controlDataArray[3] = deviceData[5]; // DeviceAddress
-            //_controlDataArray[4] = deviceData[6]; // DeviceAddress
+            _controlDataArray[2] = deviceData[5]; // DeviceId
+            _controlDataArray[3] = deviceData[6]; // DeviceId
 
             _controlDataArray[5] = deviceData[3]; // AppID
             _controlDataArray[6] = deviceData[4]; // AppID

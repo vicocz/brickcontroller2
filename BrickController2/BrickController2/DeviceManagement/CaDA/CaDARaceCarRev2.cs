@@ -10,29 +10,10 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// </summary>
 internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 {
-    /// <summary>
-    /// byte-array including DeviceAddress, AppID and channelData
-    /// </summary>
-    private readonly byte[] _controlDataArray =
-    // 16
-    [
-        0x75, //  [0] const 0x75 (117)
-        0x13, //  [1] 0x13 (19) STATUS_CONTROL
-        0x00, //  [2] DeviceAddress
-        0x00, //  [3] DeviceAddress
-        0x00, //  [4] DeviceAddress
-        0x00, //  [5] AppID
-        0x00, //  [6] AppID
-        0x00, //  [7] AppID
-        0x00, //  [8] ChannelData random
-        0x00, //  [9] ChannelData random
-        0x80, // [10] ChannelData verticalValue (min= 0x80 (128))
-        0x80, // [11] ChannelData horizontalValue (min= 0x80 (128))
-        0x00, // [12] ChannelData lightValue
-        0x00, // [13] ChannelData 
-        0x00, // [14] ChannelData 
-        0x00, // [15] ChannelData 
-    ];
+    // 7 bytes: AA 11 11 Seed1 Seed2 AppId1, AppId2
+    private readonly byte[] _devicePrefix;
+    private readonly byte[] _deviceHardwareId;
+
 
     private readonly ICaDAPlatformService _cadaPlatformService;
     private readonly OutputValuesGroup<short> _outputValues = new(3);
@@ -45,19 +26,15 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         // revisions
         if (deviceData?.Length == 16)
         {
-            //// DeviceData-Array is the manufacturer specific data inside the response telegram sent when
-            //// * scanning for the device.
-            //// * loading the device from database
+            _devicePrefix = deviceData.AsSpan(0, 7).ToArray();
+            // seed
+            _devicePrefix[3] = deviceData[5];
+            _devicePrefix[4] = deviceData[6];
+            //TODO app id
+            _devicePrefix[5] = 0xAD;
+            _devicePrefix[6] = 0x42;
 
-            //// It's containing:
-            //// * DeviceId of the real CaDA device
-            //// * AppID sent from this App on scanning
-            //// These values are patched into the DataArray which is advertised to control the device.
-            _controlDataArray[2] = deviceData[5]; // DeviceId
-            _controlDataArray[3] = deviceData[6]; // DeviceId
-
-            _controlDataArray[5] = deviceData[3]; // AppID
-            _controlDataArray[6] = deviceData[4]; // AppID
+            _deviceHardwareId = deviceData.AsSpan(11, 5).ToArray();
         }
         else
         {
@@ -92,31 +69,46 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 
     protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
-        ushort random = (ushort)Random.Shared.Next(ushort.MinValue, ushort.MaxValue);
+        currentData =
+        [
+            // header
+            0xC0, 0x00,
+            // other data
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        ];
 
-        _outputValues.TryGetValues(out var values);
+        // device data: prefix, seed, appId
+        _devicePrefix.AsSpan(0, 7).CopyTo(currentData.AsSpan(2));
+        currentData[2] = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
 
-        byte[] channelDataArray =
-            // 8
-            [
-                (byte)(random & 0xFF),
-                (byte)((random >> 8) & 0xFF),
-                (byte)Math.Max(0, Math.Min(0x80 - values[0], 0xFF)), // speed value - reversed
-                (byte)Math.Max(0, Math.Min(0x80 + values[1], 0xFF)), // 
-                (byte)Math.Max(0, Math.Min(0x80 + values[2], 0xFF)), // light on/off
-                0,
-                0,
-                0
-            ];
+        // command data
+        if (getConnectTelegram)
+        {
+            ReadOnlySpan<byte> command = [0x6B, 0x6B, 0x00];
+            command.CopyTo(currentData.AsSpan(9));
+        }
+        else
+        {
+            _outputValues.TryGetValues(out var values);
 
-        CaDAProtocol.Encrypt(channelDataArray);
-        // copy channel data to control data as index 8..15
-        channelDataArray.AsSpan().CopyTo(_controlDataArray.AsSpan(8));
+            currentData[9] = (byte)Math.Max(0, Math.Min(0x80 - values[0], 0xFF));
+            currentData[10] = (byte)Math.Max(0, Math.Min(0x80 + values[1], 0xFF));
+            currentData[11] = (byte)Math.Max(0, Math.Min(0x80 + values[2], 0xFF));
+        }
+        //currentData[9] ^= 0xAD;
+       // currentData[10] ^= 0x42;
+        currentData[12] = (byte)(currentData[9] + currentData[10] + currentData[11]);
 
-        _controlDataArray[0] = 0x75; // 0x75 (117)
-        _controlDataArray[1] = 0x13; // 0x13 (19);
+        // hardware id
+        _deviceHardwareId.AsSpan().CopyTo(currentData.AsSpan(13));
+        currentData[17] = getConnectTelegram ? (byte)0xA0 : (byte)0xB0;
 
-        return _cadaPlatformService.TryGetRfPayload(_controlDataArray, out currentData);
+        ReadOnlySpan<byte> session = [0xEF, 0xF2, 0xC5, 0x67, 0x8F, 0x9F, 0xF1, 0xF8];
+        session.CopyTo(currentData.AsSpan(18));
+
+        return true;
     }
 
     /// <summary>

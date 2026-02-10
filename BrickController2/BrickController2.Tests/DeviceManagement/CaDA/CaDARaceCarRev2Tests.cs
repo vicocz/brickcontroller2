@@ -22,13 +22,13 @@ public class CaDARaceCarRev2Tests
                 // CADA RaceCar?
                 0x11,
                 // 2 bytes AppID
-                0x88, 0x51,
-                // some identifying bytes
+                0x00, 0x00,
+                // Device Seed
                 0x20, 0xB9,
-                // some flag
-                0x86,
-                // other data
-                0x00, 0x00, 0x00, 0xA1, 0xCC, 0xB8, 0x92, 0xA0
+                // some flag(s)
+                0x86, 0x00, 0x00, 0x00, 
+                // hardware id
+                0xA1, 0xCC, 0xB8, 0x92, 0xA0
             ],
             Mock.Of<IDeviceRepository>(MockBehavior.Strict),
             Mock.Of<IBluetoothLEService>(MockBehavior.Strict),
@@ -36,7 +36,27 @@ public class CaDARaceCarRev2Tests
     }
 
     [Fact]
-    public void TryGetTelegram_ZeroValuesAndIosPlatform_ReturnsProperDatagram()
+    public void TryGetTelegram_ConnectTelegram_ReturnsProperDatagram()
+    {
+        // arrange
+        _cadaPlatformService.TryGetRfPayload_ForIosPlatform();
+
+        var result = _device.TryGetTelegram(true, out var telegram);
+
+        result.Should().BeTrue();
+        telegram.Should().StartWith(new byte[]
+        {
+            0xC0, 0x00, 0xAA, 0x11, 0x11,
+            0x20, 0xB9,
+            0xAD, 0x42,
+            0x6B, 0x6B, 0x00, /*0xEB,*/ 0xD6, //TODO checksum
+            0xA1, 0xCC, 0xB8, 0x92, 0xA0,
+            0xEF, 0xF2, 0xC5, 0x67, 0x8F, 0x9F, 0xF1, 0xF8
+        });
+    }
+
+    [Fact]
+    public void TryGetTelegram_WithZeroValuesTelegram_ReturnsProperDatagram()
     {
         // arrange
         _cadaPlatformService.TryGetRfPayload_ForIosPlatform();
@@ -46,13 +66,12 @@ public class CaDARaceCarRev2Tests
         result.Should().BeTrue();
         telegram.Should().StartWith(new byte[]
         {
-            // CADA SMART CAR Rev2
             0xC0, 0x00, 0xBB, 0x11, 0x11,
             0x20, 0xB9,
-            0x88, 0x51,
-            //0x76, 0x76, 0x00, 0xF6, 0xA1, 0xCC, 0xB8,
-            //0x92, 0xB0, 0x27, 0x0F, 0x86, 0x28, 0x17, 0xD3,
-            //0xAC, 0xCB
+            0xAD, 0x42,
+            0x80, 0x80, 0x80, 0x80, //TODO checksum
+            0xA1, 0xCC, 0xB8, 0x92, 0xB0,
+            0xEF, 0xF2, 0xC5, 0x67, 0x8F, 0x9F, 0xF1, 0xF8
         });
     }
 }

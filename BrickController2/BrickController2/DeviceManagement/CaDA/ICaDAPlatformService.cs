@@ -1,4 +1,6 @@
-﻿namespace BrickController2.DeviceManagement.CaDA;
+﻿using System;
+
+namespace BrickController2.DeviceManagement.CaDA;
 
 /// <summary>
 /// Interface definition for CaDA specific PlatformService
@@ -6,4 +8,6 @@
 public interface ICaDAPlatformService
 {
     bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload);
+
+    bool TryGetRfPayload(ushort manufacturerId, ReadOnlySpan<byte> rawData, out byte[] rfPayload);
 }

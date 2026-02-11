@@ -120,7 +120,7 @@ public class CaDADeviceManagerTests
             0x11,
             // 2 bytes AppID
             0x00, 0x00,
-            // other data
+            // Seed
             0x20, 0xB9,
             // flag
             0x85,
@@ -155,7 +155,7 @@ public class CaDADeviceManagerTests
             0x11,
             // 2 bytes AppID
             0x12, 0x34,
-            // other data
+            // Seed
             0x20, 0xB9,
             // flag
             0x86,

@@ -120,7 +120,6 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
         // response has 2 zeros as AppId - not connected yet
         manufacturerData[3] == 0x00 &&
         manufacturerData[4] == 0x00 &&
-        manufacturerData[5] == 0x20 &&
         // flag not connected yet
         manufacturerData[7] == 0x85;
 

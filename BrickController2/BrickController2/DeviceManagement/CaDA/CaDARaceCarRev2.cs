@@ -32,6 +32,10 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         {
             throw new ApplicationException($"Invalid {nameof(deviceData)} array!");
         }
+
+        //TODO testing only
+        _payloadTemplate[5] = 0xAD;
+        _payloadTemplate[6] = 0x42;
     }
     public override DeviceType DeviceType => DeviceType.CaDA_RaceCar_Rev2;
 
@@ -47,7 +51,7 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         CheckChannel(channelNo);
         value = CutOutputValue(value);
 
-        var rawValue = (short)(value * 0x7F); // scale and cast
+        var rawValue = (short)(value * 0x60); // scale and cast
 
         if (_outputValues.SetOutput(channelNo, rawValue))
         {
@@ -76,27 +80,35 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         // compose payload
         var payload = _payloadTemplate.AsSpan();
 
+        // fill values
+        _outputValues.TryGetValues(out var values);
+
+        byte throttle = (byte)Math.Max(0, Math.Min(0x80 - values[0], 0xFF)); // speed value - reversed
+        byte steering = (byte)Math.Max(0, Math.Min(0x80 + values[1], 0xFF));
+        byte lights = (byte)(values[2] > 0 ? 0x01 : 0x00);
+        byte sequence = (getConnectTelegram || (values[0] == 0.0f && values[1] == 0.0f))
+            ? (byte)0xA1
+            : (byte)(payload[11] + 1);
+
         // header: PAIRING : COMMAND
         payload[0] = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
         payload[15] = getConnectTelegram ? (byte)0xA0 : (byte)0xB0;
 
-        // fill values
-        _outputValues.TryGetValues(out var values);
-
-        // 3. Set Feature Flags (Byte 9)
-        payload[9] = (byte)(values[2] > 0 ? 0x01 : 0x00);
-
-        // 4. Calculate Offset / Checksum (Byte 10)
-        // Formula: AppId_1 + AppId_2 + Byte_0 + Byte_15 + Byte_9 + Constant(0xB2)
-        int offsetSum = payload[5] + payload[6] + payload[0] + payload[15] + payload[9] + 0xB2;
+        // Calculate Offset / Checksum (Byte 10)
+        // Formula: Offset = (AppId_1 + AppId_2 + Byte_0 + Byte_15 + Byte_9 + Byte_11 + 0x11 - Steering - Throttle) mod 256
+        int offsetSum = payload[5] + payload[6] + payload[0] + payload[15] + lights + sequence + 0x11
+                + 512 // negative modulo math safely
+                - steering - throttle;
 
         // Casting to byte automatically handles the modulo 256 wrap-around
         byte offset = (byte)offsetSum;
-        payload[10] = offset;
 
         // 5. Encode the Joystick Axes (Bytes 7 & 8) - zero is 0x80
-        payload[7] = (byte)(0x80 + values[0] + offset);
-        payload[8] = (byte)(0x80 + values[1] + offset);
+        payload[7] = (byte)(throttle + offset);
+        payload[8] = (byte)(steering + offset);
+        payload[9] = lights;
+        payload[10] = offset;
+        payload[11] = sequence;
 
         return _cadaPlatformService.TryGetRfPayload(ManufacturerId, payload, out currentData);
     }

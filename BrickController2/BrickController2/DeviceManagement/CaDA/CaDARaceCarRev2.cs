@@ -27,8 +27,6 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
             _payloadTemplate[3] = deviceData[5];
             _payloadTemplate[4] = deviceData[6];
             //TODO app id
-            _payloadTemplate[5] = 0xAD;
-            _payloadTemplate[6] = 0x42;
         }
         else
         {
@@ -58,6 +56,13 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         }
     }
 
+    //TODO just now, AppId should be resolved via manager
+    internal void SetAppId(byte appId1, byte appId2)
+    {
+        _payloadTemplate[5] = appId1;
+        _payloadTemplate[6] = appId2;
+    }
+
     protected override void InitDevice()
     {
     }
@@ -71,30 +76,27 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         // compose payload
         var payload = _payloadTemplate.AsSpan();
 
-        // device data: AA vs BB flag
-        payload[2] = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
-
-        // command data
-        if (getConnectTelegram)
-        {
-            ReadOnlySpan<byte> command = [0x6B, 0x6B, 0x00];
-            command.CopyTo(payload.Slice(7));
-        }
-        else
-        {
-            _outputValues.TryGetValues(out var values);
-
-            payload[7] = (byte)Math.Max(0, Math.Min(0x80 - values[0], 0xFF));
-            payload[8] = (byte)Math.Max(0, Math.Min(0x80 + values[1], 0xFF));
-            payload[9] = (byte)Math.Max(0, Math.Min(0x80 + values[2], 0xFF));
-        }
-        //TODO XOR using AppId
-        //currentData[9] ^= 0xAD;
-        // currentData[10] ^= 0x42;
-        payload[10] = (byte)(payload[7] + payload[8] + payload[9]);
-
-        // update flags
+        // header: PAIRING : COMMAND
+        payload[0] = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
         payload[15] = getConnectTelegram ? (byte)0xA0 : (byte)0xB0;
+
+        // fill values
+        _outputValues.TryGetValues(out var values);
+
+        // 3. Set Feature Flags (Byte 9)
+        payload[9] = (byte)(values[2] > 0 ? 0x01 : 0x00);
+
+        // 4. Calculate Offset / Checksum (Byte 10)
+        // Formula: AppId_1 + AppId_2 + Byte_0 + Byte_15 + Byte_9 + Constant(0xB2)
+        int offsetSum = payload[5] + payload[6] + payload[0] + payload[15] + payload[9] + 0xB2;
+
+        // Casting to byte automatically handles the modulo 256 wrap-around
+        byte offset = (byte)offsetSum;
+        payload[10] = offset;
+
+        // 5. Encode the Joystick Axes (Bytes 7 & 8) - zero is 0x80
+        payload[7] = (byte)(0x80 + values[0] + offset);
+        payload[8] = (byte)(0x80 + values[1] + offset);
 
         return _cadaPlatformService.TryGetRfPayload(ManufacturerId, payload, out currentData);
     }

@@ -3,25 +3,23 @@ using BrickController2.DeviceManagement.CaDA;
 using BrickController2.PlatformServices.BluetoothLE;
 using FluentAssertions;
 using Moq;
+using System;
 using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.CaDA;
 
 public class CaDARaceCarRev2Tests
 {
-    private readonly CaDARaceCarRev2 _device;
-    private readonly Mock<ICaDAPlatformService> _cadaPlatformService = new(MockBehavior.Strict);
-
-    public CaDARaceCarRev2Tests()
+    private static CaDARaceCarRev2 Create()
     {
-        _device = new CaDARaceCarRev2("RC",
+        return new CaDARaceCarRev2("RC",
             "1-2-3",
             [
                 // manufacturerId
                 0xAA, 0x11,
                 // CADA RaceCar?
                 0x11,
-                // 2 bytes AppID
+                // 2 bytes AppID - zeros from the scan
                 0x00, 0x00,
                 // Device Seed
                 0x20, 0xB9,
@@ -32,46 +30,96 @@ public class CaDARaceCarRev2Tests
             ],
             Mock.Of<IDeviceRepository>(MockBehavior.Strict),
             Mock.Of<IBluetoothLEService>(MockBehavior.Strict),
-            _cadaPlatformService.Object);
+            new CaDATestPlatformService());
     }
 
-    [Fact]
-    public void TryGetTelegram_ConnectTelegram_ReturnsProperDatagram()
+    [Theory]
+    [InlineData(0x76, 0x40, 0x32, 0x32, 0x00, 0xB2)] //AA111120B97640323200B2A1CCB892A0 
+    public void TryGetTelegram_ConnectTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte v1, byte v2, byte v3, byte v4)
     {
         // arrange
-        _cadaPlatformService.TryGetRfPayload_ForIosPlatform();
+        var device = Create();
+        device.SetAppId(appId1, appId2);
 
-        var result = _device.TryGetTelegram(true, out var telegram);
+        // act
+        var result = device.TryGetTelegram(true, out var telegram);
 
+        // assert
         result.Should().BeTrue();
-        telegram.Should().StartWith(new byte[]
-        {
-            0xC0, 0x00, 0xAA, 0x11, 0x11,
+        telegram.Should().BeEquivalentTo(
+        [
+            0xAA, 0x11, 0x11,
             0x20, 0xB9,
-            0xAD, 0x42,
-            0x6B, 0x6B, 0x00, /*0xEB,*/ 0xD6, //TODO checksum
-            0xA1, 0xCC, 0xB8, 0x92, 0xA0,
-            0xEF, 0xF2, 0xC5, 0x67, 0x8F, 0x9F, 0xF1, 0xF8
-        });
+            appId1, appId2,
+            v1, v2, v3, v4,
+            0xA1, 0xCC, 0xB8, 0x92, 0xA0
+        ]);
     }
 
-    [Fact]
-    public void TryGetTelegram_WithZeroValuesTelegram_ReturnsProperDatagram()
+    [Theory]
+    [InlineData(0xAD, 0x42, 0x8C, 0x8C, 0x00, 0x0C)] //BB111120B9AD428C8C000CA1CCB892B0
+    [InlineData(0x88, 0x51, 0x76, 0x76, 0x00, 0xF6)] //BB111120B98851767600F6A1CCB892B0 
+    [InlineData(0x76, 0x40, 0x53, 0x53, 0x00, 0xD3)] //BB111120B97640535300D3A1CCB892B0 
+    public void TryGetTelegram_WithZeroValuesTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte v1, byte v2, byte v3, byte v4)
     {
         // arrange
-        _cadaPlatformService.TryGetRfPayload_ForIosPlatform();
+        var device = Create();
+        device.SetAppId(appId1, appId2);
 
-        var result = _device.TryGetTelegram(false, out var telegram);
+        // act
+        var result = device.TryGetTelegram(false, out var telegram);
 
+        // assert
         result.Should().BeTrue();
-        telegram.Should().StartWith(new byte[]
-        {
-            0xC0, 0x00, 0xBB, 0x11, 0x11,
+        telegram.Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
             0x20, 0xB9,
-            0xAD, 0x42,
-            0x80, 0x80, 0x80, 0x80, //TODO checksum
-            0xA1, 0xCC, 0xB8, 0x92, 0xB0,
-            0xEF, 0xF2, 0xC5, 0x67, 0x8F, 0x9F, 0xF1, 0xF8
-        });
+            appId1, appId2,
+            v1, v2, v3, v4,
+            0xA1, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+
+    [Theory]
+    [InlineData(0x76, 0x40, 0x54, 0x54, 0x01, 0xD4)] //BB111120B97640545401D4A1CCB892B0 
+    public void TryGetTelegram_WithZeroValuesAndLightOnTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte v1, byte v2, byte v3, byte v4)
+    {
+        // arrange
+        var device = Create();
+        device.SetAppId(appId1, appId2);
+        device.SetOutput(2, 1.0f);
+
+        // act
+        var result = device.TryGetTelegram(false, out var telegram);
+
+        // assert
+        result.Should().BeTrue();
+        telegram.Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
+            0x20, 0xB9,
+            appId1, appId2,
+            v1, v2, v3, v4,
+            0xA1, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+}
+
+
+public class CaDATestPlatformService : ICaDAPlatformService
+{
+    private const int PayloadRev2Length = 16;
+
+    public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool TryGetRfPayload(ushort manufacturerId, ReadOnlySpan<byte> rawData, out byte[] rfPayload)
+    {
+        // copy past data
+        rfPayload = rawData.ToArray();
+        return rawData.Length == PayloadRev2Length;
     }
 }

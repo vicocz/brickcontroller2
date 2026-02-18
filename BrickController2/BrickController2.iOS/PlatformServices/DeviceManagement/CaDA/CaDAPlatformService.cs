@@ -37,7 +37,7 @@ public class CaDAPlatformService : ICaDAPlatformService
         return true;
     }
 
-    public bool TryGetRfPayload(short manufacturerId, ReadOnlySpan<byte> rawData, out byte[] rfPayload)
+    public bool TryGetRfPayload(ushort manufacturerId, ReadOnlySpan<byte> rawData, out byte[] rfPayload)
     {
         rfPayload = new byte[2 + rawData.Length + PayloadLength];
 

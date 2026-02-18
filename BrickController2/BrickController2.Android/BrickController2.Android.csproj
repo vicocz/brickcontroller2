@@ -38,6 +38,7 @@
 		<PackageReference Include="Microsoft.Maui.Controls" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
 		<PackageReference Include="Microsoft.Maui.Essentials" />
+		<ProjectReference Include="..\BrickController2.Core\BrickController2.Core.csproj" />
 		<ProjectReference Include="..\BrickController2\BrickController2.csproj" />
 	</ItemGroup>
 

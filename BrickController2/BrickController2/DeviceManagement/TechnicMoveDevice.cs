@@ -140,7 +140,7 @@ namespace BrickController2.DeviceManagement
                 try
                 {
                     // hub LED
-                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
+                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_GREEN;
                     var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
                     await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
 
@@ -188,12 +188,12 @@ namespace BrickController2.DeviceManagement
                 // reset servo via PLAYVM
                 // PLAYVM cmd supports only servo on C channel
                 var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
-                await WriteNoResponseAsync(servoCmd, token: token);
+                await WriteAsync(servoCmd, token: token);
                 await Task.Delay(100, token);
 
                 // do calibration
                 var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
-                await WriteNoResponseAsync(calibrateCmd, token: token);
+                await WriteAsync(calibrateCmd, token: token);
                 await Task.Delay(750, token);
 
                 return true;

@@ -371,8 +371,8 @@ namespace BrickController2.DeviceManagement
 
         private void DumpData(string header, byte[] data)
         {
-            //var s = BitConverter.ToString(data);
-            //Console.WriteLine(header + " - " + s);
+            var s = BitConverter.ToString(data);
+            Debug.WriteLine(header + " - " + s);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -418,13 +418,18 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
+                Debug.WriteLine("Connected, doing after connect setup...");
                 // Wait until ports finish communicating with the hub
                 await Task.Delay(1000, token);
+
+                Debug.WriteLine("Connected, awaited after connect setup...");
 
                 if (requestDeviceInformation)
                 {
                     await RequestHubPropertiesAsync(token);
                 }
+
+                Debug.WriteLine("Connected, hub properties received...");
 
                 for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
@@ -435,6 +440,8 @@ namespace BrickController2.DeviceManagement
                         await ResetServoAsync(channel, _servoBaseAngles[channel], token);
                     }
                 }
+
+                Debug.WriteLine("Connected, port set up completed");
 
                 return true;
             }

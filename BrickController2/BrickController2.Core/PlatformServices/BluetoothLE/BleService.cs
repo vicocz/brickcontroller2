@@ -55,10 +55,12 @@ public class BleService : IBluetoothLEService
         {
             var advertisementData = args.Device.AdvertisementRecords
                 .Where(s => AdvertisementDataTypes.Contains(s.Type))
-                .ToDictionary(s => (byte)s.Type, s => s.Data);
+                .GroupBy(s => s.Type)
+                .ToDictionary(s => (byte)s.Key, s => s.First().Data);
 
             // enrich data with name manually (SBrick do not like CompleteLocalName, but Buwizz3 requires it)
-            if (!advertisementData.ContainsKey((byte)AdvertisementRecordType.CompleteLocalName))
+            if (!advertisementData.ContainsKey((byte)AdvertisementRecordType.CompleteLocalName) &&
+                args.Device.Name != null)
             {
                 advertisementData[(byte)AdvertisementRecordType.CompleteLocalName] = Encoding.ASCII.GetBytes(args.Device.Name);
             }

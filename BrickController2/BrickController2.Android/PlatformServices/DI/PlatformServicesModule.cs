@@ -15,6 +15,9 @@ using BrickController2.PlatformServices.Infrared;
 using BrickController2.PlatformServices.Localization;
 using BrickController2.PlatformServices.Permission;
 using BrickController2.PlatformServices.SharedFileStorage;
+using BrickController2.Core.PlatformServices.BluetoothLE;
+using Plugin.BLE;
+using Plugin.BLE.Abstractions.Contracts;
 
 namespace BrickController2.Droid.PlatformServices.DI
 {
@@ -24,7 +27,7 @@ namespace BrickController2.Droid.PlatformServices.DI
         {
             builder.RegisterType<InfraredService>().As<IInfraredService>().SingleInstance();
             builder.RegisterType<GameControllerService>().AsSelf().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
-            builder.RegisterType<BluetoothLEService>().As<IBluetoothLEService>().SingleInstance();
+            //TODO builder.RegisterType<BluetoothLEService>().As<IBluetoothLEService>().SingleInstance();
             builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
             builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
             builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
@@ -32,6 +35,10 @@ namespace BrickController2.Droid.PlatformServices.DI
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
             builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
             builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
+
+            // use Core implementation
+            builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
+            builder.RegisterInstance(CrossBluetoothLE.Current).As<IBluetoothLE>().SingleInstance();
         }
     }
 }

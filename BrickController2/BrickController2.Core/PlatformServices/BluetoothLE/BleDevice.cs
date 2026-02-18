@@ -80,7 +80,7 @@ public class BleDevice : IBluetoothLEDevice
             }
             _adapter!.DeviceDisconnected += async (s, e) =>
             {
-                if (e.Device.Id == _device.Id)
+                if (_device != null && e.Device.Id == _device.Id)
                 {
                     await OnDisconnection();
                 }
@@ -91,7 +91,7 @@ public class BleDevice : IBluetoothLEDevice
         }
 
         // enforce connection check
-        await OnConnectionAsync();
+        await OnConnectionAsync(token);
 
         var result = await _connectCompletionSource.Task;
         _connectCompletionSource = null;
@@ -211,7 +211,7 @@ public class BleDevice : IBluetoothLEDevice
     //    }
     //}
 
-    private async Task OnConnectionAsync(CancellationToken token)
+    private async Task OnConnectionAsync(CancellationToken token = default)
     {
         using (await _lock.LockAsync(token))
         {
@@ -228,7 +228,7 @@ public class BleDevice : IBluetoothLEDevice
                         var services = availableServices.Select(s => new BleGattService(s)).ToArray();
                         State = BluetoothLEDeviceState.Connected;
                         _connectCompletionSource?.SetResult(services);
-                        return true;
+                        return;
                     }
                 }
             }

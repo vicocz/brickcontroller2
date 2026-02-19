@@ -12,9 +12,7 @@ public class BleDevice : IBluetoothLEDevice
     private readonly BLE.IAdapter? _adapter;
 
     private BLE.IDevice? _device;
-    private ICollection<BleGattService>? _services;
-
-    private TaskCompletionSource<ICollection<BleGattService>?>? _connectCompletionSource;
+    private IReadOnlyCollection<BleGattService>? _services;
 
     private Action<Guid, byte[]>? _onCharacteristicChanged;
     private Action<IBluetoothLEDevice>? _onDeviceDisconnected;
@@ -39,14 +37,14 @@ public class BleDevice : IBluetoothLEDevice
             using (await _lock.LockAsync())
             {
                 InternalDisconnect();
-                _connectCompletionSource?.TrySetResult(null);
+                //_connectCompletionSource?.TrySetResult(null);
             }
         });
         _services = await ConnectAsync(onCharacteristicChanged, onDeviceDisconnected, token);
         return _services;
     }
 
-    private async Task<ICollection<BleGattService>?> ConnectAsync(
+    private async Task<IReadOnlyCollection<BleGattService>?> ConnectAsync(
         Action<Guid, byte[]> onCharacteristicChanged,
         Action<IBluetoothLEDevice> onDeviceDisconnected,
         CancellationToken token)
@@ -86,17 +84,10 @@ public class BleDevice : IBluetoothLEDevice
                 }
             };
             //TODO_device.ConnectionStatusChanged += BluetoothDevice_ConnectionStatusChanged;
-
-            _connectCompletionSource = new TaskCompletionSource<ICollection<BleGattService>?>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         // enforce connection check
-        await OnConnectionAsync(token);
-
-        var result = await _connectCompletionSource.Task;
-        _connectCompletionSource = null;
-
-        return result;
+        return await OnConnectionAsync(token);
     }
 
     public async Task DisconnectAsync()
@@ -211,7 +202,7 @@ public class BleDevice : IBluetoothLEDevice
     //    }
     //}
 
-    private async Task OnConnectionAsync(CancellationToken token = default)
+    private async Task<IReadOnlyCollection<BleGattService>> OnConnectionAsync(CancellationToken token = default)
     {
         using (await _lock.LockAsync(token))
         {
@@ -223,13 +214,16 @@ public class BleDevice : IBluetoothLEDevice
                 {
                     var availableServices = await _device.GetServicesAsync(token);
 
-                    if (availableServices is not null)
+                    var results = new List<BleGattService>();
+                    foreach (var service in availableServices)
                     {
-                        var services = availableServices.Select(s => new BleGattService(s)).ToArray();
-                        State = BluetoothLEDeviceState.Connected;
-                        _connectCompletionSource?.SetResult(services);
-                        return;
+                        var characteristics = await service.GetCharacteristicsAsync(token);
+                        // Await each item one by one before moving to the next
+                        results.Add(new BleGattService(service, [.. characteristics.Select(c => new GattCharacteristic(c))]));
                     }
+
+                    State = BluetoothLEDeviceState.Connected;
+                    return [.. results];
                 }
             }
             else if (State == BluetoothLEDeviceState.Connected)
@@ -239,9 +233,10 @@ public class BleDevice : IBluetoothLEDevice
             else
             {
                 InternalDisconnect();
-                _connectCompletionSource?.SetResult(null);
             }
         }
+
+        return [];
     }
 
     private async Task OnDisconnection()
@@ -253,7 +248,7 @@ public class BleDevice : IBluetoothLEDevice
                 case BluetoothLEDeviceState.Connecting:
                 case BluetoothLEDeviceState.Discovering:
                     InternalDisconnect();
-                    _connectCompletionSource?.SetResult(null);
+                    //TODO _connectCompletionSource?.SetResult(null);
                     break;
 
                 case BluetoothLEDeviceState.Connected:
@@ -267,25 +262,5 @@ public class BleDevice : IBluetoothLEDevice
                     break;
             }
         }
-    }
-
-    private async Task<bool> DiscoverServicesAsync(CancellationToken token = default)
-    {
-        // expectation is the method is already called within lock
-        if (_device != null && State == BluetoothLEDeviceState.Discovering)
-        {
-            var availableServices = await _device.GetServicesAsync(token);
-
-            if (availableServices is not null)
-            {
-                var services = availableServices.Select(s => new BleGattService(s)).ToArray();
-                State = BluetoothLEDeviceState.Connected;
-                _connectCompletionSource?.SetResult(services);
-                return true;
-            }
-        }
-        InternalDisconnect();
-        _connectCompletionSource?.SetResult(null);
-        return false;
     }
 }

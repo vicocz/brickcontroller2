@@ -7,23 +7,16 @@ internal class BleGattService : IGattService, IDisposable
 {
     private BLE.IService? _service;
 
-    public BleGattService(BLE.IService service)
+    public BleGattService(BLE.IService service, IReadOnlyCollection<IGattCharacteristic> characteristics)
     {
         _service = service;
-        Characteristics = [];
+        Characteristics = characteristics;
     }
 
     public Guid Uuid => _service!.Id;
 
     public IEnumerable<IGattCharacteristic> Characteristics { get; }
 
-    public async Task<IGattCharacteristic?> GetCharacteristicAsync(Guid guid,CancellationToken  token=default)
-    {
-        var characteristic = await _service!.GetCharacteristicAsync(guid, token);
-        return characteristic is null ?
-         null :
-         new GattCharacteristic(characteristic);
-    }
     #region IDisposable
 
     ~BleGattService() => Dispose(false);

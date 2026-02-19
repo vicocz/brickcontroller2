@@ -23,7 +23,7 @@ namespace BrickController2.DeviceManagement
         }
 
         protected abstract bool AutoConnectOnFirstConnect { get; }
-        protected abstract Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token);
+        protected abstract Task<bool> ValidateServicesAsync(IEnumerable<IGattService> services, CancellationToken token);
         protected abstract Task ProcessOutputsAsync(CancellationToken token);
 
         public async override Task<DeviceConnectionResult> ConnectAsync(
@@ -34,7 +34,7 @@ namespace BrickController2.DeviceManagement
             bool requestDeviceInformation,
             CancellationToken token)
         {
-            using (await _asyncLock.LockAsync())
+            using (await _asyncLock.LockAsync(token))
             {
                 if (_bleDevice != null || DeviceState != DeviceState.Disconnected)
                 {

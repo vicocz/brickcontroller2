@@ -21,9 +21,6 @@ internal class PfxBrickDevice : BluetoothDevice
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
 
-    private IGattCharacteristic? _writeCharacteristic;
-    private IGattCharacteristic? _notifyCharacteristic;
-
     public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
@@ -55,23 +52,23 @@ internal class PfxBrickDevice : BluetoothDevice
         }
     }
 
-    protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+    protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService> services, CancellationToken token)
     {
-        var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
-        _writeCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_WRITE);
+        var hasRequiredCharacteristics = services.Any(s => s.Uuid == SERVICE_UUID &&
+            s.ContainsCharacteristic(CHARACTERISTIC_UUID_WRITE) &&
+            s.ContainsCharacteristic(CHARACTERISTIC_UUID_NOTIFY));
 
-        _notifyCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_NOTIFY);
-        if (_notifyCharacteristic is not null)
+        if (hasRequiredCharacteristics)
         {
-            await _bleDevice!.EnableNotificationAsync(_notifyCharacteristic, token);
+            return await _bleDevice!.EnableNotificationAsync(CHARACTERISTIC_UUID_NOTIFY, token);
         }
 
-        return _writeCharacteristic is not null;
+        return false;
     }
 
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
     {
-        if (characteristicGuid != _notifyCharacteristic!.Uuid || data.Length == 0)
+        if (characteristicGuid != CHARACTERISTIC_UUID_NOTIFY || data.Length == 0)
             return;
 
         if (data.Length == 1) // notification
@@ -114,7 +111,7 @@ internal class PfxBrickDevice : BluetoothDevice
                 {
                     if (await SendOutputValuesAsync(motorChanges, token).ConfigureAwait(false))
                     {
-                        // confirm successfull sending
+                        // confirm successful sending
                         _motorOutputs.Commmit();
                         await Task.Delay(5, token).ConfigureAwait(false);
                     }
@@ -126,7 +123,7 @@ internal class PfxBrickDevice : BluetoothDevice
                 {
                     if (await SendLightValuesAsync(lightChanges, token).ConfigureAwait(false))
                     {
-                        // confirm successfull sending
+                        // confirm successful sending
                         _lightOutputs.Commmit();
                         await Task.Delay(5, token).ConfigureAwait(false);
                     }
@@ -180,7 +177,7 @@ internal class PfxBrickDevice : BluetoothDevice
     {
         try
         {
-            return await _bleDevice!.WriteAsync(_writeCharacteristic!, command, token);
+            return await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID_WRITE!, command, token);
         }
         catch (Exception)
         {
@@ -191,6 +188,6 @@ internal class PfxBrickDevice : BluetoothDevice
     private async Task ReadDeviceInfo(CancellationToken token)
     {
         // request status update
-        await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
+        await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID_WRITE, PfxProtocol.GetStatus(), token);
     }
 }

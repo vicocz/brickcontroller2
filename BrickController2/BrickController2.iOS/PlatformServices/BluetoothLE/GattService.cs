@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BrickController2.PlatformServices.BluetoothLE;
 using CoreBluetooth;
 
@@ -7,14 +8,19 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
 {
     internal class GattService : IGattService
     {
-        public GattService(CBService service, IEnumerable<IGattCharacteristic> characteristics)
+        private readonly IReadOnlySet<Guid> _characteristics;
+
+        public GattService(CBService service, IEnumerable<CBCharacteristic> characteristics)
         {
             Service = service;
-            Characteristics = characteristics;
+            _characteristics = characteristics
+                .Select(ch => ch.UUID.ToGuid())
+                .ToHashSet();
         }
 
         public CBService Service { get; }
         public Guid Uuid => Service.UUID.ToGuid();
-        public IEnumerable<IGattCharacteristic> Characteristics { get; }
+
+        public bool ContainsCharacteristic(Guid characteristicUuid) => _characteristics.Contains(characteristicUuid);
     }
 }

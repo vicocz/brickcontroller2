@@ -27,8 +27,6 @@ namespace BrickController2.DeviceManagement
         private volatile int _outputLevelValue;
         private volatile int _sendAttemptsLeft;
 
-        private IGattCharacteristic? _characteristic;
-
         public BuWizzDevice(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
@@ -73,12 +71,10 @@ namespace BrickController2.DeviceManagement
 
         public override bool CanBePowerSource => true;
 
-        protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+        protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService> services, CancellationToken token)
         {
-            var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
-            _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID);
-
-            return Task.FromResult(_characteristic is not null);
+            var containsCharacteristic = services.Any(s => s.Uuid == SERVICE_UUID && s.ContainsCharacteristic(CHARACTERISTIC_UUID));
+            return Task.FromResult(containsCharacteristic);
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -152,7 +148,7 @@ namespace BrickController2.DeviceManagement
                     (byte)(level * 0x20)
                 };
 
-                var result = await _bleDevice!.WriteNoResponseAsync(_characteristic!, sendOutputBuffer, token);
+                var result = await _bleDevice!.WriteNoResponseAsync(CHARACTERISTIC_UUID, sendOutputBuffer, token);
                 await Task.Delay(60, token);
                 return result;
             }

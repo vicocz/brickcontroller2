@@ -3,6 +3,7 @@ using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Windows.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ public class BleDevice : IBluetoothLEDevice
     private BluetoothLEDevice? _bluetoothDevice;
     private ICollection<BleGattService>? _services;
 
-    private TaskCompletionSource<ICollection<BleGattService>?>? _connectCompletionSource;
+    private TaskCompletionSource<ICollection<BleGattService>>? _connectCompletionSource;
 
     private Action<Guid, byte[]>? _onCharacteristicChanged;
     private Action<IBluetoothLEDevice>? _onDeviceDisconnected;
@@ -37,7 +38,7 @@ public class BleDevice : IBluetoothLEDevice
     public string Address { get; }
     public BluetoothLEDeviceState State { get; private set; } = BluetoothLEDeviceState.Disconnected;
 
-    public async Task<IEnumerable<IGattService>?> ConnectAndDiscoverServicesAsync(
+    public async Task<IEnumerable<IGattService>> ConnectAndDiscoverServicesAsync(
         bool autoConnect,
         Action<Guid, byte[]?> onCharacteristicChanged,
         Action<IBluetoothLEDevice> onDeviceDisconnected,
@@ -48,7 +49,7 @@ public class BleDevice : IBluetoothLEDevice
             using (await _lock.LockAsync())
             {
                 InternalDisconnect();
-                _connectCompletionSource?.TrySetResult(null);
+                _connectCompletionSource?.TrySetResult([]);
             }
         }))
         {
@@ -57,7 +58,7 @@ public class BleDevice : IBluetoothLEDevice
         }
     }
 
-    private async Task<ICollection<BleGattService>?> ConnectAsync(
+    private async Task<ICollection<BleGattService>> ConnectAsync(
         Action<Guid, byte[]> onCharacteristicChanged,
         Action<IBluetoothLEDevice> onDeviceDisconnected,
         CancellationToken token)
@@ -66,7 +67,7 @@ public class BleDevice : IBluetoothLEDevice
         {
             if (State != BluetoothLEDeviceState.Disconnected)
             {
-                return null;
+                return [];
             }
             _onCharacteristicChanged = onCharacteristicChanged;
             _onDeviceDisconnected = onDeviceDisconnected;
@@ -79,12 +80,12 @@ public class BleDevice : IBluetoothLEDevice
             if (_bluetoothDevice == null)
             {
                 InternalDisconnect();
-                return null;
+                return [];
             }
 
             _bluetoothDevice.ConnectionStatusChanged += BluetoothDevice_ConnectionStatusChanged;
 
-            _connectCompletionSource = new TaskCompletionSource<ICollection<BleGattService>?>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _connectCompletionSource = new TaskCompletionSource<ICollection<BleGattService>>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
         // enforce connection check
@@ -128,12 +129,11 @@ public class BleDevice : IBluetoothLEDevice
         State = BluetoothLEDeviceState.Disconnected;
     }
 
-    public async Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+    public async Task<bool> EnableNotificationAsync(Guid characteristic, CancellationToken token)
     {
         using (await _lock.LockAsync(token))
         {
-            if (State == BluetoothLEDeviceState.Connected &&
-                characteristic is BleGattCharacteristic bleGattCharacteristic &&
+            if (TryGetCharacteristic(characteristic, out var bleGattCharacteristic) &&
                 bleGattCharacteristic.CanNotify)
             {
                 return await bleGattCharacteristic
@@ -144,12 +144,11 @@ public class BleDevice : IBluetoothLEDevice
         }
     }
 
-    public async Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+    public async Task<bool> DisableNotificationAsync(Guid characteristic, CancellationToken token)
     {
         using (await _lock.LockAsync())
         {
-            if (State == BluetoothLEDeviceState.Connected &&
-                characteristic is BleGattCharacteristic bleGattCharacteristic &&
+            if (TryGetCharacteristic(characteristic, out var bleGattCharacteristic) &&
                 bleGattCharacteristic.CanNotify)
             {
                 return await bleGattCharacteristic.DisableNotificationAsync();
@@ -159,14 +158,12 @@ public class BleDevice : IBluetoothLEDevice
         }
     }
 
-    public async Task<bool> WriteAsync(IGattCharacteristic characteristic, byte[] data, CancellationToken token)
+    public async Task<bool> WriteAsync(Guid characteristic, byte[] data, CancellationToken token)
     {
         using (await _lock.LockAsync(token))
         {
-            if (State == BluetoothLEDeviceState.Connected &&
-                characteristic is BleGattCharacteristic bleGattCharacteristic)
+            if (TryGetCharacteristic(characteristic, out var bleGattCharacteristic))
             {
-
                 var result = await bleGattCharacteristic.WriteWithResponseAsync(data);
                 return result.Status == GattCommunicationStatus.Success;
             }
@@ -174,12 +171,11 @@ public class BleDevice : IBluetoothLEDevice
         }
     }
 
-    public async Task<bool> WriteNoResponseAsync(IGattCharacteristic characteristic, byte[] data, CancellationToken token)
+    public async Task<bool> WriteNoResponseAsync(Guid characteristic, byte[] data, CancellationToken token)
     {
         using (await _lock.LockAsync(token))
         {
-            if (State == BluetoothLEDeviceState.Connected &&
-                characteristic is BleGattCharacteristic bleGattCharacteristic)
+            if (TryGetCharacteristic(characteristic, out var bleGattCharacteristic))
             {
                 var result = await bleGattCharacteristic.WriteNoResponseAsync(data);
                 return result == GattCommunicationStatus.Success;
@@ -188,12 +184,11 @@ public class BleDevice : IBluetoothLEDevice
         }
     }
 
-    public async Task<byte[]?> ReadAsync(IGattCharacteristic characteristic, CancellationToken token)
+    public async Task<byte[]?> ReadAsync(Guid characteristic, CancellationToken token)
     {
         using (await _lock.LockAsync(token))
         {
-            if (State == BluetoothLEDeviceState.Connected &&
-                characteristic is BleGattCharacteristic bleGattCharacteristic)
+            if (TryGetCharacteristic(characteristic, out var bleGattCharacteristic))
             {
                 var result = await bleGattCharacteristic.ReadValueAsync();
 
@@ -204,6 +199,20 @@ public class BleDevice : IBluetoothLEDevice
             }
             return null;
         }
+    }
+
+    private bool TryGetCharacteristic(Guid characteristic, [NotNullWhen(true)] out BleGattCharacteristic? bleGattCharacteristic)
+    {
+        bleGattCharacteristic = null;
+        if (State == BluetoothLEDeviceState.Connected && _services != null)
+        {
+            foreach (var service in _services)
+            {
+                //TODO bleGattCharacteristic = service.Characteristics.FirstOrDefault(c => c.Uuid == characteristic);
+                return bleGattCharacteristic != null;
+            }
+        }
+        return false;
     }
 
     private void BluetoothDevice_ConnectionStatusChanged(BluetoothLEDevice sender, object args)
@@ -242,7 +251,7 @@ public class BleDevice : IBluetoothLEDevice
             else
             {
                 InternalDisconnect();
-                _connectCompletionSource?.SetResult(null);
+                _connectCompletionSource?.SetResult([]);
             }
         }
     }
@@ -256,7 +265,7 @@ public class BleDevice : IBluetoothLEDevice
                 case BluetoothLEDeviceState.Connecting:
                 case BluetoothLEDeviceState.Discovering:
                     InternalDisconnect();
-                    _connectCompletionSource?.SetResult(null);
+                    _connectCompletionSource?.SetResult([]);
                     break;
 
                 case BluetoothLEDeviceState.Connected:
@@ -279,11 +288,11 @@ public class BleDevice : IBluetoothLEDevice
         {
             var services = new List<BleGattService>();
 
-            var availabelServices = await _bluetoothDevice.GetGattServicesAsync(cacheMode);
+            var availableServices = await _bluetoothDevice.GetGattServicesAsync(cacheMode);
 
-            if (availabelServices.Status == GattCommunicationStatus.Success)
+            if (availableServices.Status == GattCommunicationStatus.Success)
             {
-                foreach (var service in availabelServices.Services)
+                foreach (var service in availableServices.Services)
                 {
                     var openStatus = await service.OpenAsync(GattSharingMode.SharedReadAndWrite);
 
@@ -310,7 +319,7 @@ public class BleDevice : IBluetoothLEDevice
             }
         }
         InternalDisconnect();
-        _connectCompletionSource?.SetResult(null);
+        _connectCompletionSource?.SetResult([]);
         return false;
     }
 

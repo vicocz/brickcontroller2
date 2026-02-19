@@ -1,21 +1,23 @@
 ﻿using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
 internal class BleGattService : IGattService, IDisposable
 {
+    private readonly HashSet<Guid> _characteristics;
+
     public BleGattService(GattDeviceService bluetoothGattService, IEnumerable<BleGattCharacteristic> characteristics)
     {
         BluetoothGattService = bluetoothGattService;
-        Characteristics = characteristics;
+        _characteristics = characteristics.Select(ch => ch.Uuid).ToHashSet();
     }
 
     public GattDeviceService BluetoothGattService { get; }
     public Guid Uuid => BluetoothGattService.Uuid;
-    public IEnumerable<IGattCharacteristic> Characteristics { get; }
 
     private bool disposed;
 
@@ -33,4 +35,6 @@ internal class BleGattService : IGattService, IDisposable
         {
         }
     }
+
+    public bool ContainsCharacteristic(Guid characteristicUuid) => _characteristics.Contains(characteristicUuid);
 }

@@ -64,10 +64,6 @@ namespace BrickController2.DeviceManagement
         private DateTime _batteryMeasurementTimestamp;
         private byte _batteryVoltageRaw;
 
-        private IGattCharacteristic? _characteristic;
-        private IGattCharacteristic? _modelNumberCharacteristic;
-        private IGattCharacteristic? _firmwareRevisionCharacteristic;
-
         public BuWizz3Device(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
@@ -159,7 +155,7 @@ namespace BrickController2.DeviceManagement
         public override async Task ActiveShelfModeAsync(CancellationToken token = default)
         {
             var activateShelfModeCmd = ActivteShelfMode();
-            await _bleDevice!.WriteAsync(_characteristic!, activateShelfModeCmd, token);
+            await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, activateShelfModeCmd, token);
         }
 
         public override bool CanResetOutput(int channel) => channel < NUMBER_OF_PU_PORTS;
@@ -190,28 +186,21 @@ namespace BrickController2.DeviceManagement
             return await AutoCalibrateServoAsync(channel, token).ConfigureAwait(false);
         }
 
-        protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+        protected async override Task<bool> ValidateServicesAsync(IEnumerable<IGattService> services, CancellationToken token)
         {
-            var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
-            _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID);
-
-            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_DEVICE_INFORMATION);
-            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_FIRMWARE_REVISION);
-            _modelNumberCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_MODEL_NUMBER);
-
-            return Task.FromResult(_characteristic != null && _firmwareRevisionCharacteristic != null && _modelNumberCharacteristic != null);
+            return services.Any(s => s.Uuid == SERVICE_UUID && s.ContainsCharacteristic(CHARACTERISTIC_UUID));
         }
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != _characteristic!.Uuid || data.Length < 54 || data[0] != 0x01)
+            if (characteristicGuid != CHARACTERISTIC_UUID || data.Length < 54 || data[0] != 0x01)
             {
                 return;
             }
 
             // Byte 1: Status flags - Bits 3-4 Battery level status (0 - empty, motors disabled; 1 - low; 2 - medium; 3 - full) 
 
-            // do some change filtering as data are comming at 20Hz frequency
+            // do some change filtering as data are coming at 20Hz frequency
             if (TryGetVoltage(data, out float batteryVoltage))
             {
                 BatteryVoltage = $"{batteryVoltage:F2}";
@@ -248,7 +237,7 @@ namespace BrickController2.DeviceManagement
 
                 var result = true;
 
-                result = result && await _bleDevice!.EnableNotificationAsync(_characteristic!, token).ConfigureAwait(false);
+                result = result && await _bleDevice!.EnableNotificationAsync(CHARACTERISTIC_UUID, token).ConfigureAwait(false);
 
                 result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
@@ -401,8 +390,8 @@ namespace BrickController2.DeviceManagement
                 // workaround for BuWizz3 long writes with response on Android
                 // https://github.com/vicocz/brickcontroller2/issues/104
                 var result = ApplyWriteWorkaround
-                    ? await _bleDevice!.WriteNoResponseAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false)
-                    : await _bleDevice!.WriteAsync(_characteristic!, _sendOutputBuffer, token).ConfigureAwait(false);
+                    ? await _bleDevice!.WriteNoResponseAsync(CHARACTERISTIC_UUID, _sendOutputBuffer, token).ConfigureAwait(false)
+                    : await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, _sendOutputBuffer, token).ConfigureAwait(false);
 
                 await Task.Delay(100, token).ConfigureAwait(false); // this delay is needed not to flood the BW3 internal command queue
                 return result;
@@ -434,14 +423,14 @@ namespace BrickController2.DeviceManagement
 
         private async Task ReadDeviceInfo(CancellationToken token)
         {
-            var firmwareData = await _bleDevice!.ReadAsync(_firmwareRevisionCharacteristic!, token).ConfigureAwait(false);
+            var firmwareData = await _bleDevice!.ReadAsync(CHARACTERISTIC_UUID_FIRMWARE_REVISION, token).ConfigureAwait(false);
             var firmwareVersion = firmwareData?.ToAsciiStringSafe();
             if (!string.IsNullOrEmpty(firmwareVersion))
             {
                 FirmwareVersion = firmwareVersion;
             }
 
-            var modelNumberData = await _bleDevice!.ReadAsync(_modelNumberCharacteristic!, token).ConfigureAwait(false);
+            var modelNumberData = await _bleDevice!.ReadAsync(CHARACTERISTIC_UUID_MODEL_NUMBER, token).ConfigureAwait(false);
             var modelNumber = modelNumberData?.ToAsciiStringSafe();
             if (!string.IsNullOrEmpty(modelNumber))
             {
@@ -552,7 +541,7 @@ namespace BrickController2.DeviceManagement
         {
             var buffer = new byte[] { 0x52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             buffer.SetInt32(value, 1 + channel * 4);
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -564,7 +553,7 @@ namespace BrickController2.DeviceManagement
             {
                 buffer.SetInt32(refValues[channel], 1 + channel * 4);
             }
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -573,7 +562,7 @@ namespace BrickController2.DeviceManagement
         {
             // send command 0x30 with all channels set to 0 and motor breaks
             var reset = new byte[] { 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x3F };
-            var result = await _bleDevice!.WriteAsync(_characteristic!, reset, token);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, reset, token);
             await Task.Delay(20, token);
             return result;
         }
@@ -590,7 +579,7 @@ namespace BrickController2.DeviceManagement
                     _ => PU_PORT_SIMPLE_PWM
                 };
             }
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -599,7 +588,7 @@ namespace BrickController2.DeviceManagement
         {
             var buffer = new byte[] { 0x50, 0x10, 0x10, 0x10, 0x10 };
             buffer[1 + channel] = isServo ? PU_PORT_POSITION_SERVO : PU_PORT_SIMPLE_PWM;
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -608,7 +597,7 @@ namespace BrickController2.DeviceManagement
         {
             var buffer = new byte[] { 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
             buffer.SetInt32(value, 1 + channel * 4);
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -617,7 +606,7 @@ namespace BrickController2.DeviceManagement
         {
             var buffer = new byte[] { 0x36, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 0, 0, 0 };
 
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -625,7 +614,7 @@ namespace BrickController2.DeviceManagement
         private async Task<bool> ResetMotorRampUpDownAsync(CancellationToken token)
         {
             var buffer = new byte[] { 0x33, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100 };
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -642,7 +631,7 @@ namespace BrickController2.DeviceManagement
                 GetSettingValue(ChannelASettingName, DefaultPowerFunctionsCurrentLimit),
                 GetSettingValue(ChannelBSettingName, DefaultPowerFunctionsCurrentLimit));
 
-            var result = await _bleDevice!.WriteAsync(_characteristic!, currentLimits, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, currentLimits, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
             return result;
         }
@@ -723,7 +712,7 @@ namespace BrickController2.DeviceManagement
             buffer[37] = portMode; // valid mode (equal to port mode selected)
             buffer.SetFloat(speed_LP, 10); // speed_LP - default: / (position servo) / 0.9 (speed servo)
 
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            var result = await _bleDevice!.WriteAsync(CHARACTERISTIC_UUID, buffer, token).ConfigureAwait(false);
             await Task.Delay(100, token).ConfigureAwait(false);
             return result;
         }

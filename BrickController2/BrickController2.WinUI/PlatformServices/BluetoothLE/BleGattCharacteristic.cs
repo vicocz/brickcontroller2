@@ -7,7 +7,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace BrickController2.Windows.PlatformServices.BluetoothLE;
 
-internal class BleGattCharacteristic : IGattCharacteristic
+internal class BleGattCharacteristic
 {
     private readonly GattCharacteristic _gattCharacteristic;
 
@@ -86,7 +86,7 @@ internal class BleGattCharacteristic : IGattCharacteristic
     /// <summary>
     /// Sets the notify / indicate / characteristic
     /// </summary>
-    /// <returns>If application was successfull (or has been already applied)</returns>
+    /// <returns>If application was successful (or has been already applied)</returns>
     private async Task<bool> ApplyClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue value, bool currentFlagValue)
     {
         bool targetFlagValue = value != GattClientCharacteristicConfigurationDescriptorValue.None;
@@ -100,7 +100,7 @@ internal class BleGattCharacteristic : IGattCharacteristic
         try
         {
             // write ClientCharacteristicConfigurationDescriptor in order to get notifications
-            // it's recieved in ValueChanged event handler than
+            // it's received in ValueChanged event handler than
             var result = await _gattCharacteristic.WriteClientCharacteristicConfigurationDescriptorWithResultAsync(value);
             if (result.Status == GattCommunicationStatus.Success)
             {

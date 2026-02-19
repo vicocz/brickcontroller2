@@ -37,8 +37,6 @@ internal class MK_DIY : BluetoothDevice
 
     private int _sendAttemptsLeft;
 
-    private IGattCharacteristic? _characteristic_AE3B_CMD;
-
     public MK_DIY(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
@@ -67,12 +65,10 @@ internal class MK_DIY : BluetoothDevice
         }
     }
 
-    protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
+    protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService> services, CancellationToken token)
     {
-        var service_AE3A = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_AE3A_UNKNOWN_SERVICE);
-        _characteristic_AE3B_CMD = service_AE3A?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_AE3B_UNKNOWN_CHARACTERISTIC);
-
-        return Task.FromResult(_characteristic_AE3B_CMD != null);
+        bool valid = services.Any(s => s.Uuid == SERVICE_UUID_AE3A_UNKNOWN_SERVICE && s.ContainsCharacteristic(CHARACTERISTIC_UUID_AE3B_UNKNOWN_CHARACTERISTIC));
+        return Task.FromResult(valid);
     }
 
     protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -188,7 +184,7 @@ internal class MK_DIY : BluetoothDevice
 
         try
         {
-            return await _bleDevice!.WriteNoResponseAsync(_characteristic_AE3B_CMD!, sendOutputBuffer, token);
+            return await _bleDevice!.WriteNoResponseAsync(CHARACTERISTIC_UUID_AE3B_UNKNOWN_CHARACTERISTIC, sendOutputBuffer, token);
         }
         catch (Exception)
         {

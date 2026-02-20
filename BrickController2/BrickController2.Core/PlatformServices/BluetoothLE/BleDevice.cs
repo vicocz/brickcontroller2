@@ -9,7 +9,7 @@ namespace BrickController2.Core.PlatformServices.BluetoothLE;
 public class BleDevice : IBluetoothLEDevice
 {
     private readonly AsyncLock _lock = new();
-    private readonly BLE.IAdapter? _adapter;
+    private readonly BLE.IAdapter _adapter;
 
     private BLE.IDevice? _device;
     private IReadOnlyCollection<BleGattService>? _services;
@@ -36,8 +36,7 @@ public class BleDevice : IBluetoothLEDevice
         {
             using (await _lock.LockAsync())
             {
-                InternalDisconnect();
-                //_connectCompletionSource?.TrySetResult(null);
+                await InternalDisconnectAsync();
             }
         });
         _services = await ConnectAsync(onCharacteristicChanged, onDeviceDisconnected, token);
@@ -53,7 +52,7 @@ public class BleDevice : IBluetoothLEDevice
         {
             if (State != BluetoothLEDeviceState.Disconnected)
             {
-                return null;
+                return [];
             }
             _onCharacteristicChanged = onCharacteristicChanged;
             _onDeviceDisconnected = onDeviceDisconnected;
@@ -73,14 +72,14 @@ public class BleDevice : IBluetoothLEDevice
 
             if (_device == null)
             {
-                InternalDisconnect();
-                return null;
+                await InternalDisconnectAsync();
+                return [];
             }
-            _adapter!.DeviceDisconnected += async (s, e) =>
+            _adapter.DeviceDisconnected += async (s, e) =>
             {
                 if (_device != null && e.Device.Id == _device.Id)
                 {
-                    await OnDisconnection();
+                    await OnDisconnectionAsync();
                 }
             };
             //TODO_device.ConnectionStatusChanged += BluetoothDevice_ConnectionStatusChanged;
@@ -99,11 +98,11 @@ public class BleDevice : IBluetoothLEDevice
                 await _adapter!.DisconnectDeviceAsync(_device!);
             }
 
-            InternalDisconnect();
+            await InternalDisconnectAsync();
         }
     }
 
-    private void InternalDisconnect()
+    private async Task InternalDisconnectAsync()
     {
         _onDeviceDisconnected = null;
         _onCharacteristicChanged = null;
@@ -112,6 +111,7 @@ public class BleDevice : IBluetoothLEDevice
         {
             foreach (var service in _services)
             {
+                await service.DisposeAsync();
                 service.Dispose();
             }
             _services = null;
@@ -135,7 +135,12 @@ public class BleDevice : IBluetoothLEDevice
                 characteristic is GattCharacteristic gattCharacteristic &&
                 gattCharacteristic.CanNotify)
             {
-                return await gattCharacteristic.EnableNotificationAsync(_onCharacteristicChanged!);
+                if (_device == null || _device.State != DeviceState.Connected)
+                {
+                    return false;
+                }
+
+                return await gattCharacteristic.EnableNotificationAsync(_onCharacteristicChanged!, token);
             }
 
             return false;
@@ -232,14 +237,14 @@ public class BleDevice : IBluetoothLEDevice
             }
             else
             {
-                InternalDisconnect();
+                await InternalDisconnectAsync();
             }
         }
 
         return [];
     }
 
-    private async Task OnDisconnection()
+    private async Task OnDisconnectionAsync()
     {
         using (await _lock.LockAsync())
         {
@@ -247,14 +252,13 @@ public class BleDevice : IBluetoothLEDevice
             {
                 case BluetoothLEDeviceState.Connecting:
                 case BluetoothLEDeviceState.Discovering:
-                    InternalDisconnect();
-                    //TODO _connectCompletionSource?.SetResult(null);
+                    await InternalDisconnectAsync();
                     break;
 
                 case BluetoothLEDeviceState.Connected:
 
                     var onDeviceDisconnected = _onDeviceDisconnected;
-                    InternalDisconnect();
+                    await InternalDisconnectAsync();
                     onDeviceDisconnected?.Invoke(this);
                     break;
 

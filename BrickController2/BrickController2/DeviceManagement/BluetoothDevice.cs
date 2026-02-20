@@ -34,7 +34,7 @@ namespace BrickController2.DeviceManagement
             bool requestDeviceInformation,
             CancellationToken token)
         {
-            using (await _asyncLock.LockAsync())
+            using (await _asyncLock.LockAsync(token))
             {
                 if (_bleDevice != null || DeviceState != DeviceState.Disconnected)
                 {

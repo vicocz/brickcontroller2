@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement.CaDA;
 using BrickController2.Protocols;
 using System;
+using System.Buffers.Binary;
 
 namespace BrickController2.iOS.PlatformServices.DeviceManagement.CaDA;
 
@@ -41,7 +42,7 @@ public class CaDAPlatformService : ICaDAPlatformService
     {
         rfPayload = new byte[2 + rawData.Length + PayloadLength];
 
-        BitConverter.TryWriteBytes(rfPayload, manufacturerId);
+        BinaryPrimitives.TryWriteUInt16LittleEndian(rfPayload, manufacturerId);
 
         rawData.CopyTo(rfPayload.AsSpan(2));
         Session.CopyTo(rfPayload.AsSpan(2 + rawData.Length));

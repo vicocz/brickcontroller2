@@ -19,6 +19,9 @@ internal class CaDa : Vendor<CaDa>
         builder.ContainerBuilder.RegisterDevice<CaDARaceCarRev2>(DeviceType.CaDA_RaceCar_Rev2);
 
         // device manager
-        builder.RegisterDeviceManager<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>();
+        builder.RegisterDeviceManager<CaDADeviceManager>()
+            .As<IBluetoothLEAdvertiserDeviceScanInfo>()
+            .As<ICaDADeviceManager>()
+            .SingleInstance();
     }
 }

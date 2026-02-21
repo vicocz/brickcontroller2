@@ -31,6 +31,13 @@ public class CaDADeviceManagerTests
     }
 
     [Fact]
+    public void AppId_ThreeBytesInPreferences_FirstTwoBytesAppIdReturned()
+    {
+        var appId = _manager.AppId;
+        appId.Should().Be(0x6261); // 'a' = 0x61, 'b' = 0x62
+    }
+
+    [Fact]
     public void CreateScanData_IosPlatform_PatchesAppIdIntoScanData()
     {
         // arrange

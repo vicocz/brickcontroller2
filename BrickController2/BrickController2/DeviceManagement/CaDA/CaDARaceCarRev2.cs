@@ -2,6 +2,7 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using System;
+using System.Buffers.Binary;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
@@ -11,11 +12,11 @@ namespace BrickController2.DeviceManagement.CaDA;
 internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 {
     private readonly byte[] _payloadTemplate;
-
     private readonly ICaDAPlatformService _cadaPlatformService;
     private readonly OutputValuesGroup<short> _outputValues = new(3);
 
-    public CaDARaceCarRev2(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, ICaDAPlatformService cadaPlatformService)
+    public CaDARaceCarRev2(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService,
+            ICaDADeviceManager cadaManager, ICaDAPlatformService cadaPlatformService)
       : base(name, address, deviceData, deviceRepository, bleService)
     {
         _cadaPlatformService = cadaPlatformService;
@@ -26,16 +27,13 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
             // seed
             _payloadTemplate[3] = deviceData[5];
             _payloadTemplate[4] = deviceData[6];
-            //TODO app id
+            // app id from manager
+            BinaryPrimitives.TryWriteUInt16LittleEndian(_payloadTemplate.AsSpan(5), cadaManager.AppId);
         }
         else
         {
             throw new ApplicationException($"Invalid {nameof(deviceData)} array!");
         }
-
-        //TODO testing only
-        _payloadTemplate[5] = 0xAD;
-        _payloadTemplate[6] = 0x42;
     }
     public override DeviceType DeviceType => DeviceType.CaDA_RaceCar_Rev2;
 
@@ -58,13 +56,6 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
             _bluetoothAdvertisingDeviceHandler.SetChannelState(channelNo, rawValue == 0x80);
             _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
         }
-    }
-
-    //TODO just now, AppId should be resolved via manager
-    internal void SetAppId(byte appId1, byte appId2)
-    {
-        _payloadTemplate[5] = appId1;
-        _payloadTemplate[6] = appId2;
     }
 
     protected override void InitDevice()

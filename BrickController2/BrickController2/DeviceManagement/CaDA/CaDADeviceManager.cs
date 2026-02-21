@@ -1,14 +1,15 @@
-﻿using System;
-using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using BrickController2.UI.Services.Preferences;
+using System;
+using System.Buffers.Binary;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
 /// <summary>
 /// Manager for CaDA devices
 /// </summary>
-public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
+public class CaDADeviceManager : BluetoothDeviceManagerBase, ICaDADeviceManager
 {
     private const string SECTION = "CaDA";
     private const string APPIDKEY = "AppID";
@@ -29,6 +30,8 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     public TxPowerLevel TXPowerLevel => TxPowerLevel.Max;
 
     public ushort ManufacturerId => CaDAProtocol.ManufacturerID;
+
+    public ushort AppId => BinaryPrimitives.ReadUInt16LittleEndian(_appIdChecksumMaskArray);
 
     /// <summary>
     /// Create an byte-array to be advertised on device-scan

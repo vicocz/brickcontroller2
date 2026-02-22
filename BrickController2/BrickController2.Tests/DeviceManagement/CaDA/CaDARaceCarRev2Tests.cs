@@ -148,7 +148,7 @@ public class CaDARaceCarRev2Tests
                 0x11,
                 // 2 bytes AppID - zeros from the scan
                 0x00, 0x00,
-                // Device Seed
+                // Device Id
                 0x20, 0xB9,
                 // some flag(s)
                 0x86, 0x00, 0x00, 0x00, 

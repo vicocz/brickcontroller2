@@ -2,7 +2,6 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using System;
-using System.Buffers.Binary;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
@@ -11,9 +10,14 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// </summary>
 internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 {
-    private readonly byte[] _payloadTemplate;
+    private const byte SEQUENCE_INITIAL_VALUE = 0xA1; // initial value for sequence byte in telegram
+
+    private readonly byte[] _deviceId;
+    private readonly ushort _appId;
     private readonly ICaDAPlatformService _cadaPlatformService;
     private readonly OutputValuesGroup<short> _outputValues = new(3);
+
+    private byte _sequence;
 
     public CaDARaceCarRev2(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService,
             ICaDADeviceManager cadaManager, ICaDAPlatformService cadaPlatformService)
@@ -21,19 +25,15 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
     {
         _cadaPlatformService = cadaPlatformService;
 
-        if (deviceData?.Length == 16)
-        {
-            _payloadTemplate = deviceData;
-            // seed
-            _payloadTemplate[3] = deviceData[5];
-            _payloadTemplate[4] = deviceData[6];
-            // app id from manager
-            BinaryPrimitives.TryWriteUInt16LittleEndian(_payloadTemplate.AsSpan(5), cadaManager.AppId);
-        }
-        else
+        if ((deviceData?.Length) != 16)
         {
             throw new ApplicationException($"Invalid {nameof(deviceData)} array!");
         }
+        // persist device id (bytes 5 & 6) for later use in payload template
+        _deviceId = [deviceData[5], deviceData[6]];
+        // seed sequence with value from scan data
+        _sequence = deviceData[11];
+        _appId = cadaManager.AppId;
     }
     public override DeviceType DeviceType => DeviceType.CaDA_RaceCar_Rev2;
 
@@ -68,9 +68,6 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 
     protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
-        // compose payload
-        var payload = _payloadTemplate.AsSpan();
-
         // fill values
         _outputValues.TryGetValues(out var values);
 
@@ -78,28 +75,42 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         byte steering = (byte)Math.Max(0, Math.Min(0x80 + values[1], 0xFF));
         byte lights = (byte)(values[2] > 0 ? 0x01 : 0x00);
         byte sequence = (getConnectTelegram || (values[0] == 0.0f && values[1] == 0.0f))
-            ? (byte)0xA1
-            : (byte)(payload[11] + 1);
+            ? SEQUENCE_INITIAL_VALUE
+            : ++_sequence;
 
         // header: PAIRING : COMMAND
-        payload[0] = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
-        payload[15] = getConnectTelegram ? (byte)0xA0 : (byte)0xB0;
+        var header = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
+        var footer = getConnectTelegram ? (byte)0xA0 : (byte)0xB0;
+        var appId1 = (byte)(_appId & 0xFF);
+        var appId2 = (byte)((_appId >> 8) & 0xFF);
 
         // Calculate Offset / Checksum (Byte 10)
         // Formula: Offset = (AppId_1 + AppId_2 + Byte_0 + Byte_15 + Byte_9 + Byte_11 + 0x11 - Steering - Throttle) mod 256
-        int offsetSum = payload[5] + payload[6] + payload[0] + payload[15] + lights + sequence + 0x11
+        int offsetSum = appId1 + appId2 + header + footer + lights + sequence + 0x11
                 + 512 // negative modulo math safely
                 - steering - throttle;
 
         // Casting to byte automatically handles the modulo 256 wrap-around
         byte offset = (byte)offsetSum;
 
-        // 5. Encode the Joystick Axes (Bytes 7 & 8) - zero is 0x80
-        payload[7] = (byte)(throttle + offset);
-        payload[8] = (byte)(steering + offset);
-        payload[9] = lights;
-        payload[10] = offset;
-        payload[11] = sequence;
+        // compose payload of 16 bytes
+        byte[] payload =
+        [
+            // manufacturerId
+            header, 0x11,
+            // CADA RaceCar?
+            0x11,
+            // DeviceId
+            _deviceId[0], _deviceId[1],
+            // 2 bytes AppID - zeros from the scan
+            appId1, appId2,
+            // throttle, steering, lights
+             (byte)(throttle + offset), (byte)(steering + offset), lights,
+            // offset, sequence - placeholders for now, will be calculated and filled later
+            offset, sequence,
+            // 4 bytes footer
+            0xCC, 0xB8, 0x92, footer
+        ];
 
         return _cadaPlatformService.TryGetRfPayload(ManufacturerId, payload, out currentData);
     }

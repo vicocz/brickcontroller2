@@ -34,7 +34,6 @@
         Description="Windows application for controlling Lego creations using a bluetooth gamepad."
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
-        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="white"/>
       </uap:VisualElements>
     </Application>
   </Applications>

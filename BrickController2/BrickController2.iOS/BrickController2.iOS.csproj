@@ -37,6 +37,7 @@
 	    <Color>#990000</Color>
 	    <BaseSize>128,128</BaseSize>
 	  </MauiSplashScreen>
+      <MauiIcon Include="Resources\appicon.svg" />
 	</ItemGroup>
 
 </Project>

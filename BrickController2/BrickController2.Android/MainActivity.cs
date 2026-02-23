@@ -16,7 +16,7 @@ namespace BrickController2.Droid
 {
     [Activity(
         Label = "BrickControllerLegacy",
-        Icon = "@mipmap/ic_launcher",
+        Icon = "@mipmap/appicon",
         Theme = "@style/MainTheme",
         MainLauncher = true,
         ConfigurationChanges = 

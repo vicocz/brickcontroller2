@@ -29,7 +29,7 @@
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 
-                        <Label Text="Copyright © 2025"/>
+                        <Label Text="Copyright © 2026"/>
                         <Label Text="István Murvai (SCN), Vít Německý (Vico)"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>

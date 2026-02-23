@@ -22,11 +22,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="Resources\mipmap-hdpi\ic_launcher.png" />
-		<None Remove="Resources\mipmap-mdpi\ic_launcher.png" />
-		<None Remove="Resources\mipmap-xhdpi\ic_launcher.png" />
-		<None Remove="Resources\mipmap-xxhdpi\ic_launcher.png" />
-		<None Remove="Resources\mipmap-xxxhdpi\ic_launcher.png" />
 		<None Remove="Resources\values-night\colors.xml" />
 		<None Remove="Resources\values-night\styles.xml" />
 		<None Remove="Resources\values\colors.xml" />
@@ -48,15 +43,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<AndroidResource Include="Resources\mipmap-hdpi\ic_launcher.png" />
-		<AndroidResource Include="Resources\mipmap-mdpi\ic_launcher.png" />
-		<AndroidResource Include="Resources\mipmap-xhdpi\ic_launcher.png" />
-		<AndroidResource Include="Resources\mipmap-xxhdpi\ic_launcher.png" />
-		<AndroidResource Include="Resources\mipmap-xxxhdpi\ic_launcher.png" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<MauiSplashScreen Include="Resources\splash.svg" BaseSize="128,128" Color="#990000" />
+		<MauiIcon Include="Resources\appicon.svg" BaseSize="64,64" ForegroundScale="0.65" />
 	</ItemGroup>
 
 </Project>

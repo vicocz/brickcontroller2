@@ -14,11 +14,12 @@ public class CaDARaceCarRev2Tests
     private readonly Mock<ICaDADeviceManager> _deviceManager = new(MockBehavior.Strict);
 
     [Theory]
-    [InlineData(0x76, 0x40, 0x32, 0x32, 0x00, 0xB2)] //AA111120B97640323200B2A1CCB892A0 
-    public void TryGetTelegram_ConnectTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte v1, byte v2, byte v3, byte v4)
+    [InlineData(0x76, 0x40, 0x20, 0xB9, 0x32, 0x32, 0xB2)] //AA111120B97640 323200B2A1 CCB892A0 
+    public void TryGetTelegram_Connect_ReturnsProperDatagram(byte appId1, byte appId2, byte deviceId1, byte deviceId2,
+        byte v1, byte v2, byte v4)
     {
         // arrange
-        var device = Create(appId1, appId2);
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2);
 
         // act
         var result = device.TryGetTelegram(true, out var telegram);
@@ -28,21 +29,23 @@ public class CaDARaceCarRev2Tests
         telegram.Should().BeEquivalentTo(
         [
             0xAA, 0x11, 0x11,
-            0x20, 0xB9,
+            deviceId1, deviceId2,
             appId1, appId2,
-            v1, v2, v3, v4,
+            v1, v2, 0x00, v4,
             0xA1, 0xCC, 0xB8, 0x92, 0xA0
         ]);
     }
 
     [Theory]
-    [InlineData(0xAD, 0x42, 0x8C, 0x8C, 0x00, 0x0C)] //BB111120B9AD428C8C000CA1CCB892B0
-    [InlineData(0x88, 0x51, 0x76, 0x76, 0x00, 0xF6)] //BB111120B98851767600F6A1CCB892B0 
-    [InlineData(0x76, 0x40, 0x53, 0x53, 0x00, 0xD3)] //BB111120B97640535300D3A1CCB892B0 
-    public void TryGetTelegram_WithZeroValuesTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte v1, byte v2, byte v3, byte v4)
+    [InlineData(0xAD, 0x42, 0x20, 0xB9, 0x8C, 0x8C, 0x0C)] //BB111120B9AD42 8C8C000C A1CCB892B0
+    [InlineData(0x88, 0x51, 0x20, 0xB9, 0x76, 0x76, 0xF6)] //BB111120B98851 767600F6 A1CCB892B0 
+    [InlineData(0x76, 0x40, 0x20, 0xB9, 0x53, 0x53, 0xD3)] //BB111120B97640 535300D3 A1CCB892B0 
+    [InlineData(0xb7, 0xa4, 0xc9, 0xc1, 0xa9, 0xa9, 0x29)] // bb 11 11 c9 c1 b7 a4  a9 a9 00 29 a1  cc b8 92 b0
+    public void TryGetTelegram_WithZeroValues_ReturnsProperDatagram(byte appId1, byte appId2, byte deviceId1, byte deviceId2,
+        byte v1, byte v2, byte v4)
     {
         // arrange
-        var device = Create(appId1, appId2);
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2);
 
         // act
         var result = device.TryGetTelegram(false, out var telegram);
@@ -52,19 +55,21 @@ public class CaDARaceCarRev2Tests
         telegram.Should().BeEquivalentTo(
         [
             0xBB, 0x11, 0x11,
-            0x20, 0xB9,
+            deviceId1, deviceId2,
             appId1, appId2,
-            v1, v2, v3, v4,
+            v1, v2, 0x00, v4,
             0xA1, 0xCC, 0xB8, 0x92, 0xB0
         ]);
     }
 
     [Theory]
-    [InlineData(0x76, 0x40, 0x54, 0x54, 0x01, 0xD4)] //BB111120B97640545401D4A1CCB892B0 
-    public void TryGetTelegram_WithZeroValuesAndLightOnTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte v1, byte v2, byte v3, byte v4)
+    [InlineData(0x76, 0x40, 0x20, 0xB9, 0x54, 0x54, 0xD4)] //BB111120B97640 545401D4A1 CCB892B0 
+    [InlineData(0xb7, 0xa4, 0xc9, 0xc1, 0xaa, 0xaa, 0x2a)] // bb 11 11 c9 c1 b7 a4  aa aa 01 2a  a1 cc b8 92 b0 
+    public void TryGetTelegram_WithZeroValuesAndLightOn_ReturnsProperDatagram(byte appId1, byte appId2, byte deviceId1, byte deviceId2,
+        byte v1, byte v2, byte v4)
     {
         // arrange
-        var device = Create(appId1, appId2);
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2);
         device.SetOutput(2, 1.0f);
 
         // act
@@ -75,23 +80,48 @@ public class CaDARaceCarRev2Tests
         telegram.Should().BeEquivalentTo(
         [
             0xBB, 0x11, 0x11,
-            0x20, 0xB9,
+            deviceId1, deviceId2,
             appId1, appId2,
-            v1, v2, v3, v4,
+            v1, v2, 0x01, v4,
             0xA1, 0xCC, 0xB8, 0x92, 0xB0
         ]);
     }
 
-
     [Theory]
-    [InlineData(0x76, 0x40, 0xAA, 0xFE, 0x5E, 0x7E, 0xAB)] //BB111120B97640FE5E017EABCCB892B0 
-    [InlineData(0x76, 0x40, 0xA3, 0xF7, 0x57, 0x77, 0xA4)] //BB111120B97640F7570177A4CCB892B0 
-    [InlineData(0x76, 0x40, 0x0A, 0x3E, 0xBE, 0xBE, 0x0B)] //BB111120B976403EBE01BE0BCCB892B0
-    [InlineData(0x79, 0x29, 0xAD, 0x9E, 0x3E, 0x1E, 0xAE)] //bb 11 11 c9 c1 79 29 9e 3e 01 1e ae cc b8 92 b0
-    public void TryGetTelegram_WithFullSecondChannelAndLightOnTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte sequence, byte v1, byte v2, byte v4, byte v5)
+    [InlineData(0x76, 0x40, 0x20, 0xB9, 0xAA, 0xFE, 0x5E, 0x7E, 0xAB)] //BB111120B97640 FE5E017EAB CCB892B0 
+    [InlineData(0xb7, 0xa4, 0xc9, 0xc1, 0xa0, 0x4a, 0xea, 0xca, 0xa1)] //bb 11 11 c9 c1 b7 a4  4a ea 01 ca a1  cc b8 92 b0
+    [InlineData(0x79, 0x29, 0xc9, 0xc1, 0xaa, 0x9b, 0x3b, 0x1b, 0xab)] //bb 11 11 c9 c1 79 29  9b 3b 01 1b ab  cc b8 92 b0
+    public void TryGetTelegram_WithFullLeftAndLightOn_ReturnsProperDatagram(byte appId1, byte appId2, byte deviceId1, byte deviceId2,
+        byte sequence, byte v1, byte v2, byte v4, byte v5)
     {
         // arrange
-        var device = Create(appId1, appId2, sequence: sequence);
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2, sequence: sequence);
+        device.SetOutput(1, -1.0f); // #2
+        device.SetOutput(2, 1.0f); // Light ON
+
+        // act
+        var result = device.TryGetTelegram(false, out var telegram);
+
+        // assert
+        result.Should().BeTrue();
+        telegram.Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
+            deviceId1, deviceId2,
+            appId1, appId2,
+            v1, v2, 0x01, v4,
+            v5, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+
+    [Theory]
+    [InlineData(0xb7, 0xa4, 0xc9, 0xc1, 0x34, 0x9d, 0xc2, 0x1d, 0x35)] // bb 11 11 c9 c1 b7 a4  9d c2 01 1d 35  cc b8 92 b0
+    [InlineData(0x79, 0x29, 0xc9, 0xc1, 0x6b, 0x1b, 0x44, 0x9b, 0x6c)] // bb 11 11 c9 c1 79 29  1b 44 01 9b 6c  cc b8 92 b0
+    public void TryGetTelegram_WithFullRightAndLightOn_ReturnsProperDatagram(byte appId1, byte appId2, byte deviceId1, byte deviceId2,
+    byte sequence, byte v1, byte v2, byte v4, byte v5)
+    {
+        // arrange
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2, sequence: sequence);
         device.SetOutput(1, 1.0f); // #2
         device.SetOutput(2, 1.0f); // Light ON
 
@@ -103,7 +133,7 @@ public class CaDARaceCarRev2Tests
         telegram.Should().BeEquivalentTo(
         [
             0xBB, 0x11, 0x11,
-            0x20, 0xB9,
+            deviceId1, deviceId2,
             appId1, appId2,
             v1, v2, 0x01, v4,
             v5, 0xCC, 0xB8, 0x92, 0xB0
@@ -111,11 +141,13 @@ public class CaDARaceCarRev2Tests
     }
 
     [Theory]
-    [InlineData(0x79, 0x29, 0xF9, 0x4A, 0xCA, 0x4A, 0xFA)] //bb1111c9c179294aca014afaccb892b0
-    public void TryGetTelegram_WithFullFirstChannelAndLightOnTelegram_ReturnsProperDatagram(byte appId1, byte appId2, byte sequence, byte v1, byte v2, byte v4, byte v5)
+    [InlineData(0x79, 0x29, 0xc9, 0xc1, 0xF9, 0x4A, 0xCA, 0x4A, 0xFA)] // bb 11 11 c9 c1 79 29  4a ca 01 4a fa  cc b8 92 b0
+    public void TryGetTelegram_WithFullSpeedAndLightOn_ReturnsProperDatagram(byte appId1, byte appId2,
+        byte deviceId1, byte deviceId2,
+        byte sequence, byte v1, byte v2, byte v4, byte v5)
     {
         // arrange
-        var device = Create(appId1, appId2, sequence: sequence);
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2, sequence: sequence);
         device.SetOutput(0, 1.0f); // #1
         device.SetOutput(2, 1.0f); // Light ON
 
@@ -127,14 +159,39 @@ public class CaDARaceCarRev2Tests
         telegram.Should().BeEquivalentTo(
         [
             0xBB, 0x11, 0x11,
-            0x20, 0xB9,
+            deviceId1, deviceId2,
             appId1, appId2,
             v1, v2, 0x01, v4,
             v5, 0xCC, 0xB8, 0x92, 0xB0
         ]);
     }
 
-    private CaDARaceCarRev2 Create(byte appId1, byte appId2, byte sequence = 0xA1)
+    [Theory]
+    [InlineData(0xB7, 0xA4, 0xc9, 0xc1, 0xF9, 0x02, 0xa2, 0x22, 0xFA)] // bb 11 11 c9 c1 b7 a4  02 a2 00 22 fa  cc b8 92 b0
+    public void TryGetTelegram_WithMiddleFirstChannel_ReturnsProperDatagram(byte appId1, byte appId2,
+        byte deviceId1, byte deviceId2,
+        byte sequence, byte v1, byte v2, byte v4, byte v5)
+    {
+        // arrange
+        var device = Create(appId1, appId2, deviceId1: deviceId1, deviceId2: deviceId2, sequence: sequence);
+        device.SetOutput(0, 0.75f); // #1
+
+        // act
+        var result = device.TryGetTelegram(false, out var telegram);
+
+        // assert
+        result.Should().BeTrue();
+        telegram.Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
+            deviceId1, deviceId2,
+            appId1, appId2,
+            v1, v2, 0x00, v4,
+            v5, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+
+    private CaDARaceCarRev2 Create(byte appId1, byte appId2, byte sequence = 0xA1, byte deviceId1 = 0x20, byte deviceId2 = 0x89)
     {
         _deviceManager.SetupGet(m => m.AppId)
             .Returns(BinaryPrimitives.ReadUInt16LittleEndian([appId1, appId2]));
@@ -149,7 +206,7 @@ public class CaDARaceCarRev2Tests
                 // 2 bytes AppID - zeros from the scan
                 0x00, 0x00,
                 // Device Id
-                0x20, 0xB9,
+                deviceId1, deviceId2,
                 // some flag(s)
                 0x86, 0x00, 0x00, 0x00, 
                 // sequence,

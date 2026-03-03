@@ -2,7 +2,6 @@
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
 using System;
-using System.Linq;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
@@ -17,6 +16,7 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
     private readonly ushort _appId;
     private readonly ICaDAPlatformService _cadaPlatformService;
     private readonly OutputValuesGroup<float> _outputValues = new(3);
+    private readonly byte _sequenceInitialValue;
 
     private byte _sequence;
 
@@ -33,7 +33,7 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
         // persist device id (bytes 5 & 6) for later use in payload template
         _deviceId = [deviceData[5], deviceData[6]];
         // seed sequence with value from scan data
-        _sequence = deviceData[11];
+        _sequence = _sequenceInitialValue = deviceData[11];
         _appId = cadaManager.AppId;
     }
     public override DeviceType DeviceType => DeviceType.CaDA_RaceCar_Rev2;
@@ -59,6 +59,8 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 
     protected override void InitDevice()
     {
+        // init sequence
+        _sequence = _sequenceInitialValue;
     }
 
     protected override void DisconnectDevice()
@@ -72,17 +74,16 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
 
         // Map input (-1.0 to 1.0) to Throttle (0xFF to 0x00)
         byte throttle = (byte)Math.Clamp(128f - (values[0] * 128f), 0, 0xFF);
-        // Map input (-1.0 to 1.0) to Steering (0x20 to 0xDF)
-        byte steering = (byte)Math.Clamp(128f + (values[1] * 128f), 32f, 223f);
+        // Map input (-1.0 to 1.0) to Steering (0x00 to 0xFF)
+        byte steering = (byte)Math.Clamp(128f + (values[1] * 128f), 0, 0xFF);
         // lights on/off
         byte lights = (byte)(Math.Abs(values[2]) > 0.5 ? 0x01 : 0x00);
         byte sequence = (getConnectTelegram || (throttle == 0x80 && steering == 0x80))
-            ? SEQUENCE_INITIAL_VALUE
+            ? _sequenceInitialValue
             : ++_sequence;
 
         // header: PAIRING : COMMAND
         var header = getConnectTelegram ? (byte)0xAA : (byte)0xBB;
-        var footer = getConnectTelegram ? (byte)0xA0 : (byte)0xB0;
 
         // compose payload of 16 bytes
         byte[] payload =
@@ -99,17 +100,22 @@ internal class CaDARaceCarRev2 : BluetoothAdvertisingDevice
             throttle, steering, lights,
             // checksum, sequence
             0x00, sequence,
-            // 4 bytes footer
-            0xCC, 0xB8, 0x92, footer
+            // 4 bytes footer, ending with 0xA0 / 0xB0
+            0xCC, 0xB8, 0x92, (byte)(header & 0xF0)
         ];
 
-        // The checksum is the sum of all 15 UNENCRYPTED bytes mod 256.
-        payload[10] = (byte)payload.Sum(x => x);
+        // The checksum is the sum of all 16 UNENCRYPTED bytes mod 256.
+        int checksum = 0;
+        for (int i = 0; i < payload.Length; i++)
+        {
+            checksum += payload[i];
+        }
+        payload[10] = (byte)checksum;
         // Encrypt the Axes via Bitwise XOR (Bytes 7 & 8)
         payload[7] ^= payload[10];
         payload[8] ^= payload[10];
 
-        return _cadaPlatformService.TryGetRfPayload(ManufacturerId, payload, out currentData);
+        return _cadaPlatformService.TryGetRfPayloadRev2(payload, out currentData);
     }
 
     /// <summary>

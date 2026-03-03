@@ -1,7 +1,6 @@
 ﻿using BrickController2.DeviceManagement.CaDA;
 using BrickController2.Protocols;
 using System;
-using System.Buffers.Binary;
 
 namespace BrickController2.iOS.PlatformServices.DeviceManagement.CaDA;
 
@@ -11,7 +10,8 @@ public class CaDAPlatformService : ICaDAPlatformService
     private const int PayloadLength = 26;
 
     private const int SessionLength = 8;
-    private const int PayloadRev2Length = 16;
+
+    private static readonly byte[] _prefix = [0xC0, 0x00];
 
     // Session - 8 bytes per application run
     private static readonly Lazy<byte[]> _sessionPostfix = new(() =>
@@ -20,8 +20,6 @@ public class CaDAPlatformService : ICaDAPlatformService
         Random.Shared.NextBytes(session);
         return session;
     });
-
-    public ReadOnlySpan<byte> Session => _sessionPostfix.Value;
 
     public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
     {
@@ -38,15 +36,14 @@ public class CaDAPlatformService : ICaDAPlatformService
         return true;
     }
 
-    public bool TryGetRfPayload(ushort manufacturerId, ReadOnlySpan<byte> rawData, out byte[] rfPayload)
+    public bool TryGetRfPayloadRev2(ReadOnlySpan<byte> rawData, out byte[] rfPayload)
     {
-        rfPayload = new byte[2 + rawData.Length + PayloadLength];
+        rfPayload = new byte[_prefix.Length + rawData.Length + SessionLength];
 
-        BinaryPrimitives.TryWriteUInt16LittleEndian(rfPayload, manufacturerId);
+        _prefix.CopyTo(rfPayload.AsSpan());
+        rawData.CopyTo(rfPayload.AsSpan(_prefix.Length));
+        _sessionPostfix.Value.CopyTo(rfPayload.AsSpan(_prefix.Length + rawData.Length));
 
-        rawData.CopyTo(rfPayload.AsSpan(2));
-        Session.CopyTo(rfPayload.AsSpan(2 + rawData.Length));
-
-        return rawData.Length == PayloadRev2Length;
+        return rawData.Length == ICaDAPlatformService.DefaultPayloadRev2Length;
     }
 }

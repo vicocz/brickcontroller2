@@ -79,7 +79,6 @@ public class BleScanner
 
     private void _activeWatcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
     {
-        var bt = args.BluetoothAddress;
         if (!args.CanCarryData())
         {
             return;

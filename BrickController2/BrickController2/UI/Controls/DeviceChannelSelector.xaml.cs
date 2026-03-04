@@ -98,9 +98,10 @@ namespace BrickController2.UI.Controls
             SBrickLightChannelE.Command = new SafeCommand(() => UpdateSBrickPort(4));
             SBrickLightChannelF.Command = new SafeCommand(() => UpdateSBrickPort(5));
             SBrickLightChannelG.Command = new SafeCommand(() => UpdateSBrickPort(6));
-            SBrickLightSubchannel1.Command = new SafeCommand(() => UpdateSBrickSubchannel(8));
-            SBrickLightSubchannel2.Command = new SafeCommand(() => UpdateSBrickSubchannel(16));
-            SBrickLightSubchannel3.Command = new SafeCommand(() => UpdateSBrickSubchannel(24));
+            SBrickLightChannelH.Command = new SafeCommand(() => UpdateSBrickPort(7));
+            SBrickLightSubchannel1.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 1));
+            SBrickLightSubchannel2.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 2));
+            SBrickLightSubchannel3.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 3));
 
             void UpdateSBrickPort(int channel)
             {

@@ -141,9 +141,9 @@ namespace BrickController2.UI.ViewModels
                     // apply switch change
                     Action.Channel = value ?
                         // reset any subchannel
-                       SBrickLightPort :
+                        SBrickLightPort :
                         // switch to the first micro channel
-                        Action.Channel + LIGHT_PORTS_COUNT * 1;
+                        SBrickLightPort + LIGHT_PORTS_COUNT * 1;
 
                     RaisePropertyChanged();
                     NotifySBrickLightChanges();

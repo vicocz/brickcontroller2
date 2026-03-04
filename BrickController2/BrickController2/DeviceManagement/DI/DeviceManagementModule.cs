@@ -42,7 +42,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterDeviceManager<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>();
             builder.RegisterDeviceManager<CircuitCubeDeviceManager>();
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
-            builder.RegisterDeviceManager<SBrickDeviceManager>();
 
             // execute registration per vendors
             builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);

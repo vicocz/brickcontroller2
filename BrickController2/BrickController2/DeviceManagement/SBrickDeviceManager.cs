@@ -44,7 +44,9 @@ public class SBrickDeviceManager : IBluetoothLEDeviceManager
             dataRecord = dataRecord[length..];
             length = 1 + dataRecord[0];
 
-            if (length > 2 && dataRecord[1] == DATA_RECORD_PRODUCT_TYPE)
+            if (length > 2 &&
+                dataRecord.Length >= 3 &&
+                dataRecord[1] == DATA_RECORD_PRODUCT_TYPE)
             {
                 return dataRecord[2];
             }

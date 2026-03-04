@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrickController2.DeviceManagement.IO;
+using BrickController2.Extensions;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
@@ -57,7 +57,7 @@ internal class SBrickLightDevice : BluetoothDevice
 
     public override void SetOutput(int channel, float value)
     {
-        // normalize value to 0..1
+        // normalize value to 0..1 as it's light, not speed
         value = CutOutputValue(Math.Abs(value));
 
         var port = channel % LIGHT_PORTS_COUNT;
@@ -102,12 +102,9 @@ internal class SBrickLightDevice : BluetoothDevice
 
     protected override Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {
-        var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == GattProtocol.Services.DeviceInformation);
-        _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == GattProtocol.Characteristics.FirmwareRevision);
-        _hardwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == GattProtocol.Characteristics.HardwareRevision);
-
-        var remoteControlService = services?.FirstOrDefault(s => s.Uuid == Services.RemoteControl);
-        _remoteControlCharacteristic = remoteControlService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.RemoteControlCommand);
+        _firmwareRevisionCharacteristic = services.GetCharacteristic(GattProtocol.Services.DeviceInformation, GattProtocol.Characteristics.FirmwareRevision);
+        _hardwareRevisionCharacteristic = services.GetCharacteristic(GattProtocol.Services.DeviceInformation, GattProtocol.Characteristics.HardwareRevision);
+        _remoteControlCharacteristic = services.GetCharacteristic(Services.RemoteControl, Characteristics.RemoteControlCommand);
 
         return Task.FromResult(
             _firmwareRevisionCharacteristic is not null &&
@@ -162,7 +159,7 @@ internal class SBrickLightDevice : BluetoothDevice
     private void SetChannelOutput(int index, float value)
     {
         // for lights use 0-255 range
-        var rawValue = (byte)(Math.Abs(value) * 255);
+        var rawValue = (byte)(value * 255);
 
         // address correct bank
         if (index < LIGHT_BANK_0_SIZE)

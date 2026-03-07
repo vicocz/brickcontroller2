@@ -7,6 +7,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 
 public class RaceCarMessageEncoder : IMessageEncoder
 {
+    private readonly ICaDAPlatformService _platformService;
     private readonly Random _random;
 
     /// <summary>
@@ -32,8 +33,12 @@ public class RaceCarMessageEncoder : IMessageEncoder
             0x00, // [15] ChannelData 
     ];
 
-    internal RaceCarMessageEncoder(Random random, ReadOnlySpan<byte> deviceAddress, ReadOnlySpan<byte> appId)
+    internal RaceCarMessageEncoder(ICaDAPlatformService platformService,
+        Random random,
+        ReadOnlySpan<byte> deviceAddress,
+        ReadOnlySpan<byte> appId)
     {
+        _platformService = platformService;
         _random = random;
 
         // Configure encoder based on device data which contains:
@@ -46,6 +51,7 @@ public class RaceCarMessageEncoder : IMessageEncoder
 
     public void Initialize()
     {
+        // nothing to do in this encoder
     }
 
     /// <summary>
@@ -65,7 +71,10 @@ public class RaceCarMessageEncoder : IMessageEncoder
         var encodedValues = EncodeValues(values);
         CaDAProtocol.Encrypt(encodedValues);
 
-        return _controlDataArray;
+        // finally use the platform service to encrypt the whole payload
+        _platformService.TryGetRfPayload(_controlDataArray, out var rfPayload);
+
+        return rfPayload;
     }
 
     internal Span<byte> EncodeValues(ReadOnlySpan<Half> values)

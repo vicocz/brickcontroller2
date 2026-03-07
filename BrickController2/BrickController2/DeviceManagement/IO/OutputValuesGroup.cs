@@ -26,7 +26,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         _sendAttemptsLeft = 0;
     }
 
-    public void SetOutput(int channel, TValue value)
+    public bool SetOutput(int channel, TValue value)
     {
         lock (_outputLock)
         {
@@ -34,8 +34,11 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
             {
                 _outputValues[channel] = value;
                 _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+
+                return true;
             }
-        }        
+        }
+        return false;
     }
 
     public void Initialize()

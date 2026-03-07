@@ -11,4 +11,6 @@ public interface IMessageEncoder
     /// <param name="connect">Whether the message is for connecting to the device. If true, the message will contain additional information about the device and app.</param>
     /// <returns>Encoded byte array</returns>
     ReadOnlySpan<byte> Encode(ReadOnlySpan<Half> values, bool connect = false);
+
+    void Initialize();
 }

@@ -6,12 +6,14 @@ namespace BrickController2.DeviceManagement.CaDA;
 
 public class RaceCarMessageEncoderRev2 : IMessageEncoder
 {
+    private readonly ICaDAPlatformService _platformService;
     private readonly byte _defaultSequenceValue;
 
     private readonly byte[] _data; // 16 bytes total
     private byte _sequence;
 
-    internal RaceCarMessageEncoderRev2(ReadOnlySpan<byte> deviceId,
+    internal RaceCarMessageEncoderRev2(ICaDAPlatformService platformService,
+        ReadOnlySpan<byte> deviceId,
         ReadOnlySpan<byte> appId,
         byte defaultSequenceValue)
     {
@@ -23,6 +25,8 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         {
             throw new ArgumentException("AppId must be 2 bytes.", nameof(appId));
         }
+
+        _platformService = platformService;
 
         // init sequence counter
         _defaultSequenceValue = defaultSequenceValue;
@@ -96,6 +100,16 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
             throw new ArgumentException("Invalid inpur data.", nameof(values));
         }
 
+        EncodeValues(values, connect);
+
+        // finally use the platform service to encrypt the whole payload
+        _platformService.TryGetRfPayloadRev2(_data, out var rfPayload);
+
+        return rfPayload;
+    }
+
+    internal ReadOnlySpan<byte> EncodeValues(ReadOnlySpan<Half> values, bool connect = false)
+    {
         var oneHalf = (Half)0.5f;
         var halfByte = (Half)128.0f;
         var maxByteHalf = (Half)255.0f;
@@ -130,6 +144,8 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         // Encrypt the throttle/steering via Bitwise XOR (Bytes 7 & 8)
         _data[7] ^= _data[10];
         _data[8] ^= _data[10];
+
+        // finally use the platform service to encrypt the whole payload
 
         return _data;
     }

@@ -10,6 +10,7 @@ namespace BrickController2.Tests.DeviceManagement.CaDA;
 
 public class RaceCarMessageEncoderTests
 {
+    private readonly Mock<ICaDAPlatformService> _platformService = new(MockBehavior.Strict);
     private readonly Mock<Random> _random = new(MockBehavior.Strict);
 
     [Fact]
@@ -141,6 +142,6 @@ public class RaceCarMessageEncoderTests
     private RaceCarMessageEncoder Create(ushort random, ReadOnlySpan<byte> deviceAddress, ReadOnlySpan<byte> appId)
     {
         _random.Setup(r => r.Next(ushort.MinValue, ushort.MaxValue)).Returns(random);
-        return new(_random.Object, deviceAddress, appId);
+        return new(_platformService.Object, _random.Object, deviceAddress, appId);
     }
 }

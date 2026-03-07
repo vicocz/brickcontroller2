@@ -1,4 +1,5 @@
-﻿using BrickController2.DeviceManagement.DI;
+﻿using Autofac;
+using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
@@ -21,6 +22,11 @@ internal class CaDa : Vendor<CaDa>
         builder.RegisterDeviceManager<CaDADeviceManager>()
             .As<IBluetoothLEAdvertiserDeviceScanInfo>()
             .As<ICaDADeviceManager>()
+            .SingleInstance();
+
+        // additional dependencies
+        builder.ContainerBuilder.RegisterType<MessageEncoderFactory>()
+            .As<IMessageEncoderFactory>()
             .SingleInstance();
     }
 }

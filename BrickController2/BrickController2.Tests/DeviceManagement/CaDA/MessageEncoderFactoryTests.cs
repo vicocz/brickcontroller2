@@ -9,13 +9,14 @@ namespace BrickController2.Tests.DeviceManagement.CaDA;
 public class MessageEncoderFactoryTests
 {
     private readonly Mock<ICaDADeviceManager> _cadaManager = new(MockBehavior.Strict);
+    private readonly Mock<ICaDAPlatformService> _platfromService = new(MockBehavior.Strict);
     private readonly Mock<Random> _random = new(MockBehavior.Strict);
     private readonly MessageEncoderFactory _factory;
 
     public MessageEncoderFactoryTests()
     {
         _cadaManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x13, 0x57, 0x9B });
-        _factory = new MessageEncoderFactory(_cadaManager.Object, _random.Object);
+        _factory = new MessageEncoderFactory(_cadaManager.Object, _platfromService.Object, _random.Object);
     }
 
     [Fact]

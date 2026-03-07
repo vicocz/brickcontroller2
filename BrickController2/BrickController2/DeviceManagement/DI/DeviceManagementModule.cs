@@ -5,6 +5,7 @@ using BrickController2.DeviceManagement.Lego;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
+using System;
 
 namespace BrickController2.DeviceManagement.DI
 {
@@ -43,6 +44,9 @@ namespace BrickController2.DeviceManagement.DI
 
             // execute registration per vendors
             builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);
+
+            // additional dependencies
+            builder.RegisterInstance(Random.Shared);
         }
     }
 }

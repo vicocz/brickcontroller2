@@ -5,11 +5,15 @@ namespace BrickController2.DeviceManagement.CaDA;
 public class MessageEncoderFactory : IMessageEncoderFactory
 {
     private readonly ICaDADeviceManager _cadaManager;
+    private readonly ICaDAPlatformService _platformService;
     private readonly Random _random;
 
-    public MessageEncoderFactory(ICaDADeviceManager cadaManager, Random random)
+    public MessageEncoderFactory(ICaDADeviceManager cadaManager,
+        ICaDAPlatformService platformService,
+        Random random)
     {
         _cadaManager = cadaManager;
+        _platformService = platformService;
         _random = random;
     }
 
@@ -24,9 +28,10 @@ public class MessageEncoderFactory : IMessageEncoderFactory
         if (deviceData.Length == 16)
         {
             // device id (bytes 5 & 6) for later use in payload template
-            return new RaceCarMessageEncoderRev2(deviceId: deviceData.Slice(5, 2),
+            return new RaceCarMessageEncoderRev2(_platformService,
+                deviceId: deviceData.Slice(5, 2),
                 // AppId 16bits
-                appId: _cadaManager.GetAppId().Span.Slice(0, 2),
+                appId: _cadaManager.GetAppId().Span[..2],
                 defaultSequenceValue: deviceData[11]);
         }
         // CADA RaceCar - original one
@@ -41,10 +46,10 @@ public class MessageEncoderFactory : IMessageEncoderFactory
             // * AppID sent from this App on scanning
             // These values are patched into the DataArray wich is advertised to control the device.
 
-            return new RaceCarMessageEncoder(
+            return new RaceCarMessageEncoder(_platformService,
                 _random,
-                deviceAddress: deviceData[4..6],
-                appId: deviceData[7..9]);
+                deviceAddress: deviceData.Slice(4, 3), // DeviceAddress 4-6
+                appId: deviceData.Slice(7, 3)); // AppID 7-9
         }
 
         // fallback

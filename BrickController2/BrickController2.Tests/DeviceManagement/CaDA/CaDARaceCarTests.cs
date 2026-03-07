@@ -63,7 +63,7 @@ public class CaDARaceCarRev2Tests
             ],
             Mock.Of<IDeviceRepository>(MockBehavior.Strict),
             Mock.Of<IBluetoothLEService>(MockBehavior.Strict),
-            new TPlatformService());
+            Mock.Of<IMessageEncoderFactory>(MockBehavior.Strict));
     }
 }
 

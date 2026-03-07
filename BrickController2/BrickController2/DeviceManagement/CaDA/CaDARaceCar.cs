@@ -101,7 +101,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
     }
 
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
         ushort random = (ushort)_rnd.Next(ushort.MinValue, ushort.MaxValue);
 

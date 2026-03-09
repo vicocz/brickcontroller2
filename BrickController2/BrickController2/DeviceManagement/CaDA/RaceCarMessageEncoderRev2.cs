@@ -97,7 +97,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         // check params
         if (values.Length != 3)
         {
-            throw new ArgumentException("Invalid inpur data.", nameof(values));
+            throw new ArgumentException("Invalid input data.", nameof(values));
         }
 
         EncodeValues(values, connect);

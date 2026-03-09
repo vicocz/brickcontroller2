@@ -8,7 +8,11 @@ public static class PlatformService
 {
     public class Default : ICaDAPlatformService
     {
-        public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload) => throw new NotImplementedException();
+        public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
+        {
+            rfPayload = rawData.AsSpan().ToArray();
+            return true;
+        }
     }
 
     public class IOS : ICaDAPlatformService

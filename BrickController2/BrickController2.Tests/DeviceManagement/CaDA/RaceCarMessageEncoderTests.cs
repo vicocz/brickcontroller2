@@ -10,11 +10,10 @@ namespace BrickController2.Tests.DeviceManagement.CaDA;
 
 public class RaceCarMessageEncoderTests
 {
-    private readonly Mock<ICaDAPlatformService> _platformService = new(MockBehavior.Strict);
     private readonly Mock<Random> _random = new(MockBehavior.Strict);
 
     [Fact]
-    public void Encode_WithValidInput_ReturnsCorrectLengthAndStaticStrucure()
+    public void Encode_WithValidInput_ReturnsCorrectLengthAndStaticStructure()
     {
         // Arrange
         var encoder = Create(0x4032, [0x01, 0x23, 0x40], [0x87, 0x65, 0x43]);
@@ -142,6 +141,6 @@ public class RaceCarMessageEncoderTests
     private RaceCarMessageEncoder Create(ushort random, ReadOnlySpan<byte> deviceAddress, ReadOnlySpan<byte> appId)
     {
         _random.Setup(r => r.Next(ushort.MinValue, ushort.MaxValue)).Returns(random);
-        return new(_platformService.Object, _random.Object, deviceAddress, appId);
+        return new(new PlatformService.Default(), _random.Object, deviceAddress, appId);
     }
 }

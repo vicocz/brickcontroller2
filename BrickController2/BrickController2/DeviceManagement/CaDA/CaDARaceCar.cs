@@ -35,14 +35,11 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
 
         //TODO var intValue = (int)(value * 0x7F); // scale and cast
 
-        lock (_outputLock)
+        // check for change
+        if (_outputValues.SetOutput(channelNo, (Half)value))
         {
-            // check for change
-            if (_outputValues.SetOutput(channelNo, (Half)value))
-            {
-                // notify data changed
-                _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
-            }
+            // notify data changed
+            _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
         }
     }
 

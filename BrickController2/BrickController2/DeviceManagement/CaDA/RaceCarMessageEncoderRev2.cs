@@ -63,7 +63,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
     }
 
     /// <inheritdoc/>
-    public byte[] Encode(ReadOnlySpan<Half> values, bool connect = false)
+    public byte[] Encode(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
         // check params
         if (values.Length != 3)
@@ -71,7 +71,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
             throw new ArgumentException("Invalid input data.", nameof(values));
         }
 
-        EncodeValues(values, connect);
+        EncodeValues(values, connectDevice);
 
         // finally use the platform service to encrypt the whole payload
         _platformService.TryGetRfPayloadV2(_data, out var rfPayload);
@@ -79,7 +79,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         return rfPayload;
     }
 
-    internal ReadOnlySpan<byte> EncodeValues(ReadOnlySpan<Half> values, bool connect = false)
+    internal ReadOnlySpan<byte> EncodeValues(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
         var oneHalf = (Half)0.5f;
         var halfByte = (Half)128.0f;
@@ -91,7 +91,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         byte steering = (byte)Clamp(halfByte + (values[1] * halfByte), Zero, maxByteHalf);
 
         // header: PAIRING : COMMAND
-        var header = connect ? (byte)0xAA : (byte)0xBB;
+        var header = connectDevice ? (byte)0xAA : (byte)0xBB;
 
         // update payload with current control data
         _data[0] = header; // header
@@ -100,7 +100,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         // flags: lights on/off
         _data[9] = (byte)(Abs(values[2]) > oneHalf ? 0x01 : 0x00);
         _data[10] = 0x00; // reset checksum before recalculating
-        _data[11] = (connect || (throttle == 0x80 && steering == 0x80))
+        _data[11] = (connectDevice || (throttle == 0x80 && steering == 0x80))
             ? _defaultSequenceValue
             : ++_sequence;
         _data[15] = (byte)(header & 0xF0); // footer
@@ -115,8 +115,6 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         // Encrypt the throttle/steering via Bitwise XOR (Bytes 7 & 8)
         _data[7] ^= _data[10];
         _data[8] ^= _data[10];
-
-        // finally use the platform service to encrypt the whole payload
 
         return _data;
     }

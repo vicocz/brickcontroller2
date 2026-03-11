@@ -10,7 +10,7 @@ public static class PlatformService
     {
         public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
         {
-            rfPayload = rawData.AsSpan().ToArray();
+            rfPayload = [.. rawData];
             return true;
         }
     }
@@ -22,7 +22,7 @@ public static class PlatformService
 
         public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload) => throw new NotImplementedException();
 
-        public bool TryGetRfPayloadRev2(ReadOnlySpan<byte> rawData, out byte[] rfPayload)
+        public bool TryGetRfPayloadV2(ReadOnlySpan<byte> rawData, out byte[] rfPayload)
         {
             rfPayload = new byte[Prefix.Length + rawData.Length + SessionId.Length];
 

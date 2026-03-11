@@ -44,7 +44,7 @@ public class MessageEncoderFactory : IMessageEncoderFactory
             // It's containing:
             // * DeviceAddress of the real CaDA device
             // * AppID sent from this App on scanning
-            // These values are patched into the DataArray wich is advertised to control the device.
+            // These values are patched into the DataArray which is advertised to control the device.
 
             return new RaceCarMessageEncoder(_platformService,
                 _random,

@@ -49,14 +49,14 @@ public class RaceCarMessageEncoder : IMessageEncoder
         appId.CopyTo(_controlDataArray.AsSpan(5)); // AppID at index 5-7
     }
 
-    /// <inheritdoc/>>
+    /// <inheritdoc/>
     public void Initialize()
     {
         // nothing to do in this encoder
     }
 
-    /// <inheritdoc/>>
-    public byte[] Encode(ReadOnlySpan<Half> values, bool connect = false)
+    /// <inheritdoc/>
+    public byte[] Encode(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
         // check params
         if (values.Length != 3)

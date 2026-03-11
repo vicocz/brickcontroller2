@@ -37,7 +37,7 @@ public class CaDAPlatformService : ICaDAPlatformService
         return true;
     }
 
-    public bool TryGetRfPayloadRev2(ReadOnlySpan<byte> rawData, out byte[] rfPayload)
+    public bool TryGetRfPayloadV2(ReadOnlySpan<byte> rawData, out byte[] rfPayload)
     {
         rfPayload = new byte[_prefix.Length + rawData.Length + V2SessionLength];
 

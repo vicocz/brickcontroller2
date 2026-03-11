@@ -8,9 +8,9 @@ public interface IMessageEncoder
     /// Encode the control data to a byte array which can be sent to the device.
     /// </summary>
     /// <param name="values">Current set of values to encode message for</param>
-    /// <param name="connect">Whether the message is for connecting to the device.</param>
+    /// <param name="connectDevice">Whether the message is for connecting to the device.</param>
     /// <returns>Encoded byte array.</returns>
-    byte[] Encode(ReadOnlySpan<Half> values, bool connect = false);
+    byte[] Encode(ReadOnlySpan<Half> values, bool connectDevice = false);
 
     /// <summary>
     /// Initialize encoder state if necessary.

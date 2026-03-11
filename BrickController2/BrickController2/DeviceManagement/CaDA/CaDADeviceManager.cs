@@ -68,7 +68,7 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     {
         switch (manufacturerId)
         {
-            case 0xfff0: // clasic one
+            case 0xfff0: // classic one
                 if (IsCadaRaceCar(manufacturerData))
                 {
                     // the origin deviceAddress is changing on every scan-response

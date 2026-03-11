@@ -158,5 +158,8 @@ public class RaceCarMessageEncoderRev2Tests
     }
 
     private static RaceCarMessageEncoderRev2 Create(ushort deviceId, ushort appId, byte sequence = 0xA1)
-        => new(deviceId, appId, sequence);
+        => new(new PlatformService.Default(),
+            deviceId: [(byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF)],
+            appId: [(byte)(appId & 0xFF), (byte)((appId >> 8) & 0xFF)],
+            sequence);
 }

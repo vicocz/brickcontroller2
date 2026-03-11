@@ -44,22 +44,19 @@ public class RaceCarMessageEncoder : IMessageEncoder
         // Configure encoder based on device data which contains:
         // * DeviceAddress of the real CaDA device
         // * AppID sent from this App on scanning
-        // These values are patched into the DataArray wich is advertised to control the device.
+        // These values are patched into the DataArray which is advertised to control the device.
         deviceAddress.CopyTo(_controlDataArray.AsSpan(2)); // DeviceAddress at index 2-4
         appId.CopyTo(_controlDataArray.AsSpan(5)); // AppID at index 5-7
     }
 
+    /// <inheritdoc/>>
     public void Initialize()
     {
         // nothing to do in this encoder
     }
 
-    /// <summary>
-    /// Encode the control data to a byte array which can be sent to the device.
-    /// </summary>connect = false
-    /// <param name="controlData">Control data to encode</param>
-    /// <returns>Encoded byte array</returns>
-    public ReadOnlySpan<byte> Encode(ReadOnlySpan<Half> values, bool connect = false)
+    /// <inheritdoc/>>
+    public byte[] Encode(ReadOnlySpan<Half> values, bool connect = false)
     {
         // check params
         if (values.Length != 3)

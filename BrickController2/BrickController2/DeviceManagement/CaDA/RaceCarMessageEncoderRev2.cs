@@ -55,44 +55,15 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         appId.CopyTo(_data.AsSpan(5)); // AppID at index 5-6
     }
 
-    internal RaceCarMessageEncoderRev2(ushort deviceId, ushort appId, byte defaultSequenceValue)
-    {
-        // init sequence counter
-        _defaultSequenceValue = defaultSequenceValue;
-        _sequence = defaultSequenceValue;
-
-        // prepare 16bytes of payload data
-        _data = 
-        [
-            // manufacturerId
-            0xAA, 0x11,
-            // CADA RaceCar?
-            0x11,
-            // DeviceId
-            (byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF),
-            // 2 bytes AppID - zeros from the scan
-            (byte)(appId & 0xFF), (byte)((appId >> 8) & 0xFF),
-            // throttle, steering, lights
-            0x00, 0x00, 0x00,
-            // checksum, sequence
-            0x00, _sequence,
-            // 4 bytes footer, ending with 0xA0 / 0xB0
-            0xCC, 0xB8, 0x92, 0xA0
-        ];
-    }
-
+    /// <inheritdoc/>
     public void Initialize()
     {
         // reset sequence counter to default value
         _sequence = _defaultSequenceValue;
     }
 
-    /// <summary>
-    /// Encode the control data to a byte array which can be sent to the device.
-    /// </summary>connect = false
-    /// <param name="controlData">Control data to encode</param>
-    /// <returns>Encoded byte array</returns>
-    public ReadOnlySpan<byte> Encode(ReadOnlySpan<Half> values, bool connect = false)
+    /// <inheritdoc/>
+    public byte[] Encode(ReadOnlySpan<Half> values, bool connect = false)
     {
         // check params
         if (values.Length != 3)
@@ -103,7 +74,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         EncodeValues(values, connect);
 
         // finally use the platform service to encrypt the whole payload
-        _platformService.TryGetRfPayloadRev2(_data, out var rfPayload);
+        _platformService.TryGetRfPayloadV2(_data, out var rfPayload);
 
         return rfPayload;
     }

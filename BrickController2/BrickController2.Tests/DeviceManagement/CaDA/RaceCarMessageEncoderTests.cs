@@ -23,7 +23,7 @@ public class RaceCarMessageEncoderTests
 
         // Assert
         result.Length.Should().Be(16);
-        result.ToArray().Should().StartWith(
+        result.Should().StartWith(
         [
             0x75, // first byte is constant 0x75
             0x13, // second byte is constant 0x13 (STATUS_CONTROL)
@@ -47,7 +47,7 @@ public class RaceCarMessageEncoderTests
 
         // Assert
         result.Length.Should().Be(16);
-        result.ToArray().Should().EndWith([0xD6, 0xA4, 0x25, 0x89, 0x4E, 0x6D, 0x25, 0x25]);
+        result.Should().EndWith([0xD6, 0xA4, 0x25, 0x89, 0x4E, 0x6D, 0x25, 0x25]);
     }
 
     [Theory]

@@ -1,7 +1,7 @@
 ﻿using BrickController2.Protocols;
 using System;
 
-using static System.Half;
+using static BrickController2.Protocols.CaDAProtocol;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
@@ -76,16 +76,13 @@ public class RaceCarMessageEncoder : IMessageEncoder
 
     internal Span<byte> EncodeValues(ReadOnlySpan<Half> values)
     {
-        var halfByte = (Half)128.0f;
-        var maxByteHalf = (Half)255.0f;
-
         ushort random = (ushort)_random.Next(ushort.MinValue, ushort.MaxValue);
 
         _controlDataArray[8] = (byte)(random & 0xFF);
         _controlDataArray[9] = (byte)((random >> 8) & 0xFF);
-        _controlDataArray[10] = (byte)Max(Zero, Min(halfByte - (values[0] * halfByte), maxByteHalf)); // speed value - reversed
-        _controlDataArray[11] = (byte)Max(Zero, Min(halfByte + (values[1] * halfByte), maxByteHalf)); // 
-        _controlDataArray[12] = (byte)Max(Zero, Min(halfByte + (values[2] * halfByte), maxByteHalf)); // light on/off
+        _controlDataArray[10] = Clamp(HalfByte - (values[0] * HalfByte)); // speed value - reversed
+        _controlDataArray[11] = Clamp(HalfByte + (values[1] * HalfByte)); // 
+        _controlDataArray[12] = Clamp(HalfByte + (values[2] * HalfByte)); // light on/off
         _controlDataArray[13] = 0;
         _controlDataArray[14] = 0;
         _controlDataArray[15] = 0;

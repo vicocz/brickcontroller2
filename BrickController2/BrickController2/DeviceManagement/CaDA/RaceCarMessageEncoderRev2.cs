@@ -1,6 +1,6 @@
 ﻿using System;
 
-using static System.Half; // for convenient usage of Half constants like 0.5h
+using static BrickController2.Protocols.CaDAProtocol;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
@@ -82,13 +82,11 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
     internal ReadOnlySpan<byte> EncodeValues(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
         var oneHalf = (Half)0.5f;
-        var halfByte = (Half)128.0f;
-        var maxByteHalf = (Half)255.0f;
 
         // Map input (-1.0 to 1.0) to Throttle (0xFF to 0x00)
-        byte throttle = (byte)Clamp(halfByte - (values[0] * halfByte), Zero, maxByteHalf);
+        byte throttle = Clamp(HalfByte - (values[0] * HalfByte));
         // Map input (-1.0 to 1.0) to Steering (0x00 to 0xFF)
-        byte steering = (byte)Clamp(halfByte + (values[1] * halfByte), Zero, maxByteHalf);
+        byte steering = Clamp(HalfByte + (values[1] * HalfByte));
 
         // header: PAIRING : COMMAND
         var header = connectDevice ? (byte)0xAA : (byte)0xBB;
@@ -98,7 +96,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         _data[7] = throttle;
         _data[8] = steering;
         // flags: lights on/off
-        _data[9] = (byte)(Abs(values[2]) > oneHalf ? 0x01 : 0x00);
+        _data[9] = MapAsFlag(values[2]);
         _data[10] = 0x00; // reset checksum before recalculating
         _data[11] = (connectDevice || (throttle == 0x80 && steering == 0x80))
             ? _defaultSequenceValue

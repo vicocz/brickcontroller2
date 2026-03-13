@@ -19,6 +19,10 @@ public static class CaDAProtocol
     /// </summary>
     public const byte CTXValue2 = 0x26;
 
+    public static Half OneHalf => (Half)0.5f;
+    public static Half HalfByte => (Half)0x80;
+    public static Half MaxByte => (Half)0xFF;
+
     /// <summary>
     /// SeedArray
     /// </summary>
@@ -130,4 +134,7 @@ public static class CaDAProtocol
             data[index] = (byte)(SwitchSheet[(int)(data[index] / 4)] + data[index] % 4);
         }
     }
+
+    public static byte Clamp(Half value) => (byte)Half.Clamp(value, Half.Zero, MaxByte);
+    public static byte MapAsFlag(Half value) => (byte)(Half.Abs(value) > OneHalf ? 0x01 : 0x00);
 }

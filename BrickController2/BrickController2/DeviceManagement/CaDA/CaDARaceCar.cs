@@ -33,8 +33,6 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
         CheckChannel(channelNo);
         value = CutOutputValue(value);
 
-        //TODO var intValue = (int)(value * 0x7F); // scale and cast
-
         // check for change
         if (_outputValues.SetOutput(channelNo, (Half)value))
         {

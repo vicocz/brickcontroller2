@@ -171,7 +171,7 @@ public class CaDADeviceManagerTests
 
         var scanData = _manager.CreateScanData();
         // Assert
-        scanData.Should().BeEquivalentTo(
+        scanData.Should().Equal(
         [
               0x75, //  [0] const 0x75 (117)
               0x10, //  [1] 0x17 (23) STATUS_UNPAIRING - else - 0x10 (16)

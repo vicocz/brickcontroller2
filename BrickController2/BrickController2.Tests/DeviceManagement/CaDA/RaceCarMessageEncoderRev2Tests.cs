@@ -22,7 +22,7 @@ public class RaceCarMessageEncoderRev2Tests
 
         // assert
         result.Length.Should().Be(16);
-        result.ToArray().Should().BeEquivalentTo(
+        result.ToArray().Should().Equal(
         [
             0xAA, 0x11, 0x11,
             (byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF),
@@ -48,7 +48,7 @@ public class RaceCarMessageEncoderRev2Tests
 
         // assert
         result.Length.Should().Be(16);
-        result.ToArray().Should().BeEquivalentTo(
+        result.ToArray().Should().Equal(
         [
             0xBB, 0x11, 0x11,
             (byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF),

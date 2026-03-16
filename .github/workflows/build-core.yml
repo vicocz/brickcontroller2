@@ -8,7 +8,7 @@ on:
     paths:
       - '.github/**/*core.yml'
       - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - 'BrickController2/*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Tests/**'
   pull_request:
@@ -18,7 +18,7 @@ on:
     paths:
       - '.github/**/*core.yml'
       - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - 'BrickController2/*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Tests/**'
   workflow_dispatch:

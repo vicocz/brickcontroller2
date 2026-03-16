@@ -51,12 +51,12 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
     }
 
-    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
+    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
-        _outputValues.TryGetValues(out var outputValues);
+        var changed = _outputValues.TryGetValues(out var outputValues);
         currentData = _messageEncoder.Encode(outputValues, getConnectTelegram);
 
-        return true;
+        return changed || getConnectTelegram;
     }
 
     /// <summary>

@@ -35,9 +35,9 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         // prepare 16bytes of payload data
         _data =
         [
-            // manufacturerId
+            // header (pairing/command marker, 0xAA/0xBB) + constant/manufacturer/protocol byte
             0xAA, 0x11,
-            // CADA RaceCar?
+            // product/model identifier (CaDA RaceCar)
             0x11,
             // DeviceId
             0x00, 0x00,
@@ -81,8 +81,6 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
 
     internal ReadOnlySpan<byte> EncodeValues(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
-        var oneHalf = (Half)0.5f;
-
         // Map input (-1.0 to 1.0) to Throttle (0xFF to 0x00)
         byte throttle = Clamp(HalfByte - (values[0] * HalfByte));
         // Map input (-1.0 to 1.0) to Steering (0x00 to 0xFF)

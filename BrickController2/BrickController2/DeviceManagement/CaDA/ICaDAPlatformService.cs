@@ -7,7 +7,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// </summary>
 public interface ICaDAPlatformService
 {
-    private const int V2PayloadLength = 16;
+    const int V2PayloadLength = 16;
     bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload);
 
     bool TryGetRfPayloadV2(ReadOnlySpan<byte> rawData, out byte[] rfPayload)

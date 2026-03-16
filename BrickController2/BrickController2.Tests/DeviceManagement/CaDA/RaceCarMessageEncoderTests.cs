@@ -79,7 +79,7 @@ public class RaceCarMessageEncoderTests
         var result = encoder.EncodeValues([Zero, Zero, Zero]);
         // Assert
         result.Length.Should().Be(8);
-        result.ToArray().Should().BeEquivalentTo(
+        result.ToArray().Should().Equal(
         [
             0xCD, //  [8] ChannelData random
             0xAB, //  [9] ChannelData random

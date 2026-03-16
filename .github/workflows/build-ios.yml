@@ -30,7 +30,7 @@ permissions:
   contents: read
 
 env:
-  XCODE_VERSION: '26.0.1'
+  XCODE_VERSION: '26.2'
 
 jobs:
   build-ios:

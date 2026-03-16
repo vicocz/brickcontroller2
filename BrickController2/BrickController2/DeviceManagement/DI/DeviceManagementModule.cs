@@ -5,6 +5,7 @@ using BrickController2.DeviceManagement.Lego;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
+using System;
 
 namespace BrickController2.DeviceManagement.DI
 {
@@ -30,7 +31,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
             builder.RegisterType<Wedo2Device>().Keyed<Device>(DeviceType.WeDo2);
             builder.RegisterType<TechnicMoveDevice>().Keyed<Device>(DeviceType.TechnicMove);
-            builder.RegisterType<CaDARaceCar>().Keyed<Device>(DeviceType.CaDA_RaceCar);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 
             builder.Register<DeviceFactory>(c =>
@@ -45,7 +45,6 @@ namespace BrickController2.DeviceManagement.DI
 
             // device managers
             builder.RegisterDeviceManager<BuWizzDeviceManager>();
-            builder.RegisterDeviceManager<CaDADeviceManager>().As<IBluetoothLEAdvertiserDeviceScanInfo>();
             builder.RegisterDeviceManager<CircuitCubeDeviceManager>();
             builder.RegisterDeviceManager<LegoDeviceManager>();
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
@@ -53,6 +52,9 @@ namespace BrickController2.DeviceManagement.DI
 
             // execute registration per vendors
             builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);
+
+            // additional dependencies
+            builder.RegisterInstance(Random.Shared);
         }
     }
 }

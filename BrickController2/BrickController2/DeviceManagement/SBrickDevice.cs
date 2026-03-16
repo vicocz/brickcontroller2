@@ -94,6 +94,14 @@ namespace BrickController2.DeviceManagement
             return true;
         }
 
+        protected override void OnDeviceDisconnecting()
+        {
+            _firmwareRevisionCharacteristic = null;
+            _hardwareRevisionCharacteristic = null;
+            _remoteControlCharacteristic = null;
+            _quickDriveCharacteristic = null;
+        }
+
         protected override async Task ProcessOutputsAsync(CancellationToken token)
         {
             try

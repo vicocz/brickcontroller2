@@ -84,6 +84,12 @@ internal class PfxBrickDevice : BluetoothDevice
         }
     }
 
+    protected override void OnDeviceDisconnecting()
+    {
+        _writeCharacteristic = null;
+        _notifyCharacteristic = null;
+    }
+
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         try

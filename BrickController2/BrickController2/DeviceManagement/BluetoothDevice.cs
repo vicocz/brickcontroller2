@@ -105,6 +105,8 @@ namespace BrickController2.DeviceManagement
         {
         }
 
+        protected abstract void OnDeviceDisconnecting();
+
         protected virtual Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
             return Task.FromResult(true);
@@ -116,9 +118,13 @@ namespace BrickController2.DeviceManagement
             {
                 await StopOutputTaskAsync();
                 DeviceState = DeviceState.Disconnecting;
+                // notify disconnection
+                OnDeviceDisconnecting();
+                // execute native device disconnection + cleanup
                 await _bleDevice.DisconnectAsync();
                 _bleDevice = null;
             }
+            _onDeviceDisconnected = null;
 
             DeviceState = DeviceState.Disconnected;
         }
@@ -129,8 +135,10 @@ namespace BrickController2.DeviceManagement
             {
                 using (await _asyncLock.LockAsync())
                 {
+                    var disconnectedCallback = _onDeviceDisconnected;
                     await DisconnectInternalAsync();
-                    _onDeviceDisconnected?.Invoke(this);
+                    // notify
+                    disconnectedCallback?.Invoke(this);
                 }
             });
         }

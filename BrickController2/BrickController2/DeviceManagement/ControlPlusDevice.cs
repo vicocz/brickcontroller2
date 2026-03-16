@@ -233,6 +233,12 @@ namespace BrickController2.DeviceManagement
             return _servoSendBuffer;
         }
 
+        protected override void OnDeviceDisconnecting()
+        {
+            // Clear the cached characteristic reference to prevent using stale native Android objects on reconnection
+            _characteristic = null;
+        }
+
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
             if (characteristicGuid != CharacteristicUuid || data.Length < 4)

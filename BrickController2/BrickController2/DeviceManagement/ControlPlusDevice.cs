@@ -194,7 +194,11 @@ namespace BrickController2.DeviceManagement
             => _bleDevice!.WriteAsync(_characteristic!, data, token);
 
         protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
-        protected virtual int GetChannelIndex(byte portId) => portId;
+        protected virtual bool TryGetChannelIndex(byte portId, out int channelIndex)
+        {
+            channelIndex = portId;
+            return portId < NumberOfChannels;
+        }
 
         protected virtual byte GetChannelValue(int value)
             // calculate raw motor value
@@ -292,19 +296,23 @@ namespace BrickController2.DeviceManagement
                         if (data.Length == 6)
                         {
                             // assume 16bit data is ABS
-                            var channel = GetChannelIndex(data[3]);
-                            var absPosition = ToInt16(data, 4);
-                            _absolutePositions[channel] = absPosition;
+                            if (TryGetChannelIndex(data[3], out var channel))
+                            {
+                                var absPosition = ToInt16(data, 4);
+                                _absolutePositions[channel] = absPosition;
+                            }
                         }
                         else if (data.Length == 8)
                         {
                             // assume 32 bit data is REL
-                            var channel = GetChannelIndex(data[3]);
-                            var relPosition = ToInt32(data, 4);
-                            _relativePositions[channel] = relPosition;
+                            if (TryGetChannelIndex(data[3], out var channel))
+                            {
+                                var relPosition = ToInt32(data, 4);
+                                _relativePositions[channel] = relPosition;
 
-                            _positionsUpdated[channel] = true;
-                            _positionUpdateTimes[channel] = DateTime.Now;
+                                _positionsUpdated[channel] = true;
+                                _positionUpdateTimes[channel] = DateTime.Now;
+                            }
                         }
                     }
                     break;
@@ -312,7 +320,11 @@ namespace BrickController2.DeviceManagement
                 case 0x46: // Port value (combined mode)
                     lock (_positionLock)
                     {
-                        var channel = GetChannelIndex(data[3]);
+                        if (!TryGetChannelIndex(data[3], out var channel))
+                        {
+                            break;
+                        }
+
                         var modeMask = data[5];
                         var dataIndex = 6;
 
@@ -370,15 +382,22 @@ namespace BrickController2.DeviceManagement
                     break;
 
                 case 0x82: // Port output command feedback
-                    DumpData("Output command feedback", data);
+                    OnPortOutputCommandFeedback(data);
                     break;
             }
         }
 
+        protected virtual void OnPortOutputCommandFeedback(byte[] data)
+        {
+            DumpData("Output command feedback", data);
+        }
+
         private void DumpData(string header, byte[] data)
         {
-            //var s = BitConverter.ToString(data);
-            //Console.WriteLine(header + " - " + s);
+#if DEBUG
+            var s = BitConverter.ToString(data);
+            Debug.WriteLine(header + " - " + s);
+#endif
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -456,7 +475,7 @@ namespace BrickController2.DeviceManagement
             {
                 var result = true;
 
-                for (int channel = 0; channel < NumberOfChannels; channel++)
+                for (int channel = 0; channel < NumberOfChannels && !token.IsCancellationRequested; channel++)
                 {
                     switch (_channelOutputTypes[channel])
                     {
@@ -465,7 +484,6 @@ namespace BrickController2.DeviceManagement
                             break;
 
                         case ChannelOutputType.ServoMotor:
-                            var maxServoAngle = _maxServoAngles[channel];
                             result = result && await SendServoOutputValueAsync(channel, token);
                             break;
 

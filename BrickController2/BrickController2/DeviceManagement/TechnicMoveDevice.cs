@@ -19,10 +19,10 @@ namespace BrickController2.DeviceManagement
 
         private bool _applyPlayVmMode;
         private volatile byte _virtualMotorValue;
+        private TaskCompletionSource<bool>? _playVmCalibrationTcs;
 
         public TechnicMoveDevice(string name,
             string address,
-            byte[] deviceData,
             IEnumerable<NamedSetting> settings,
             IDeviceRepository deviceRepository,
             IBluetoothLEService bleService)
@@ -57,11 +57,12 @@ namespace BrickController2.DeviceManagement
             _applyPlayVmMode = startOutputProcessing &&
                 channelConfigurations.Any(c => c.Channel == CHANNEL_VM || (c.Channel == CHANNEL_C && c.ChannelOutputType == ChannelOutputType.ServoMotor));
 
-            // filter out non standard channels
-            var filteredConfigurtions = channelConfigurations
-                .Where(c => c.Channel != CHANNEL_VM);
+            // filter out non-standard channels and configurations with unsupported output types
+            var filteredConfigurations = channelConfigurations
+                .Where(c => c.Channel != CHANNEL_VM)
+                .Where(c => IsOutputTypeSupported(c.Channel, c.ChannelOutputType));
 
-            return base.ConnectAsync(reconnect, onDeviceDisconnected, filteredConfigurtions, startOutputProcessing, requestDeviceInformation, token);
+            return base.ConnectAsync(reconnect, onDeviceDisconnected, filteredConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
         public override void SetOutput(int channel, float value)
@@ -89,26 +90,33 @@ namespace BrickController2.DeviceManagement
             _ => throw new ArgumentException($"Value of channel '{channelIndex}' is out of supported range.", nameof(channelIndex))
         };
 
-        protected override int GetChannelIndex(byte portId) => portId switch
+        protected override bool TryGetChannelIndex(byte portId, out int channelIndex)
         {
-            PORT_DRIVE_MOTOR_1 => 0,
-            PORT_DRIVE_MOTOR_2 => 1,
-            PORT_STEERING_MOTOR => 2,
-            // PORT_6LEDS is not supported
-            _ => throw new ArgumentException($"Value of port ID '{portId}' is out of supported ranges.", nameof(portId))
-        };
+            channelIndex = portId switch
+            {
+                PORT_DRIVE_MOTOR_1 => 0,
+                PORT_DRIVE_MOTOR_2 => 1,
+                PORT_STEERING_MOTOR => 2,
+                // all other ports (PORT_6LEDS, PORT_PLAYVM, PORT_HUB_LED, etc.) are not tracked
+                _ => -1
+            };
+            return channelIndex != -1;
+        }
 
         protected override byte GetChannelValue(int value) => ToByte(value);
 
-        protected override void InitializeChannelInfo(int channel, int lastOutputValue = 1, int sendAttempsLeft = 10)
+        protected override void InitializeChannelInfo(int channel, int lastOutputValue = 1, int sendAttemptsLeft = 10)
         {
-            // if PLAYVM enabled, reset A / B channels diffrently in order to avoid output writes
-            if (_applyPlayVmMode && channel < CHANNEL_C)
+            // if PLAYVM enabled, suppress A / B / C channels — all controlled via PLAYVM commands,
+            // and the hub is still settling after PLAYVM_CALIBRATE_STEERING when the output task starts
+            // or if LED channels (3-8) all share PORT_6LEDS — suppress initial burst to avoid flooding the hub's BLE receive buffer
+            if ((_applyPlayVmMode && channel < CHANNEL_C) ||
+                (channel > CHANNEL_C && channel < NumberOfChannels))
             {
                 lastOutputValue = 0;
-                sendAttempsLeft = 0;
+                sendAttemptsLeft = 0;
             }
-            base.InitializeChannelInfo(channel, lastOutputValue, sendAttempsLeft);
+            base.InitializeChannelInfo(channel, lastOutputValue, sendAttemptsLeft);
         }
 
         protected override byte[] GetOutputCommand(int channel, int value)
@@ -135,25 +143,27 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
-            if (await base.AfterConnectSetupAsync(requestDeviceInformation, token))
+            if (!await base.AfterConnectSetupAsync(requestDeviceInformation, token))
             {
-                try
-                {
-                    // hub LED
-                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
-                    var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
-                    await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
-
-                    // switch lights off
-                    var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
-                    return await WriteNoResponseAsync(lightsOffCmd, withSendDelay: true, token: token);
-                }
-                catch
-                {
-                }
+                return false;
             }
 
-            return false;
+            try
+            {
+                // hub LED — cosmetic only, failure does not abort connection
+                var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_GREEN;
+                var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
+                await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
+
+                // switch lights off
+                var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
+                await WriteNoResponseAsync(lightsOffCmd, withSendDelay: true, token: token);
+            }
+            catch
+            {
+            }
+
+            return true;
         }
 
         protected override async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
@@ -165,7 +175,7 @@ namespace BrickController2.DeviceManagement
 
             try
             {
-                // setup channel to report ABS position
+                // setup channel to report ABS position - port mode 3
                 var portId = GetPortId(channel);
                 var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
                 return await WriteAsync(inputFormatForAbsAngle, token);
@@ -188,13 +198,27 @@ namespace BrickController2.DeviceManagement
                 // reset servo via PLAYVM
                 // PLAYVM cmd supports only servo on C channel
                 var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
-                await WriteNoResponseAsync(servoCmd, token: token);
+                await WriteAsync(servoCmd, token);
                 await Task.Delay(100, token);
+
+                // set up completion waiter before sending calibrate to avoid the race where
+                // feedback arrives before we start waiting
+                _playVmCalibrationTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
                 // do calibration
                 var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
-                await WriteNoResponseAsync(calibrateCmd, token: token);
-                await Task.Delay(750, token);
+                await WriteAsync(calibrateCmd, token);
+
+                // wait for the hub's completion feedback instead of a fixed delay
+                try
+                {
+                    await _playVmCalibrationTcs.Task.WaitAsync(TimeSpan.FromSeconds(2), token);
+                }
+                catch (TimeoutException)
+                {
+                    // hub did not respond in time, fall back to a short safety delay
+                    await Task.Delay(500, token);
+                }
 
                 return true;
             }
@@ -202,6 +226,20 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
+            finally
+            {
+                _playVmCalibrationTcs = null;
+            }
+        }
+
+        protected override void OnPortOutputCommandFeedback(byte[] data)
+        {
+            // PORT_PLAYVM completion feedback (0x82) signals calibration finished
+            if (data.Length >= 5 && data[2] == 0x82 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
+            {
+                _playVmCalibrationTcs?.TrySetResult(true);
+            }
+            base.OnPortOutputCommandFeedback(data);
         }
     }
 }

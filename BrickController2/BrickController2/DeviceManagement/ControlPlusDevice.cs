@@ -387,16 +387,18 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        protected virtual void OnPortOutputCommandFeedback(byte[] data)
-        {
-            DumpData("Output command feedback", data);
-        }
-
-        private void DumpData(string header, byte[] data)
+        protected virtual void OnPortOutputCommandFeedback(ReadOnlySpan<byte> data)
         {
 #if DEBUG
-            var s = BitConverter.ToString(data);
-            Debug.WriteLine(header + " - " + s);
+            DumpData("Output command feedback", data);
+#endif
+        }
+
+        private static void DumpData(string header, ReadOnlySpan<byte> data)
+        {
+#if DEBUG
+            var s = Convert.ToHexString(data);
+            Debug.WriteLine(DateTime.Now + " " + header + " - " + s);
 #endif
         }
 

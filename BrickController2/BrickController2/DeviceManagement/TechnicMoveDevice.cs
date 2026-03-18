@@ -153,11 +153,11 @@ namespace BrickController2.DeviceManagement
                 // hub LED — cosmetic only, failure does not abort connection
                 var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_GREEN;
                 var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
-                await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
+                await WriteAsync(ledCmd, token);
 
                 // switch lights off
                 var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
-                await WriteNoResponseAsync(lightsOffCmd, withSendDelay: true, token: token);
+                await WriteAsync(lightsOffCmd, token);
             }
             catch
             {
@@ -232,10 +232,10 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        protected override void OnPortOutputCommandFeedback(byte[] data)
+        protected override void OnPortOutputCommandFeedback(ReadOnlySpan<byte> data)
         {
             // PORT_PLAYVM completion feedback (0x82) signals calibration finished
-            if (data.Length >= 5 && data[2] == 0x82 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
+            if (data.Length >= 5 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
             {
                 _playVmCalibrationTcs?.TrySetResult(true);
             }

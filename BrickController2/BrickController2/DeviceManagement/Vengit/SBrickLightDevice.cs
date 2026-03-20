@@ -194,7 +194,7 @@ internal class SBrickLightDevice : BluetoothDevice
                 if (success)
                 {
                     // confirm successful sending
-                    valueBank.Commmit();
+                    valueBank.Commit();
                     await Task.Delay(5, token).ConfigureAwait(false);
                     return true;
                 }

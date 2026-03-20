@@ -177,12 +177,13 @@ namespace BrickController2.DeviceManagement
             return Name;
         }
 
-        protected void CheckChannel(int channel)
+        protected int CheckChannel(int channel)
         {
             if (channel < 0 || channel >= NumberOfChannels)
             {
                 throw new ArgumentOutOfRangeException($"Invalid channel value: {channel}.");
             }
+            return channel;
         }
 
         protected float CutOutputValue(float outputValue)

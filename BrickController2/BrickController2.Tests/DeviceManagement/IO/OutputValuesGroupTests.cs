@@ -115,7 +115,7 @@ public class OutputValuesGroupTests
         changedValues.Should().BeEquivalentTo([new KeyValuePair<int, short>(0, 7)]);
 
         // Act
-        group.Commmit();
+        group.Commit();
 
         // Assert
         group.TryGetChanges(out var values).Should().BeFalse();

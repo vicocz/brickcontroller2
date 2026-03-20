@@ -41,6 +41,16 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         return false;
     }
 
+    public void Initialize(int channel)
+    {
+        lock (_outputLock)
+        {
+            _outputValues[channel] = default;
+            _commitedOutputValues[channel] = TValue.One;
+            _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+        }
+    }
+
     public void Initialize()
     {
         lock (_outputLock)
@@ -51,6 +61,18 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
             _values.AsSpan().Clear();
             // enable sending for the first round
             _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+        }
+    }
+
+    public void Clear()
+    {
+        lock (_outputLock)
+        {
+            // reset all values
+            _outputValues.AsSpan().Clear();
+            _commitedOutputValues.AsSpan().Clear();
+            _values.AsSpan().Clear();
+            _sendAttemptsLeft = 0;
         }
     }
 
@@ -75,7 +97,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     }
 
     /// <summary>
-    /// Try to get the output values to be sent, if there was any change or last application was not succcessfull
+    /// Try to get the output values to be sent, if there was any change or last application was not successful
     /// </summary>
     /// <param name="changes">Collection of changes</param>
     /// <returns>true there is any reason to apply changes</returns>
@@ -104,12 +126,12 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     /// <summary>
     /// Confirm that the values have been sent and applied.
     /// </summary>
-    public void Commmit()
+    public void Commit()
     {
         // store as last applied values
         _values.CopyTo(_commitedOutputValues.AsSpan());
 
-        // reset attemps due to success
+        // reset attempts due to success
         lock (_outputLock)
         {
             // do it conditionally

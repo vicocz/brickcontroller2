@@ -65,6 +65,9 @@ internal static class LegoWirelessProtocol
     public const byte HUB_LED_COLOR_RED = 0x09;
     public const byte HUB_LED_COLOR_WHITE = 0xA;
 
+    // 6LEDS port 
+    public const byte PORT_6LEDS_ALL_LIGHTS = 0xFF;
+
     // Hub Property Message(s)
     public const byte HUB_PROPERTY_FW_VERSION = 0x03;
     public const byte HUB_PROPERTY_HW_VERSION = 0x04;
@@ -98,7 +101,7 @@ internal static class LegoWirelessProtocol
     }
 
     public static byte ToByte(int value) => (byte)(value & 0xFF);
-    public static byte ToByte(Half value) => (byte)(value);
+    public static byte ToByte(Half value) => ToByte((int)value);
 
     public static short ToInt16(byte[] value, int startIndex) => ToInt16(value.AsSpan(startIndex));
     public static int ToInt32(byte[] value, int startIndex) => ToInt32(value.AsSpan(startIndex));

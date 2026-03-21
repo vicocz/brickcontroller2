@@ -26,7 +26,7 @@ namespace BrickController2.DeviceManagement
         private const int PLAYVM_CHANNEL_STEER = 1;
         private const string EnablePlayVmSettingName = "PlayVmEnabled";
 
-        private readonly OutputValuesGroup<Half> _outputValues = new(3);
+        private readonly OutputValuesGroup<Half> _outputValues = new(9);
         private readonly OutputValuesGroup<Half> _playVmValues = new(2);
 
         private int _maxServoAngle;
@@ -137,17 +137,17 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                //  if PLAYVM enabled, suppress A / B / C channels — all controlled via PLAYVM commands
-                _playVmValues.Clear();
-                // output values - clear always lights — suppress initial burst to avoid flooding the hub's BLE receive buffer
-                _outputValues.Clear();
- 
-                if (!_applyPlayVmMode)
+                if (_applyPlayVmMode)
                 {
-                    // otherwise force A B C channels to be sent
-                    _outputValues.Initialize(CHANNEL_A);
-                    _outputValues.Initialize(CHANNEL_B);
-                    _outputValues.Initialize(CHANNEL_C);
+                    _playVmValues.Initialize();
+                    // output values - clear always lights — suppress initial burst to avoid flooding the hub
+                    _outputValues.Clear();
+                }
+                else
+                {
+                    _playVmValues.Clear();
+                    // otherwise all channels to be initialized
+                    _outputValues.Initialize();
                 }
 
                 while (!token.IsCancellationRequested)
@@ -165,21 +165,28 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                // hub LED — cosmetic only, failure does not abort connection
-                var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_GREEN;
-                var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
-                await WriteAsync(ledCmd, token);
+                // hub LED - light blue
+                await SendPortOutput_HubLedAsync(HUB_LED_COLOR_LIGHT_BLUE, token);
+
+                if (requestDeviceInformation)
+                {
+                    await RequestHubPropertiesAsync(token);
+                }
 
                 // switch lights off
                 var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, 0xff, 0x00);
                 await WriteAsync(lightsOffCmd, token);
+                await Task.Delay(100, token);
 
-                // setup channels for port information and reset servos to base angles if in PLAYVM mode, failure of which does not abort connection as well
                 if (_applyPlayVmMode)
                 {
+                    // setup C channel for port information and reset servo to base angles
                     await SetupChannelForPortInformationAsync(token);
                     await Task.Delay(300, token);
                     await ResetServoAsync(_servoBaseAngle, token);
+
+                    // hub LED - magneta
+                    await SendPortOutput_HubLedAsync(HUB_LED_COLOR_MAGENTA, token);
                 }
                 return true;
             }
@@ -273,19 +280,19 @@ namespace BrickController2.DeviceManagement
                     {
                         var value = ToByte(change.Value);
 
-                        // 6LED
-                        var ledIndex = change.Key - CHANNEL_1;
-
-                        var outputCmd = change.Key switch
+                        var writeTask = change.Key switch
                         {
                             // Light channels 1 - 6 require absolute value
-                            >= CHANNEL_1 and <= CHANNEL_6 => BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, ToByte(1 << ledIndex), value),
-                            _ => [8, 0x00, 0x81, GetPortId(change.Key), 0x11, 0x51, 0x00, value]
+                            >= CHANNEL_1 and <= CHANNEL_6 => SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
+                            // all channels command
+                            int.MaxValue => SendAllOutputValuesAsync(value, token),
+                            // clasic output command for A, B, C channels
+                            _ => SendPortOutput_ValueAsync(change.Key, value, token)
                         };
 
-                        if (!await WriteNoResponseAsync(outputCmd, SEND_DELAY, token))
+                        if (!await writeTask)
                         {
-                            break;
+                            return false;
                         }
                     }
 
@@ -325,6 +332,42 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
+        }
+
+        private Task<bool> SendPortOutput_HubLedAsync(byte color, CancellationToken token)
+        {
+            // hub LED
+            var ledCmd = BuildPortOutput_HubLed(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
+            return WriteAsync(ledCmd, token);
+        }
+
+        private Task<bool> SendPortOutput_6LedAsync(int ledIndex, byte value, CancellationToken token)
+            => SendPortOutput_6LedMaskAsync(ToByte(1 << ledIndex), value, token);
+
+        private Task<bool> SendPortOutput_6LedMaskAsync(byte lightMask, byte value, CancellationToken token)
+        {
+            var cmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, lightMask, value);
+            return WriteNoResponseAsync(cmd, SEND_DELAY, token);
+        }
+
+        private Task<bool> SendPortOutput_ValueAsync(int channel, byte value, CancellationToken token)
+        {
+            byte[] cmd = [8, 0x00, 0x81, GetPortId(channel), 0x11, 0x51, 0x00, value];
+            return WriteNoResponseAsync(cmd, SEND_DELAY, token);
+        }
+
+        private async Task<bool> SendAllOutputValuesAsync(byte value, CancellationToken token)
+        {
+            // all leds at once
+            var result = await SendPortOutput_6LedMaskAsync(PORT_6LEDS_ALL_LIGHTS, value, token);
+
+            // A, B, C channels
+            foreach (var channel in new[] { CHANNEL_A, CHANNEL_B, CHANNEL_C })
+            {
+                result = result && await SendPortOutput_ValueAsync(channel, value, token);
+            }
+
+            return result;
         }
     }
 }

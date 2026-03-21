@@ -168,6 +168,9 @@ namespace BrickController2.DeviceManagement
                 // hub LED - light blue
                 await SendPortOutput_HubLedAsync(HUB_LED_COLOR_LIGHT_BLUE, token);
 
+                // wait for initialization to complete before sending any commands
+                await WaitForInitializationAsync(token);
+
                 if (requestDeviceInformation)
                 {
                     await RequestHubPropertiesAsync(token);

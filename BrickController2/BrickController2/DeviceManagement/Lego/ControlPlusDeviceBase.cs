@@ -14,6 +14,16 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
 {
     protected static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(25);
 
+    // Time to wait after the LAST port message before assuming sync is complete
+    private static readonly TimeSpan BurstTimeout = TimeSpan.FromMilliseconds(500);
+    // Absolute maximum time to wait to prevent infinite hanging
+    private static readonly TimeSpan AbsoluteTimeout = TimeSpan.FromMilliseconds(4000);
+
+    private TaskCompletionSource<bool>? _initializationTcs;
+    private CancellationTokenSource? _debounceCts;
+
+    protected readonly HashSet<int> AttachedChannels = [];
+
     protected IGattCharacteristic? Characteristic;
 
     protected ControlPlusDeviceBase(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
@@ -37,6 +47,9 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
 
         if (Characteristic is not null)
         {
+            // reset channel state
+            AttachedChannels.Clear();
+
             return await _bleDevice!.EnableNotificationAsync(Characteristic, token);
         }
 
@@ -73,6 +86,22 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
 
             case 0x04: // Hub attached I/O
                 DumpData("Hub attached I/O", data);
+                byte portId = data[3];
+                byte eventType = data[4]; // 0x01 = Attached, 0x00 = Detached, 0x02 = Attached Virtual
+
+                if (TryGetChannelIndex(portId, out var channel))
+                {
+                    if (eventType == 0x01 || eventType == 0x02)
+                    {
+                        AttachedChannels.Add(channel);
+                        // Reset the sliding window timer
+                        ResetDebounceTimer();
+                    }
+                    else if (eventType == 0x00)
+                    {
+                        AttachedChannels.Remove(channel);
+                    }
+                }
                 break;
 
             case 0x05: // Generic error messages
@@ -96,73 +125,73 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
                 break;
 
             case 0x45: // Port value (single mode)
-                lock (_positionLock)
-                {
-                    if (data.Length == 6)
-                    {
-                        // assume 16bit data is ABS
-                        if (TryGetChannelIndex(data[3], out var channel))
-                        {
-                            var absPosition = ToInt16(data, 4);
-                            _absolutePositions[channel] = absPosition;
-                        }
-                    }
-                    else if (data.Length == 8)
-                    {
-                        // assume 32 bit data is REL
-                        if (TryGetChannelIndex(data[3], out var channel))
-                        {
-                            var relPosition = ToInt32(data, 4);
-                            _relativePositions[channel] = relPosition;
+                //lock (_positionLock)
+                //{
+                //    if (data.Length == 6)
+                //    {
+                //        // assume 16bit data is ABS
+                //        if (TryGetChannelIndex(data[3], out var channel))
+                //        {
+                //            var absPosition = ToInt16(data, 4);
+                //            _absolutePositions[channel] = absPosition;
+                //        }
+                //    }
+                //    else if (data.Length == 8)
+                //    {
+                //        // assume 32 bit data is REL
+                //        if (TryGetChannelIndex(data[3], out var channel))
+                //        {
+                //            var relPosition = ToInt32(data, 4);
+                //            _relativePositions[channel] = relPosition;
 
-                            _positionsUpdated[channel] = true;
-                            _positionUpdateTimes[channel] = DateTime.Now;
-                        }
-                    }
-                }
+                //            _positionsUpdated[channel] = true;
+                //            _positionUpdateTimes[channel] = DateTime.Now;
+                //        }
+                //    }
+                //}
                 break;
 
             case 0x46: // Port value (combined mode)
-                lock (_positionLock)
-                {
-                    if (!TryGetChannelIndex(data[3], out var channel))
-                    {
-                        break;
-                    }
+                //lock (_positionLock)
+                //{
+                //    if (!TryGetChannelIndex(data[3], out var channel))
+                //    {
+                //        break;
+                //    }
 
-                    var modeMask = data[5];
-                    var dataIndex = 6;
+                //    var modeMask = data[5];
+                //    var dataIndex = 6;
 
-                    if ((modeMask & 0x01) != 0)
-                    {
-                        var absPosition = ToInt32(data, dataIndex);
-                        _absolutePositions[channel] = absPosition;
+                //    if ((modeMask & 0x01) != 0)
+                //    {
+                //        var absPosition = ToInt32(data, dataIndex);
+                //        _absolutePositions[channel] = absPosition;
 
-                        dataIndex += 2;
-                    }
+                //        dataIndex += 2;
+                //    }
 
-                    if ((modeMask & 0x02) != 0)
-                    {
-                        // TODO: Read the post value format response and determine the value length accordingly
-                        if ((dataIndex + 3) < data.Length)
-                        {
-                            var relPosition = ToInt32(data, dataIndex);
-                            _relativePositions[channel] = relPosition;
-                        }
-                        else if ((dataIndex + 1) < data.Length)
-                        {
-                            var relPosition = ToInt16(data, dataIndex);
-                            _relativePositions[channel] = relPosition;
-                        }
-                        else
-                        {
-                            _relativePositions[channel] = data[dataIndex];
-                        }
+                //    if ((modeMask & 0x02) != 0)
+                //    {
+                //        // TODO: Read the post value format response and determine the value length accordingly
+                //        if ((dataIndex + 3) < data.Length)
+                //        {
+                //            var relPosition = ToInt32(data, dataIndex);
+                //            _relativePositions[channel] = relPosition;
+                //        }
+                //        else if ((dataIndex + 1) < data.Length)
+                //        {
+                //            var relPosition = ToInt16(data, dataIndex);
+                //            _relativePositions[channel] = relPosition;
+                //        }
+                //        else
+                //        {
+                //            _relativePositions[channel] = data[dataIndex];
+                //        }
 
-                        _positionsUpdated[channel] = true;
-                        _positionUpdateTimes[channel] = DateTime.Now;
-                    }
-                }
+                //        _positionsUpdated[channel] = true;
+                //        _positionUpdateTimes[channel] = DateTime.Now;
+                //    }
+                //}
 
                 break;
 
@@ -252,6 +281,45 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
             ProcessHubPropertyData(data);
         }
         catch { }
+    }
+
+    /// <summary>
+    /// Call this immediately after enabling characteristic notifications.
+    /// </summary>
+    protected async Task<bool> WaitForInitializationAsync(CancellationToken token)
+    {
+        _initializationTcs = new TaskCompletionSource<bool>();
+        _debounceCts = new CancellationTokenSource();
+
+        // Safety fallback: Absolute timeout task
+        var absoluteTimeoutTask = Task.Delay(AbsoluteTimeout, token);
+
+        // Wait for either the debounce timer to succeed, or the absolute timeout to hit
+        var completedTask = await Task.WhenAny(_initializationTcs.Task, absoluteTimeoutTask);
+
+        if (completedTask == absoluteTimeoutTask)
+        {
+            return false; // Timed out, but you can still try to proceed
+        }
+
+        return await _initializationTcs.Task;
+    }
+
+    private void ResetDebounceTimer()
+    {
+        // Cancel the previous timer
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+
+        // Start a new timer
+        Task.Delay(BurstTimeout, _debounceCts.Token).ContinueWith(t =>
+        {
+            // If the task was NOT canceled, it means timeout passed with no new ports
+            if (!t.IsCanceled && _initializationTcs != null && !_initializationTcs.Task.IsCompleted)
+            {
+                _initializationTcs.TrySetResult(true);
+            }
+        });
     }
 
     private void ProcessHubPropertyData(ReadOnlySpan<byte> data)

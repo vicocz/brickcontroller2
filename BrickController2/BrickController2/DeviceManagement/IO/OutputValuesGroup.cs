@@ -41,16 +41,6 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         return false;
     }
 
-    public void Initialize(int channel)
-    {
-        lock (_outputLock)
-        {
-            _outputValues[channel] = default;
-            _commitedOutputValues[channel] = TValue.One;
-            _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-        }
-    }
-
     public void Initialize()
     {
         lock (_outputLock)

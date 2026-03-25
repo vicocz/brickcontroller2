@@ -1,5 +1,6 @@
 ﻿using BrickController2.DeviceManagement.IO;
 using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using Xunit;
 
@@ -40,6 +41,22 @@ public class OutputValuesGroupTests
         }
         group.TryGetValues(out var lastValues).Should().BeFalse();
         lastValues.ToArray().Should().AllBeEquivalentTo(0);
+    }
+
+    [Fact]
+    public void Clear_AnyChange_ReturnsFalseAndAllDefaultValues()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<Half>(5);
+        group.SetOutput(3, Half.Pi);
+        // Act
+        group.Clear();
+
+        // Assert
+        var result = group.TryGetValues(out var values);
+        result.Should().BeFalse();
+        values.Length.Should().Be(5);
+        values.ToArray().Should().AllBeEquivalentTo(Half.Zero);
     }
 
     [Theory]

@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.DeviceManagement.IO;
+using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,13 +15,7 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
 {
     protected static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(25);
 
-    // Time to wait after the LAST port message before assuming sync is complete
-    private static readonly TimeSpan BurstTimeout = TimeSpan.FromMilliseconds(500);
-    // Absolute maximum time to wait to prevent infinite hanging
-    private static readonly TimeSpan AbsoluteTimeout = TimeSpan.FromMilliseconds(4000);
-
-    private TaskCompletionSource<bool>? _initializationTcs;
-    private CancellationTokenSource? _debounceCts;
+    private DeviceInitializationWaiter? _initializationWaiter;
 
     protected readonly HashSet<int> AttachedChannels = [];
 
@@ -49,6 +44,8 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
         {
             // reset channel state
             AttachedChannels.Clear();
+            // init waiter
+            _initializationWaiter = new();
 
             return await _bleDevice!.EnableNotificationAsync(Characteristic, token);
         }
@@ -58,6 +55,9 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
 
     protected override void OnDeviceDisconnecting()
     {
+        // reset channel state
+        AttachedChannels.Clear();
+        _initializationWaiter = null;
         Characteristic = null;
     }
 
@@ -94,8 +94,7 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
                     if (eventType == 0x01 || eventType == 0x02)
                     {
                         AttachedChannels.Add(channel);
-                        // Reset the sliding window timer
-                        ResetDebounceTimer();
+                        _initializationWaiter?.NotifyPortAttached();
                     }
                     else if (eventType == 0x00)
                     {
@@ -286,41 +285,8 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
     /// <summary>
     /// Call this immediately after enabling characteristic notifications.
     /// </summary>
-    protected async Task<bool> WaitForInitializationAsync(CancellationToken token)
-    {
-        _initializationTcs = new TaskCompletionSource<bool>();
-        _debounceCts = new CancellationTokenSource();
-
-        // Safety fallback: Absolute timeout task
-        var absoluteTimeoutTask = Task.Delay(AbsoluteTimeout, token);
-
-        // Wait for either the debounce timer to succeed, or the absolute timeout to hit
-        var completedTask = await Task.WhenAny(_initializationTcs.Task, absoluteTimeoutTask);
-
-        if (completedTask == absoluteTimeoutTask)
-        {
-            return false; // Timed out, but you can still try to proceed
-        }
-
-        return await _initializationTcs.Task;
-    }
-
-    private void ResetDebounceTimer()
-    {
-        // Cancel the previous timer
-        _debounceCts?.Cancel();
-        _debounceCts = new CancellationTokenSource();
-
-        // Start a new timer
-        Task.Delay(BurstTimeout, _debounceCts.Token).ContinueWith(t =>
-        {
-            // If the task was NOT canceled, it means timeout passed with no new ports
-            if (!t.IsCanceled && _initializationTcs != null && !_initializationTcs.Task.IsCompleted)
-            {
-                _initializationTcs.TrySetResult(true);
-            }
-        });
-    }
+    protected Task<bool> WaitForInitializationAsync(CancellationToken token)
+        => _initializationWaiter?.WaitAsync(token) ?? Task.FromResult(false);
 
     private void ProcessHubPropertyData(ReadOnlySpan<byte> data)
     {

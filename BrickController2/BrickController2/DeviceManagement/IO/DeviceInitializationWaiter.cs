@@ -38,6 +38,7 @@ internal class DeviceInitializationWaiter
     public void NotifyPortAttached()
     {
         _debounceCts?.Cancel();
+        _debounceCts?.Dispose();
         _debounceCts = new CancellationTokenSource();
 
         Task.Delay(BurstTimeout, _debounceCts.Token).ContinueWith(t =>

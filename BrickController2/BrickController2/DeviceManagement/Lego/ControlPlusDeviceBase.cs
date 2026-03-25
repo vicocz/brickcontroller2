@@ -220,7 +220,7 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
         switch (propertyId)
         {
             case HUB_PROPERTY_FW_VERSION: // FW version
-                var firmwareVersion = ProcessVersionNumber(propertyData);
+                var firmwareVersion = GetVersionString(propertyData);
                 if (!string.IsNullOrEmpty(firmwareVersion))
                 {
                     FirmwareVersion = firmwareVersion;
@@ -228,7 +228,7 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
                 break;
 
             case HUB_PROPERTY_HW_VERSION: // HW version
-                var hardwareVersion = ProcessVersionNumber(propertyData);
+                var hardwareVersion = GetVersionString(propertyData);
                 if (!string.IsNullOrEmpty(hardwareVersion))
                 {
                     HardwareVersion = hardwareVersion;
@@ -297,7 +297,6 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
                 return;
             }
 
-            var dataLength = data[0];
             var messageId = data[2];
             var propertyId = data[3];
             var propertyOperation = data[4];
@@ -313,25 +312,6 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
         catch { }
     }
 
-    private static string ProcessVersionNumber(ReadOnlySpan<byte> data)
-    {
-        if (data.Length < 4)
-        {
-            return string.Empty;
-        }
-
-        var v0 = data[0];
-        var v1 = data[1];
-        var v2 = data[2];
-        var v3 = data[3];
-
-        var major = v3 >> 4;
-        var minor = v3 & 0xf;
-        var bugfix = ((v2 >> 4) * 10) + (v2 & 0xf);
-        var build = ((v1 >> 4) * 1000) + ((v1 & 0xf) * 100) + ((v0 >> 4) * 10) + (v0 & 0xf);
-
-        return $"{major}.{minor}.{bugfix}.{build}";
-    }
 
     private static void DumpData(string header, ReadOnlySpan<byte> data)
     {

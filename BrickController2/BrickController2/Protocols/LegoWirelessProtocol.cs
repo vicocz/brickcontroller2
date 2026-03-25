@@ -109,6 +109,26 @@ internal static class LegoWirelessProtocol
     public static short ToInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt16LittleEndian(value);
     public static int ToInt32(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt32LittleEndian(value);
 
+    public static string GetVersionString(ReadOnlySpan<byte> data)
+    {
+        if (data.Length < 4)
+        {
+            return string.Empty;
+        }
+
+        var v0 = data[0];
+        var v1 = data[1];
+        var v2 = data[2];
+        var v3 = data[3];
+
+        var major = v3 >> 4;
+        var minor = v3 & 0xf;
+        var bugfix = ((v2 >> 4) * 10) + (v2 & 0xf);
+        var build = ((v1 >> 4) * 1000) + ((v1 & 0xf) * 100) + ((v0 >> 4) * 10) + (v0 & 0xf);
+
+        return $"{major}.{minor}.{bugfix}.{build}";
+    }
+
     // message builders
     public static byte[] BuildPortInputFormatSetup(byte portId, byte portMode, int interval = 2, byte notification = PORT_VALUE_NOTIFICATION_ENABLED)
     {

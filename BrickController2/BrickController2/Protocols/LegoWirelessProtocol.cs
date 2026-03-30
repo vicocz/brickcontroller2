@@ -144,6 +144,13 @@ internal static class LegoWirelessProtocol
         => [8, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
                 PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, mode, value];
 
+    public static byte[] BuildPortOutput_GotoAbsPosition(byte portId, int servoValue, byte servoSpeed, byte power = 0x64, byte endState = 0x7e)
+    {
+        // Message Type - Port Output Command [0x81] | Write Direct
+        ToBytes(servoValue, out var a0, out var a1, out var a2, out var a3);
+        return [0x0e, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH, 0x0d, a0, a1, a2, a3, servoSpeed, power, endState, 0x00];
+    }
+
     public static byte[] BuildPortOutput_PlayVm(int speedValue = 0, int servoValue = 0, byte vmCmd = PLAYVM_LIGHTS_OFF_OFF)
     {
         var speedRaw = ToByte(speedValue);

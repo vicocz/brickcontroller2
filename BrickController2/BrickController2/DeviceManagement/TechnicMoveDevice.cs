@@ -22,7 +22,6 @@ namespace BrickController2.DeviceManagement
 
         public TechnicMoveDevice(string name,
             string address,
-            byte[] deviceData,
             IEnumerable<NamedSetting> settings,
             IDeviceRepository deviceRepository,
             IBluetoothLEService bleService)
@@ -38,15 +37,17 @@ namespace BrickController2.DeviceManagement
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
-        public override bool CanResetOutput(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
+        public override bool CanResetOutput(int channel) => channel == CHANNEL_C; // both PLAYVM and normal mode
+
+        public override bool CanChangeMaxServoAngle(int channel) => !EnablePlayVmMode && channel == CHANNEL_C;
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
                 // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
-                // servo only for PLAYVM and C channel
-                ChannelOutputType.ServoMotor => EnablePlayVmMode && channel == CHANNEL_C,
+                // servo only for both PLAYVM / normal modes and C channel
+                ChannelOutputType.ServoMotor => channel == CHANNEL_C,
                 // other types (such as stepper) are not supported at all
                 _ => false,
             };
@@ -54,14 +55,16 @@ namespace BrickController2.DeviceManagement
         public override Task<DeviceConnectionResult> ConnectAsync(bool reconnect, Action<Device> onDeviceDisconnected, IEnumerable<ChannelConfiguration> channelConfigurations, bool startOutputProcessing, bool requestDeviceInformation, CancellationToken token)
         {
             // autodetect PLAYVM mode for A / B channels (as testing page should not be affected)
-            _applyPlayVmMode = startOutputProcessing &&
+            _applyPlayVmMode = startOutputProcessing && EnablePlayVmMode &&
                 channelConfigurations.Any(c => c.Channel == CHANNEL_VM || (c.Channel == CHANNEL_C && c.ChannelOutputType == ChannelOutputType.ServoMotor));
 
-            // filter out non standard channels
-            var filteredConfigurtions = channelConfigurations
-                .Where(c => c.Channel != CHANNEL_VM);
+            // filter out non-standard channels and configurations with unsupported output types
+            var filteredConfigurations = channelConfigurations
+                .Where(c => c.Channel != CHANNEL_VM)
+                .Where(c => IsOutputTypeSupported(c.Channel, c.ChannelOutputType))
+                .ToArray();
 
-            return base.ConnectAsync(reconnect, onDeviceDisconnected, filteredConfigurtions, startOutputProcessing, requestDeviceInformation, token);
+            return base.ConnectAsync(reconnect, onDeviceDisconnected, filteredConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
         public override void SetOutput(int channel, float value)
@@ -100,15 +103,15 @@ namespace BrickController2.DeviceManagement
 
         protected override byte GetChannelValue(int value) => ToByte(value);
 
-        protected override void InitializeChannelInfo(int channel, int lastOutputValue = 1, int sendAttempsLeft = 10)
+        protected override void InitializeChannelInfo(int channel, int lastOutputValue = 1, int sendAttemptsLeft = 10)
         {
-            // if PLAYVM enabled, reset A / B channels diffrently in order to avoid output writes
+            // if PLAYVM enabled, reset A / B channels differently in order to avoid output writes
             if (_applyPlayVmMode && channel < CHANNEL_C)
             {
                 lastOutputValue = 0;
-                sendAttempsLeft = 0;
+                sendAttemptsLeft = 0;
             }
-            base.InitializeChannelInfo(channel, lastOutputValue, sendAttempsLeft);
+            base.InitializeChannelInfo(channel, lastOutputValue, sendAttemptsLeft);
         }
 
         protected override byte[] GetOutputCommand(int channel, int value)
@@ -130,7 +133,9 @@ namespace BrickController2.DeviceManagement
             {
                 return BuildPortOutput_PlayVm(speedValue: _virtualMotorValue, servoValue: servoValue);
             }
-            return base.GetServoCommand(channel, servoValue, servoSpeed);
+
+            var portId = GetPortId(channel);
+            return BuildPortOutput_GotoAbsPosition(portId, servoValue, (byte)servoSpeed);
         }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -158,11 +163,6 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
         {
-            if (!EnablePlayVmMode)
-            {
-                return await base.SetupChannelForPortInformationAsync(channel, token);
-            }
-
             try
             {
                 // setup channel to report ABS position
@@ -178,23 +178,30 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
         {
-            if (!EnablePlayVmMode)
-            {
-                return await base.ResetServoAsync(channel, baseAngle, token);
-            }
-
             try
             {
-                // reset servo via PLAYVM
-                // PLAYVM cmd supports only servo on C channel
-                var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
-                await WriteAsync(servoCmd, token: token);
-                await Task.Delay(100, token);
+                if (!EnablePlayVmMode)
+                {
 
-                // do calibration
-                var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
-                await WriteAsync(calibrateCmd, token: token);
-                await Task.Delay(3000, token); // need to wait till it completes
+                    // reset servo via PLAYVM
+                    // PLAYVM cmd supports only servo on C channel
+                    var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
+                    await WriteAsync(servoCmd, token: token);
+                    await Task.Delay(100, token);
+
+                    // do calibration
+                    var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
+                    await WriteAsync(calibrateCmd, token: token);
+                    await Task.Delay(3000, token); // need to wait till it completes
+                }
+                else
+                {
+                    // use simple Goto ABS position
+                    var portId = GetPortId(channel);
+                    var servoCmd = BuildPortOutput_GotoAbsPosition(portId, baseAngle, servoSpeed: 0x28);
+                    await WriteAsync(servoCmd, token: token);
+                    await Task.Delay(1000, token); // need to wait till it completes
+                }
 
                 return true;
             }

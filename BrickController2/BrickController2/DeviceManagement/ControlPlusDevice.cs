@@ -382,10 +382,12 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private void DumpData(string header, byte[] data)
+        private static void DumpData(string header, byte[] data)
         {
-            //var s = BitConverter.ToString(data);
-            //Console.WriteLine(header + " - " + s);
+#if DEBUG
+            var s = BitConverter.ToString(data);
+            Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {header}-{s}");
+#endif
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -903,7 +905,7 @@ namespace BrickController2.DeviceManagement
                 switch (propertyId)
                 {
                     case 0x03: // FW version
-                        var firmwareVersion = ProcessVersionNumber(data, 5);
+                        var firmwareVersion = GetVersionString(data.AsSpan(5));
                         if (!string.IsNullOrEmpty(firmwareVersion))
                         {
                             FirmwareVersion = firmwareVersion;
@@ -911,7 +913,7 @@ namespace BrickController2.DeviceManagement
                         break;
 
                     case 0x04: // HW version
-                        var hardwareVersion = ProcessVersionNumber(data, 5);
+                        var hardwareVersion = GetVersionString(data.AsSpan(5));
                         if (!string.IsNullOrEmpty(hardwareVersion))
                         {
                             HardwareVersion = hardwareVersion;
@@ -925,26 +927,6 @@ namespace BrickController2.DeviceManagement
                 }
             }
             catch { }
-        }
-
-        private string ProcessVersionNumber(byte[] data, int index)
-        {
-            if (data.Length < index + 4)
-            {
-                return string.Empty;
-            }
-
-            var v0 = data[index];
-            var v1 = data[index + 1];
-            var v2 = data[index + 2];
-            var v3 = data[index + 3];
-
-            var major = v3 >> 4;
-            var minor = v3 & 0xf;
-            var bugfix = ((v2 >> 4) * 10) + (v2 & 0xf);
-            var build = ((v1 >> 4) * 1000) + ((v1 & 0xf) * 100) + ((v0 >> 4) * 10) + (v0 & 0xf);
-
-            return $"{major}.{minor}.{bugfix}.{build}";
         }
     }
 }

@@ -93,11 +93,17 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         }
 
         public Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+            => SetNotificationAsync(characteristic, true, token);
+
+        public Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+            => SetNotificationAsync(characteristic, false, token);
+
+        public Task<bool> SetNotificationAsync(IGattCharacteristic characteristic, bool enabled, CancellationToken token = default)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 var nativeCharacteristic = ((GattCharacteristic)characteristic).Characteristic;
-                _peripheral.SetNotifyValue(true, nativeCharacteristic);
+                _peripheral.SetNotifyValue(enabled, nativeCharacteristic);
                 return Task.FromResult(true);
             }
         }

@@ -114,6 +114,20 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             if (_bluetoothGatt != null)
             {
                 _bluetoothGatt.Disconnect();
+
+                // Android BLE best practice: Refresh the service cache before closing
+                // This prevents stale service information from being cached between reconnections
+                // The refresh() method is a hidden API, so we use reflection to call it
+                try
+                {
+                    var refreshMethod = _bluetoothGatt.Class?.GetMethod("refresh");
+                    refreshMethod?.Invoke(_bluetoothGatt);
+                }
+                catch
+                {
+                    // Silently ignore if refresh fails (not critical, but helpful)
+                }
+
                 _bluetoothGatt.Close();
                 _bluetoothGatt.Dispose();
                 _bluetoothGatt = null;
@@ -135,7 +149,13 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             return Task.CompletedTask;
         }
 
-        public async Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+        public Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+            => SetNotificationAsync(characteristic, BluetoothGattDescriptor.EnableNotificationValue!, token);
+
+        public Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+            => SetNotificationAsync(characteristic, BluetoothGattDescriptor.DisableNotificationValue!, token);
+
+        public async Task<bool> SetNotificationAsync(IGattCharacteristic characteristic, IList<byte> value, CancellationToken token)
         {
             using (token.Register(() =>
             {
@@ -165,7 +185,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                 }
 
 #pragma warning disable CA1422 // Validate platform compatibility
-                    if (!(descriptor?.SetValue(BluetoothGattDescriptor.EnableNotificationValue!.ToArray()) ?? false))
+                    if (!(descriptor?.SetValue([.. value]) ?? false))
                 {
                     return false;
                 }

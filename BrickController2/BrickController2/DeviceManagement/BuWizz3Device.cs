@@ -201,6 +201,13 @@ namespace BrickController2.DeviceManagement
 
             return Task.FromResult(_characteristic != null && _firmwareRevisionCharacteristic != null && _modelNumberCharacteristic != null);
         }
+        protected override void BeforeDisconnectCleanup()
+        {
+            // Clear cached characteristic references to prevent using stale native Android objects on reconnection
+            _characteristic = null;
+            _modelNumberCharacteristic = null;
+            _firmwareRevisionCharacteristic = null;
+        }
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {

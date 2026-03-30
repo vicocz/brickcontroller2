@@ -15,9 +15,6 @@ namespace BrickController2.DeviceManagement
     {
         private const int MAX_SEND_ATTEMPTS = 10;
 
-        private static readonly Guid SERVICE_UUID = new Guid("00001623-1212-efde-1623-785feabcd123");
-        private static readonly Guid CHARACTERISTIC_UUID = new Guid("00001624-1212-efde-1623-785feabcd123");
-
         private static readonly TimeSpan SEND_DELAY = TimeSpan.FromMilliseconds(10);
         private static readonly TimeSpan POSITION_EXPIRATION = TimeSpan.FromMilliseconds(200);
 
@@ -171,8 +168,8 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
         {
-            var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
-            _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID);
+            var service = services?.FirstOrDefault(s => s.Uuid == ServiceUuid);
+            _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CharacteristicUuid);
 
             if (_characteristic is not null)
             {
@@ -180,6 +177,19 @@ namespace BrickController2.DeviceManagement
             }
 
             return false;
+        }
+
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token = default)
+        {
+            if (_characteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_characteristic, token);
+            }
+        }
+
+        protected override void BeforeDisconnectCleanup()
+        {
+            _characteristic = null;
         }
 
         protected async Task<bool> WriteNoResponseAsync(byte[] data, bool withSendDelay = false, CancellationToken token = default)
@@ -238,7 +248,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != CHARACTERISTIC_UUID || data.Length < 4)
+            if (characteristicGuid != CharacteristicUuid || data.Length < 4)
             {
                 return;
             }

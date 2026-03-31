@@ -181,6 +181,7 @@ namespace BrickController2.DeviceManagement
 
         protected override async ValueTask BeforeDisconnectAsync(CancellationToken token = default)
         {
+            // reset notifications (if possible)
             if (_characteristic != null && _bleDevice != null)
             {
                 await _bleDevice.DisableNotificationAsync(_characteristic, token);

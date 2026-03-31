@@ -150,12 +150,12 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
         }
 
         public Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
-            => SetNotificationAsync(characteristic, BluetoothGattDescriptor.EnableNotificationValue!, token);
+            => SetNotificationAsync(characteristic, enable: true, token);
 
         public Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
-            => SetNotificationAsync(characteristic, BluetoothGattDescriptor.DisableNotificationValue!, token);
+            => SetNotificationAsync(characteristic, enable: false, token);
 
-        public async Task<bool> SetNotificationAsync(IGattCharacteristic characteristic, IList<byte> value, CancellationToken token)
+        public async Task<bool> SetNotificationAsync(IGattCharacteristic characteristic, bool enable, CancellationToken token)
         {
             using (token.Register(() =>
             {
@@ -173,7 +173,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                 }
 
                 var nativeCharacteristic = ((GattCharacteristic)characteristic).BluetoothGattCharacteristic;
-                if (!_bluetoothGatt.SetCharacteristicNotification(nativeCharacteristic, true))
+                if (!_bluetoothGatt.SetCharacteristicNotification(nativeCharacteristic, enable))
                 {
                     return false;
                 }
@@ -185,22 +185,23 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                 }
 
 #pragma warning disable CA1422 // Validate platform compatibility
+                var value = enable ? BluetoothGattDescriptor.EnableNotificationValue! : BluetoothGattDescriptor.DisableNotificationValue!;
                     if (!(descriptor?.SetValue([.. value]) ?? false))
                 {
                     return false;
                 }
 #pragma warning restore CA1422 // Validate platform compatibility
 
-                    _descriptorWriteCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _descriptorWriteCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #pragma warning disable CA1422 // Validate platform compatibility
-                    if (!(_bluetoothGatt?.WriteDescriptor(descriptor) ?? false))
+                if (!(_bluetoothGatt?.WriteDescriptor(descriptor) ?? false))
                 {
                     _descriptorWriteCompletionSource = null;
                     return false;
                 }
 #pragma warning restore CA1422 // Validate platform compatibility
-                }
+            }
 
             var result = await _descriptorWriteCompletionSource.Task.ConfigureAwait(false);
 

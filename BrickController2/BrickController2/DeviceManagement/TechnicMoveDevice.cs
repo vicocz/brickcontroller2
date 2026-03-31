@@ -37,17 +37,17 @@ namespace BrickController2.DeviceManagement
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
-        public override bool CanResetOutput(int channel) => channel == CHANNEL_C; // both PLAYVM and normal mode
+        public override bool CanResetOutput(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
 
-        public override bool CanChangeMaxServoAngle(int channel) => !EnablePlayVmMode && channel == CHANNEL_C;
+        public override bool CanChangeMaxServoAngle(int channel) => false;
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
                 // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
-                // servo only for both PLAYVM / normal modes and C channel
-                ChannelOutputType.ServoMotor => channel == CHANNEL_C,
+                // servo only for PLAYVM and C channel
+                ChannelOutputType.ServoMotor => EnablePlayVmMode && channel == CHANNEL_C,
                 // other types (such as stepper) are not supported at all
                 _ => false,
             };
@@ -147,11 +147,11 @@ namespace BrickController2.DeviceManagement
                     // hub LED
                     var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
                     var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
-                    await WriteNoResponseAsync(ledCmd, withSendDelay: true, token: token);
+                    await WriteAsync(ledCmd,token: token);
 
                     // switch lights off
                     var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, PORT_6LEDS_ALL_LIGHTS, 0x00);
-                    return await WriteNoResponseAsync(lightsOffCmd, withSendDelay: true, token: token);
+                    return await WriteAsync(lightsOffCmd, token: token);
                 }
                 catch
                 {
@@ -192,7 +192,7 @@ namespace BrickController2.DeviceManagement
                     // do calibration
                     var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
                     await WriteAsync(calibrateCmd, token: token);
-                    await Task.Delay(3000, token); // need to wait till it completes
+                    await Task.Delay(2500, token); // need to wait till it completes
                 }
                 else
                 {

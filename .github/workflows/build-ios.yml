@@ -47,7 +47,7 @@ jobs:
         dotnet-version: 10.0.x
         
     - name: Install MAUI workload
-      run: dotnet workload install maui ios
+      run: dotnet workload install maui-ios
 
     - name: Set XCode Version
       shell: bash

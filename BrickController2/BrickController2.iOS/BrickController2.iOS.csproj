@@ -2,12 +2,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-    <TargetFrameworks>net9.0-ios</TargetFrameworks>
+    <TargetFrameworks>net10.0-ios</TargetFrameworks>
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-		<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
+	<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-		<ApplicationId>cz.vico.brickcontrollerlegacy</ApplicationId>
-		<RootNamespace>BrickController2.iOS</RootNamespace>
+	<ApplicationId>cz.vico.brickcontrollerlegacy</ApplicationId>
+	<RootNamespace>BrickController2.iOS</RootNamespace>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 

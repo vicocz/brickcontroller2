@@ -7,8 +7,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*windows.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.slnx'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.WinUI/**'
   pull_request:
@@ -17,8 +17,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*windows.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.slnx'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.WinUI/**'
   release:

@@ -7,8 +7,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*ios.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.slnx'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.iOS/**'
   pull_request:
@@ -17,8 +17,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*ios.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.slnx'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.iOS/**'
   release:

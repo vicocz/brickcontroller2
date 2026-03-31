@@ -7,8 +7,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*android.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.slnx'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Android/**'
   pull_request:
@@ -17,8 +17,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*android.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.slnx'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Android/**'
   release:

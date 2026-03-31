@@ -42,7 +42,7 @@ internal static class LegoWirelessProtocol
 
     public const byte PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT = 0x51;
 
-    public const byte PORT_VALUE_OUTPUT_BREAK = 0x00;
+    public const byte PORT_VALUE_OUTPUT_BRAKE = 0x00;
 
     // - output / playvm command
     public const byte PORT_PLAYVM = 0x36;
@@ -68,7 +68,7 @@ internal static class LegoWirelessProtocol
     public const byte HUB_LED_COLOR_WHITE = 0xA;
 
     // 6LEDS port 
-    public const byte PORT_6LEDS_ALL_LIGHTS = 0xFF;
+    public const byte PORT_6LEDS_ALL_LIGHTS = 0x3F; // bits 0-5, one per LED
 
     // Hub Property Message(s)
     public const byte HUB_PROPERTY_FW_VERSION = 0x03;

@@ -92,14 +92,18 @@ namespace BrickController2.DeviceManagement
             _ => throw new ArgumentException($"Value of channel '{channelIndex}' is out of supported range.", nameof(channelIndex))
         };
 
-        protected override int GetChannelIndex(byte portId) => portId switch
+        protected override bool TryGetChannelIndex(byte portId, out int channelIndex)
         {
-            PORT_DRIVE_MOTOR_1 => 0,
-            PORT_DRIVE_MOTOR_2 => 1,
-            PORT_STEERING_MOTOR => 2,
-            // PORT_6LEDS is not supported
-            _ => throw new ArgumentException($"Value of port ID '{portId}' is out of supported ranges.", nameof(portId))
-        };
+            channelIndex = portId switch
+            {
+                PORT_DRIVE_MOTOR_1 => 0,
+                PORT_DRIVE_MOTOR_2 => 1,
+                PORT_STEERING_MOTOR => 2,
+
+                _ => -1
+            };
+            return channelIndex >= 0;
+        }
 
         protected override byte GetChannelValue(int value) => ToByte(value);
 
@@ -108,6 +112,12 @@ namespace BrickController2.DeviceManagement
             // if PLAYVM enabled, reset A / B channels differently in order to avoid output writes
             if (_applyPlayVmMode && channel < CHANNEL_C)
             {
+                lastOutputValue = 0;
+                sendAttemptsLeft = 0;
+            }
+            else if (channel > CHANNEL_C)
+            {
+                // no need to update lights
                 lastOutputValue = 0;
                 sendAttemptsLeft = 0;
             }
@@ -147,11 +157,15 @@ namespace BrickController2.DeviceManagement
                     // hub LED
                     var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
                     var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
-                    await WriteAsync(ledCmd,token: token);
+                    await WriteAsync(ledCmd, token: token);
+                    await Task.Delay(20, token);
 
                     // switch lights off
                     var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, PORT_6LEDS_ALL_LIGHTS, 0x00);
-                    return await WriteAsync(lightsOffCmd, token: token);
+                    await WriteAsync(lightsOffCmd, token: token);
+                    await Task.Delay(20, token);
+
+                    return true;
                 }
                 catch
                 {
@@ -180,9 +194,8 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                if (!EnablePlayVmMode)
+                if (_applyPlayVmMode)
                 {
-
                     // reset servo via PLAYVM
                     // PLAYVM cmd supports only servo on C channel
                     var servoCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_COMMAND);
@@ -192,7 +205,6 @@ namespace BrickController2.DeviceManagement
                     // do calibration
                     var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
                     await WriteAsync(calibrateCmd, token: token);
-                    await Task.Delay(2500, token); // need to wait till it completes
                 }
                 else
                 {
@@ -200,8 +212,10 @@ namespace BrickController2.DeviceManagement
                     var portId = GetPortId(channel);
                     var servoCmd = BuildPortOutput_GotoAbsPosition(portId, baseAngle, servoSpeed: 0x28);
                     await WriteAsync(servoCmd, token: token);
-                    await Task.Delay(1000, token); // need to wait till it completes
                 }
+
+                // need to wait till it completes
+                await AwaitStableAbsPositionAsync(channel, TimeSpan.FromSeconds(4), token);
 
                 return true;
             }

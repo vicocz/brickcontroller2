@@ -208,7 +208,11 @@ namespace BrickController2.DeviceManagement
             => _bleDevice!.WriteAsync(_characteristic!, data, token);
 
         protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
-        protected virtual int GetChannelIndex(byte portId) => portId;
+        protected virtual bool TryGetChannelIndex(byte portId, out int channelIndex)
+        {
+            channelIndex = portId;
+            return portId < NumberOfChannels;
+        }
 
         protected virtual byte GetChannelValue(int value)
             // calculate raw motor value
@@ -300,19 +304,23 @@ namespace BrickController2.DeviceManagement
                         if (data.Length == 6)
                         {
                             // assume 16bit data is ABS
-                            var channel = GetChannelIndex(data[3]);
-                            var absPosition = ToInt16(data, 4);
-                            _absolutePositions[channel] = absPosition;
+                            if (TryGetChannelIndex(portId: data[3], out var channel))
+                            {   
+                                var absPosition = ToInt16(data, 4);
+                                _absolutePositions[channel] = absPosition;
+                            }
                         }
                         else if (data.Length == 8)
                         {
                             // assume 32 bit data is REL
-                            var channel = GetChannelIndex(data[3]);
-                            var relPosition = ToInt32(data, 4);
-                            _relativePositions[channel] = relPosition;
+                            if (TryGetChannelIndex(portId: data[3], out var channel))
+                            {
+                                var relPosition = ToInt32(data, 4);
+                                _relativePositions[channel] = relPosition;
 
-                            _positionsUpdated[channel] = true;
-                            _positionUpdateTimes[channel] = DateTime.Now;
+                                _positionsUpdated[channel] = true;
+                                _positionUpdateTimes[channel] = DateTime.Now;
+                            }
                         }
                     }
                     break;
@@ -320,7 +328,11 @@ namespace BrickController2.DeviceManagement
                 case 0x46: // Port value (combined mode)
                     lock (_positionLock)
                     {
-                        var channel = GetChannelIndex(data[3]);
+                        if (!TryGetChannelIndex(portId: data[3], out var channel))
+                        {
+                            break;
+                        }
+
                         var modeMask = data[5];
                         var dataIndex = 6;
 
@@ -511,7 +523,7 @@ namespace BrickController2.DeviceManagement
                     _lastSent_NormalMotor.Elapsed > ResendDelay_NormalMotor)
                 {
                     var outputCmd = GetOutputCommand(channel, v);
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, outputCmd, token))
+                    if (await _bleDevice!.WriteAsync(_characteristic!, outputCmd, token))
                     {
                         _lastSent_NormalMotor.Restart();
 
@@ -590,7 +602,7 @@ namespace BrickController2.DeviceManagement
                     }
 
                     var servoCmd = GetServoCommand(channel, servoValue, servoSpeed);
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, servoCmd, token))
+                    if (await _bleDevice!.WriteAsync(_characteristic!, servoCmd, token))
                     {
                         _lastOutputValues[channel] = v;
                         ResetSendAttemps(channel, 0);
@@ -634,7 +646,7 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] && Math.Abs(v) == 100)
                 {
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _stepperSendBuffer, token))
+                    if (await _bleDevice!.WriteAsync(_characteristic!, _stepperSendBuffer, token))
                     {
                         _lastOutputValues[channel] = v;
                         ResetSendAttemps(channel, 0);
@@ -725,6 +737,54 @@ namespace BrickController2.DeviceManagement
             catch
             {
                 return false;
+            }
+        }
+
+        protected Task AwaitStableAbsPositionAsync(int channel, TimeSpan timeout, CancellationToken token)
+        {
+            return WaitForStablePositionAsync(timeout, GetCurrentAbsPosition, token);
+
+            int GetCurrentAbsPosition()
+            {
+                lock (_positionLock)
+                {
+                    return _absolutePositions[channel];
+                }
+            }
+        }
+
+        private static async Task WaitForStablePositionAsync(TimeSpan timeout, Func<int> getPosition, CancellationToken token)
+        {
+            var interval = TimeSpan.FromMilliseconds(50);
+            var stabilityTimeout = TimeSpan.FromMilliseconds(500);
+
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+            linkedCts.CancelAfter(timeout);
+
+            var lastPosition = getPosition();
+            var stableSince = Stopwatch.StartNew();
+
+            try
+            {
+                while (!linkedCts.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(interval, linkedCts.Token);
+
+                    var currentPosition = getPosition();
+                    if (currentPosition != lastPosition)
+                    {
+                        lastPosition = currentPosition;
+                        stableSince.Restart();
+                    }
+                    else if (stableSince.Elapsed >= stabilityTimeout)
+                    {
+                        break; // position stable for the required duration
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested)
+            {
+                // total timeout elapsed — treat as completed
             }
         }
 

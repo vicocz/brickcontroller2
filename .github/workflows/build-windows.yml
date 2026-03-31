@@ -7,8 +7,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*windows.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.WinUI/**'
   pull_request:
@@ -17,8 +17,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*windows.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.WinUI/**'
   release:
@@ -42,11 +42,14 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
 
     - name: Get App Version from Build Properties
       shell: bash
       run: echo "APP_VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)" >> $GITHUB_ENV
+
+    - name: Install .NET MAUI Workload
+      run: dotnet workload install maui-windows
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -71,14 +74,14 @@ jobs:
     - name: Build
       run: dotnet build ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win10-x64 `
+        -r win-x64 `
         -p:Platform=x64 `
         -p:ApplicationVersion="${{ github.run_number }}"
 
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win10-x64 `
+        -r win-x64 `
         -p:Platform=x64 `
         -p:GenerateAppxPackageOnBuild=true `
         -p:AppxPackageSigningEnabled=true `
@@ -95,7 +98,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\bin\x64\Release\net9.0-windows10.0.19041.0\win10-x64\AppPackages\BrickController2.WinUI_${{env.APP_VERSION}}.${{github.run_number}}_Test\BrickController2.WinUI_${{env.APP_VERSION}}.${{github.run_number}}_x64.msix
+        asset_path: BrickController2\BrickController2.WinUI\AppPackages\BrickController2.WinUI_${{env.APP_VERSION}}.${{github.run_number}}_Test\BrickController2.WinUI_${{env.APP_VERSION}}.${{github.run_number}}_x64.msix
         asset_name: BrickControllerLegacy_${{env.APP_VERSION}}.msix
         asset_content_type: application/vnd.ms-appx
       env:

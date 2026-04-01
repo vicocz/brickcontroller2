@@ -368,9 +368,9 @@ namespace BrickController2.UI.ViewModels
             private readonly DevicePageViewModel _pageViewModel;
             private int _output;
 
-            public DeviceOutputViewModel(DevicePageViewModel pageVideModel, Device device, int channel)
+            public DeviceOutputViewModel(DevicePageViewModel pageViewModel, Device device, int channel)
             {
-                _pageViewModel = pageVideModel;
+                _pageViewModel = pageViewModel;
                 Device = device;
                 Channel = channel;
                 Output = 0;

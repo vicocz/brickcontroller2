@@ -126,6 +126,13 @@ internal class SBrickLightDevice : BluetoothDevice
         return true;
     }
 
+    protected override void BeforeDisconnectCleanup()
+    {
+        _firmwareRevisionCharacteristic = null;
+        _hardwareRevisionCharacteristic = null;
+        _remoteControlCharacteristic = null;
+    }
+
     protected override async Task ProcessOutputsAsync(CancellationToken token)
     {
         try
@@ -187,7 +194,7 @@ internal class SBrickLightDevice : BluetoothDevice
                 if (success)
                 {
                     // confirm successful sending
-                    valueBank.Commmit();
+                    valueBank.Commit();
                     await Task.Delay(5, token).ConfigureAwait(false);
                     return true;
                 }

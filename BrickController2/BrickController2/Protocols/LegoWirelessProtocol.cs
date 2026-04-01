@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers.Binary;
 
 namespace BrickController2.Protocols;
@@ -42,6 +42,8 @@ internal static class LegoWirelessProtocol
 
     public const byte PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT = 0x51;
 
+    public const byte PORT_VALUE_OUTPUT_BRAKE = 0x00;
+
     // - output / playvm command
     public const byte PORT_PLAYVM = 0x36;
 
@@ -65,11 +67,15 @@ internal static class LegoWirelessProtocol
     public const byte HUB_LED_COLOR_RED = 0x09;
     public const byte HUB_LED_COLOR_WHITE = 0xA;
 
+    // 6LEDS port 
+    public const byte PORT_6LEDS_ALL_LIGHTS = 0x3F; // bits 0-5, one per LED
+
     // Hub Property Message(s)
     public const byte HUB_PROPERTY_FW_VERSION = 0x03;
     public const byte HUB_PROPERTY_HW_VERSION = 0x04;
     public const byte HUB_PROPERTY_VOLTAGE = 0x06;
 
+    //  - hub Property Operations
     public const byte HUB_PROPERTY_OPERATION_UPDATE = 0x06;
 
     // input command (single)
@@ -98,12 +104,33 @@ internal static class LegoWirelessProtocol
     }
 
     public static byte ToByte(int value) => (byte)(value & 0xFF);
+    public static byte ToByte(Half value) => ToByte((int)value);
 
     public static short ToInt16(byte[] value, int startIndex) => ToInt16(value.AsSpan(startIndex));
     public static int ToInt32(byte[] value, int startIndex) => ToInt32(value.AsSpan(startIndex));
 
     public static short ToInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt16LittleEndian(value);
     public static int ToInt32(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt32LittleEndian(value);
+
+    public static string GetVersionString(ReadOnlySpan<byte> data)
+    {
+        if (data.Length < 4)
+        {
+            return string.Empty;
+        }
+
+        var v0 = data[0];
+        var v1 = data[1];
+        var v2 = data[2];
+        var v3 = data[3];
+
+        var major = v3 >> 4;
+        var minor = v3 & 0xf;
+        var bugfix = ((v2 >> 4) * 10) + (v2 & 0xf);
+        var build = ((v1 >> 4) * 1000) + ((v1 & 0xf) * 100) + ((v0 >> 4) * 10) + (v0 & 0xf);
+
+        return $"{major}.{minor}.{bugfix}.{build}";
+    }
 
     // message builders
     public static byte[] BuildPortInputFormatSetup(byte portId, byte portMode, int interval = 2, byte notification = PORT_VALUE_NOTIFICATION_ENABLED)
@@ -118,10 +145,17 @@ internal static class LegoWirelessProtocol
         => [9, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
             PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, portMode, ledMask, value];
 
-    public static byte[] BuildPortOutput_HubLed(byte portId, byte mode, byte color)
-    // Message Type - Port Output Command [0x81] | Write Direct
-    => [8, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
-            PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, mode, color];
+    public static byte[] BuildPortOutput_DirectMode(byte portId, byte mode, byte value)
+        // Message Type - Port Output Command [0x81] | Write Direct
+        => [8, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH,
+                PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, mode, value];
+
+    public static byte[] BuildPortOutput_GotoAbsPosition(byte portId, int servoValue, byte servoSpeed, byte power = 0x64, byte endState = 0x7e)
+    {
+        // Message Type - Port Output Command [0x81] | Write Direct
+        ToBytes(servoValue, out var a0, out var a1, out var a2, out var a3);
+        return [0x0e, 0x00, PORT_OUTPUT_COMMAND, portId, FEEDBACK_ACTION_BOTH, 0x0d, a0, a1, a2, a3, servoSpeed, power, endState, 0x00];
+    }
 
     public static byte[] BuildPortOutput_PlayVm(int speedValue = 0, int servoValue = 0, byte vmCmd = PLAYVM_LIGHTS_OFF_OFF)
     {

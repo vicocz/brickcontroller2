@@ -97,6 +97,13 @@ namespace BrickController2.DeviceManagement
                 BatteryVoltage = bateryVoltage;
             }
         }
+        protected override void BeforeDisconnectCleanup()
+        {
+            _writeCharacteristic = null;
+            _notifyCharacteristic = null;
+            _hardwareRevisionCharacteristic = null;
+            _firmwareRevisionCharacteristic = null;
+        }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {

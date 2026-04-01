@@ -98,6 +98,15 @@ namespace BrickController2.DeviceManagement
             }
         }
 
+        protected override void BeforeDisconnectCleanup()
+        {
+            // Clear cached characteristic references to prevent using stale native Android objects on reconnection
+            _motorCharacteristic = null;
+            _sensorValueCharacteristic = null;
+            _inputCharacteristic = null;
+            _firmwareRevisionCharacteristic = null;
+        }
+
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
             try

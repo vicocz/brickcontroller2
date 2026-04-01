@@ -179,6 +179,20 @@ namespace BrickController2.DeviceManagement
             return false;
         }
 
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            // reset notifications (if possible)
+            if (_characteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_characteristic, token);
+            }
+        }
+
+        protected override void BeforeDisconnectCleanup()
+        {
+            _characteristic = null;
+        }
+
         protected async Task<bool> WriteNoResponseAsync(byte[] data, bool withSendDelay = false, CancellationToken token = default)
         {
             var result = await _bleDevice!.WriteNoResponseAsync(_characteristic!, data, token);
@@ -194,7 +208,11 @@ namespace BrickController2.DeviceManagement
             => _bleDevice!.WriteAsync(_characteristic!, data, token);
 
         protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
-        protected virtual int GetChannelIndex(byte portId) => portId;
+        protected virtual bool TryGetChannelIndex(byte portId, out int channelIndex)
+        {
+            channelIndex = portId;
+            return portId < NumberOfChannels;
+        }
 
         protected virtual byte GetChannelValue(int value)
             // calculate raw motor value
@@ -286,19 +304,23 @@ namespace BrickController2.DeviceManagement
                         if (data.Length == 6)
                         {
                             // assume 16bit data is ABS
-                            var channel = GetChannelIndex(data[3]);
-                            var absPosition = ToInt16(data, 4);
-                            _absolutePositions[channel] = absPosition;
+                            if (TryGetChannelIndex(portId: data[3], out var channel))
+                            {   
+                                var absPosition = ToInt16(data, 4);
+                                _absolutePositions[channel] = absPosition;
+                            }
                         }
                         else if (data.Length == 8)
                         {
                             // assume 32 bit data is REL
-                            var channel = GetChannelIndex(data[3]);
-                            var relPosition = ToInt32(data, 4);
-                            _relativePositions[channel] = relPosition;
+                            if (TryGetChannelIndex(portId: data[3], out var channel))
+                            {
+                                var relPosition = ToInt32(data, 4);
+                                _relativePositions[channel] = relPosition;
 
-                            _positionsUpdated[channel] = true;
-                            _positionUpdateTimes[channel] = DateTime.Now;
+                                _positionsUpdated[channel] = true;
+                                _positionUpdateTimes[channel] = DateTime.Now;
+                            }
                         }
                     }
                     break;
@@ -306,7 +328,11 @@ namespace BrickController2.DeviceManagement
                 case 0x46: // Port value (combined mode)
                     lock (_positionLock)
                     {
-                        var channel = GetChannelIndex(data[3]);
+                        if (!TryGetChannelIndex(portId: data[3], out var channel))
+                        {
+                            break;
+                        }
+
                         var modeMask = data[5];
                         var dataIndex = 6;
 
@@ -369,10 +395,12 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private void DumpData(string header, byte[] data)
+        private static void DumpData(string header, byte[] data)
         {
-            //var s = BitConverter.ToString(data);
-            //Console.WriteLine(header + " - " + s);
+#if DEBUG
+            var s = BitConverter.ToString(data);
+            Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {header}-{s}");
+#endif
         }
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -405,11 +433,11 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected virtual void InitializeChannelInfo(int channel,
             int lastOutputValue = 1,
-            int sendAttempsLeft = MAX_SEND_ATTEMPTS)
+            int sendAttemptsLeft = MAX_SEND_ATTEMPTS)
         {
             _outputValues[channel] = 0;
             _lastOutputValues[channel] = lastOutputValue;
-            _sendAttemptsLeft[channel] = sendAttempsLeft;
+            _sendAttemptsLeft[channel] = sendAttemptsLeft;
             _positionsUpdated[channel] = false;
             _positionUpdateTimes[channel] = DateTime.MinValue;
         }
@@ -495,7 +523,7 @@ namespace BrickController2.DeviceManagement
                     _lastSent_NormalMotor.Elapsed > ResendDelay_NormalMotor)
                 {
                     var outputCmd = GetOutputCommand(channel, v);
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, outputCmd, token))
+                    if (await _bleDevice!.WriteAsync(_characteristic!, outputCmd, token))
                     {
                         _lastSent_NormalMotor.Restart();
 
@@ -574,7 +602,7 @@ namespace BrickController2.DeviceManagement
                     }
 
                     var servoCmd = GetServoCommand(channel, servoValue, servoSpeed);
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, servoCmd, token))
+                    if (await _bleDevice!.WriteAsync(_characteristic!, servoCmd, token))
                     {
                         _lastOutputValues[channel] = v;
                         ResetSendAttemps(channel, 0);
@@ -618,7 +646,7 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] && Math.Abs(v) == 100)
                 {
-                    if (await _bleDevice!.WriteNoResponseAsync(_characteristic!, _stepperSendBuffer, token))
+                    if (await _bleDevice!.WriteAsync(_characteristic!, _stepperSendBuffer, token))
                     {
                         _lastOutputValues[channel] = v;
                         ResetSendAttemps(channel, 0);
@@ -709,6 +737,54 @@ namespace BrickController2.DeviceManagement
             catch
             {
                 return false;
+            }
+        }
+
+        protected Task AwaitStableAbsPositionAsync(int channel, TimeSpan timeout, CancellationToken token)
+        {
+            return WaitForStablePositionAsync(timeout, GetCurrentAbsPosition, token);
+
+            int GetCurrentAbsPosition()
+            {
+                lock (_positionLock)
+                {
+                    return _absolutePositions[channel];
+                }
+            }
+        }
+
+        private static async Task WaitForStablePositionAsync(TimeSpan timeout, Func<int> getPosition, CancellationToken token)
+        {
+            var interval = TimeSpan.FromMilliseconds(50);
+            var stabilityTimeout = TimeSpan.FromMilliseconds(500);
+
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+            linkedCts.CancelAfter(timeout);
+
+            var lastPosition = getPosition();
+            var stableSince = Stopwatch.StartNew();
+
+            try
+            {
+                while (!linkedCts.Token.IsCancellationRequested)
+                {
+                    await Task.Delay(interval, linkedCts.Token);
+
+                    var currentPosition = getPosition();
+                    if (currentPosition != lastPosition)
+                    {
+                        lastPosition = currentPosition;
+                        stableSince.Restart();
+                    }
+                    else if (stableSince.Elapsed >= stabilityTimeout)
+                    {
+                        break; // position stable for the required duration
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested)
+            {
+                // total timeout elapsed — treat as completed
             }
         }
 
@@ -890,7 +966,7 @@ namespace BrickController2.DeviceManagement
                 switch (propertyId)
                 {
                     case HUB_PROPERTY_FW_VERSION: // FW version
-                        var firmwareVersion = ProcessVersionNumber(data, 5);
+                        var firmwareVersion = GetVersionString(data.AsSpan(5));
                         if (!string.IsNullOrEmpty(firmwareVersion))
                         {
                             FirmwareVersion = firmwareVersion;
@@ -898,7 +974,7 @@ namespace BrickController2.DeviceManagement
                         break;
 
                     case HUB_PROPERTY_HW_VERSION: // HW version
-                        var hardwareVersion = ProcessVersionNumber(data, 5);
+                        var hardwareVersion = GetVersionString(data.AsSpan(5));
                         if (!string.IsNullOrEmpty(hardwareVersion))
                         {
                             HardwareVersion = hardwareVersion;
@@ -912,26 +988,6 @@ namespace BrickController2.DeviceManagement
                 }
             }
             catch { }
-        }
-
-        private string ProcessVersionNumber(byte[] data, int index)
-        {
-            if (data.Length < index + 4)
-            {
-                return string.Empty;
-            }
-
-            var v0 = data[index];
-            var v1 = data[index + 1];
-            var v2 = data[index + 2];
-            var v3 = data[index + 3];
-
-            var major = v3 >> 4;
-            var minor = v3 & 0xf;
-            var bugfix = ((v2 >> 4) * 10) + (v2 & 0xf);
-            var build = ((v1 >> 4) * 1000) + ((v1 & 0xf) * 100) + ((v0 >> 4) * 10) + (v0 & 0xf);
-
-            return $"{major}.{minor}.{bugfix}.{build}";
         }
     }
 }

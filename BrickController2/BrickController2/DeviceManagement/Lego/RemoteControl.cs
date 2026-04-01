@@ -97,6 +97,11 @@ internal class RemoteControl : BluetoothDevice
         return await _bleDevice!.WriteAsync(_characteristic!, remoteButtonB, token);
     }
 
+    protected override void BeforeDisconnectCleanup()
+    {
+        _characteristic = null;
+    }
+
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
     {
         if (data.Length < 4)

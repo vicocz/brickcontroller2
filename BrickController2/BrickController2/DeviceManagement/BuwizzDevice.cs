@@ -81,6 +81,13 @@ namespace BrickController2.DeviceManagement
             return Task.FromResult(_characteristic is not null);
         }
 
+
+        protected override void BeforeDisconnectCleanup()
+        {
+            // Clear cached characteristic reference to prevent using stale native Android objects on reconnection
+            _characteristic = null;
+        }
+
         protected override async Task ProcessOutputsAsync(CancellationToken token)
         {
             lock (_outputLock)

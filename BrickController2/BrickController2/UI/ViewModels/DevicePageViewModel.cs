@@ -41,9 +41,9 @@ namespace BrickController2.UI.ViewModels
             Device = parameters.Get<Device>("device");
             BuWizzOutputLevel = Device.DefaultOutputLevel;
             BuWizz2OutputLevel = Device.DefaultOutputLevel;
-            DeviceOutputs =  Enumerable
+            DeviceOutputs = Enumerable
                 .Range(0, Device.NumberOfChannels)
-                .Select(channel => new DeviceOutputViewModel(navigationService, Device, channel))
+                .Select(channel => new DeviceOutputViewModel(this, Device, channel))
                 .ToArray();
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
@@ -52,8 +52,7 @@ namespace BrickController2.UI.ViewModels
             ActivateShelfModeCommand = new SafeCommand(ActivateShelfModeCommandAsync,
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
-            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (Device)),
-                () => CanOpenSettings);
+            OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
         }
 
         public Device Device { get; }
@@ -110,15 +109,27 @@ namespace BrickController2.UI.ViewModels
 
         public override async void OnDisappearing()
         {
+            _isDisappearing = true;
             base.OnDisappearing();
 
+            await DisconnectAsync();
+        }
+
+        private async Task DisconnectAsync()
+        {
             if (_connectionTokenSource is not null && _connectionTask is not null)
             {
-                _connectionTokenSource?.Cancel();
+                _connectionTokenSource.Cancel();
                 await _connectionTask;
             }
 
             await Device.DisconnectAsync();
+        }
+
+        private async Task OpenDeviceSettingsAsync()
+        {
+            await DisconnectAsync();
+            await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
         }
 
         private async Task RenameDeviceAsync()
@@ -355,12 +366,12 @@ namespace BrickController2.UI.ViewModels
 
         public class DeviceOutputViewModel : NotifyPropertyChangedSource
         {
-            private readonly INavigationService _navigationService;
+            private readonly DevicePageViewModel _pageViewModel;
             private int _output;
 
-            public DeviceOutputViewModel(INavigationService navigationService, Device device, int channel)
+            public DeviceOutputViewModel(DevicePageViewModel pageViewModel, Device device, int channel)
             {
-                _navigationService= navigationService;
+                _pageViewModel = pageViewModel;
                 Device = device;
                 Channel = channel;
                 Output = 0;
@@ -395,6 +406,9 @@ namespace BrickController2.UI.ViewModels
 
             private async Task OpenChannelSetupAsync()
             {
+                // enforce disconnection before navigating to channel setup to avoid connection conflicts
+                await _pageViewModel.DisconnectAsync();
+
                 var action = new ControllerAction
                 {
                     DeviceId = Device.Id,
@@ -407,7 +421,7 @@ namespace BrickController2.UI.ViewModels
                         ? ChannelOutputType.ServoMotor
                         : ChannelOutputType.StepperMotor,
                 };
-                await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
+                await _pageViewModel.NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
                     ("controlleraction", action),
                     ("ischanneltest", true)));
             }

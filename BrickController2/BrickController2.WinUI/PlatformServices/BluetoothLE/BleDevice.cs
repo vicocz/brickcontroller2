@@ -146,7 +146,7 @@ public class BleDevice : IBluetoothLEDevice
 
     public async Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
     {
-        using (await _lock.LockAsync())
+        using (await _lock.LockAsync(token))
         {
             if (State == BluetoothLEDeviceState.Connected &&
                 characteristic is BleGattCharacteristic bleGattCharacteristic &&

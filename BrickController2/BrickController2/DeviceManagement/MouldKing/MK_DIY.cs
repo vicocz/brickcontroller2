@@ -75,6 +75,11 @@ internal class MK_DIY : BluetoothDevice
         return Task.FromResult(_characteristic_AE3B_CMD != null);
     }
 
+    protected override void BeforeDisconnectCleanup()
+    {
+        _characteristic_AE3B_CMD = null;
+    }
+
     protected override async Task ProcessOutputsAsync(CancellationToken token)
     {
         try

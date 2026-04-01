@@ -15,7 +15,7 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : BluetoothDevice
+internal class RemoteControl : ControlPlusDeviceBase
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
@@ -64,19 +64,6 @@ internal class RemoteControl : BluetoothDevice
 
     protected override Task ProcessOutputsAsync(CancellationToken token) => Task.CompletedTask;
 
-    protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
-    {
-        var service = services?.FirstOrDefault(s => s.Uuid == ServiceUuid);
-        _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CharacteristicUuid);
-
-        if (_characteristic is not null)
-        {
-            return await _bleDevice!.EnableNotificationAsync(_characteristic, token);
-        }
-
-        return false;
-    }
-
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         // wait until ports finish communicating with the hub
@@ -84,22 +71,15 @@ internal class RemoteControl : BluetoothDevice
 
         if (requestDeviceInformation)
         {
-            // Request battery voltage
-            await _bleDevice!.WriteAsync(_characteristic!, [0x05, 0x00, 0x01, 0x06, 0x05], token);
-            await Task.Delay(TimeSpan.FromMilliseconds(50), token);
+            await RequestHubPropertiesAsync(token);
         }
 
         // setup ports - 0x04 - REMOTE_MODE_KEYS
         var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYS, interval: 1);
-        await _bleDevice!.WriteAsync(_characteristic!, remoteButtonA, token);
+        await WriteAsync(remoteButtonA, token);
 
         var remoteButtonB = BuildPortInputFormatSetup(REMOTE_BUTTONS_RIGHT, REMOTE_MODE_KEYS, interval: 1);
-        return await _bleDevice!.WriteAsync(_characteristic!, remoteButtonB, token);
-    }
-
-    protected override void BeforeDisconnectCleanup()
-    {
-        _characteristic = null;
+        return await WriteAsync(remoteButtonB, token);
     }
 
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
@@ -114,12 +94,7 @@ internal class RemoteControl : BluetoothDevice
         switch (messageCode)
         {
             case MESSAGE_TYPE_HUB_PROPERTIES: // Hub properties
-                if (data.Length >= 6 &&
-                    data[3] == HUB_PROPERTY_VOLTAGE &&
-                    data[4] == HUB_PROPERTY_OPERATION_UPDATE)
-                {
-                    BatteryVoltage = data[5].ToString("F0");
-                }
+                ProcessHubPropertyData(data);
                 break;
 
             case MESSAGE_TYPE_HW_NETWORK_COMMANDS: // HW network commands

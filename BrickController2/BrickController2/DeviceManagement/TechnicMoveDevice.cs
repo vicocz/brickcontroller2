@@ -162,10 +162,10 @@ namespace BrickController2.DeviceManagement
 
                     // switch lights off
                     var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, PORT_6LEDS_ALL_LIGHTS, 0x00);
-                    await WriteAsync(lightsOffCmd, token: token);
+                    var result = await WriteAsync(lightsOffCmd, token: token);
                     await Task.Delay(20, token);
 
-                    return true;
+                    return result;
                 }
                 catch
                 {

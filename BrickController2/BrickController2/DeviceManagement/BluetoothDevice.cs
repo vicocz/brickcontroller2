@@ -34,9 +34,9 @@ namespace BrickController2.DeviceManagement
             bool requestDeviceInformation,
             CancellationToken token)
         {
-            using (await _asyncLock.LockAsync(token))
+            using (await _asyncLock.LockAsync())
             {
-                if (_bleDevice != null || DeviceState != DeviceState.Disconnected)
+                if (token.IsCancellationRequested || _bleDevice != null || DeviceState != DeviceState.Disconnected)
                 {
                     return DeviceConnectionResult.Error;
                 }
@@ -105,7 +105,7 @@ namespace BrickController2.DeviceManagement
         {
         }
 
-        protected virtual ValueTask BeforeDisconnectAsync(CancellationToken token = default) => ValueTask.CompletedTask;
+        protected virtual ValueTask BeforeDisconnectAsync(CancellationToken token) => ValueTask.CompletedTask;
 
         protected abstract void BeforeDisconnectCleanup();
 
@@ -123,7 +123,9 @@ namespace BrickController2.DeviceManagement
                 // handle disconnection cleanup (e.g. disable notifications)
                 try
                 {
-                    await BeforeDisconnectAsync(default);
+                    // restrict it by 5 seconds to avoid hanging on disconnect if the device is unresponsive
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    await BeforeDisconnectAsync(cts.Token);
                 }
                 catch
                 {

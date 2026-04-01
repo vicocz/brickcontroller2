@@ -179,7 +179,7 @@ namespace BrickController2.DeviceManagement
             return false;
         }
 
-        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token = default)
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
         {
             // reset notifications (if possible)
             if (_characteristic != null && _bleDevice != null)
@@ -433,11 +433,11 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected virtual void InitializeChannelInfo(int channel,
             int lastOutputValue = 1,
-            int sendAttempsLeft = MAX_SEND_ATTEMPTS)
+            int sendAttemptsLeft = MAX_SEND_ATTEMPTS)
         {
             _outputValues[channel] = 0;
             _lastOutputValues[channel] = lastOutputValue;
-            _sendAttemptsLeft[channel] = sendAttempsLeft;
+            _sendAttemptsLeft[channel] = sendAttemptsLeft;
             _positionsUpdated[channel] = false;
             _positionUpdateTimes[channel] = DateTime.MinValue;
         }

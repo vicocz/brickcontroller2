@@ -75,6 +75,7 @@ internal static class LegoWirelessProtocol
     public const byte HUB_PROPERTY_HW_VERSION = 0x04;
     public const byte HUB_PROPERTY_VOLTAGE = 0x06;
 
+    //  - hub Property Operations
     public const byte HUB_PROPERTY_OPERATION_UPDATE = 0x06;
 
     // input command (single)

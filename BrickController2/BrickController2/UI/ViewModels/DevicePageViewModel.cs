@@ -109,6 +109,7 @@ namespace BrickController2.UI.ViewModels
 
         public override async void OnDisappearing()
         {
+            _isDisappearing = true;
             base.OnDisappearing();
 
             await DisconnectAsync();
@@ -368,9 +369,9 @@ namespace BrickController2.UI.ViewModels
             private readonly DevicePageViewModel _pageViewModel;
             private int _output;
 
-            public DeviceOutputViewModel(DevicePageViewModel pageVideModel, Device device, int channel)
+            public DeviceOutputViewModel(DevicePageViewModel pageViewModel, Device device, int channel)
             {
-                _pageViewModel = pageVideModel;
+                _pageViewModel = pageViewModel;
                 Device = device;
                 Channel = channel;
                 Output = 0;

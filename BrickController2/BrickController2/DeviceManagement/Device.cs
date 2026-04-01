@@ -180,7 +180,7 @@ namespace BrickController2.DeviceManagement
         {
             if (channel < 0 || channel >= NumberOfChannels)
             {
-                throw new ArgumentOutOfRangeException($"Invalid channel value: {channel}.");
+                throw new ArgumentOutOfRangeException(nameof(channel), $"Invalid channel value: {channel}.");
             }
             return channel;
         }

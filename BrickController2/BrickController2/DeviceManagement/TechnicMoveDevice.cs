@@ -19,6 +19,7 @@ namespace BrickController2.DeviceManagement
 
         private bool _applyPlayVmMode;
         private volatile byte _virtualMotorValue;
+        private int _calibratedZeroAngle; // zero ABS angle for steering C channel in non PLAYVM mode
 
         public TechnicMoveDevice(string name,
             string address,
@@ -39,7 +40,7 @@ namespace BrickController2.DeviceManagement
         public override bool CanAutoCalibrateOutput(int channel) => false;
         public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
 
-        public override bool CanChangeMaxServoAngle(int channel) => !EnablePlayVmMode && channel != CHANNEL_C;
+        public override bool CanChangeMaxServoAngle(int channel) => !EnablePlayVmMode && channel == CHANNEL_C;
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
@@ -145,7 +146,9 @@ namespace BrickController2.DeviceManagement
             }
 
             var portId = GetPortId(channel);
-            return BuildPortOutput_GotoAbsPosition(portId, servoValue, (byte)servoSpeed);
+            // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
+            var value = _calibratedZeroAngle + _servoBaseAngles[channel] + servoValue;
+            return BuildPortOutput_GotoAbsPosition(portId, value, (byte)servoSpeed);
         }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -179,10 +182,32 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                // setup channel to report ABS position
                 var portId = GetPortId(channel);
-                var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
-                return await WriteAsync(inputFormatForAbsAngle, token);
+                var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
+
+                if (_applyPlayVmMode)
+                {
+                    // setup channel to report POS position regularly
+                    return await WriteAsync(inputFormatForRelAngle, token);
+                }
+
+                // setup channel to for APOS, but no notifications
+                var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3, notification: PORT_VALUE_NOTIFICATION_DISABLED);
+                await WriteAsync(inputFormatForAbsAngle, token);
+                await Task.Delay(50, token);
+
+                // query current APOS
+                await WriteAsync([0x05, 0x00, 0x21, portId, 0x00], token);
+                await Task.Delay(250, token); //TODO wait for change
+
+                // setup channel to report POS position regularly
+                await WriteAsync(inputFormatForRelAngle, token);
+                await Task.Delay(250, token); //TODO wait for change
+
+                // need to recalculate base angle to support ABS POS commands
+                _calibratedZeroAngle = CalculateCalibratedTarget(channel);
+
+                return true;
             }
             catch
             {
@@ -210,12 +235,12 @@ namespace BrickController2.DeviceManagement
                 {
                     // use simple Goto ABS position
                     var portId = GetPortId(channel);
-                    var servoCmd = BuildPortOutput_GotoAbsPosition(portId, baseAngle, servoSpeed: 0x28);
+                    var servoCmd = BuildPortOutput_GotoAbsPosition(portId, _calibratedZeroAngle + baseAngle, servoSpeed: 0x28);
                     await WriteAsync(servoCmd, token: token);
                 }
 
                 // need to wait till it completes
-                await AwaitStableAbsPositionAsync(channel, TimeSpan.FromSeconds(4), token);
+                await AwaitStableRelativePositionAsync(channel, TimeSpan.FromSeconds(4), token);
 
                 return true;
             }

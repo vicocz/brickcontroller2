@@ -30,7 +30,7 @@ namespace BrickController2.DeviceManagement
 
         private readonly ChannelOutputType[] _channelOutputTypes;
         private readonly int[] _maxServoAngles;
-        private readonly int[] _servoBaseAngles;
+        protected readonly int[] _servoBaseAngles;
         private readonly int[] _stepperAngles;
 
         private readonly int[] _absolutePositions;
@@ -282,44 +282,32 @@ namespace BrickController2.DeviceManagement
                         }
 
                         var modeMask = data[5];
-                        var dataIndex = 6;
+                        var currentData = data.AsSpan(6); // start at index 6
 
                         if ((modeMask & 0x01) != 0)
                         {
-                            var absPosBuffer = BitConverter.IsLittleEndian ?
-                                new byte[] { data[dataIndex + 0], data[dataIndex + 1] } :
-                                new byte[] { data[dataIndex + 1], data[dataIndex + 0] };
-
-                            var absPosition = BitConverter.ToInt16(absPosBuffer, 0);
+                            var absPosition = ToInt16(currentData);
                             _absolutePositions[channel] = absPosition;
 
-                            dataIndex += 2;
+                            currentData = currentData.Slice(2);
                         }
 
                         if ((modeMask & 0x02) != 0)
                         {
                             // TODO: Read the post value format response and determine the value length accordingly
-                            if ((dataIndex + 3) < data.Length)
+                            if (currentData.Length >= 4)
                             {
-                                var relPosBuffer = BitConverter.IsLittleEndian ?
-                                    new byte[] { data[dataIndex + 0], data[dataIndex + 1], data[dataIndex + 2], data[dataIndex + 3] } :
-                                    new byte[] { data[dataIndex + 3], data[dataIndex + 2], data[dataIndex + 1], data[dataIndex + 0] };
-
-                                var relPosition = BitConverter.ToInt32(relPosBuffer, 0);
+                                var relPosition = ToInt32(currentData);
                                 _relativePositions[channel] = relPosition;
                             }
-                            else if ((dataIndex + 1) < data.Length)
+                            else if (currentData.Length >= 2)
                             {
-                                var relPosBuffer = BitConverter.IsLittleEndian ?
-                                    new byte[] { data[dataIndex + 0], data[dataIndex + 1] } :
-                                    new byte[] { data[dataIndex + 1], data[dataIndex + 0] };
-
-                                var relPosition = BitConverter.ToInt16(relPosBuffer, 0);
+                                var relPosition = ToInt16(currentData);
                                 _relativePositions[channel] = relPosition;
                             }
                             else
                             {
-                                _relativePositions[channel] = data[dataIndex];
+                                _relativePositions[channel] = currentData[0];
                             }
 
                             _positionsUpdated[channel] = true;
@@ -688,15 +676,38 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        protected Task AwaitStableAbsPositionAsync(int channel, TimeSpan timeout, CancellationToken token)
+        protected int CalculateCalibratedTarget(int channel, int targetBaseAngle = 0)
         {
-            return WaitForStablePositionAsync(timeout, GetCurrentAbsPosition, token);
+            int currentAbsPos;
+            int currentRelativeAngle;
 
-            int GetCurrentAbsPosition()
+            lock (_positionLock)
+            {
+                currentAbsPos = _absolutePositions[channel];
+                currentRelativeAngle = _relativePositions[channel];
+            }
+
+            // Normalize the hardware relative angle to a clean 0-359 range 
+            // (Crucial if your motor firmware reports APOS as -180 to 179)
+            int normalizedRelative = ((currentRelativeAngle % 360) + 360) % 360;
+            int normalizedTarget = ((targetBaseAngle % 360) + 360) % 360;
+
+            // Calculate the raw difference + normalize
+            int diff = NormalizeAngle(normalizedTarget - normalizedRelative);
+
+            // Offset the current accumulated position by the physical difference
+            return currentAbsPos + diff;
+        }
+
+        protected Task AwaitStableRelativePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
+        {
+            return WaitForStablePositionAsync(timeout, GetCurrentRelativePosition, token);
+
+            int GetCurrentRelativePosition()
             {
                 lock (_positionLock)
                 {
-                    return _absolutePositions[channel];
+                    return _relativePositions[channel];
                 }
             }
         }
@@ -786,21 +797,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private static int NormalizeAngle(int angle)
-        {
-            if (angle >= 180)
-            {
-                return angle - (360 * ((angle + 180) / 360));
-            }
-            else if (angle < -180)
-            {
-                return angle + (360 * ((180 - angle) / 360));
-            }
-
-            return angle;
-        }
-
-        private int RoundAngleToNearest90(int angle)
+        private static int RoundAngleToNearest90(int angle)
         {
             angle = NormalizeAngle(angle);
             if (angle < -135) return -180;
@@ -837,7 +834,7 @@ namespace BrickController2.DeviceManagement
         private Task<bool> StopAsync(int channel, CancellationToken token)
         {
             var portId = GetPortId(channel);
-            return _bleDevice!.WriteAsync(Characteristic!, new byte[] { 0x08, 0x00, 0x81, portId, 0x11, 0x51, 0x00, 0x00 }, token);
+            return _bleDevice!.WriteAsync(Characteristic!, [0x08, 0x00, PORT_OUTPUT_COMMAND, portId, 0x11, PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, 0x00, 0x00], token);
         }
 
         private Task<bool> TurnAsync(int channel, int angle, int speed, CancellationToken token)
@@ -845,12 +842,8 @@ namespace BrickController2.DeviceManagement
             angle = NormalizeAngle(angle);
             var portId = GetPortId(channel);
 
-            var a0 = (byte)(angle & 0xff);
-            var a1 = (byte)((angle >> 8) & 0xff);
-            var a2 = (byte)((angle >> 16) & 0xff);
-            var a3 = (byte)((angle >> 24) & 0xff);
-
-            return _bleDevice!.WriteAsync(Characteristic!, new byte[] { 0x0e, 0x00, 0x81, portId, 0x11, 0x0d, a0, a1, a2, a3, (byte)speed, 0x64, 0x7e, 0x00 }, token);
+            ToBytes(angle, out var a0, out var a1, out var a2, out var a3);
+            return _bleDevice!.WriteAsync(Characteristic!, [0x0e, 0x00, PORT_OUTPUT_COMMAND, portId, 0x11, 0x0d, a0, a1, a2, a3, (byte)speed, 0x64, 0x7e, 0x00], token);
         }
 
         private Task<bool> ResetAsync(int channel, int angle, CancellationToken token)
@@ -858,12 +851,8 @@ namespace BrickController2.DeviceManagement
             angle = NormalizeAngle(angle);
             var portId = GetPortId(channel);
 
-            var a0 = (byte)(angle & 0xff);
-            var a1 = (byte)((angle >> 8) & 0xff);
-            var a2 = (byte)((angle >> 16) & 0xff);
-            var a3 = (byte)((angle >> 24) & 0xff);
-
-            return _bleDevice!.WriteAsync(Characteristic!, new byte[] { 0x0b, 0x00, 0x81, portId, 0x11, 0x51, 0x02, a0, a1, a2, a3 }, token);
+            ToBytes(angle, out var a0, out var a1, out var a2, out var a3);
+            return _bleDevice!.WriteAsync(Characteristic!, [0x0b, 0x00, PORT_OUTPUT_COMMAND, portId, 0x11, PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, 0x02, a0, a1, a2, a3], token);
         }
     }
 }

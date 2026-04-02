@@ -112,6 +112,20 @@ internal static class LegoWirelessProtocol
     public static short ToInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt16LittleEndian(value);
     public static int ToInt32(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt32LittleEndian(value);
 
+    public static int NormalizeAngle(int angle)
+    {
+        if (angle >= 180)
+        {
+            return angle - (360 * ((angle + 180) / 360));
+        }
+        else if (angle < -180)
+        {
+            return angle + (360 * ((180 - angle) / 360));
+        }
+
+        return angle;
+    }
+
     public static string GetVersionString(ReadOnlySpan<byte> data)
     {
         if (data.Length < 4)

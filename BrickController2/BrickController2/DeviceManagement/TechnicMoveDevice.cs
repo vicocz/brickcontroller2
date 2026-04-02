@@ -151,6 +151,19 @@ namespace BrickController2.DeviceManagement
             return BuildPortOutput_GotoAbsPosition(portId, value, (byte)servoSpeed);
         }
 
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            await base.BeforeDisconnectAsync(token);
+
+            if (_applyPlayVmMode)
+            {
+                // reset hub LED
+                var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, HUB_LED_COLOR_WHITE);
+                await WriteAsync(ledCmd, token: token);
+                await Task.Delay(20, token);
+            }
+        }
+
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
             if (await base.AfterConnectSetupAsync(requestDeviceInformation, token))

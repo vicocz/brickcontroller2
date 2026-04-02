@@ -20,7 +20,6 @@ internal class RemoteControl : ControlPlusDeviceBase
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
 
-    private IGattCharacteristic? _characteristic;
     private InputDeviceBase<RemoteControl>? _inputController;
 
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
@@ -32,8 +31,6 @@ internal class RemoteControl : ControlPlusDeviceBase
     public override DeviceType DeviceType => DeviceType.RemoteControl;
 
     public override int NumberOfChannels => 0;
-
-    public override string BatteryVoltageSign => "%";
 
     public bool IsEnabled => GetSettingValue(ENABLED_SETTING_NAME, DEFAULT_ENABLED);
 

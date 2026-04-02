@@ -58,8 +58,6 @@ namespace BrickController2.DeviceManagement
             _positionUpdateTimes = new DateTime[NumberOfChannels];
         }
 
-        public override string BatteryVoltageSign => "%";
-
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             // support all output types on all channels
             => true;

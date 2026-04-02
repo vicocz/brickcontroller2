@@ -19,6 +19,8 @@ internal abstract class ControlPlusDeviceBase : BluetoothDevice
     {
     }
 
+    public override string BatteryVoltageSign => "%";
+
     protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
     protected virtual bool TryGetChannelIndex(byte portId, out int channelIndex)
     {

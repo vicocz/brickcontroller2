@@ -121,22 +121,6 @@ namespace BrickController2.DeviceManagement
             return await base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
-        public override void SetOutput(int channel, float value)
-        {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            var intValue = (int)(100 * value);
-
-            lock (_outputLock)
-            {
-                if (_outputValues[channel] != intValue)
-                {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
-                }
-            }
-        }
 
         public override bool CanResetOutput(int channel) => true;
 

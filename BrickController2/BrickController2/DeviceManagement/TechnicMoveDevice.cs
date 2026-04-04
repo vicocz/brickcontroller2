@@ -217,7 +217,7 @@ namespace BrickController2.DeviceManagement
                 await WriteAsync(inputFormatForRelAngle, token);
                 await Task.Delay(250, token); //TODO wait for change
 
-                // need to recalculate base angle to support ABS POS commands
+                // need to recalculate zero angle to support ABS POS commands
                 _calibratedZeroAngle = CalculateCalibratedTarget(channel);
 
                 return true;

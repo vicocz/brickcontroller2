@@ -1,4 +1,6 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.CreationManagement;
+using BrickController2.DeviceManagement.IO;
+using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,69 @@ namespace BrickController2.DeviceManagement.Lego;
 
 internal abstract class ControlPlusDeviceBase : BluetoothDevice
 {
+    protected readonly OutputValuesGroup<Half> OutputValues;
+    protected readonly ChannelConfig[] ChannelConfigs;
+
     protected IGattCharacteristic? Characteristic;
 
     protected ControlPlusDeviceBase(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
      : base(name, address, deviceRepository, bleService)
     {
+        OutputValues = new(NumberOfChannels);
+        ChannelConfigs = new ChannelConfig[NumberOfChannels];
     }
 
     public override string BatteryVoltageSign => "%";
+
+    public override void SetOutput(int channel, float value)
+    {
+        CheckChannel(channel);
+
+        var percentValue = (Half)(100 * CutOutputValue(value));
+        OutputValues.SetOutput(channel, percentValue);
+    }
+
+    public override Task<DeviceConnectionResult> ConnectAsync(
+        bool reconnect,
+        Action<Device> onDeviceDisconnected,
+        IEnumerable<ChannelConfiguration> channelConfigurations,
+        bool startOutputProcessing,
+        bool requestDeviceInformation,
+        CancellationToken token)
+    {
+        // reset output values
+        OutputValues.Clear();
+
+        //TODO angles
+
+        // Initialize configuration per channel
+
+        // build dictionary
+        var configs = channelConfigurations.ToDictionary(c => c.Channel, c => c);
+
+        for (int i = 0; i < NumberOfChannels; i++)
+        {
+            configs.TryGetValue(i, out var config);
+
+            ChannelConfigs[i] = config.ChannelOutputType switch
+            {
+                ChannelOutputType.ServoMotor => new()
+                {
+                    ChannelOutputType = ChannelOutputType.ServoMotor,
+                    MaxServoAngle = config.MaxServoAngle,
+                    ServoBaseAngle = config.ServoBaseAngle
+                },
+                ChannelOutputType.StepperMotor => new()
+                {
+                    ChannelOutputType = ChannelOutputType.StepperMotor,
+                    StepperAngle = config.StepperAngle
+                },
+                _ => new()
+            };
+        }
+
+        return base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
+    }
 
     protected virtual byte GetPortId(int channelIndex) => (byte)channelIndex;
     protected virtual bool TryGetChannelIndex(byte portId, out int channelIndex)

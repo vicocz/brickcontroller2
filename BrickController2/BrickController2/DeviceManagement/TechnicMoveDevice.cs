@@ -1,4 +1,6 @@
 ﻿using BrickController2.CreationManagement;
+using BrickController2.DeviceManagement.IO;
+using BrickController2.DeviceManagement.Lego;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
 using System;
@@ -6,19 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement
 {
-    internal class TechnicMoveDevice : ControlPlusDevice
+    internal class TechnicMoveDevice : WirelessProtocolBasedDevice
     {
         public const int CHANNEL_VM = 12; // artificial channel to mimic combined AB ports in PLAYVM
 
+        private const int CHANNEL_A = 0;
+        private const int CHANNEL_B = 1;
         private const int CHANNEL_C = 2;
+        private const int CHANNEL_1 = 3; // Light #1
+        private const int CHANNEL_6 = 8; // Light #6
+        private const int PLAYVM_CHANNEL_DRIVE = 0;
+        private const int PLAYVM_CHANNEL_STEER = 1;
         private const string EnablePlayVmSettingName = "PlayVmEnabled";
 
+        private readonly OutputValuesGroup<Half> _outputValues = new(9);
+        private readonly OutputValuesGroup<Half> _playVmValues = new(2);
+
         private bool _applyPlayVmMode;
-        private volatile byte _virtualMotorValue;
         private int _calibratedZeroAngle; // zero ABS angle for steering C channel in non PLAYVM mode
 
         public TechnicMoveDevice(string name,
@@ -59,29 +70,33 @@ namespace BrickController2.DeviceManagement
             _applyPlayVmMode = startOutputProcessing && EnablePlayVmMode &&
                 channelConfigurations.Any(c => c.Channel == CHANNEL_VM || (c.Channel == CHANNEL_C && c.ChannelOutputType == ChannelOutputType.ServoMotor));
 
-            // filter out non-standard channels and configurations with unsupported output types
-            var filteredConfigurations = channelConfigurations
-                .Where(c => c.Channel != CHANNEL_VM)
-                .Where(c => IsOutputTypeSupported(c.Channel, c.ChannelOutputType))
-                .ToArray();
-
-            return base.ConnectAsync(reconnect, onDeviceDisconnected, filteredConfigurations, startOutputProcessing, requestDeviceInformation, token);
+            return base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
         public override void SetOutput(int channel, float value)
         {
-            if (channel == CHANNEL_VM)
+            var rawValue = (Half)(100 * CutOutputValue(value));
+
+            _ = channel switch
             {
-                // reset servo writes to enforce update
-                ResetSendAttemps(CHANNEL_C);
-                // store virtual motor value to be later send with PLAYVM
-                var intValue = (int)(100 * CutOutputValue(value));
-                _virtualMotorValue = GetChannelValue(intValue);
-            }
-            else
-            {
-                base.SetOutput(channel, value);
-            }
+                // store A+B virtual channel value for PLAYVM
+                CHANNEL_VM => _playVmValues.SetOutput(PLAYVM_CHANNEL_DRIVE, rawValue),
+                // store C channel value for PLAYVM
+                CHANNEL_C when _applyPlayVmMode => _playVmValues.SetOutput(PLAYVM_CHANNEL_STEER, rawValue),
+                // Light channels 1 - 6 require absolute value
+                >= CHANNEL_1 and <= CHANNEL_6 => _outputValues.SetOutput(channel, Half.Abs(rawValue)),
+                // rest of ports: such as A, B or C when not in PLAYVM mode - use value as is
+                _ => _outputValues.SetOutput(CheckChannel(channel), rawValue)
+            };
+        }
+
+        public override async Task ResetOutputAsync(int channel, float value, CancellationToken token)
+        {
+            CheckChannel(channel);
+
+            await SetupChannelForPortInformationAsync(channel, token);
+            await Task.Delay(300, token);
+            await ResetServoAsync(channel, Convert.ToInt32(value * 180), token);
         }
 
         protected override byte GetPortId(int channelIndex) => channelIndex switch
@@ -100,55 +115,10 @@ namespace BrickController2.DeviceManagement
                 PORT_DRIVE_MOTOR_1 => 0,
                 PORT_DRIVE_MOTOR_2 => 1,
                 PORT_STEERING_MOTOR => 2,
-
+                // all other ports (PORT_6LEDS, PORT_PLAYVM, PORT_HUB_LED, etc.) are not tracked
                 _ => -1
             };
             return channelIndex >= 0;
-        }
-
-        protected override byte GetChannelValue(int value) => ToByte(value);
-
-        protected override void InitializeChannelInfo(int channel, int lastOutputValue = 1, int sendAttemptsLeft = 10)
-        {
-            // if PLAYVM enabled, reset A / B channels differently in order to avoid output writes
-            if (_applyPlayVmMode && channel < CHANNEL_C)
-            {
-                lastOutputValue = 0;
-                sendAttemptsLeft = 0;
-            }
-            else if (channel > CHANNEL_C)
-            {
-                // no need to update lights
-                lastOutputValue = 0;
-                sendAttemptsLeft = 0;
-            }
-            base.InitializeChannelInfo(channel, lastOutputValue, sendAttemptsLeft);
-        }
-
-        protected override byte[] GetOutputCommand(int channel, int value)
-        {
-            // 6LED
-            var ledIndex = channel - 3;
-            if (ledIndex >= 0)
-            {
-                var rawValue = ToByte(Math.Abs(value));
-                var ledMask = ToByte(1 << ledIndex);
-                return BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, ledMask, rawValue);
-            }
-            return base.GetOutputCommand(channel, value);
-        }
-
-        protected override byte[] GetServoCommand(int channel, int servoValue, int servoSpeed)
-        {
-            if (_applyPlayVmMode)
-            {
-                return BuildPortOutput_PlayVm(speedValue: _virtualMotorValue, servoValue: servoValue);
-            }
-
-            var portId = GetPortId(channel);
-            // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
-            var value = _calibratedZeroAngle + _servoBaseAngles[channel] + servoValue;
-            return BuildPortOutput_GotoAbsPosition(portId, value, (byte)servoSpeed);
         }
 
         protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
@@ -170,6 +140,11 @@ namespace BrickController2.DeviceManagement
             {
                 try
                 {
+                    if (requestDeviceInformation)
+                    {
+                        await RequestHubPropertiesAsync(token);
+                    }
+
                     // hub LED
                     var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
                     var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
@@ -191,7 +166,38 @@ namespace BrickController2.DeviceManagement
             return false;
         }
 
-        protected override async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
+        protected override void ResetOutputValues()
+        {
+            if (_applyPlayVmMode)
+            {
+                _playVmValues.Initialize();
+                // output values - clear always lights — suppress initial burst to avoid flooding the hub
+                _outputValues.Clear();
+            }
+            else
+            {
+                _playVmValues.Clear();
+                // otherwise all channels to be initialized
+                _outputValues.Initialize();
+            }
+        }
+
+        protected override async Task ProcessOutputsAsync(CancellationToken token)
+        {
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    if (!await SendOutputValuesAsync(token).ConfigureAwait(false))
+                    {
+                        await Task.Delay(10, token).ConfigureAwait(false);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
         {
             try
             {
@@ -228,7 +234,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        protected override async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
+        private async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
         {
             try
             {
@@ -261,6 +267,124 @@ namespace BrickController2.DeviceManagement
             {
                 return false;
             }
+        }
+
+        private async Task<bool> SendOutputValuesAsync(CancellationToken token)
+        {
+            try
+            {
+                // conditionally send PLAYVM command if PLAYVM mode is active
+                var result = await SendPlayVmOutputValueAsync(token);
+
+                // process changes for other channels as it's a light or a classic drive
+                if (result && _outputValues.TryGetChanges(out var changes))
+                {
+                    foreach (KeyValuePair<int, Half> change in changes)
+                    {
+                        var value = ToByte(change.Value);
+                        var channelOutputType = change.Key < NumberOfChannels
+                            ? ChannelConfigs[change.Key].OutputType
+                            : ChannelOutputType.NormalMotor;
+
+                        result = change.Key switch
+                        {
+                            // Light channels 1 - 6 require absolute value
+                            >= CHANNEL_1 and <= CHANNEL_6 => await SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
+                            // all channels command
+                            int.MaxValue => await SendAllOutputValuesAsync(value, token),
+                            // classic output command for A, B, C channels (with servo support)
+                            CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendServoValue(change.Key, value, token),
+                            _ => await SendPortOutput_ValueAsync(change.Key, value, token),
+                        };
+
+                        if (!result)
+                        {
+                            return false;
+                        }
+                    }
+
+                    _outputValues.Commit();
+                }
+
+                return result;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> SendPlayVmOutputValueAsync(CancellationToken token)
+        {
+            try
+            {
+                if (_applyPlayVmMode && _playVmValues.TryGetValues(out var values))
+                {
+                    var speed = ToByte(values[PLAYVM_CHANNEL_DRIVE]);
+                    var maxServoAngle = ChannelConfigs[CHANNEL_C].MaxServoAngle;
+                    var servoValue = maxServoAngle * (int)values[PLAYVM_CHANNEL_STEER] / 100;
+                    var playVmCmd = BuildPortOutput_PlayVm(speed, servoValue);
+
+                    if (!await WriteAsync(playVmCmd, token))
+                    {
+                        await Task.Delay(20, token); //TODO
+                        return false;
+                    }
+
+                    // commit when successfully sent
+                    _playVmValues.Commit();
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private Task<bool> SendPortOutput_6LedAsync(int ledIndex, byte value, CancellationToken token)
+            => SendPortOutput_6LedMaskAsync(ToByte(1 << ledIndex), value, token);
+
+        private async Task<bool> SendPortOutput_6LedMaskAsync(byte lightMask, byte value, CancellationToken token)
+        {
+            var cmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, lightMask, value);
+            return await WriteAsync(cmd, token);
+        }
+
+        private async Task<bool> SendPortOutput_ValueAsync(int channel, byte value, CancellationToken token)
+        {
+            byte[] cmd = [8, 0x00, 0x81, GetPortId(channel), 0x11, 0x51, 0x00, value];
+            return await WriteAsync(cmd, token);
+        }
+
+        private async Task<bool> SendServoValue(int channel, int value, CancellationToken token)
+        {
+            var portId = GetPortId(channel);
+            // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
+            var absPosition = _calibratedZeroAngle + ChannelConfigs[channel].ServoBaseAngle + value;
+            var cmd = BuildPortOutput_GotoAbsPosition(portId, absPosition, servoSpeed: 50);
+            return await WriteAsync(cmd, token);
+        }
+
+        private async Task<bool> SendAllOutputValuesAsync(byte value, CancellationToken token)
+        {
+            // all LEDs at once
+            var result = await SendPortOutput_6LedMaskAsync(PORT_6LEDS_ALL_LIGHTS, value, token);
+
+            // A, B, C channels
+            foreach (var channel in new[] { CHANNEL_A, CHANNEL_B, CHANNEL_C })
+            {
+                var outputType = ChannelConfigs[channel].OutputType;
+                result = result && outputType switch
+                {
+                    ChannelOutputType.ServoMotor => await SendServoValue(channel, value, token),
+                    _ => await SendPortOutput_ValueAsync(channel, value, token),
+                };
+
+                result = result && await SendPortOutput_ValueAsync(channel, value, token);
+            }
+
+            return result;
         }
     }
 }

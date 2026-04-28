@@ -11,7 +11,7 @@ using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement
 {
-    internal abstract class ControlPlusDevice : ControlPlusDeviceBase
+    internal abstract class ControlPlusDevice : WirelessProtocolBasedDevice
     {
         private const int MAX_SEND_ATTEMPTS = 10;
 
@@ -28,16 +28,6 @@ namespace BrickController2.DeviceManagement
         private readonly int[] _sendAttemptsLeft;
         private readonly object _outputLock = new object();
 
-        private readonly ChannelOutputType[] _channelOutputTypes;
-        private readonly int[] _maxServoAngles;
-        protected readonly int[] _servoBaseAngles;
-        private readonly int[] _stepperAngles;
-
-        private readonly int[] _absolutePositions;
-        private readonly int[] _relativePositions;
-        private readonly bool[] _positionsUpdated;
-        private readonly DateTime[] _positionUpdateTimes;
-        private readonly object _positionLock = new object();
         private readonly Stopwatch _lastSent_NormalMotor = new Stopwatch();
 
         public ControlPlusDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
@@ -46,16 +36,6 @@ namespace BrickController2.DeviceManagement
             _outputValues = new int[NumberOfChannels];
             _lastOutputValues = new int[NumberOfChannels];
             _sendAttemptsLeft = new int[NumberOfChannels];
-
-            _channelOutputTypes = new ChannelOutputType[NumberOfChannels];
-            _maxServoAngles = new int[NumberOfChannels];
-            _servoBaseAngles = new int[NumberOfChannels];
-            _stepperAngles = new int[NumberOfChannels];
-
-            _absolutePositions = new int[NumberOfChannels];
-            _relativePositions = new int[NumberOfChannels];
-            _positionsUpdated = new bool[NumberOfChannels];
-            _positionUpdateTimes = new DateTime[NumberOfChannels];
         }
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
@@ -79,44 +59,13 @@ namespace BrickController2.DeviceManagement
             CancellationToken token)
         {
             lock (_outputLock)
-                lock (_positionLock)
                 {
                     for (int c = 0; c < NumberOfChannels; c++)
                     {
                         _outputValues[c] = 0;
                         _lastOutputValues[c] = 0;
-
-                        _channelOutputTypes[c] = ChannelOutputType.NormalMotor;
-                        _maxServoAngles[c] = 0;
-                        _servoBaseAngles[c] = 0;
-                        _stepperAngles[c] = 0;
-
-                        _absolutePositions[c] = 0;
-                        _relativePositions[c] = 0;
-                        _positionsUpdated[c] = false;
-                        _positionUpdateTimes[c] = DateTime.MinValue;
                     }
                 }
-
-            foreach (var channelConfig in channelConfigurations)
-            {
-                _channelOutputTypes[channelConfig.Channel] = channelConfig.ChannelOutputType;
-
-                switch (channelConfig.ChannelOutputType)
-                {
-                    case ChannelOutputType.NormalMotor:
-                        break;
-
-                    case ChannelOutputType.ServoMotor:
-                        _maxServoAngles[channelConfig.Channel] = channelConfig.MaxServoAngle;
-                        _servoBaseAngles[channelConfig.Channel] = channelConfig.ServoBaseAngle;
-                        break;
-
-                    case ChannelOutputType.StepperMotor:
-                        _stepperAngles[channelConfig.Channel] = channelConfig.StepperAngle;
-                        break;
-                }
-            }
 
             return await base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
@@ -144,6 +93,35 @@ namespace BrickController2.DeviceManagement
             await SetupChannelForPortInformationAsync(channel, token);
             await Task.Delay(TimeSpan.FromMilliseconds(300), token);
             return await AutoCalibrateServoAsync(channel, token);
+        }
+
+        public override void SetOutput(int channel, float value)
+        {
+            CheckChannel(channel);
+            value = CutOutputValue(value);
+
+            var intValue = (int)(100 * value);
+
+            lock (_outputLock)
+            {
+                if (_outputValues[channel] != intValue)
+                {
+                    _outputValues[channel] = intValue;
+                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                }
+            }
+        }
+
+        protected override void ResetOutputValues()
+        {
+            lock (_outputLock)
+            {
+                for (int c = 0; c < NumberOfChannels; c++)
+                {
+                    _outputValues[c] = 0;
+                    _lastOutputValues[c] = 0;
+                }
+            }
         }
 
         protected virtual byte GetChannelValue(int value)
@@ -183,21 +161,10 @@ namespace BrickController2.DeviceManagement
             return _servoSendBuffer;
         }
 
-        protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
+        protected override bool TryProcessMessageData(byte messageType, ReadOnlySpan<byte> data)
         {
-            if (characteristicGuid != CharacteristicUuid || data.Length < 4)
+            switch (messageType)
             {
-                return;
-            }
-
-            var messageCode = data[2];
-
-            switch (messageCode)
-            {
-                case MESSAGE_TYPE_HUB_PROPERTIES: // Hub properties
-                    ProcessHubPropertyData(data);
-                    break;
-
                 case 0x02: // Hub actions
                     DumpData("Hub actions", data);
                     break;
@@ -230,77 +197,6 @@ namespace BrickController2.DeviceManagement
                     DumpData("Port mode information", data);
                     break;
 
-                case 0x45: // Port value (single mode)
-                    lock (_positionLock)
-                    {
-                        if (data.Length == 6)
-                        {
-                            // assume 16bit data is ABS
-                            if (TryGetChannelIndex(portId: data[3], out var channel))
-                            {   
-                                var absPosition = ToInt16(data, 4);
-                                _absolutePositions[channel] = absPosition;
-                            }
-                        }
-                        else if (data.Length == 8)
-                        {
-                            // assume 32 bit data is REL
-                            if (TryGetChannelIndex(portId: data[3], out var channel))
-                            {
-                                var relPosition = ToInt32(data, 4);
-                                _relativePositions[channel] = relPosition;
-
-                                _positionsUpdated[channel] = true;
-                                _positionUpdateTimes[channel] = DateTime.Now;
-                            }
-                        }
-                    }
-                    break;
-
-                case 0x46: // Port value (combined mode)
-                    lock (_positionLock)
-                    {
-                        if (!TryGetChannelIndex(portId: data[3], out var channel))
-                        {
-                            break;
-                        }
-
-                        var modeMask = data[5];
-                        var currentData = data.AsSpan(6); // start at index 6
-
-                        if ((modeMask & 0x01) != 0)
-                        {
-                            var absPosition = ToInt16(currentData);
-                            _absolutePositions[channel] = absPosition;
-
-                            currentData = currentData.Slice(2);
-                        }
-
-                        if ((modeMask & 0x02) != 0)
-                        {
-                            // TODO: Read the post value format response and determine the value length accordingly
-                            if (currentData.Length >= 4)
-                            {
-                                var relPosition = ToInt32(currentData);
-                                _relativePositions[channel] = relPosition;
-                            }
-                            else if (currentData.Length >= 2)
-                            {
-                                var relPosition = ToInt16(currentData);
-                                _relativePositions[channel] = relPosition;
-                            }
-                            else
-                            {
-                                _relativePositions[channel] = currentData[0];
-                            }
-
-                            _positionsUpdated[channel] = true;
-                            _positionUpdateTimes[channel] = DateTime.Now;
-                        }
-                    }
-
-                    break;
-
                 case 0x47: // Port input format (Single mode)
                     DumpData("Port input format (single)", data);
                     break;
@@ -313,13 +209,16 @@ namespace BrickController2.DeviceManagement
                     DumpData("Output command feedback", data);
                     break;
             }
+
+            // continue with default processing (e.g. for hub properties)
+            return base.TryProcessMessageData(messageType, data);
         }
 
-        private static void DumpData(string header, byte[] data)
+        private static void DumpData(string header, ReadOnlySpan<byte> data)
         {
 #if DEBUG
-            var s = BitConverter.ToString(data);
-            Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {header}-{s}");
+                var s = Convert.ToHexString(data);
+                Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {header}-{s}");
 #endif
         }
 
@@ -328,7 +227,6 @@ namespace BrickController2.DeviceManagement
             try
             {
                 lock (_outputLock)
-                lock (_positionLock)
                 {
                     for (int channel = 0; channel < NumberOfChannels; channel++)
                     {
@@ -358,8 +256,8 @@ namespace BrickController2.DeviceManagement
             _outputValues[channel] = 0;
             _lastOutputValues[channel] = lastOutputValue;
             _sendAttemptsLeft[channel] = sendAttemptsLeft;
-            _positionsUpdated[channel] = false;
-            _positionUpdateTimes[channel] = DateTime.MinValue;
+            
+            ChannelPositions.Set(channel);
         }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -376,11 +274,12 @@ namespace BrickController2.DeviceManagement
 
                 for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
-                    if (_channelOutputTypes[channel] == ChannelOutputType.ServoMotor)
+                    var channelConfig = ChannelConfigs[channel];
+                    if (channelConfig.OutputType == ChannelOutputType.ServoMotor)
                     {
                         await SetupChannelForPortInformationAsync(channel, token);
                         await Task.Delay(300, token);
-                        await ResetServoAsync(channel, _servoBaseAngles[channel], token);
+                        await ResetServoAsync(channel, channelConfig.ServoBaseAngle, token);
                     }
                 }
 
@@ -400,14 +299,14 @@ namespace BrickController2.DeviceManagement
 
                 for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
-                    switch (_channelOutputTypes[channel])
+                    var outputType = ChannelConfigs[channel].OutputType;
+                    switch (outputType)
                     {
                         case ChannelOutputType.NormalMotor:
                             result = result && await SendOutputValueAsync(channel, token);
                             break;
 
                         case ChannelOutputType.ServoMotor:
-                            var maxServoAngle = _maxServoAngles[channel];
                             result = result && await SendServoOutputValueAsync(channel, token);
                             break;
 
@@ -513,7 +412,7 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
                 {
-                    var servoValue = _maxServoAngles[channel] * v / 100;
+                    var servoValue = ChannelConfigs[channel].MaxServoAngle * v / 100;
                     var servoSpeed = CalculateServoSpeed(channel, servoValue);
 
                     if (servoSpeed == 0)
@@ -556,7 +455,7 @@ namespace BrickController2.DeviceManagement
                     _sendAttemptsLeft[channel] = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
                 }
 
-                var stepperAngle = _stepperAngles[channel];
+                var stepperAngle = ChannelConfigs[channel].StepperAngle;
                 _stepperSendBuffer[3] = GetPortId(channel);
                 _stepperSendBuffer[6] = (byte)(stepperAngle & 0xff);
                 _stepperSendBuffer[7] = (byte)((stepperAngle >> 8) & 0xff);
@@ -627,7 +526,7 @@ namespace BrickController2.DeviceManagement
             {
                 baseAngle = Math.Max(-180, Math.Min(179, baseAngle));
 
-                var resetToAngle = NormalizeAngle(_absolutePositions[channel] - baseAngle);
+                var resetToAngle = NormalizeAngle(ChannelPositions.Get(channel).AbsolutePosition - baseAngle);
 
                 var result = true;
 
@@ -641,7 +540,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(500, token);
                 result = result && await StopAsync(channel, token);
 
-                var diff = Math.Abs(NormalizeAngle(_absolutePositions[channel] - baseAngle));
+                var diff = Math.Abs(NormalizeAngle(ChannelPositions.Get(channel).AbsolutePosition - baseAngle));
                 if (diff > 5)
                 {
                     // Can't reset to base angle, rebase to current position not to stress the plastic
@@ -660,77 +559,6 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        protected int CalculateCalibratedTarget(int channel, int targetBaseAngle = 0)
-        {
-            int currentAbsPos;
-            int currentRelativeAngle;
-
-            lock (_positionLock)
-            {
-                currentAbsPos = _absolutePositions[channel];
-                currentRelativeAngle = _relativePositions[channel];
-            }
-
-            // Normalize the hardware relative angle to a clean 0-359 range 
-            // (Crucial if your motor firmware reports APOS as -180 to 179)
-            int normalizedRelative = ((currentRelativeAngle % 360) + 360) % 360;
-            int normalizedTarget = ((targetBaseAngle % 360) + 360) % 360;
-
-            // Calculate the raw difference + normalize
-            int diff = NormalizeAngle(normalizedTarget - normalizedRelative);
-
-            // Offset the current accumulated position by the physical difference
-            return currentAbsPos + diff;
-        }
-
-        protected Task AwaitStableRelativePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
-        {
-            return WaitForStablePositionAsync(timeout, GetCurrentRelativePosition, token);
-
-            int GetCurrentRelativePosition()
-            {
-                lock (_positionLock)
-                {
-                    return _relativePositions[channel];
-                }
-            }
-        }
-
-        private static async Task WaitForStablePositionAsync(TimeSpan timeout, Func<int> getPosition, CancellationToken token)
-        {
-            var interval = TimeSpan.FromMilliseconds(50);
-            var stabilityTimeout = TimeSpan.FromMilliseconds(500);
-
-            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-            linkedCts.CancelAfter(timeout);
-
-            var lastPosition = getPosition();
-            var stableSince = Stopwatch.StartNew();
-
-            try
-            {
-                while (!linkedCts.Token.IsCancellationRequested)
-                {
-                    await Task.Delay(interval, linkedCts.Token);
-
-                    var currentPosition = getPosition();
-                    if (currentPosition != lastPosition)
-                    {
-                        lastPosition = currentPosition;
-                        stableSince.Restart();
-                    }
-                    else if (stableSince.Elapsed >= stabilityTimeout)
-                    {
-                        break; // position stable for the required duration
-                    }
-                }
-            }
-            catch (OperationCanceledException) when (!token.IsCancellationRequested)
-            {
-                // total timeout elapsed — treat as completed
-            }
-        }
-
         private async Task<(bool, float)> AutoCalibrateServoAsync(int channel, CancellationToken token)
         {
             try
@@ -743,17 +571,17 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAt0 = _absolutePositions[channel];
+                var absPositionAt0 = ChannelPositions.Get(channel).AbsolutePosition;
                 result = result && await TurnAsync(channel, -160, 60, token);
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAtMin160 = _absolutePositions[channel];
+                var absPositionAtMin160 = ChannelPositions.Get(channel).AbsolutePosition;
                 result = result && await TurnAsync(channel, 160, 60, token);
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAt160 = _absolutePositions[channel];
+                var absPositionAt160 = ChannelPositions.Get(channel).AbsolutePosition;
 
                 var midPoint1 = NormalizeAngle((absPositionAtMin160 + absPositionAt160) / 2);
                 var midPoint2 = NormalizeAngle(midPoint1 + 180);
@@ -761,7 +589,7 @@ namespace BrickController2.DeviceManagement
                 var baseAngle = (Math.Abs(NormalizeAngle(midPoint1 - absPositionAt0)) < Math.Abs(NormalizeAngle(midPoint2 - absPositionAt0))) ?
                     RoundAngleToNearest90(midPoint1) :
                     RoundAngleToNearest90(midPoint2);
-                var resetToAngle = NormalizeAngle(_absolutePositions[channel] - baseAngle);
+                var resetToAngle = NormalizeAngle(ChannelPositions.Get(channel).AbsolutePosition - baseAngle);
 
                 result = result && await ResetAsync(channel, 0, token);
                 result = result && await StopAsync(channel, token);
@@ -793,23 +621,21 @@ namespace BrickController2.DeviceManagement
 
         private int CalculateServoSpeed(int channel, int targetAngle)
         {
-            lock (_positionLock)
+            var channelPositions = ChannelPositions.Get(channel);
+            
+            if (channelPositions.IsUpdated)
             {
-                if (_positionsUpdated[channel])
-                {
-                    var diffAngle = Math.Abs(_relativePositions[channel] - targetAngle);
-                    _positionsUpdated[channel] = false;
+                var diffAngle = Math.Abs(channelPositions.RelativePosition - targetAngle);
+                ChannelPositions.Update(channel, x => x with { IsUpdated = false });
 
-                    return Math.Max(20, Math.Min(100, diffAngle));
-                }
+                return Math.Max(20, Math.Min(100, diffAngle));
+            }
 
-                var positionUpdateTime = _positionUpdateTimes[channel];
-                if (positionUpdateTime == DateTime.MinValue ||
-                    POSITION_EXPIRATION < DateTime.Now - positionUpdateTime)
-                {
-                    // Position update never happened or too old
-                    return 50;
-                }
+            if (channelPositions.UpdateTime == DateTime.MinValue ||
+                POSITION_EXPIRATION < DateTime.Now - channelPositions.UpdateTime)
+            {
+                // Position update never happened or too old
+                return 50;
             }
 
             return 0;

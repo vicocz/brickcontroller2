@@ -15,7 +15,7 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : ControlPlusDeviceBase
+internal class RemoteControl : WirelessProtocolBasedDevice
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
@@ -33,8 +33,6 @@ internal class RemoteControl : ControlPlusDeviceBase
     public override int NumberOfChannels => 0;
 
     public bool IsEnabled => GetSettingValue(ENABLED_SETTING_NAME, DEFAULT_ENABLED);
-
-    protected override bool AutoConnectOnFirstConnect => false;
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
@@ -79,27 +77,21 @@ internal class RemoteControl : ControlPlusDeviceBase
         return await WriteAsync(remoteButtonB, token);
     }
 
-    protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
+    protected override void ResetOutputValues()
     {
-        if (data.Length < 4)
+        // nothing to reset
+    }
+
+    protected override bool TryProcessMessageData(byte messageType, ReadOnlySpan<byte> data)
+    {
+        switch (messageType)
         {
-            return;
-        }
-
-        var messageCode = data[2];
-
-        switch (messageCode)
-        {
-            case MESSAGE_TYPE_HUB_PROPERTIES: // Hub properties
-                ProcessHubPropertyData(data);
-                break;
-
             case MESSAGE_TYPE_HW_NETWORK_COMMANDS: // HW network commands
                 if (data.Length == 5 && data[3] == 0x02)
                 {
                     // HW button state
                     RaiseButtonEvents([("Home", GetButtonValue(data[4]))]);
-                    break;
+                    return true;
                 }
                 break;
             case MESSAGE_TYPE_PORT_VALUE: // 0x45 Port Value / RemoteButton
@@ -108,19 +100,17 @@ internal class RemoteControl : ControlPlusDeviceBase
                     switch (data[3])
                     {
                         case REMOTE_BUTTONS_LEFT:
-                            OnButtonEvents("A.Plus", "A", "A.Minus", data.AsSpan(4));
+                            OnButtonEvents("A.Plus", "A", "A.Minus", data.Slice(4));
                             break;
                         case REMOTE_BUTTONS_RIGHT:
-                            OnButtonEvents("B.Plus", "B", "B.Minus", data.AsSpan(4));
-                            break;
-                        default:
+                            OnButtonEvents("B.Plus", "B", "B.Minus", data.Slice(4));
                             break;
                     }
+                    return true;
                 }
                 break;
-            default:
-                break;
         }
+        return base.TryProcessMessageData(messageType, data);
     }
 
     private void OnButtonEvents(string plus, string stop, string minus, ReadOnlySpan<byte> flags)

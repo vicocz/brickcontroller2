@@ -161,67 +161,6 @@ namespace BrickController2.DeviceManagement
             return _servoSendBuffer;
         }
 
-        protected override bool TryProcessMessageData(byte messageType, ReadOnlySpan<byte> data)
-        {
-            switch (messageType)
-            {
-                case 0x02: // Hub actions
-                    DumpData("Hub actions", data);
-                    break;
-
-                case 0x03: // Hub alerts
-                    DumpData("Hub alerts", data);
-                    break;
-
-                case 0x04: // Hub attached I/O
-                    DumpData("Hub attached I/O", data);
-                    break;
-
-                case 0x05: // Generic error messages
-                    DumpData("Generic error messages", data);
-                    break;
-
-                case 0x08: // HW network commands
-                    DumpData("HW network commands", data);
-                    break;
-
-                case 0x13: // FW lock status
-                    DumpData("FW lock status", data);
-                    break;
-
-                case 0x43: // Port information
-                    DumpData("Port information", data);
-                    break;
-
-                case 0x44: // Port mode information
-                    DumpData("Port mode information", data);
-                    break;
-
-                case 0x47: // Port input format (Single mode)
-                    DumpData("Port input format (single)", data);
-                    break;
-
-                case 0x48: // Port input format (Combined mode)
-                    DumpData("Port input format (combined)", data);
-                    break;
-
-                case 0x82: // Port output command feedback
-                    DumpData("Output command feedback", data);
-                    break;
-            }
-
-            // continue with default processing (e.g. for hub properties)
-            return base.TryProcessMessageData(messageType, data);
-        }
-
-        private static void DumpData(string header, ReadOnlySpan<byte> data)
-        {
-#if DEBUG
-                var s = Convert.ToHexString(data);
-                Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {header}-{s}");
-#endif
-        }
-
         protected override async Task ProcessOutputsAsync(CancellationToken token)
         {
             try
@@ -257,7 +196,8 @@ namespace BrickController2.DeviceManagement
             _lastOutputValues[channel] = lastOutputValue;
             _sendAttemptsLeft[channel] = sendAttemptsLeft;
             
-            ChannelPositions.Set(channel);
+            ChannelAbsPositions.Set(channel);
+            ChannelRelativePositions.Set(channel);
         }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -526,7 +466,7 @@ namespace BrickController2.DeviceManagement
             {
                 baseAngle = Math.Max(-180, Math.Min(179, baseAngle));
 
-                var resetToAngle = NormalizeAngle(ChannelPositions.Get(channel).AbsolutePosition - baseAngle);
+                var resetToAngle = NormalizeAngle(ChannelAbsPositions.Get(channel).Current - baseAngle);
 
                 var result = true;
 
@@ -540,7 +480,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(500, token);
                 result = result && await StopAsync(channel, token);
 
-                var diff = Math.Abs(NormalizeAngle(ChannelPositions.Get(channel).AbsolutePosition - baseAngle));
+                var diff = Math.Abs(NormalizeAngle(ChannelAbsPositions.Get(channel).Current - baseAngle));
                 if (diff > 5)
                 {
                     // Can't reset to base angle, rebase to current position not to stress the plastic
@@ -571,17 +511,17 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAt0 = ChannelPositions.Get(channel).AbsolutePosition;
+                var absPositionAt0 = ChannelAbsPositions.Get(channel).Current;
                 result = result && await TurnAsync(channel, -160, 60, token);
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAtMin160 = ChannelPositions.Get(channel).AbsolutePosition;
+                var absPositionAtMin160 = ChannelAbsPositions.Get(channel).Current;
                 result = result && await TurnAsync(channel, 160, 60, token);
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAt160 = ChannelPositions.Get(channel).AbsolutePosition;
+                var absPositionAt160 = ChannelAbsPositions.Get(channel).Current;
 
                 var midPoint1 = NormalizeAngle((absPositionAtMin160 + absPositionAt160) / 2);
                 var midPoint2 = NormalizeAngle(midPoint1 + 180);
@@ -589,7 +529,7 @@ namespace BrickController2.DeviceManagement
                 var baseAngle = (Math.Abs(NormalizeAngle(midPoint1 - absPositionAt0)) < Math.Abs(NormalizeAngle(midPoint2 - absPositionAt0))) ?
                     RoundAngleToNearest90(midPoint1) :
                     RoundAngleToNearest90(midPoint2);
-                var resetToAngle = NormalizeAngle(ChannelPositions.Get(channel).AbsolutePosition - baseAngle);
+                var resetToAngle = NormalizeAngle(ChannelAbsPositions.Get(channel).Current - baseAngle);
 
                 result = result && await ResetAsync(channel, 0, token);
                 result = result && await StopAsync(channel, token);
@@ -621,12 +561,12 @@ namespace BrickController2.DeviceManagement
 
         private int CalculateServoSpeed(int channel, int targetAngle)
         {
-            var channelPositions = ChannelPositions.Get(channel);
+            var channelPositions = ChannelRelativePositions.Get(channel);
             
             if (channelPositions.IsUpdated)
             {
-                var diffAngle = Math.Abs(channelPositions.RelativePosition - targetAngle);
-                ChannelPositions.Update(channel, x => x with { IsUpdated = false });
+                var diffAngle = Math.Abs(channelPositions.Current - targetAngle);
+                ChannelRelativePositions.Update(channel, x => x.ConsumeUpdate());
 
                 return Math.Max(20, Math.Min(100, diffAngle));
             }

@@ -217,17 +217,17 @@ namespace BrickController2.DeviceManagement
             try
             {
                 var portId = GetPortId(channel);
-                var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
 
                 if (_applyPlayVmMode)
                 {
-                    // setup channel to report POS position regularly
-                    return await WriteAsync(inputFormatForRelAngle, token);
+                    // setup channel to report APOS position
+                    var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
+                    return await WriteAsync(inputFormatForAbsAngle, token);
                 }
 
                 // setup channel to for APOS, but no notifications
-                var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3, notification: PORT_VALUE_NOTIFICATION_DISABLED);
-                await WriteAsync(inputFormatForAbsAngle, token);
+                var inputFormatForAbsAngleDisabled = BuildPortInputFormatSetup(portId, PORT_MODE_3, notification: PORT_VALUE_NOTIFICATION_DISABLED);
+                await WriteAsync(inputFormatForAbsAngleDisabled, token);
                 await Task.Delay(50, token);
 
                 // query current APOS
@@ -235,6 +235,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(250, token); //TODO wait for change
 
                 // setup channel to report POS position regularly
+                var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
                 await WriteAsync(inputFormatForRelAngle, token);
                 await Task.Delay(250, token); //TODO wait for change
 
@@ -265,7 +266,7 @@ namespace BrickController2.DeviceManagement
                     var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
                     await WriteAsync(calibrateCmd, token: token);
 
-                    await AwaitStableRelativePositionAsync(channel, TimeSpan.FromSeconds(4), token);
+                    await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(4), token);
                 }
                 else
                 {
@@ -304,8 +305,8 @@ namespace BrickController2.DeviceManagement
                         {
                             // Light channels 1 - 6 require absolute value
                             >= CHANNEL_1 and <= CHANNEL_6 => await SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
-                            // all channels command
-                            int.MaxValue => await SendAllOutputValuesAsync(value, token),
+                            // all channels command - use original value
+                            int.MaxValue => await SendAllOutputValuesAsync(change.Value, token),
                             // classic output command for A, B, C channels (with servo support)
                             CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendServoValue(change.Key, value, token),
                             _ => await SendPortOutput_ValueAsync(change.Key, value, token),
@@ -380,10 +381,11 @@ namespace BrickController2.DeviceManagement
             return await WriteAsync(cmd, token);
         }
 
-        private async Task<bool> SendAllOutputValuesAsync(byte value, CancellationToken token)
+        private async Task<bool> SendAllOutputValuesAsync(Half value, CancellationToken token)
         {
+            var rawValue = ToByte(value);
             // all LEDs at once
-            var result = await SendPortOutput_6LedMaskAsync(PORT_6LEDS_ALL_LIGHTS, value, token);
+            var result = await SendPortOutput_6LedMaskAsync(PORT_6LEDS_ALL_LIGHTS, rawValue, token);
 
             // A, B, C channels
             foreach (var channel in new[] { CHANNEL_A, CHANNEL_B, CHANNEL_C })
@@ -391,8 +393,8 @@ namespace BrickController2.DeviceManagement
                 var outputType = ChannelConfigs[channel].OutputType;
                 result = result && outputType switch
                 {
-                    ChannelOutputType.ServoMotor => await SendServoValue(channel, value, token),
-                    _ => await SendPortOutput_ValueAsync(channel, value, token),
+                    ChannelOutputType.ServoMotor => await SendServoValue(channel, (int)value, token),
+                    _ => await SendPortOutput_ValueAsync(channel, rawValue, token),
                 };
             }
 

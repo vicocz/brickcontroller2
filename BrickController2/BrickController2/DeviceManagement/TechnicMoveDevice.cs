@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.Diagnostics.Logs;
 using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement
@@ -31,6 +32,7 @@ namespace BrickController2.DeviceManagement
 
         private bool _applyPlayVmMode;
         private int _calibratedZeroAngle; // zero ABS angle for steering C channel in non PLAYVM mode
+        private TaskCompletionSource<bool>? _playVmCalibrationTcs;
 
         public TechnicMoveDevice(string name,
             string address,
@@ -95,7 +97,6 @@ namespace BrickController2.DeviceManagement
             CheckChannel(channel);
 
             await SetupChannelForPortInformationAsync(channel, token);
-            await Task.Delay(300, token);
             await ResetServoAsync(channel, Convert.ToInt32(value * 180), token);
         }
 
@@ -121,6 +122,15 @@ namespace BrickController2.DeviceManagement
             return channelIndex >= 0;
         }
 
+        protected override void OnPortOutputCommandFeedback(ReadOnlySpan<byte> data)
+        {
+            // PORT_PLAYVM completion feedback (0x82) signals calibration finished
+            if (data.Length >= 5 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
+            {
+                _playVmCalibrationTcs?.TrySetResult(true);
+            }
+        }
+
         protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
         {
             await base.BeforeDisconnectAsync(token);
@@ -136,63 +146,49 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
-            // Wait until ports finish communicating with the hub
-            await Task.Delay(1000, token); //TODO
-
-            if (await base.AfterConnectSetupAsync(requestDeviceInformation, token))
+            try
             {
-                try
+                // wait until ports finish communicating with the hub
+                await AwaitForHubConnectedAsync(TimeSpan.FromSeconds(1), token);
+
+                if (requestDeviceInformation)
                 {
-                    if (requestDeviceInformation)
-                    {
-                        await RequestHubPropertiesAsync(token);
-                    }
-
-                    // hub LED
-                    var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
-                    var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
-                    await WriteAsync(ledCmd, token: token);
-                    await DelayAsync(token);
-
-                    // switch lights off
-                    var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, PORT_6LEDS_ALL_LIGHTS, 0x00);
-                    var result = await WriteAsync(lightsOffCmd, token: token);
-                    await DelayAsync(token);
-
-                    // port configuration
-                    for (int channel = 0; channel < NumberOfChannels; channel++)
-                    {
-                        var channelConfig = ChannelConfigs[channel];
-                        if (channelConfig.OutputType == ChannelOutputType.ServoMotor)
-                        {
-                            await SetupChannelForPortInformationAsync(channel, token);
-                            await Task.Delay(300, token);
-                            await ResetServoAsync(channel, channelConfig.ServoBaseAngle, token);
-                        }
-                    }
-
-                    return result;
+                    await RequestHubPropertiesAsync(token);
                 }
-                catch
+
+                // hub LED
+                var color = _applyPlayVmMode ? HUB_LED_COLOR_MAGENTA : HUB_LED_COLOR_WHITE;
+                var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, color);
+                await WriteAsync(ledCmd, token: token);
+                await DelayAsync(token);
+
+                // switch lights off
+                var lightsOffCmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, PORT_6LEDS_ALL_LIGHTS, 0x00);
+                var result = await WriteAsync(lightsOffCmd, token: token);
+                await DelayAsync(token);
+
+                // port configuration
+                for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
+                    var channelConfig = ChannelConfigs[channel];
+                    if (channelConfig.OutputType == ChannelOutputType.ServoMotor)
+                    {
+                        await SetupChannelForPortInformationAsync(channel, token);
+                        await ResetServoAsync(channel, channelConfig.ServoBaseAngle, token);
+                    }
                 }
+
+                return result;
             }
-
-            return false;
+            catch
+            {
+                return false;
+            }
         }
 
         protected override void ResetOutputValues()
         {
-            if (_applyPlayVmMode)
-            {
-                // output values - clear always lights — suppress initial burst to avoid flooding the hub
-                _outputValues.Clear();
-            }
-            else
-            {
-                // otherwise all channels to be initialized
-                _outputValues.Initialize();
-            }
+            _outputValues.Clear();
             _playVmValues.Clear();
             _calibratedZeroAngle = default;
         }
@@ -201,6 +197,19 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
+                if (_applyPlayVmMode)
+                {
+                    _playVmValues.Initialize();
+                    // output values - clear always lights — suppress initial burst to avoid flooding the hub
+                    _outputValues.Clear();
+                }
+                else
+                {
+                    _playVmValues.Clear();
+                    // otherwise all channels to be initialized
+                    _outputValues.Initialize();
+                }
+
                 while (!token.IsCancellationRequested)
                 {
                     if (!await SendOutputValuesAsync(token).ConfigureAwait(false))
@@ -222,7 +231,9 @@ namespace BrickController2.DeviceManagement
                 {
                     // setup channel to report APOS position
                     var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
-                    return await WriteAsync(inputFormatForAbsAngle, token);
+                    await WriteAsync(inputFormatForAbsAngle, token);
+                    await Task.Delay(300, token);
+                    return true;
                 }
 
                 // setup channel to for APOS, but no notifications
@@ -262,11 +273,30 @@ namespace BrickController2.DeviceManagement
                     await WriteAsync(servoCmd, token: token);
                     await Task.Delay(100, token);
 
+                    // set up completion waiter before sending calibrate to avoid the race where
+                    // feedback arrives before we start waiting
+                    _playVmCalibrationTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
                     // do calibration
                     var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
                     await WriteAsync(calibrateCmd, token: token);
 
-                    await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(4), token);
+                    // wait for the hub's completion feedback instead of position stability
+                    try
+                    {
+                        await _playVmCalibrationTcs.Task.WaitAsync(TimeSpan.FromSeconds(4), token);
+                        Dump("Reset Servo: PLAYVM", ChannelAbsPositions.Get(channel));
+                    }
+                    catch (TimeoutException)
+                    {
+                        // hub did not respond in time, fall back to a short safety delay
+                        await Task.Delay(500, token);
+                        Dump("Reset Servo: TIMEOUT", ChannelAbsPositions.Get(channel));
+                    }
+                    finally
+                    {
+                        _playVmCalibrationTcs = null;
+                    }
                 }
                 else
                 {
@@ -275,7 +305,8 @@ namespace BrickController2.DeviceManagement
                     var servoCmd = BuildPortOutput_GotoAbsPosition(portId, _calibratedZeroAngle + baseAngle, servoSpeed: 0x28);
                     await WriteAsync(servoCmd, token: token);
 
-                    await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(1), token);
+                    await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(2), token);
+                    Dump("Reset Servo: PLAYVM", ChannelAbsPositions.Get(channel));
                 }
 
                 return true;

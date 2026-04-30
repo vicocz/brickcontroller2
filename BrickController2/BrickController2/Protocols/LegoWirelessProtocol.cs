@@ -20,6 +20,8 @@ internal static class LegoWirelessProtocol
 
     // message types
     public const byte MESSAGE_TYPE_HUB_PROPERTIES = 0x01;
+    public const byte MESSAGE_TYPE_HUB_ACTIONS = 0x02;
+    public const byte MESSAGE_TYPE_HUB_ATTACHED_IO = 0x04;
     public const byte MESSAGE_TYPE_HW_NETWORK_COMMANDS = 0x08;
     public const byte MESSAGE_TYPE_PORT_VALUE = 0x45;
     public const byte MESSAGE_TYPE_PORT_VALUE_COMBINED = 0x46;
@@ -112,6 +114,7 @@ internal static class LegoWirelessProtocol
 
     public static short ToInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt16LittleEndian(value);
     public static int ToInt32(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt32LittleEndian(value);
+    public static ushort ToUInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadUInt16LittleEndian(value);
 
     public static int NormalizeAngle(int angle)
     {

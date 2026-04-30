@@ -1,64 +1,63 @@
 using System;
-using System.Threading;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement.IO;
 
 /// <summary>
-/// Thread-safe, channel-indexed store for per-channel state structs.
+/// Thread-safe, key-indexed store for per-key state structs.
 /// Supports atomic read, write, and functional update.
 /// </summary>
-internal sealed class ChannelStateStore<T> where T : struct
+internal sealed class ChannelStateStore<TKey, TValue>
+    where TKey : notnull
+    where TValue : struct
 {
-    private readonly T[] _states;
-    private readonly Lock _lock = new();
+    private readonly ConcurrentDictionary<TKey, TValue> _states = new();
+    private readonly TValue _default;
 
-    public ChannelStateStore(int channelCount, T initialState = default)
+    public ChannelStateStore(TValue initialState = default)
     {
-        _states = new T[channelCount];
-        _states.AsSpan().Fill(initialState);
+        _states = new();
+        _default = initialState;
     }
 
-    public int ChannelCount => _states.Length;
+    public int Count => _states.Count;
 
-    /// <summary>Returns the current state for the given channel.</summary>
-    public T Get(int channel)
-    {
-        lock (_lock) return _states[channel];
-    }
+    /// <summary>Returns the current state for the given key or the default state if the key does not exist.</summary>
+    public TValue Get(TKey key) => _states.TryGetValue(key, out var value) ? value : _default;
 
-    /// <summary>Replaces the state for the given channel.</summary>
-    public void Set(int channel, T state = default)
+    /// <summary>Removes the current state for the given key.</summary>
+    public bool Remove(TKey key) => _states.TryRemove(key, out var _);
+
+    /// <summary>Upsert the state for the given key.</summary>
+    public void Set(TKey key, TValue state = default)
     {
-        lock (_lock) _states[channel] = state;
+        _states[key] = state;
     }
 
     /// <summary>
-    /// Atomically updates the state for the given channel using the provided updater function.
+    /// Atomically updates the state for the given key using the provided updater function.
     /// Returns the new state.
     /// </summary>
-    public T Update(int channel, Func<T, T> updater)
-    {
-        lock (_lock)
-        {
-            var updated = updater(_states[channel]);
-            _states[channel] = updated;
-            return updated;
-        }
-    }
+    public TValue Update(TKey key, Func<TValue, TValue> updater) => _states.AddOrUpdate(key, (k) => updater(_default), (k, o) => updater(o));
 
-    /// <summary>Resets all channels to the given state.</summary>
-    public void ResetAll(T state = default)
-    {
-        lock (_lock) _states.AsSpan().Fill(state);
-    }
+    /// <summary>Clears all persisted states.</summary>
+    public void Clear() => _states.Clear();
 
-    /// <summary>Resets all channels using a per-channel factory.</summary>
-    public void ResetAll(Func<int, T> factory)
+    /// <summary>Returns the maximum value of a projection over all stored states, or default if empty.</summary>
+    public TResult? Max<TResult>(Func<TValue, TResult> selector)
     {
-        lock (_lock)
+        TResult? max = default;
+        bool first = true;
+        foreach (var kvp in _states)
         {
-            for (int i = 0; i < _states.Length; i++)
-                _states[i] = factory(i);
+            var val = selector(kvp.Value);
+            if (first || Comparer<TResult>.Default.Compare(val, max) > 0)
+            {
+                max = val;
+                first = false;
+            }
         }
+        return max;
     }
 }

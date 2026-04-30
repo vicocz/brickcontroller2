@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using static BrickController2.CreationManagement.ControllerDefaults;
+using static BrickController2.Diagnostics.Logs;
 using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement.Lego;
@@ -16,8 +17,10 @@ namespace BrickController2.DeviceManagement.Lego;
 internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 {
     protected readonly ChannelConfig[] ChannelConfigs;
-    protected readonly ChannelStateStore<ChannelPositionState> ChannelAbsPositions;
-    protected readonly ChannelStateStore<ChannelPositionState> ChannelRelativePositions;
+    protected readonly ChannelStateStore<int, ChannelPositionState> ChannelAbsPositions;
+    protected readonly ChannelStateStore<int, ChannelPositionState> ChannelRelativePositions;
+
+    protected readonly ChannelStateStore<int, ChannelAttachmentInfo> AttachedHubs;
 
     protected IGattCharacteristic? Characteristic;
 
@@ -25,8 +28,9 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
      : base(name, address, deviceRepository, bleService)
     {
         ChannelConfigs = new ChannelConfig[NumberOfChannels];
-        ChannelAbsPositions = new(NumberOfChannels, ChannelPositionState.Initial);
-        ChannelRelativePositions = new(NumberOfChannels, ChannelPositionState.Initial);
+        ChannelAbsPositions = new(ChannelPositionState.Initial);
+        ChannelRelativePositions = new(ChannelPositionState.Initial);
+        AttachedHubs = new(ChannelAttachmentInfo.Initial);
     }
 
     public override string BatteryVoltageSign => "%";
@@ -42,8 +46,9 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
     {
         // reset output values & positions
         ResetOutputValues();
-        ChannelAbsPositions.ResetAll();
-        ChannelRelativePositions.ResetAll();
+        ChannelAbsPositions.Clear();
+        ChannelRelativePositions.Clear();
+        AttachedHubs.Clear();
 
         // Initialize configuration per channel
 
@@ -148,7 +153,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                         var relPosition = ToInt32(data.Slice(4));
                         ChannelRelativePositions.Update(channel, pos => pos.WithPosition(relPosition));
                     }
-                    DumpData("PORT_VALUE", data);
+                    Dump("PORT_VALUE", data);
                     return true;
                 }
 
@@ -181,62 +186,72 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                         };
                         ChannelRelativePositions.Update(channel, pos => pos.WithPosition(relPosition));
                     }
-                    DumpData("PORT_VALUE_COMBINED", data);
+                    Dump("PORT_VALUE_COMBINED", data);
+                    return true;
+                }
+            case MESSAGE_TYPE_HUB_ATTACHED_IO: // Hub attached I/O
+                {
+                    Dump("HUB_ATTACHED_IO", data);
+
+                    if (TryGetChannelIndex(portId: data[3], out var channel))
+                    {
+                        byte eventType = data[4]; // 0x01 = Attached, 0x00 = Detached, 0x02 = Attached Virtual
+
+                        if (eventType == 0x01 || eventType == 0x02)
+                        {
+                            var deviceId = ToUInt16(data.Slice(5));
+                            AttachedHubs.Update(channel, info => info.WithDevice(deviceId)); // store portId as "position" for simplicity
+                        }
+                        else if (eventType == 0x00)
+                        {
+                            AttachedHubs.Remove(channel);
+                        }
+                    }
                     return true;
                 }
 #if DEBUG
             case 0x02: // Hub actions
-                DumpData("Hub actions", data);
+                Dump("Hub actions", data);
                 break;
 
             case 0x03: // Hub alerts
-                DumpData("Hub alerts", data);
-                break;
-
-            case 0x04: // Hub attached I/O
-                DumpData("Hub attached I/O", data);
+                Dump("Hub alerts", data);
                 break;
 
             case 0x05: // Generic error messages
-                DumpData("Generic error messages", data);
+                Dump("Generic error messages", data);
                 break;
 
             case 0x08: // HW network commands
-                DumpData("HW network commands", data);
+                Dump("HW network commands", data);
                 break;
 
             case 0x13: // FW lock status
-                DumpData("FW lock status", data);
+                Dump("FW lock status", data);
                 break;
 
             case 0x43: // Port information
-                DumpData("Port information", data);
+                Dump("Port information", data);
                 break;
 
             case 0x44: // Port mode information
-                DumpData("Port mode information", data);
+                Dump("Port mode information", data);
                 break;
 
             case 0x47: // Port input format (Single mode)
-                DumpData("Port input format (single)", data);
+                Dump("Port input format (single)", data);
                 break;
 
             case 0x48: // Port input format (Combined mode)
-                DumpData("Port input format (combined)", data);
-                break;
-
-            case 0x82: // Port output command feedback
-                DumpData("Output command feedback", data);
+                Dump("Port input format (combined)", data);
                 break;
 #endif
-        }
 
-        static void DumpData(string label, ReadOnlySpan<byte> data)
-        {
-            var s = Convert.ToHexString(data);
-            Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {label}: {s}");
+            case 0x82: // Port output command feedback
+                Dump("Output command feedback", data);
+                OnPortOutputCommandFeedback(data);
+                return true;
         }
-
         return false;
     }
 
@@ -252,6 +267,8 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
     protected async ValueTask<bool> WriteAsync(byte[] data, CancellationToken token = default)
         => await _bleDevice!.WriteAsync(Characteristic!, data, token);
+
+    protected virtual void OnPortOutputCommandFeedback(ReadOnlySpan<byte> data) { }
 
     protected static Task DelayAsync(CancellationToken token = default) => Task.Delay(20, token);
 
@@ -368,6 +385,44 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         return WaitForStablePositionAsync(timeout, () => ChannelAbsPositions.Get(channel), token);
     }
 
+    protected async Task AwaitForHubConnectedAsync(TimeSpan timeout, CancellationToken token)
+    {
+        var interval = TimeSpan.FromMilliseconds(50);
+        var stabilityTimeout = TimeSpan.FromMilliseconds(250);
+
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+        linkedCts.CancelAfter(timeout);
+
+        var stableSince = Stopwatch.StartNew();
+        var lastUpdated = AttachedHubs.Max(x => x.UpdateTime);
+
+        try
+        {
+            while (!linkedCts.Token.IsCancellationRequested)
+            {
+                await Task.Delay(interval, linkedCts.Token);
+
+                var currentValue = AttachedHubs.Max(x => x.UpdateTime);
+                if (currentValue != lastUpdated)
+                {
+                    lastUpdated = currentValue;
+                    stableSince.Restart();
+                }
+                else if (stableSince.Elapsed >= stabilityTimeout)
+                {
+                    Dump("Hub connection: HUBS", AttachedHubs.Count);
+                    return; // position stable for the required duration
+                }
+            }
+            Dump("Hub connection: TIMEOUT", lastUpdated);
+        }
+        catch (OperationCanceledException) when (!token.IsCancellationRequested)
+        {
+            // total timeout elapsed — treat as completed
+            Dump("Hub connection: CANCELLED", lastUpdated);
+        }
+    }
+
     private static async Task WaitForStablePositionAsync(TimeSpan timeout, Func<ChannelPositionState> getPosition, CancellationToken token)
     {
         var interval = TimeSpan.FromMilliseconds(50);
@@ -390,21 +445,20 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                 {
                     lastPosition = currentPosition.Current;
                     stableSince.Restart();
-
-                    Debug.WriteLine($"Position changed to {lastPosition}, resetting stability timer.");
                 }
                 else if (stableSince.Elapsed >= stabilityTimeout)
                 {
-                    Debug.WriteLine($"Position stable at {lastPosition} for {stabilityTimeout.TotalMilliseconds} ms.");
+                    Dump("Servo position: STABLE", lastPosition);
                     return; // position stable for the required duration
                 }
             }
-            Debug.WriteLine($"Position time outed having {lastPosition}.");
+            Dump("Servo position: TIMEOUT", lastPosition);
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
         {
             // total timeout elapsed — treat as completed
-            Debug.WriteLine($"Position canceled at {lastPosition} for {stabilityTimeout.TotalMilliseconds} ms.");
+            Dump("Servo position: CANCELLED", lastPosition);
         }
     }
+
 }

@@ -311,6 +311,8 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         return maxServoAngle > 0 ? maxServoAngle : DEFAULT_MAX_SERVO_ANGLE;
     }
 
+    protected int GetAbsPosition(int channel) => ChannelAbsPositions.Get(channel).Current;
+
     protected async ValueTask RequestHubPropertiesAsync(CancellationToken token)
     {
         try
@@ -398,7 +400,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         int diff = NormalizeAngle(normalizedTarget - normalizedRelative);
 
         // Offset the current accumulated position by the physical difference
-        return ChannelAbsPositions.Get(channel).Current + diff;
+        return GetAbsPosition(channel) + diff;
     }
 
     protected Task AwaitStableRelativePositionAsync(int channel, TimeSpan timeout, CancellationToken token)

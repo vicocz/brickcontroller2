@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 
 namespace BrickController2.DeviceManagement.Lego;
 
@@ -19,8 +18,4 @@ internal record struct ChannelAttachmentInfo(
     /// <summary>Returns a new state with an updated device ID and timestamp.</summary>
     public ChannelAttachmentInfo WithDevice(ushort deviceId) =>
         this with { DeviceId = deviceId, IsUpdated = true, UpdateTime = DateTime.Now };
-
-    /// <summary>Clears the IsUpdated flag after the update has been consumed.</summary>
-    public ChannelAttachmentInfo ConsumeUpdate() =>
-        this with { IsUpdated = false };
 }

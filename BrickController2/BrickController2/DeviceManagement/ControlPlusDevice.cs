@@ -430,7 +430,7 @@ namespace BrickController2.DeviceManagement
             {
                 baseAngle = Math.Max(-180, Math.Min(179, baseAngle));
 
-                var resetToAngle = NormalizeAngle(ChannelAbsPositions.Get(channel).Current - baseAngle);
+                var resetToAngle = NormalizeAngle(GetAbsPosition(channel) - baseAngle);
 
                 var result = true;
 
@@ -444,7 +444,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(500, token);
                 result = result && await StopAsync(channel, token);
 
-                var diff = Math.Abs(NormalizeAngle(ChannelAbsPositions.Get(channel).Current - baseAngle));
+                var diff = Math.Abs(NormalizeAngle(GetAbsPosition(channel) - baseAngle));
                 if (diff > 5)
                 {
                     // Can't reset to base angle, rebase to current position not to stress the plastic
@@ -475,17 +475,17 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAt0 = ChannelAbsPositions.Get(channel).Current;
+                var absPositionAt0 = GetAbsPosition(channel);
                 result = result && await TurnAsync(channel, -160, 60, token);
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAtMin160 = ChannelAbsPositions.Get(channel).Current;
+                var absPositionAtMin160 = GetAbsPosition(channel);
                 result = result && await TurnAsync(channel, 160, 60, token);
                 await Task.Delay(600, token);
                 result = result && await StopAsync(channel, token);
                 await Task.Delay(500, token);
-                var absPositionAt160 = ChannelAbsPositions.Get(channel).Current;
+                var absPositionAt160 = GetAbsPosition(channel);
 
                 var midPoint1 = NormalizeAngle((absPositionAtMin160 + absPositionAt160) / 2);
                 var midPoint2 = NormalizeAngle(midPoint1 + 180);
@@ -493,7 +493,7 @@ namespace BrickController2.DeviceManagement
                 var baseAngle = (Math.Abs(NormalizeAngle(midPoint1 - absPositionAt0)) < Math.Abs(NormalizeAngle(midPoint2 - absPositionAt0))) ?
                     RoundAngleToNearest90(midPoint1) :
                     RoundAngleToNearest90(midPoint2);
-                var resetToAngle = NormalizeAngle(ChannelAbsPositions.Get(channel).Current - baseAngle);
+                var resetToAngle = NormalizeAngle(GetAbsPosition(channel) - baseAngle);
 
                 result = result && await ResetAsync(channel, 0, token);
                 result = result && await StopAsync(channel, token);

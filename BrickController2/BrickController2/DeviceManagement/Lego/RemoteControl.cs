@@ -62,7 +62,7 @@ internal class RemoteControl : WirelessProtocolBasedDevice
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         // wait until ports finish communicating with the hub
-        await Task.Delay(250, token);
+        await AwaitForHubConnectedAsync(TimeSpan.FromMilliseconds(250), token);
 
         if (requestDeviceInformation)
         {
@@ -75,11 +75,6 @@ internal class RemoteControl : WirelessProtocolBasedDevice
 
         var remoteButtonB = BuildPortInputFormatSetup(REMOTE_BUTTONS_RIGHT, REMOTE_MODE_KEYS, interval: 1);
         return await WriteAsync(remoteButtonB, token);
-    }
-
-    protected override void ResetOutputValues()
-    {
-        // nothing to reset
     }
 
     protected override bool TryProcessMessageData(byte messageType, ReadOnlySpan<byte> data)

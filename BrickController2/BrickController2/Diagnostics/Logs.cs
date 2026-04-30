@@ -13,7 +13,7 @@ internal static class Logs
     }
 
     [Conditional("DEBUG")]
-    public static void Dump<T>(string label, T data) where T : struct
+    public static void Dump<T>(string label, T data)
     {
         Debug.WriteLine($"{DateTimeOffset.Now:HH:mm:ss.f} {label}: [{data}]");
     }

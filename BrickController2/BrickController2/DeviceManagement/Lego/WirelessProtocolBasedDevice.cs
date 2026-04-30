@@ -88,7 +88,36 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         return portId < NumberOfChannels;
     }
 
-    protected abstract void ResetOutputValues();
+    protected virtual void ResetOutputValues()
+    {
+        // reset output values & positions
+        ChannelAbsPositions.Clear();
+        ChannelRelativePositions.Clear();
+        AttachedHubs.Clear();
+    }
+
+    protected override async Task ProcessOutputsAsync(CancellationToken token)
+    {
+        try
+        {
+            // initialize
+            ResetOutputValues();
+
+            while (!token.IsCancellationRequested)
+            {
+                if (!await SendOutputValuesAsync(token).ConfigureAwait(false))
+                {
+                    await Task.Delay(10, token).ConfigureAwait(false);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Dump("ProcessOutputsAsync: EXCEPTION", ex);
+        }
+    }
+
+    protected virtual Task<bool> SendOutputValuesAsync(CancellationToken token) => throw new InvalidOperationException(nameof(SendOutputValuesAsync));
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {
@@ -245,12 +274,11 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
             case 0x48: // Port input format (Combined mode)
                 Dump("Port input format (combined)", data);
                 break;
-#endif
 
-            case 0x82: // Port output command feedback
+            case MESSAGE_TYPE_OUTPUT_COMMAND_FEEDBACK: // Port output command feedback
                 Dump("Output command feedback", data);
-                OnPortOutputCommandFeedback(data);
-                return true;
+                break;
+#endif
         }
         return false;
     }
@@ -267,8 +295,6 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
     protected async ValueTask<bool> WriteAsync(byte[] data, CancellationToken token = default)
         => await _bleDevice!.WriteAsync(Characteristic!, data, token);
-
-    protected virtual void OnPortOutputCommandFeedback(ReadOnlySpan<byte> data) { }
 
     protected static Task DelayAsync(CancellationToken token = default) => Task.Delay(20, token);
 

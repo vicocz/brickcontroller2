@@ -122,15 +122,6 @@ namespace BrickController2.DeviceManagement
             return channelIndex >= 0;
         }
 
-        protected override void OnPortOutputCommandFeedback(ReadOnlySpan<byte> data)
-        {
-            // PORT_PLAYVM completion feedback (0x82) signals calibration finished
-            if (data.Length >= 5 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
-            {
-                _playVmCalibrationTcs?.TrySetResult(true);
-            }
-        }
-
         protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
         {
             await base.BeforeDisconnectAsync(token);
@@ -188,37 +179,80 @@ namespace BrickController2.DeviceManagement
 
         protected override void ResetOutputValues()
         {
-            _outputValues.Clear();
-            _playVmValues.Clear();
+            base.ResetOutputValues();
+            if (_applyPlayVmMode)
+            {
+                _playVmValues.Initialize();
+                // output values - clear always lights — suppress initial burst to avoid flooding the hub
+                _outputValues.Clear();
+            }
+            else
+            {
+                _playVmValues.Clear();
+                // otherwise all channels to be initialized
+                _outputValues.Initialize();
+            }
             _calibratedZeroAngle = default;
         }
 
-        protected override async Task ProcessOutputsAsync(CancellationToken token)
+        protected override async Task<bool> SendOutputValuesAsync(CancellationToken token)
         {
             try
             {
-                if (_applyPlayVmMode)
+                // conditionally send PLAYVM command if PLAYVM mode is active
+                var result = await SendPlayVmOutputValueAsync(token);
+
+                // process changes for other channels as it's a light or a classic drive
+                if (result && _outputValues.TryGetChanges(out var changes))
                 {
-                    _playVmValues.Initialize();
-                    // output values - clear always lights — suppress initial burst to avoid flooding the hub
-                    _outputValues.Clear();
-                }
-                else
-                {
-                    _playVmValues.Clear();
-                    // otherwise all channels to be initialized
-                    _outputValues.Initialize();
+                    foreach (KeyValuePair<int, Half> change in changes)
+                    {
+                        var value = ToByte(change.Value);
+                        var channelOutputType = GetOutputType(change.Key);
+
+                        result = change.Key switch
+                        {
+                            // Light channels 1 - 6 require absolute value
+                            >= CHANNEL_1 and <= CHANNEL_6 => await SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
+                            // all channels command - use original value
+                            int.MaxValue => await SendAllOutputValuesAsync(change.Value, token),
+                            // classic output command for A, B, C channels (with servo support)
+                            CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendServoValue(change.Key, value, token),
+                            _ => await SendPortOutput_ValueAsync(change.Key, value, token),
+                        };
+
+                        if (!result)
+                        {
+                            return false;
+                        }
+                    }
+
+                    _outputValues.Commit();
                 }
 
-                while (!token.IsCancellationRequested)
-                {
-                    if (!await SendOutputValuesAsync(token).ConfigureAwait(false))
-                    {
-                        await Task.Delay(10, token).ConfigureAwait(false);
-                    }
-                }
+                return result;
             }
-            catch { }
+            catch
+            {
+                return false;
+            }
+        }
+
+        protected override bool TryProcessMessageData(byte messageType, ReadOnlySpan<byte> data)
+        {
+            switch (messageType)
+            {
+                case MESSAGE_TYPE_OUTPUT_COMMAND_FEEDBACK: // Port output command feedback
+                    Dump("Output command feedback", data);
+                    // PORT_PLAYVM completion feedback (0x82) signals calibration finished
+                    if (data.Length >= 5 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
+                    {
+                        _playVmCalibrationTcs?.TrySetResult(true);
+                        return true;
+                    }
+                    break;
+            }
+            return base.TryProcessMessageData(messageType, data);
         }
 
         private async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
@@ -281,17 +315,16 @@ namespace BrickController2.DeviceManagement
                     var calibrateCmd = BuildPortOutput_PlayVm(servoValue: baseAngle, vmCmd: PLAYVM_CALIBRATE_STEERING);
                     await WriteAsync(calibrateCmd, token: token);
 
-                    // wait for the hub's completion feedback instead of position stability
+                    // wait for the hub's completion feedback
                     try
                     {
                         await _playVmCalibrationTcs.Task.WaitAsync(TimeSpan.FromSeconds(4), token);
-                        Dump("Reset Servo: PLAYVM", ChannelAbsPositions.Get(channel));
+                        Dump("Command feedback: PLAYVM", ChannelAbsPositions.Get(channel));
                     }
                     catch (TimeoutException)
                     {
                         // hub did not respond in time, fall back to a short safety delay
                         await Task.Delay(500, token);
-                        Dump("Reset Servo: TIMEOUT", ChannelAbsPositions.Get(channel));
                     }
                     finally
                     {
@@ -304,55 +337,13 @@ namespace BrickController2.DeviceManagement
                     var portId = GetPortId(channel);
                     var servoCmd = BuildPortOutput_GotoAbsPosition(portId, _calibratedZeroAngle + baseAngle, servoSpeed: 0x28);
                     await WriteAsync(servoCmd, token: token);
-
-                    await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(2), token);
-                    Dump("Reset Servo: PLAYVM", ChannelAbsPositions.Get(channel));
                 }
+
+                // Wait for position to stabilize before allowing the output loop to start
+                await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(4), token);
+                Dump("Reset Servo", ChannelAbsPositions.Get(channel));
 
                 return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private async Task<bool> SendOutputValuesAsync(CancellationToken token)
-        {
-            try
-            {
-                // conditionally send PLAYVM command if PLAYVM mode is active
-                var result = await SendPlayVmOutputValueAsync(token);
-
-                // process changes for other channels as it's a light or a classic drive
-                if (result && _outputValues.TryGetChanges(out var changes))
-                {
-                    foreach (KeyValuePair<int, Half> change in changes)
-                    {
-                        var value = ToByte(change.Value);
-                        var channelOutputType = GetOutputType(change.Key);
-
-                        result = change.Key switch
-                        {
-                            // Light channels 1 - 6 require absolute value
-                            >= CHANNEL_1 and <= CHANNEL_6 => await SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
-                            // all channels command - use original value
-                            int.MaxValue => await SendAllOutputValuesAsync(change.Value, token),
-                            // classic output command for A, B, C channels (with servo support)
-                            CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendServoValue(change.Key, value, token),
-                            _ => await SendPortOutput_ValueAsync(change.Key, value, token),
-                        };
-
-                        if (!result)
-                        {
-                            return false;
-                        }
-                    }
-
-                    _outputValues.Commit();
-                }
-
-                return result;
             }
             catch
             {

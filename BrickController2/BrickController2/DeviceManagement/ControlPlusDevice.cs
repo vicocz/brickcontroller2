@@ -70,6 +70,22 @@ namespace BrickController2.DeviceManagement
             return await base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
+        public override void SetOutput(int channel, float value)
+        {
+            CheckChannel(channel);
+            value = CutOutputValue(value);
+
+            var intValue = (int)(100 * value);
+
+            lock (_outputLock)
+            {
+                if (_outputValues[channel] != intValue)
+                {
+                    _outputValues[channel] = intValue;
+                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                }
+            }
+        }
 
         public override bool CanResetOutput(int channel) => true;
 
@@ -93,35 +109,6 @@ namespace BrickController2.DeviceManagement
             await SetupChannelForPortInformationAsync(channel, token);
             await Task.Delay(TimeSpan.FromMilliseconds(300), token);
             return await AutoCalibrateServoAsync(channel, token);
-        }
-
-        public override void SetOutput(int channel, float value)
-        {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            var intValue = (int)(100 * value);
-
-            lock (_outputLock)
-            {
-                if (_outputValues[channel] != intValue)
-                {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
-                }
-            }
-        }
-
-        protected override void ResetOutputValues()
-        {
-            lock (_outputLock)
-            {
-                for (int c = 0; c < NumberOfChannels; c++)
-                {
-                    _outputValues[c] = 0;
-                    _lastOutputValues[c] = 0;
-                }
-            }
         }
 
         protected virtual byte GetChannelValue(int value)
@@ -161,43 +148,20 @@ namespace BrickController2.DeviceManagement
             return _servoSendBuffer;
         }
 
-        protected override async Task ProcessOutputsAsync(CancellationToken token)
+        protected override void ResetOutputValues()
         {
-            try
-            {
-                lock (_outputLock)
-                {
-                    for (int channel = 0; channel < NumberOfChannels; channel++)
-                    {
-                        InitializeChannelInfo(channel);
-                    }
-                }
-                _lastSent_NormalMotor.Reset();
+            base.ResetOutputValues();
 
-                while (!token.IsCancellationRequested)
+            lock (_outputLock)
+            {
+                for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
-                    if (!await SendOutputValuesAsync(token).ConfigureAwait(false))
-                    {
-                        await Task.Delay(10, token).ConfigureAwait(false);
-                    }
+                    _outputValues[channel] = 0;
+                    _lastOutputValues[channel] = 1;
+                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
                 }
             }
-            catch { }
-        }
-
-        /// <summary>
-        /// Initialize channel data when output processing is going to be started
-        /// </summary>
-        protected virtual void InitializeChannelInfo(int channel,
-            int lastOutputValue = 1,
-            int sendAttemptsLeft = MAX_SEND_ATTEMPTS)
-        {
-            _outputValues[channel] = 0;
-            _lastOutputValues[channel] = lastOutputValue;
-            _sendAttemptsLeft[channel] = sendAttemptsLeft;
-            
-            ChannelAbsPositions.Set(channel);
-            ChannelRelativePositions.Set(channel);
+            _lastSent_NormalMotor.Reset();
         }
 
         protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -205,7 +169,7 @@ namespace BrickController2.DeviceManagement
             try
             {
                 // Wait until ports finish communicating with the hub
-                await Task.Delay(1000, token);
+                await AwaitForHubConnectedAsync(TimeSpan.FromMilliseconds(1000), token);
 
                 if (requestDeviceInformation)
                 {
@@ -231,7 +195,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> SendOutputValuesAsync(CancellationToken token)
+        protected override async Task<bool> SendOutputValuesAsync(CancellationToken token)
         {
             try
             {
@@ -315,7 +279,7 @@ namespace BrickController2.DeviceManagement
                     _virtualPortSendBuffer[6] = (byte)(value1 < 0 ? (255 + value1) : value1);
                     _virtualPortSendBuffer[7] = (byte)(value2 < 0 ? (255 + value2) : value2);
 
-                    if (await WriteAsync(_virtualPortSendBuffer, token))
+                    if (await WriteNoResponseAsync(_virtualPortSendBuffer, token))
                     {
                         _lastOutputValues[channel1] = value1;
                         _lastOutputValues[channel2] = value2;

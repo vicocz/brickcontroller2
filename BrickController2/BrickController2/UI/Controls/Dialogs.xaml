@@ -61,11 +61,13 @@
 
             <!-- Selection dialog -->
             <ContentView x:Name="SelectionDialog" IsVisible="false" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
-                <Border Style="{StaticResource DialogBorderStyle}" VerticalOptions="Start" Margin="0,50,0,50">
+                <Border Style="{StaticResource DialogBorderStyle}" VerticalOptions="Center" Margin="20,50,20,50">
                     <Grid RowDefinitions="Auto, Auto, *, Auto, Auto">
                         <Label Grid.Row="0" x:Name="SelectionDialogTitle" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Large"/>
                         <BoxView Grid.Row="1" Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,8"/>
-                        <CollectionView Grid.Row="2" x:Name="SelectionDialogItems" SelectionMode="Single" VerticalOptions="FillAndExpand">
+                        <CollectionView Grid.Row="2" x:Name="SelectionDialogItems" SelectionMode="Single"
+                                        MaximumHeightRequest="{OnIdiom Phone=300, Tablet=450, Desktop=500}"
+                                        VerticalScrollBarVisibility="Always">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Label Text="{Binding}" FontSize="{OnIdiom Large, Desktop=Medium}" FontAttributes="Bold" Margin="0,4"/>

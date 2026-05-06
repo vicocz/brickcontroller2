@@ -30,7 +30,7 @@ permissions:
   contents: read
 
 env:
-  XCODE_VERSION: '26.2'
+  XCODE_VERSION: '26.4'
   TARGET_FRAMEWORK: 'net10.0-ios'
   TARGET_RUNTIME: 'ios-arm64'
 

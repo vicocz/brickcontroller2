@@ -5,9 +5,9 @@
   <ItemGroup>
     <PackageVersion Include="Autofac" Version="9.1.0" />
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.50" />
-    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.50" />
-    <PackageVersion Include="Microsoft.Maui.Essentials" Version="10.0.50" />
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.60" />
+    <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.60" />
+    <PackageVersion Include="Microsoft.Maui.Essentials" Version="10.0.60" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
     <PackageVersion Include="SQLiteNetExtensions" Version="2.1.0" />
@@ -18,7 +18,7 @@
   <ItemGroup>
     <!--unit / component tests-->
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="FluentAssertions " Version="7.2.0" />
+    <PackageVersion Include="FluentAssertions" Version="7.2.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
     <PackageVersion Include="xunit" Version="2.9.3" />

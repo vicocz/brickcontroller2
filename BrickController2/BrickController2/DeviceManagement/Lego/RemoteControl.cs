@@ -62,7 +62,7 @@ internal class RemoteControl : WirelessProtocolBasedDevice
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         // wait until ports finish communicating with the hub
-        await AwaitForHubConnectedAsync(TimeSpan.FromMilliseconds(250), token);
+        await AwaitForPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(250), token);
 
         if (requestDeviceInformation)
         {

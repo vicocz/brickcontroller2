@@ -169,7 +169,7 @@ namespace BrickController2.DeviceManagement
             try
             {
                 // Wait until ports finish communicating with the hub
-                await AwaitForHubConnectedAsync(TimeSpan.FromMilliseconds(1000), token);
+                await AwaitForPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(1000), token);
 
                 if (requestDeviceInformation)
                 {
@@ -178,7 +178,7 @@ namespace BrickController2.DeviceManagement
 
                 for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
-                    var channelConfig = ChannelConfigs[channel];
+                    var channelConfig = ChannelConfigs.Get(channel);
                     if (channelConfig.OutputType == ChannelOutputType.ServoMotor)
                     {
                         await SetupChannelForPortInformationAsync(channel, token);
@@ -203,7 +203,7 @@ namespace BrickController2.DeviceManagement
 
                 for (int channel = 0; channel < NumberOfChannels; channel++)
                 {
-                    var outputType = ChannelConfigs[channel].OutputType;
+                    var outputType = GetOutputType(channel);
                     switch (outputType)
                     {
                         case ChannelOutputType.NormalMotor:
@@ -316,7 +316,7 @@ namespace BrickController2.DeviceManagement
 
                 if (v != _lastOutputValues[channel] || sendAttemptsLeft > 0)
                 {
-                    var servoValue = ChannelConfigs[channel].MaxServoAngle * v / 100;
+                    var servoValue = GetMaxServoAngle(channel) * v / 100;
                     var servoSpeed = CalculateServoSpeed(channel, servoValue);
 
                     if (servoSpeed == 0)
@@ -359,7 +359,7 @@ namespace BrickController2.DeviceManagement
                     _sendAttemptsLeft[channel] = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
                 }
 
-                var stepperAngle = ChannelConfigs[channel].StepperAngle;
+                var stepperAngle = ChannelConfigs.Get(channel).StepperAngle;
                 _stepperSendBuffer[3] = GetPortId(channel);
                 _stepperSendBuffer[6] = (byte)(stepperAngle & 0xff);
                 _stepperSendBuffer[7] = (byte)((stepperAngle >> 8) & 0xff);

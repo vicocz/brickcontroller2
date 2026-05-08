@@ -3,7 +3,7 @@ using System;
 namespace BrickController2.DeviceManagement.Lego;
 
 /// <summary>
-/// Immutable snapshot of a motor channel's position feedback.
+/// Snapshot of peripheral attachment for a port.
 /// </summary>
 internal record struct ChannelAttachmentInfo(
     ushort DeviceId,

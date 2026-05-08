@@ -16,21 +16,21 @@ namespace BrickController2.DeviceManagement.Lego;
 
 internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 {
-    protected readonly ChannelConfig[] ChannelConfigs;
-    protected readonly ChannelStateStore<int, ChannelPositionState> ChannelAbsPositions;
-    protected readonly ChannelStateStore<int, ChannelPositionState> ChannelRelativePositions;
+    protected readonly ChannelStateStore<ChannelConfig> ChannelConfigs;
+    protected readonly ChannelStateStore<ChannelPositionState> ChannelAbsPositions;
+    protected readonly ChannelStateStore<ChannelPositionState> ChannelRelativePositions;
 
-    protected readonly ChannelStateStore<int, ChannelAttachmentInfo> AttachedHubs;
+    protected readonly ChannelStateStore<ChannelAttachmentInfo> AttachedPeripherals;
 
     protected IGattCharacteristic? Characteristic;
 
     protected WirelessProtocolBasedDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
      : base(name, address, deviceRepository, bleService)
     {
-        ChannelConfigs = new ChannelConfig[NumberOfChannels];
+        ChannelConfigs = new();
         ChannelAbsPositions = new(ChannelPositionState.Initial);
         ChannelRelativePositions = new(ChannelPositionState.Initial);
-        AttachedHubs = new(ChannelAttachmentInfo.Initial);
+        AttachedPeripherals = new(ChannelAttachmentInfo.Initial);
     }
 
     public override string BatteryVoltageSign => "%";
@@ -48,20 +48,23 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         ResetOutputValues();
         ChannelAbsPositions.Clear();
         ChannelRelativePositions.Clear();
-        AttachedHubs.Clear();
+        AttachedPeripherals.Clear();
 
         // Initialize configuration per channel
 
-        // build dictionary, but for supported ones only
-        var configs = channelConfigurations
-            .Where(c => IsOutputTypeSupported(c.Channel, c.ChannelOutputType))
-            .ToDictionary(c => c.Channel, c => c);
+        // Build dictionary, but for supported ones only
+        var configs = new Dictionary<int, ChannelConfiguration>();
+        foreach (var channelConfiguration in channelConfigurations.Where(c => IsOutputTypeSupported(c.Channel, c.ChannelOutputType)))
+        {
+            // If multiple configurations target the same channel, keep the last one.
+            configs[channelConfiguration.Channel] = channelConfiguration;
+        }
 
         for (int i = 0; i < NumberOfChannels; i++)
         {
             configs.TryGetValue(i, out var config);
 
-            ChannelConfigs[i] = config.ChannelOutputType switch
+            ChannelConfigs.Set(i, config.ChannelOutputType switch
             {
                 ChannelOutputType.ServoMotor => new()
                 {
@@ -75,7 +78,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                     StepperAngle = config.StepperAngle
                 },
                 _ => new()
-            };
+            });
         }
 
         return base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
@@ -93,7 +96,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         // reset output values & positions
         ChannelAbsPositions.Clear();
         ChannelRelativePositions.Clear();
-        AttachedHubs.Clear();
+        AttachedPeripherals.Clear();
     }
 
     protected override async Task ProcessOutputsAsync(CancellationToken token)
@@ -229,11 +232,11 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                         if (eventType == 0x01 || eventType == 0x02)
                         {
                             var deviceId = ToUInt16(data.Slice(5));
-                            AttachedHubs.Update(channel, info => info.WithDevice(deviceId)); // store portId as "position" for simplicity
+                            AttachedPeripherals.Update(channel, info => info.WithDevice(deviceId)); // store portId as "position" for simplicity
                         }
                         else if (eventType == 0x00)
                         {
-                            AttachedHubs.Remove(channel);
+                            AttachedPeripherals.Remove(channel);
                         }
                     }
                     return true;
@@ -298,16 +301,11 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
     protected static Task DelayAsync(CancellationToken token = default) => Task.Delay(20, token);
 
-    protected ChannelOutputType GetOutputType(int channel) => (channel < 0 || channel >= NumberOfChannels)
-        ? ChannelOutputType.NormalMotor // fallback to a default type if out of range
-        : ChannelConfigs[channel].OutputType;
+    protected ChannelOutputType GetOutputType(int channel) => ChannelConfigs.Get(channel).OutputType;
 
     protected int GetMaxServoAngle(int channel)
     {
-        var maxServoAngle = channel >= 0 && channel < NumberOfChannels
-            ? ChannelConfigs[channel].MaxServoAngle
-            : default;
-
+        var maxServoAngle = ChannelConfigs.Get(channel).MaxServoAngle;
         return maxServoAngle > 0 ? maxServoAngle : DEFAULT_MAX_SERVO_ANGLE;
     }
 
@@ -404,25 +402,24 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
     }
 
     protected Task AwaitStableRelativePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
-    {
-        return WaitForStablePositionAsync(timeout, () => ChannelRelativePositions.Get(channel), token);
-    }
+        => WaitForStablePositionAsync(timeout, () => ChannelRelativePositions.Get(channel), token);
 
     protected Task AwaitStableAbsolutePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
-    {
-        return WaitForStablePositionAsync(timeout, () => ChannelAbsPositions.Get(channel), token);
-    }
+        => WaitForStablePositionAsync(timeout, () => ChannelAbsPositions.Get(channel), token);
 
-    protected async Task AwaitForHubConnectedAsync(TimeSpan timeout, CancellationToken token)
+    protected Task AwaitForPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)
+        => WaitForTimestampStabilityAsync(timeout, () => AttachedPeripherals.Max(x => x.UpdateTime), token);
+
+    private static async Task WaitForTimestampStabilityAsync(TimeSpan timeout, Func<DateTime> getTimestamp, CancellationToken token)
     {
         var interval = TimeSpan.FromMilliseconds(50);
-        var stabilityTimeout = TimeSpan.FromMilliseconds(250);
+        var stabilityTimeout = TimeSpan.FromMilliseconds(200);
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
         linkedCts.CancelAfter(timeout);
 
         var stableSince = Stopwatch.StartNew();
-        var lastUpdated = AttachedHubs.Max(x => x.UpdateTime);
+        var lastUpdated = getTimestamp();
 
         try
         {
@@ -430,7 +427,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
             {
                 await Task.Delay(interval, linkedCts.Token);
 
-                var currentValue = AttachedHubs.Max(x => x.UpdateTime);
+                var currentValue = getTimestamp();
                 if (currentValue != lastUpdated)
                 {
                     lastUpdated = currentValue;
@@ -438,16 +435,15 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                 }
                 else if (stableSince.Elapsed >= stabilityTimeout)
                 {
-                    Dump("Hub connection: HUBS", AttachedHubs.Count);
                     return; // position stable for the required duration
                 }
             }
-            Dump("Hub connection: TIMEOUT", lastUpdated);
+            Dump("TimestampStability: TIMEOUT", lastUpdated);
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
         {
             // total timeout elapsed — treat as completed
-            Dump("Hub connection: CANCELLED", lastUpdated);
+            Dump("TimestampStability: CANCELLED", lastUpdated);
         }
     }
 

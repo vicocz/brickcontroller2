@@ -62,19 +62,22 @@
             <!-- Selection dialog -->
             <ContentView x:Name="SelectionDialog" IsVisible="false" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
                 <Border Style="{StaticResource DialogBorderStyle}" VerticalOptions="Start" Margin="0,50,0,50">
-                    <Grid RowDefinitions="Auto, Auto, *, Auto, Auto">
-                        <Label Grid.Row="0" x:Name="SelectionDialogTitle" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Large"/>
-                        <BoxView Grid.Row="1" Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,8"/>
-                        <CollectionView Grid.Row="2" x:Name="SelectionDialogItems" SelectionMode="Single" VerticalOptions="FillAndExpand">
+                    <VerticalStackLayout>
+                        <Label x:Name="SelectionDialogTitle" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Large"/>
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,8"/>
+                        <CollectionView x:Name="SelectionDialogItems" SelectionMode="Single" VerticalOptions="FillAndExpand"
+                                        ItemSizingStrategy="MeasureFirstItem"
+                                        MinimumHeightRequest="40"
+                                        MaximumHeightRequest="200">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate>
                                     <Label Text="{Binding}" FontSize="{OnIdiom Large, Desktop=Medium}" FontAttributes="Bold" Margin="0,4"/>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
-                        <BoxView Grid.Row="3" Style="{StaticResource DividerBoxViewStyle}" Margin="0,16,0,16"/>
-                        <Button Grid.Row="4" x:Name="SelectionDialogCancelButton" BackgroundColor="{DynamicResource NegativeColor}" Margin="{OnIdiom '16,0,16,0', Desktop='96,0,96,0'}"/>
-                    </Grid>
+                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,16,0,16"/>
+                        <Button x:Name="SelectionDialogCancelButton" BackgroundColor="{DynamicResource NegativeColor}" Margin="{OnIdiom '16,0,16,0', Desktop='96,0,96,0'}"/>
+                    </VerticalStackLayout>
                 </Border>
             </ContentView>
 

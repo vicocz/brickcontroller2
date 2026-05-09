@@ -95,7 +95,7 @@ internal static class LegoWirelessProtocol
 
     public const byte HUB_EVENT_DETACHED = 0x00;
     public const byte HUB_EVENT_ATTACHED = 0x01;
-    public const byte HUB_EVENT_ATTACHED_VIRTUAL = 0x01;
+    public const byte HUB_EVENT_ATTACHED_VIRTUAL = 0x02;
 
     // remote controller
     public const byte REMOTE_MODE_KEYS = 0x04;
@@ -122,7 +122,7 @@ internal static class LegoWirelessProtocol
     public static ushort ToUInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadUInt16LittleEndian(value);
 
     /// <summary>
-    /// Normalize the angle to the range [-179, 180] degrees.
+    /// Normalize the angle to the range [-180, 179] degrees.
     /// </summary>
     public static int NormalizeAngle(int angle) => ((angle + 180) % 360 + 360) % 360 - 180;
 

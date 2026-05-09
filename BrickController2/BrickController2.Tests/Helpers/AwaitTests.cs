@@ -20,7 +20,7 @@ public class AwaitTests
 
         var result = await Await.WaitForStableValueAsync(GetValue,
             IsStable,
-            TimeSpan.FromSeconds(500));
+            TimeSpan.FromMilliseconds(500));
 
         result.Should().BeTrue();
     }

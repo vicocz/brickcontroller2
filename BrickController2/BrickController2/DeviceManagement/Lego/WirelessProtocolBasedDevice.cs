@@ -331,7 +331,6 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                 return;
             }
 
-            var dataLength = data[0];
             var messageId = data[2];
             var propertyId = data[3];
             var propertyOperation = data[4];
@@ -394,14 +393,11 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
             token);
 
     protected static ValueTask<bool> AwaitPositionChangeAsync(Func<PositionInfo> getValue, TimeSpan timeout, CancellationToken token)
-    {
-        var initialValue = getValue();
-        return WaitForStableValueAsync(getValue: getValue,
+        => WaitForStableValueAsync(getValue: getValue,
             stabilityCheck: (value, last) => value.IsUpdated,
             timeout,
             stabilityTimeout: TimeSpan.FromMilliseconds(10), //TODO
             token);
-    }
 
     protected async ValueTask<bool> AwaitPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)
     {

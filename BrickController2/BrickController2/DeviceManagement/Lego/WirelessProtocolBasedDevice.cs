@@ -210,15 +210,15 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
                     if (TryGetChannelIndex(portId: data[3], out var channel))
                     {
-                        byte eventType = data[4]; // 0x01 = Attached, 0x00 = Detached, 0x02 = Attached Virtual
+                        byte eventType = data[4];
 
-                        if ((eventType == 0x01 || eventType == 0x02) 
-                            && data.Length >= 7)
+                        if (eventType == HUB_EVENT_ATTACHED || eventType == HUB_EVENT_ATTACHED_VIRTUAL)
                         {
+                            // Get Unique type identification of the attached I/O device
                             var deviceId = ToUInt16(data.Slice(5));
                             AttachedPeripherals.Update(channel, info => info.WithDevice(deviceId)); // store portId as "position" for simplicity
                         }
-                        else if (eventType == 0x00)
+                        else if (eventType == HUB_EVENT_DETACHED)
                         {
                             AttachedPeripherals.Remove(channel);
                         }
@@ -385,17 +385,30 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         return GetAbsPosition(channel) + diff;
     }
 
-    protected Task AwaitStableAbsolutePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
-       => WaitForStableValueAsync(timeout,
-            getValue: () => ChannelAbsPositions.Get(channel),
-            stabilityCheck: (old, value) => value.IsUpdated && value.Current == old.Current,
+    protected static ValueTask<bool> AwaitStablePositionAsync(Func<PositionInfo> getValue, TimeSpan timeout, CancellationToken token)
+       => WaitForStableValueAsync(getValue,
+            stabilityCheck: (value, last) =>
+                (value.IsUpdated && value.Current == last.Current) ||
+                (!value.IsUpdated && value.UpdateTime == last.UpdateTime),
+            timeout,
             token);
 
-    protected async Task<bool> AwaitPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)
+    protected static ValueTask<bool> AwaitPositionChangeAsync(Func<PositionInfo> getValue, TimeSpan timeout, CancellationToken token)
     {
-        var result = await WaitForStableValueAsync(timeout,
+        var initialValue = getValue();
+        return WaitForStableValueAsync(getValue: getValue,
+            stabilityCheck: (value, last) => value.IsUpdated,
+            timeout,
+            stabilityTimeout: TimeSpan.FromMilliseconds(10), //TODO
+            token);
+    }
+
+    protected async ValueTask<bool> AwaitPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)
+    {
+        var result = await WaitForStableValueAsync(
             getValue: () => AttachedPeripherals.Max(x => x.UpdateTime),
-            stabilityCheck: (old, value) => value != default && old == value,
+            stabilityCheck: (value, last) => value != default && last == value,
+            timeout,
             token);
 
        return result || AttachedPeripherals.Count > 0;

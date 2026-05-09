@@ -9,14 +9,24 @@ namespace BrickController2.Helpers;
 
 internal static class Await
 {
-    internal static async Task<bool> WaitForStableValueAsync<TValue>(TimeSpan timeout,
-        Func<TValue> getValue,
+    private static readonly TimeSpan DefaultInterval = TimeSpan.FromMilliseconds(50);
+    private static readonly TimeSpan DefaultStabilityTimeout = TimeSpan.FromMilliseconds(200);
+
+    internal static ValueTask<bool> WaitForStableValueAsync<TValue>(Func<TValue> getValue,
         Func<TValue, TValue, bool> stabilityCheck,
+        TimeSpan timeout,
+        CancellationToken token = default)
+        where TValue : struct
+        => WaitForStableValueAsync(getValue, stabilityCheck, timeout, DefaultStabilityTimeout, token);
+
+    internal static async ValueTask<bool> WaitForStableValueAsync<TValue>(Func<TValue> getValue,
+        Func<TValue, TValue, bool> stabilityCheck,
+        TimeSpan timeout,
+        TimeSpan stabilityTimeout,
         CancellationToken token = default)
         where TValue : struct
     {
-        var interval = TimeSpan.FromMilliseconds(50);
-        var stabilityTimeout = TimeSpan.FromMilliseconds(200);
+        var interval = DefaultInterval;
 
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
         linkedCts.CancelAfter(timeout);
@@ -41,12 +51,12 @@ internal static class Await
                     return true; // position stable for the required duration
                 }
             }
-            Dump("TimestampStability: TIMEOUT", lastValue);
+            Dump("Stable Value: TIMEOUT", lastValue);
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
         {
             // total timeout elapsed — treat as completed
-            Dump("TimestampStability: CANCELLED", lastValue);
+            Dump("Stable Value: CANCELLED", lastValue);
         }
         return false;
     }

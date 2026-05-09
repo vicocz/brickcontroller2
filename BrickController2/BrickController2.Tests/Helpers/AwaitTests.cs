@@ -18,10 +18,9 @@ public class AwaitTests
         var values = new[] { 1, 2, 2, 2, 2, 2, 2, 2 };
         int GetValue() => values[Math.Min(callCount++, values.Length - 1)];
 
-        var result = await Await.WaitForStableValueAsync(
-            TimeSpan.FromSeconds(500),
-            GetValue,
-            IsStable);
+        var result = await Await.WaitForStableValueAsync(GetValue,
+            IsStable,
+            TimeSpan.FromSeconds(500));
 
         result.Should().BeTrue();
     }
@@ -33,9 +32,9 @@ public class AwaitTests
         int GetValue() => callCount++; // always changing
 
         var result = await Await.WaitForStableValueAsync(
-            TimeSpan.FromMilliseconds(500),
             GetValue,
-            IsStable);
+            IsStable,
+            TimeSpan.FromMilliseconds(500));
 
         result.Should().BeFalse();
     }
@@ -50,9 +49,9 @@ public class AwaitTests
         await cts.CancelAsync();
 
         var result = await Await.WaitForStableValueAsync(
-            TimeSpan.FromSeconds(1),
             GetValue,
             IsStable,
+            TimeSpan.FromSeconds(1),
             cts.Token);
 
         result.Should().BeFalse();
@@ -64,9 +63,9 @@ public class AwaitTests
         int GetValue() => 42;
 
         var result = await Await.WaitForStableValueAsync(
-            TimeSpan.FromSeconds(1),
             GetValue,
-            IsStable);
+            IsStable,
+            TimeSpan.FromSeconds(1));
 
         result.Should().BeTrue();
     }

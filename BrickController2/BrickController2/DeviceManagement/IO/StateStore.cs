@@ -62,7 +62,7 @@ internal class StateStore<TKey, TValue>
             if (_states.TryAdd(key, next))
                 return _default;
 
-            // Another thread beat us — retry.
+            // Another thread beat us - retry.
         }
     }
 
@@ -71,6 +71,6 @@ internal class StateStore<TKey, TValue>
 
     /// <summary>Returns the maximum value of a projection over all stored states, or default if empty.</summary>
     public TResult? Max<TResult>(Func<TValue, TResult> selector) => _states.IsEmpty
-        ? default
+        ? selector(_default)
         : _states.Values.Max(x => selector(x));
 }

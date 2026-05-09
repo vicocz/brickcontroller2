@@ -203,8 +203,13 @@ namespace BrickController2.DeviceManagement
                 var result = await SendPlayVmOutputValueAsync(token);
 
                 // process changes for other channels as it's a light or a classic drive
-                if (result && _outputValues.TryGetChanges(out var changes))
+                if (result)
                 {
+                    if (!_outputValues.TryGetChanges(out var changes))
+                    {
+                        return false;
+                    }
+
                     foreach (KeyValuePair<int, Half> change in changes)
                     {
                         var value = ToByte(change.Value);
@@ -256,7 +261,7 @@ namespace BrickController2.DeviceManagement
             return base.TryProcessMessageData(messageType, data);
         }
 
-        private async Task<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
+        private async ValueTask<bool> SetupChannelForPortInformationAsync(int channel, CancellationToken token)
         {
             try
             {
@@ -278,12 +283,14 @@ namespace BrickController2.DeviceManagement
 
                 // query current APOS
                 await WriteAsync([0x05, 0x00, 0x21, portId, 0x00], token);
-                await Task.Delay(250, token); //TODO wait for change
+                await AwaitPositionChangeAsync(() => ChannelAbsPositions.Exchange(channel, x => x.ConsumeUpdate()),
+                    TimeSpan.FromMilliseconds(250), token);
 
                 // setup channel to report POS position regularly
                 var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
                 await WriteAsync(inputFormatForRelAngle, token);
-                await Task.Delay(250, token); //TODO wait for change
+                await AwaitPositionChangeAsync(() => ChannelRelativePositions.Exchange(channel, x => x.ConsumeUpdate()),
+                    TimeSpan.FromMilliseconds(250), token);
 
                 // need to recalculate zero angle to support ABS POS commands
                 _calibratedZeroAngle = CalculateCalibratedTarget(channel);
@@ -296,7 +303,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
+        private async ValueTask<bool> ResetServoAsync(int channel, int baseAngle, CancellationToken token)
         {
             try
             {
@@ -331,6 +338,9 @@ namespace BrickController2.DeviceManagement
                     {
                         _playVmCalibrationTcs = null;
                     }
+                    // Wait for position to stabilize before allowing the output loop to start
+                    await AwaitStablePositionAsync(() => ChannelAbsPositions.Get(channel), TimeSpan.FromSeconds(4), token);
+                    Dump("Reset Servo", ChannelAbsPositions.Get(channel));
                 }
                 else
                 {
@@ -338,11 +348,11 @@ namespace BrickController2.DeviceManagement
                     var portId = GetPortId(channel);
                     var servoCmd = BuildPortOutput_GotoAbsPosition(portId, _calibratedZeroAngle + baseAngle, servoSpeed: 0x28);
                     await WriteAsync(servoCmd, token: token);
-                }
 
-                // Wait for position to stabilize before allowing the output loop to start
-                await AwaitStableAbsolutePositionAsync(channel, TimeSpan.FromSeconds(4), token);
-                Dump("Reset Servo", ChannelAbsPositions.Get(channel));
+                    // Wait for position to stabilize before allowing the output loop to start
+                    await AwaitStablePositionAsync(() => ChannelAbsPositions.Get(channel), TimeSpan.FromSeconds(2), token);
+                    Dump("Reset Servo", ChannelAbsPositions.Get(channel));
+                }
 
                 return true;
             }
@@ -352,7 +362,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private async Task<bool> SendPlayVmOutputValueAsync(CancellationToken token)
+        private async ValueTask<bool> SendPlayVmOutputValueAsync(CancellationToken token)
         {
             try
             {
@@ -380,22 +390,22 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        private Task<bool> SendPortOutput_6LedAsync(int ledIndex, byte value, CancellationToken token)
+        private ValueTask<bool> SendPortOutput_6LedAsync(int ledIndex, byte value, CancellationToken token)
             => SendPortOutput_6LedMaskAsync(ToByte(1 << ledIndex), value, token);
 
-        private async Task<bool> SendPortOutput_6LedMaskAsync(byte lightMask, byte value, CancellationToken token)
+        private async ValueTask<bool> SendPortOutput_6LedMaskAsync(byte lightMask, byte value, CancellationToken token)
         {
             var cmd = BuildPortOutput_LedMask(PORT_6LEDS, PORT_MODE_0, lightMask, value);
             return await WriteAsync(cmd, token);
         }
 
-        private async Task<bool> SendPortOutput_ValueAsync(int channel, byte value, CancellationToken token)
+        private async ValueTask<bool> SendPortOutput_ValueAsync(int channel, byte value, CancellationToken token)
         {
             byte[] cmd = [8, 0x00, 0x81, GetPortId(channel), 0x11, 0x51, 0x00, value];
             return await WriteAsync(cmd, token);
         }
 
-        private async Task<bool> SendPortOutout_ServoAsync(int channel, Half value, CancellationToken token)
+        private async ValueTask<bool> SendPortOutout_ServoAsync(int channel, Half value, CancellationToken token)
         {
             var portId = GetPortId(channel);
             // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
@@ -405,7 +415,7 @@ namespace BrickController2.DeviceManagement
             return await WriteAsync(cmd, token);
         }
 
-        private async Task<bool> SendAllOutputValuesAsync(Half value, CancellationToken token)
+        private async ValueTask<bool> SendAllOutputValuesAsync(Half value, CancellationToken token)
         {
             var rawValue = ToByte(value);
             // all LEDs at once

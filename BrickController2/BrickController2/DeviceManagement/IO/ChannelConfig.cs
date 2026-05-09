@@ -12,4 +12,20 @@ internal readonly record struct ChannelConfig
     public int MaxServoAngle { get; init; }
     public int ServoBaseAngle { get; init; }
     public int StepperAngle { get; init; }
+
+    public static ChannelConfig From(ChannelConfiguration config) => config.ChannelOutputType switch
+    {
+        ChannelOutputType.ServoMotor => new()
+        {
+            OutputType = ChannelOutputType.ServoMotor,
+            MaxServoAngle = config.MaxServoAngle,
+            ServoBaseAngle = config.ServoBaseAngle
+        },
+        ChannelOutputType.StepperMotor => new()
+        {
+            OutputType = ChannelOutputType.StepperMotor,
+            StepperAngle = config.StepperAngle
+        },
+        _ => new()
+    };
 }

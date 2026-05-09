@@ -63,22 +63,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         for (int i = 0; i < NumberOfChannels; i++)
         {
             configs.TryGetValue(i, out var config);
-
-            ChannelConfigs.Set(i, config.ChannelOutputType switch
-            {
-                ChannelOutputType.ServoMotor => new()
-                {
-                    OutputType = ChannelOutputType.ServoMotor,
-                    MaxServoAngle = config.MaxServoAngle,
-                    ServoBaseAngle = config.ServoBaseAngle
-                },
-                ChannelOutputType.StepperMotor => new()
-                {
-                    OutputType = ChannelOutputType.StepperMotor,
-                    StepperAngle = config.StepperAngle
-                },
-                _ => new()
-            });
+            ChannelConfigs.Set(i, ChannelConfig.From(config));
         }
 
         return base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);

@@ -169,7 +169,7 @@ namespace BrickController2.DeviceManagement
             try
             {
                 // Wait until ports finish communicating with the hub
-                await AwaitForPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(1000), token);
+                await AwaitPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(1000), token);
 
                 if (requestDeviceInformation)
                 {
@@ -525,18 +525,16 @@ namespace BrickController2.DeviceManagement
 
         private int CalculateServoSpeed(int channel, int targetAngle)
         {
-            var channelPositions = ChannelRelativePositions.Get(channel);
-            
-            if (channelPositions.IsUpdated)
-            {
-                var diffAngle = Math.Abs(channelPositions.Current - targetAngle);
-                ChannelRelativePositions.Update(channel, x => x.ConsumeUpdate());
+            var position = ChannelRelativePositions.Exchange(channel, x => x.ConsumeUpdate());
 
+            if (position.IsUpdated)
+            {
+                var diffAngle = Math.Abs(position.Current - targetAngle);
                 return Math.Max(20, Math.Min(100, diffAngle));
             }
 
-            if (channelPositions.UpdateTime == DateTime.MinValue ||
-                POSITION_EXPIRATION < DateTime.Now - channelPositions.UpdateTime)
+            if (position.UpdateTime == DateTime.MinValue ||
+                POSITION_EXPIRATION < DateTime.Now - position.UpdateTime)
             {
                 // Position update never happened or too old
                 return 50;

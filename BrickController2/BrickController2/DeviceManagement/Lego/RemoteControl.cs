@@ -59,10 +59,12 @@ internal class RemoteControl : WirelessProtocolBasedDevice
 
     protected override Task ProcessOutputsAsync(CancellationToken token) => Task.CompletedTask;
 
+    protected override Task<bool> SendOutputValuesAsync(CancellationToken token) => throw new InvalidOperationException();
+
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         // wait until ports finish communicating with the hub
-        await AwaitForPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(250), token);
+        await AwaitPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(250), token);
 
         if (requestDeviceInformation)
         {

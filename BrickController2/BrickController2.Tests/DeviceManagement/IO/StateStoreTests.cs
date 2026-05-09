@@ -1,5 +1,6 @@
 using BrickController2.DeviceManagement.IO;
 using FluentAssertions;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.IO;
@@ -82,4 +83,46 @@ public class StateStoreTests
     {
         _sut.Max(v => v).Should().Be(0);
     }
+
+    [Fact]
+    public void Exchange_ReturnsOldState_AndAppliesUpdater()
+    {
+        var store = new StateStore<string, TestState>();
+        store.Set("key", new TestState(10, true));
+
+        var old = store.Exchange("key", s => s with { Value = s.Value + 5, Updated = false });
+
+        old.Should().BeEquivalentTo(new TestState(10, true));
+        var current = store.Get("key");
+        current.Should().BeEquivalentTo(new TestState(15));
+    }
+
+    [Fact]
+    public void Exchange_WhenKeyAbsent_ReturnsDefault_AndSetsNext()
+    {
+        var store = new StateStore<string, TestState>();
+
+        var old = store.Exchange("missing", s => new TestState(s.Value + 1, true));
+
+        old.Should().BeEquivalentTo(new TestState());
+        var current = store.Get("missing");
+        current.Should().BeEquivalentTo(new TestState(1, true));
+    }
+
+    [Fact]
+    public void Exchange_IsSafeUnderConcurrency()
+    {
+        var store = new StateStore<string, int>();
+        store.Set("counter", 0);
+
+        const int iterations = 250;
+        Parallel.For(0, iterations, _ =>
+        {
+            store.Exchange("counter", v => v + 1);
+        });
+
+        Assert.Equal(iterations, store.Get("counter"));
+    }
+
+    private record struct TestState(int Value = default, bool Updated = false);
 }

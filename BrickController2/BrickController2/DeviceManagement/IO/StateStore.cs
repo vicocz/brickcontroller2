@@ -41,6 +41,31 @@ internal class StateStore<TKey, TValue>
     /// </summary>
     public TValue Update(TKey key, Func<TValue, TValue> updater) => _states.AddOrUpdate(key, (k) => updater(_default), (k, o) => updater(o));
 
+    /// <summary>
+    /// Atomically applies <paramref name="updater"/> to the current state and returns
+    /// the state that existed <em>before</em> the update (the consumed snapshot).
+    /// This prevents a race where a concurrent write between a Get() and a separate
+    /// Update() call causes the new write to be silently cleared.
+    /// </summary>
+    public TValue Exchange(TKey key, Func<TValue, TValue> updater)
+    {
+        while (true)
+        {
+            var old = Get(key);
+            var next = updater(old);
+
+            // If the key is already present, do a compare-and-swap.
+            if (_states.TryUpdate(key, next, old))
+                return old;
+
+            // Key was absent; race to insert the computed next value.
+            if (_states.TryAdd(key, next))
+                return _default;
+
+            // Another thread beat us — retry.
+        }
+    }
+
     /// <summary>Clears all persisted states.</summary>
     public void Clear() => _states.Clear();
 

@@ -3,13 +3,13 @@ using BrickController2.DeviceManagement.IO;
 using BrickController2.PlatformServices.BluetoothLE;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using static BrickController2.CreationManagement.ControllerDefaults;
 using static BrickController2.Diagnostics.Logs;
+using static BrickController2.Helpers.Await;
 using static BrickController2.Protocols.LegoWirelessProtocol;
 
 namespace BrickController2.DeviceManagement.Lego;
@@ -17,10 +17,10 @@ namespace BrickController2.DeviceManagement.Lego;
 internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 {
     protected readonly ChannelStateStore<ChannelConfig> ChannelConfigs;
-    protected readonly ChannelStateStore<ChannelPositionState> ChannelAbsPositions;
-    protected readonly ChannelStateStore<ChannelPositionState> ChannelRelativePositions;
+    protected readonly ChannelStateStore<PositionInfo> ChannelAbsPositions;
+    protected readonly ChannelStateStore<PositionInfo> ChannelRelativePositions;
 
-    protected readonly ChannelStateStore<ChannelAttachmentInfo> AttachedPeripherals;
+    protected readonly ChannelStateStore<PeripheralAttachmentInfo> AttachedPeripherals;
 
     protected IGattCharacteristic? Characteristic;
 
@@ -28,9 +28,9 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
      : base(name, address, deviceRepository, bleService)
     {
         ChannelConfigs = new();
-        ChannelAbsPositions = new(ChannelPositionState.Initial);
-        ChannelRelativePositions = new(ChannelPositionState.Initial);
-        AttachedPeripherals = new(ChannelAttachmentInfo.Initial);
+        ChannelAbsPositions = new(PositionInfo.Initial);
+        ChannelRelativePositions = new(PositionInfo.Initial);
+        AttachedPeripherals = new(PeripheralAttachmentInfo.Initial);
     }
 
     public override string BatteryVoltageSign => "%";
@@ -46,9 +46,6 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
     {
         // reset output values & positions
         ResetOutputValues();
-        ChannelAbsPositions.Clear();
-        ChannelRelativePositions.Clear();
-        AttachedPeripherals.Clear();
 
         // Initialize configuration per channel
 
@@ -105,7 +102,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         }
     }
 
-    protected virtual Task<bool> SendOutputValuesAsync(CancellationToken token) => throw new InvalidOperationException(nameof(SendOutputValuesAsync));
+    protected abstract Task<bool> SendOutputValuesAsync(CancellationToken token);
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {
@@ -176,7 +173,8 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
             case MESSAGE_TYPE_PORT_VALUE_COMBINED: // Port value (combined mode)
                 {
-                    if (!TryGetChannelIndex(portId: data[3], out var channel))
+                    if (data.Length < 6 ||
+                        !TryGetChannelIndex(portId: data[3], out var channel))
                     {
                         break;
                     }
@@ -214,7 +212,8 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                     {
                         byte eventType = data[4]; // 0x01 = Attached, 0x00 = Detached, 0x02 = Attached Virtual
 
-                        if (eventType == 0x01 || eventType == 0x02)
+                        if ((eventType == 0x01 || eventType == 0x02) 
+                            && data.Length >= 7)
                         {
                             var deviceId = ToUInt16(data.Slice(5));
                             AttachedPeripherals.Update(channel, info => info.WithDevice(deviceId)); // store portId as "position" for simplicity
@@ -386,88 +385,19 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         return GetAbsPosition(channel) + diff;
     }
 
-    protected Task AwaitStableRelativePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
-        => WaitForStablePositionAsync(timeout, () => ChannelRelativePositions.Get(channel), token);
-
     protected Task AwaitStableAbsolutePositionAsync(int channel, TimeSpan timeout, CancellationToken token)
-        => WaitForStablePositionAsync(timeout, () => ChannelAbsPositions.Get(channel), token);
+       => WaitForStableValueAsync(timeout,
+            getValue: () => ChannelAbsPositions.Get(channel),
+            stabilityCheck: (old, value) => value.IsUpdated && value.Current == old.Current,
+            token);
 
-    protected Task AwaitForPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)
-        => WaitForTimestampStabilityAsync(timeout, () => AttachedPeripherals.Max(x => x.UpdateTime), token);
-
-    private static async Task WaitForTimestampStabilityAsync(TimeSpan timeout, Func<DateTime> getTimestamp, CancellationToken token)
+    protected async Task<bool> AwaitPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)
     {
-        var interval = TimeSpan.FromMilliseconds(50);
-        var stabilityTimeout = TimeSpan.FromMilliseconds(200);
+        var result = await WaitForStableValueAsync(timeout,
+            getValue: () => AttachedPeripherals.Max(x => x.UpdateTime),
+            stabilityCheck: (old, value) => value != default && old == value,
+            token);
 
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-        linkedCts.CancelAfter(timeout);
-
-        var stableSince = Stopwatch.StartNew();
-        var lastUpdated = getTimestamp();
-
-        try
-        {
-            while (!linkedCts.Token.IsCancellationRequested)
-            {
-                await Task.Delay(interval, linkedCts.Token);
-
-                var currentValue = getTimestamp();
-                if (currentValue != lastUpdated)
-                {
-                    lastUpdated = currentValue;
-                    stableSince.Restart();
-                }
-                else if (stableSince.Elapsed >= stabilityTimeout)
-                {
-                    return; // position stable for the required duration
-                }
-            }
-            Dump("TimestampStability: TIMEOUT", lastUpdated);
-        }
-        catch (OperationCanceledException) when (!token.IsCancellationRequested)
-        {
-            // total timeout elapsed — treat as completed
-            Dump("TimestampStability: CANCELLED", lastUpdated);
-        }
+       return result || AttachedPeripherals.Count > 0;
     }
-
-    private static async Task WaitForStablePositionAsync(TimeSpan timeout, Func<ChannelPositionState> getPosition, CancellationToken token)
-    {
-        var interval = TimeSpan.FromMilliseconds(50);
-        var stabilityTimeout = TimeSpan.FromMilliseconds(500);
-
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token);
-        linkedCts.CancelAfter(timeout);
-
-        var lastPosition = getPosition().Current;
-        var stableSince = Stopwatch.StartNew();
-
-        try
-        {
-            while (!linkedCts.Token.IsCancellationRequested)
-            {
-                await Task.Delay(interval, linkedCts.Token);
-
-                var currentPosition = getPosition();
-                if (!currentPosition.IsUpdated || currentPosition.Current != lastPosition)
-                {
-                    lastPosition = currentPosition.Current;
-                    stableSince.Restart();
-                }
-                else if (stableSince.Elapsed >= stabilityTimeout)
-                {
-                    Dump("Servo position: STABLE", lastPosition);
-                    return; // position stable for the required duration
-                }
-            }
-            Dump("Servo position: TIMEOUT", lastPosition);
-        }
-        catch (OperationCanceledException) when (!token.IsCancellationRequested)
-        {
-            // total timeout elapsed — treat as completed
-            Dump("Servo position: CANCELLED", lastPosition);
-        }
-    }
-
 }

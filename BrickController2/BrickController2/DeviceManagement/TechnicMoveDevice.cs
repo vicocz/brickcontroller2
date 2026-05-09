@@ -140,7 +140,7 @@ namespace BrickController2.DeviceManagement
             try
             {
                 // wait until ports finish communicating with the hub
-                await AwaitForPeripheralsAttachedAsync(TimeSpan.FromSeconds(1), token);
+                await AwaitPeripheralsAttachedAsync(TimeSpan.FromSeconds(1), token);
 
                 if (requestDeviceInformation)
                 {

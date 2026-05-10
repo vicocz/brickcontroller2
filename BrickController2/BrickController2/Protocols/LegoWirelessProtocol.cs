@@ -23,6 +23,7 @@ internal static class LegoWirelessProtocol
     public const byte MESSAGE_TYPE_HUB_ACTIONS = 0x02;
     public const byte MESSAGE_TYPE_HUB_ATTACHED_IO = 0x04;
     public const byte MESSAGE_TYPE_HW_NETWORK_COMMANDS = 0x08;
+    public const byte MESSAGE_TYPE_PORT_INFORMATION_REQUEST = 0x21;
     public const byte MESSAGE_TYPE_PORT_VALUE = 0x45;
     public const byte MESSAGE_TYPE_PORT_VALUE_COMBINED = 0x46;
     public const byte MESSAGE_TYPE_OUTPUT_COMMAND_FEEDBACK = 0x82;

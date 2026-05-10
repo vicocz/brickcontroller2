@@ -387,10 +387,12 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
     {
         var result = await WaitForStableValueAsync(
             getValue: () => AttachedPeripherals.Max(x => x.UpdateTime),
-            stabilityCheck: (value, last) => value != default && last == value,
+            stabilityCheck: (value, last) => AttachedPeripherals.Count > 0 &&
+                 value != DateTime.MinValue &&
+                 last == value,
             timeout,
             token);
 
-       return result || AttachedPeripherals.Count > 0;
+       return result && AttachedPeripherals.Count > 0;
     }
 }

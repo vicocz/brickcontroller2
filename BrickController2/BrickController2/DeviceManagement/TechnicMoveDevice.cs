@@ -282,7 +282,7 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(50, token);
 
                 // query current GOPOS
-                await WriteAsync([0x05, 0x00, 0x21, portId, 0x00], token);
+                await WriteAsync([0x05, 0x00, MESSAGE_TYPE_PORT_INFORMATION_REQUEST, portId, 0x00], token);
                 await AwaitPositionChangeAsync(() => ChannelAbsPositions.Exchange(channel, x => x.ConsumeUpdate()),
                     TimeSpan.FromMilliseconds(250), token);
 
@@ -299,8 +299,8 @@ namespace BrickController2.DeviceManagement
 
                 int CalculateCalibratedTarget(int channel, int targetBaseAngle = 0)
                 {
-                    int currentGopos = GetAbsPosition(channel);               // True physical angle (e.g., 90)
-                    int position = ChannelRelativePositions.Get(channel).Current; // Accumulated hub angle (e.g., 1080)
+                    int currentGopos = GetAbsPosition(channel);           // True physical angle (e.g., 90)
+                    var position = ChannelRelativePositions.Get(channel); // Accumulated hub angle (e.g., 1080)
 
                     // Calculate the shortest physical distance to your target
                     // We use GOPOS here because it represents the actual hardware marker
@@ -308,7 +308,7 @@ namespace BrickController2.DeviceManagement
 
                     // Apply that physical difference to the Hub's accumulated POS
                     // If POS is 1080 and we need to move -90 degrees, the target is 990.
-                    int targetHubPos = position + diffToTarget;
+                    int targetHubPos = position.Current + diffToTarget;
 
                     return targetHubPos;
                 }

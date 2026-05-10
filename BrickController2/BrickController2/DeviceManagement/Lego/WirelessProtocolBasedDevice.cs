@@ -17,9 +17,8 @@ namespace BrickController2.DeviceManagement.Lego;
 internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 {
     protected readonly ChannelStateStore<ChannelConfig> ChannelConfigs;
-    protected readonly ChannelStateStore<PositionInfo> ChannelAbsPositions;
-    protected readonly ChannelStateStore<PositionInfo> ChannelRelativePositions;
-
+    protected readonly ChannelPositionStore ChannelAbsPositions;
+    protected readonly ChannelPositionStore ChannelRelativePositions;
     protected readonly ChannelStateStore<PeripheralAttachmentInfo> AttachedPeripherals;
 
     protected IGattCharacteristic? Characteristic;
@@ -28,8 +27,8 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
      : base(name, address, deviceRepository, bleService)
     {
         ChannelConfigs = new();
-        ChannelAbsPositions = new(PositionInfo.Initial);
-        ChannelRelativePositions = new(PositionInfo.Initial);
+        ChannelAbsPositions = new();
+        ChannelRelativePositions = new();
         AttachedPeripherals = new(PeripheralAttachmentInfo.Initial);
     }
 
@@ -46,6 +45,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
     {
         // reset output values & positions
         ResetOutputValues();
+        ChannelConfigs.Clear();
 
         // Initialize configuration per channel
 
@@ -75,7 +75,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
     protected virtual void ResetOutputValues()
     {
-        // reset output values & positions
+        // reset status values & positions
         ChannelAbsPositions.Clear();
         ChannelRelativePositions.Clear();
         AttachedPeripherals.Clear();

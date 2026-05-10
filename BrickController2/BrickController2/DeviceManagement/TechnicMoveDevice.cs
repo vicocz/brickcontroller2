@@ -249,10 +249,10 @@ namespace BrickController2.DeviceManagement
             switch (messageType)
             {
                 case MESSAGE_TYPE_OUTPUT_COMMAND_FEEDBACK: // Port output command feedback
-                    Dump("Output command feedback", data);
                     // PORT_PLAYVM completion feedback (0x82) signals calibration finished
                     if (data.Length >= 5 && data[3] == PORT_PLAYVM && (data[4] & 0x02) != 0)
                     {
+                        Dump("Output command feedback", data);
                         _playVmCalibrationTcs?.TrySetResult(true);
                         return true;
                     }
@@ -283,13 +283,13 @@ namespace BrickController2.DeviceManagement
 
                 // query current GOPOS
                 await WriteAsync([0x05, 0x00, MESSAGE_TYPE_PORT_INFORMATION_REQUEST, portId, 0x00], token);
-                await AwaitPositionChangeAsync(() => ChannelAbsPositions.Exchange(channel, x => x.ConsumeUpdate()),
+                await AwaitPositionChangeAsync(() => ChannelAbsPositions.ConsumeUpdate(channel),
                     TimeSpan.FromMilliseconds(250), token);
 
                 // setup channel to report POS position regularly
                 var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
                 await WriteAsync(inputFormatForRelAngle, token);
-                await AwaitPositionChangeAsync(() => ChannelRelativePositions.Exchange(channel, x => x.ConsumeUpdate()),
+                await AwaitPositionChangeAsync(() => ChannelRelativePositions.ConsumeUpdate(channel),
                     TimeSpan.FromMilliseconds(250), token);
 
                 // need to recalculate zero angle to support ABS POS commands
@@ -417,7 +417,7 @@ namespace BrickController2.DeviceManagement
 
         private async ValueTask<bool> SendPortOutput_ValueAsync(int channel, byte value, CancellationToken token)
         {
-            byte[] cmd = [8, 0x00, 0x81, GetPortId(channel), 0x11, 0x51, 0x00, value];
+            byte[] cmd = [8, 0x00, PORT_OUTPUT_COMMAND, GetPortId(channel), FEEDBACK_ACTION_BOTH, PORT_OUTPUT_SUBCOMMAND_WRITE_DIRECT, 0x00, value];
             return await WriteAsync(cmd, token);
         }
 

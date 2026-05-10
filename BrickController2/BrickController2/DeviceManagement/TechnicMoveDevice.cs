@@ -269,19 +269,19 @@ namespace BrickController2.DeviceManagement
 
                 if (_applyPlayVmMode)
                 {
-                    // setup channel to report APOS position
+                    // setup channel to report Mode 3: GOPOS (Absolute Position)
                     var inputFormatForAbsAngle = BuildPortInputFormatSetup(portId, PORT_MODE_3);
                     await WriteAsync(inputFormatForAbsAngle, token);
                     await Task.Delay(300, token);
                     return true;
                 }
 
-                // setup channel to for APOS, but no notifications
+                // setup channel to for Mode 3: GOPOS (Absolute Position), but no notifications
                 var inputFormatForAbsAngleDisabled = BuildPortInputFormatSetup(portId, PORT_MODE_3, notification: PORT_VALUE_NOTIFICATION_DISABLED);
                 await WriteAsync(inputFormatForAbsAngleDisabled, token);
                 await Task.Delay(50, token);
 
-                // query current APOS
+                // query current GOPOS
                 await WriteAsync([0x05, 0x00, 0x21, portId, 0x00], token);
                 await AwaitPositionChangeAsync(() => ChannelAbsPositions.Exchange(channel, x => x.ConsumeUpdate()),
                     TimeSpan.FromMilliseconds(250), token);
@@ -296,6 +296,22 @@ namespace BrickController2.DeviceManagement
                 _calibratedZeroAngle = CalculateCalibratedTarget(channel);
 
                 return true;
+
+                int CalculateCalibratedTarget(int channel, int targetBaseAngle = 0)
+                {
+                    int currentGopos = GetAbsPosition(channel);               // True physical angle (e.g., 90)
+                    int position = ChannelRelativePositions.Get(channel).Current; // Accumulated hub angle (e.g., 1080)
+
+                    // Calculate the shortest physical distance to your target
+                    // We use GOPOS here because it represents the actual hardware marker
+                    int diffToTarget = NormalizeAngle(targetBaseAngle - currentGopos);
+
+                    // Apply that physical difference to the Hub's accumulated POS
+                    // If POS is 1080 and we need to move -90 degrees, the target is 990.
+                    int targetHubPos = position + diffToTarget;
+
+                    return targetHubPos;
+                }
             }
             catch
             {
@@ -350,8 +366,8 @@ namespace BrickController2.DeviceManagement
                     await WriteAsync(servoCmd, token: token);
 
                     // Wait for position to stabilize before allowing the output loop to start
-                    await AwaitStablePositionAsync(() => ChannelAbsPositions.Get(channel), TimeSpan.FromSeconds(2), token);
-                    Dump("Reset Servo", ChannelAbsPositions.Get(channel));
+                    await AwaitStablePositionAsync(() => ChannelRelativePositions.Get(channel), TimeSpan.FromSeconds(2), token);
+                    Dump("Reset Servo", ChannelRelativePositions.Get(channel));
                 }
 
                 return true;

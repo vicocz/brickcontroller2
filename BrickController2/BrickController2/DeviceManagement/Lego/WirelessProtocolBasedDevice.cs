@@ -368,22 +368,6 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         catch { }
     }
 
-    protected int CalculateCalibratedTarget(int channel, int targetBaseAngle = 0)
-    {
-        var position = ChannelRelativePositions.Get(channel).Current;
-
-        // Normalize the hardware relative angle to a clean 0-359 range 
-        // (Crucial if your motor firmware reports APOS as -180 to 179)
-        int normalizedRelative = ((position % 360) + 360) % 360;
-        int normalizedTarget = ((targetBaseAngle % 360) + 360) % 360;
-
-        // Calculate the raw difference + normalize
-        int diff = NormalizeAngle(normalizedTarget - normalizedRelative);
-
-        // Offset the current accumulated position by the physical difference
-        return GetAbsPosition(channel) + diff;
-    }
-
     protected static ValueTask<bool> AwaitStablePositionAsync(Func<PositionInfo> getValue, TimeSpan timeout, CancellationToken token)
        => WaitForStableValueAsync(getValue,
             stabilityCheck: (value, last) =>

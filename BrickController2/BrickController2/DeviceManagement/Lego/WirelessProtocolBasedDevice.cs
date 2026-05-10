@@ -192,7 +192,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
                     if ((modeMask & 0x02) != 0)
                     {
-                        // TODO: Read the post value format response and determine the value length accordingly
+                        // TODO: Read the port value format response and determine the value length accordingly
                         int relPosition = currentData.Length switch
                         {
                             >= 4 => ToInt32(currentData),

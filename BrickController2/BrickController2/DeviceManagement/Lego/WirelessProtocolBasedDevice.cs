@@ -216,7 +216,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
                         {
                             // Get Unique type identification of the attached I/O device
                             var deviceId = ToUInt16(data.Slice(5));
-                            AttachedPeripherals.Update(channel, info => info.WithDevice(deviceId)); // store portId as "position" for simplicity
+                            AttachedPeripherals.Update(channel, info => info.WithDevice(deviceId));
                         }
                         else if (eventType == HUB_EVENT_DETACHED)
                         {

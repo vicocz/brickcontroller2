@@ -51,17 +51,17 @@ namespace BrickController2.DeviceManagement
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
-        public override bool CanResetOutput(int channel) => EnablePlayVmMode && channel == CHANNEL_C;
+        public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
 
-        public override bool CanChangeMaxServoAngle(int channel) => false;
+        public override bool CanChangeMaxServoAngle(int channel) => !EnablePlayVmMode && channel == CHANNEL_C;
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
                 // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
-                // servo only for PLAYVM and C channel
-                ChannelOutputType.ServoMotor => EnablePlayVmMode && channel == CHANNEL_C,
+                // servo for both PLAYVM and normal mode but C channel only
+                ChannelOutputType.ServoMotor => channel == CHANNEL_C,
                 // other types (such as stepper) are not supported at all
                 _ => false,
             };
@@ -214,6 +214,7 @@ namespace BrickController2.DeviceManagement
                     foreach (KeyValuePair<int, Half> change in changes)
                     {
                         var value = ToByte(change.Value);
+                        var channelOutputType = GetOutputType(change.Key);
 
                         result = change.Key switch
                         {
@@ -221,7 +222,9 @@ namespace BrickController2.DeviceManagement
                             >= CHANNEL_1 and <= CHANNEL_6 => await SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
                             // all channels command - use original value
                             int.MaxValue => await SendAllOutputValuesAsync(change.Value, token),
-                            // classic output command for A, B, C channels
+                            // classic output command for A, B, C channels (with servo support)
+                            CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor
+                                => await SendPortOutput_ServoAsync(change.Key, change.Value, token),
                             _ => await SendPortOutput_ValueAsync(change.Key, value, token),
                         };
 
@@ -421,6 +424,16 @@ namespace BrickController2.DeviceManagement
             return WriteAsync(cmd, token);
         }
 
+        private ValueTask<bool> SendPortOutput_ServoAsync(int channel, Half value, CancellationToken token)
+        {
+            var portId = GetPortId(channel);
+            // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
+            var servoAngle = (int)value * GetMaxServoAngle(channel) / 100;
+            var absPosition = _calibratedZeroAngle + ChannelConfigs.Get(channel).ServoBaseAngle + servoAngle;
+            var cmd = BuildPortOutput_GotoAbsPosition(portId, absPosition, servoSpeed: 50);
+            return WriteAsync(cmd, token);
+        }
+
         private async ValueTask<bool> SendAllOutputValuesAsync(Half value, CancellationToken token)
         {
             var rawValue = ToByte(value);
@@ -433,6 +446,7 @@ namespace BrickController2.DeviceManagement
                 var outputType = GetOutputType(channel);
                 result = result && outputType switch
                 {
+                    ChannelOutputType.ServoMotor => await SendPortOutput_ServoAsync(channel, value, token),
                     _ => await SendPortOutput_ValueAsync(channel, rawValue, token),
                 };
             }

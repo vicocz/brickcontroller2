@@ -20,8 +20,13 @@ internal static class LegoWirelessProtocol
 
     // message types
     public const byte MESSAGE_TYPE_HUB_PROPERTIES = 0x01;
+    public const byte MESSAGE_TYPE_HUB_ACTIONS = 0x02;
+    public const byte MESSAGE_TYPE_HUB_ATTACHED_IO = 0x04;
     public const byte MESSAGE_TYPE_HW_NETWORK_COMMANDS = 0x08;
+    public const byte MESSAGE_TYPE_PORT_INFORMATION_REQUEST = 0x21;
     public const byte MESSAGE_TYPE_PORT_VALUE = 0x45;
+    public const byte MESSAGE_TYPE_PORT_VALUE_COMBINED = 0x46;
+    public const byte MESSAGE_TYPE_OUTPUT_COMMAND_FEEDBACK = 0x82;
 
     // TechnicMove hub ports
     public const byte PORT_DRIVE_MOTOR_1 = 0x32;
@@ -89,6 +94,10 @@ internal static class LegoWirelessProtocol
     public const byte FEEDBACK_ACTION_ACTION_START = 0x10;
     public const byte FEEDBACK_ACTION_BOTH = 0x11;
 
+    public const byte HUB_EVENT_DETACHED = 0x00;
+    public const byte HUB_EVENT_ATTACHED = 0x01;
+    public const byte HUB_EVENT_ATTACHED_VIRTUAL = 0x02;
+
     // conversion methods
     public static void ToBytes(int value, out byte b0, out byte b1, out byte b2, out byte b3)
     {
@@ -106,6 +115,12 @@ internal static class LegoWirelessProtocol
 
     public static short ToInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt16LittleEndian(value);
     public static int ToInt32(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadInt32LittleEndian(value);
+    public static ushort ToUInt16(ReadOnlySpan<byte> value) => BinaryPrimitives.ReadUInt16LittleEndian(value);
+
+    /// <summary>
+    /// Normalize the angle to the range [-180, 179] degrees.
+    /// </summary>
+    public static int NormalizeAngle(int angle) => ((angle + 180) % 360 + 360) % 360 - 180;
 
     public static string GetVersionString(ReadOnlySpan<byte> data)
     {

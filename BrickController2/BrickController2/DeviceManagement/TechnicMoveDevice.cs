@@ -214,7 +214,6 @@ namespace BrickController2.DeviceManagement
                     foreach (KeyValuePair<int, Half> change in changes)
                     {
                         var value = ToByte(change.Value);
-                        var channelOutputType = GetOutputType(change.Key);
 
                         result = change.Key switch
                         {
@@ -281,14 +280,16 @@ namespace BrickController2.DeviceManagement
                 await Task.Delay(50, token);
 
                 // query current GOPOS
+                ChannelAbsPositions.ConsumeUpdate(channel); // clear existing value
                 await WriteAsync([0x05, 0x00, MESSAGE_TYPE_PORT_INFORMATION_REQUEST, portId, 0x00], token);
-                await AwaitPositionChangeAsync(() => ChannelAbsPositions.ConsumeUpdate(channel),
+                await AwaitPositionChangeAsync(() => ChannelAbsPositions.Get(channel),
                     TimeSpan.FromMilliseconds(250), token);
 
                 // setup channel to report POS position regularly
+                ChannelRelativePositions.ConsumeUpdate(channel); // clear existing value
                 var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
                 await WriteAsync(inputFormatForRelAngle, token);
-                await AwaitPositionChangeAsync(() => ChannelRelativePositions.ConsumeUpdate(channel),
+                await AwaitPositionChangeAsync(() => ChannelRelativePositions.Get(channel),
                     TimeSpan.FromMilliseconds(250), token);
 
                 // need to recalculate zero angle to support ABS POS commands

@@ -16,10 +16,10 @@ namespace BrickController2.DeviceManagement.Lego;
 
 internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 {
-    protected readonly ChannelStateStore<ChannelConfig> ChannelConfigs;
+    protected readonly StateStore<int, ChannelConfig> ChannelConfigs;
     protected readonly ChannelPositionStore ChannelAbsPositions;
     protected readonly ChannelPositionStore ChannelRelativePositions;
-    protected readonly ChannelStateStore<PeripheralAttachmentInfo> AttachedPeripherals;
+    protected readonly StateStore<int, PeripheralAttachmentInfo> AttachedPeripherals;
 
     protected IGattCharacteristic? Characteristic;
 
@@ -380,7 +380,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         => WaitForStableValueAsync(getValue: getValue,
             stabilityCheck: (value, last) => value.IsUpdated,
             timeout,
-            stabilityTimeout: TimeSpan.FromMilliseconds(10), //TODO
+            stabilityTimeout: TimeSpan.FromMilliseconds(50),
             token);
 
     protected async ValueTask<bool> AwaitPeripheralsAttachedAsync(TimeSpan timeout, CancellationToken token)

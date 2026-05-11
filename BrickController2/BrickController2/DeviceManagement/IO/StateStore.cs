@@ -71,7 +71,7 @@ internal class StateStore<TKey, TValue>
 
     /// <summary>Returns the maximum value of a projection over all stored states, or default if empty.</summary>
     public TResult Max<TResult>(Func<TValue, TResult> selector) where TResult : struct
-        => _states.IsEmpty
-        ? selector(_default)
-        : _states.Values.Max(x => selector(x));
+        => _states.Values.Select(selector)
+            .DefaultIfEmpty(selector(_default))
+            .Max();
 }

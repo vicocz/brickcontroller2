@@ -2,7 +2,7 @@
 
 namespace BrickController2.DeviceManagement.Lego;
 
-internal class ChannelPositionStore : ChannelStateStore<PositionInfo>
+internal class ChannelPositionStore : StateStore<int, PositionInfo>
 {
     public ChannelPositionStore() : base(PositionInfo.Initial)
     {

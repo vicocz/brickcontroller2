@@ -2,6 +2,7 @@
 using Microsoft.Maui.Controls;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
+using BrickController2.DeviceManagement.Vengit;
 
 namespace BrickController2.UI.Controls
 {
@@ -14,6 +15,7 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
         private readonly static string[] _mk5ChannelLetters = ["AB", "T", "C", "AB+T", "TL"];
         private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
+        private readonly static string[] _sBrickLightChannelLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
         public static readonly BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
         public static readonly BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
@@ -91,6 +93,19 @@ namespace BrickController2.UI.Controls
 
                 case DeviceType.MK5:
                     SetChannelText(_mk5ChannelLetters);
+                    break;
+
+                case DeviceType.SBrickLight: // e.g. C or C.3
+                    if (Channel < SBrickProtocol.LIGHT_PORTS_COUNT)
+                    {
+                        // channel as base port
+                        SetChannelText(_sBrickLightChannelLetters);
+                    }
+                    else
+                    {
+                        // port with subchannel
+                        Text = $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
+                    }
                     break;
 
                 default:

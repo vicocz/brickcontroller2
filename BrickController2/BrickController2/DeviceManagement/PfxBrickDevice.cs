@@ -84,6 +84,12 @@ internal class PfxBrickDevice : BluetoothDevice
         }
     }
 
+    protected override void BeforeDisconnectCleanup()
+    {
+        _writeCharacteristic = null;
+        _notifyCharacteristic = null;
+    }
+
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         try
@@ -115,7 +121,7 @@ internal class PfxBrickDevice : BluetoothDevice
                     if (await SendOutputValuesAsync(motorChanges, token).ConfigureAwait(false))
                     {
                         // confirm successfull sending
-                        _motorOutputs.Commmit();
+                        _motorOutputs.Commit();
                         await Task.Delay(5, token).ConfigureAwait(false);
                     }
                     changed = true;
@@ -127,7 +133,7 @@ internal class PfxBrickDevice : BluetoothDevice
                     if (await SendLightValuesAsync(lightChanges, token).ConfigureAwait(false))
                     {
                         // confirm successfull sending
-                        _lightOutputs.Commmit();
+                        _lightOutputs.Commit();
                         await Task.Delay(5, token).ConfigureAwait(false);
                     }
                     changed = true;

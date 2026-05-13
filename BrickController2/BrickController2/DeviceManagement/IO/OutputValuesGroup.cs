@@ -26,7 +26,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         _sendAttemptsLeft = 0;
     }
 
-    public void SetOutput(int channel, TValue value)
+    public bool SetOutput(int channel, TValue value)
     {
         lock (_outputLock)
         {
@@ -34,8 +34,11 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
             {
                 _outputValues[channel] = value;
                 _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+
+                return true;
             }
-        }        
+        }
+        return false;
     }
 
     public void Initialize()
@@ -51,8 +54,20 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         }
     }
 
+    public void Clear()
+    {
+        lock (_outputLock)
+        {
+            // reset all values
+            _outputValues.AsSpan().Clear();
+            _commitedOutputValues.AsSpan().Clear();
+            _values.AsSpan().Clear();
+            _sendAttemptsLeft = 0;
+        }
+    }
+
     /// <summary>
-    /// Try to get the output values to be sent, if there was any change or last application was not succcessfull
+    /// Try to get the output values to be sent, if there was any change or last application was not successful
     /// </summary>
     /// <param name="values">Set of all values</param>
     /// <returns>true there is any reason to apply values</returns>
@@ -72,7 +87,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     }
 
     /// <summary>
-    /// Try to get the output values to be sent, if there was any change or last application was not succcessfull
+    /// Try to get the output values to be sent, if there was any change or last application was not successful
     /// </summary>
     /// <param name="changes">Collection of changes</param>
     /// <returns>true there is any reason to apply changes</returns>
@@ -101,12 +116,12 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     /// <summary>
     /// Confirm that the values have been sent and applied.
     /// </summary>
-    public void Commmit()
+    public void Commit()
     {
         // store as last applied values
         _values.CopyTo(_commitedOutputValues.AsSpan());
 
-        // reset attemps due to success
+        // reset attempts due to success
         lock (_outputLock)
         {
             // do it conditionally

@@ -1,7 +1,9 @@
 ﻿using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Vengit;
 using BrickController2.UI.Commands;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
+
 using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.Controls
@@ -88,6 +90,28 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            // SBrick Light - special handling
+            SBrickLightChannelA.Command = new SafeCommand(() => UpdateSBrickPort(0));
+            SBrickLightChannelB.Command = new SafeCommand(() => UpdateSBrickPort(1));
+            SBrickLightChannelC.Command = new SafeCommand(() => UpdateSBrickPort(2));
+            SBrickLightChannelD.Command = new SafeCommand(() => UpdateSBrickPort(3));
+            SBrickLightChannelE.Command = new SafeCommand(() => UpdateSBrickPort(4));
+            SBrickLightChannelF.Command = new SafeCommand(() => UpdateSBrickPort(5));
+            SBrickLightChannelG.Command = new SafeCommand(() => UpdateSBrickPort(6));
+            SBrickLightChannelH.Command = new SafeCommand(() => UpdateSBrickPort(7));
+            SBrickLightSubchannel1.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 1));
+            SBrickLightSubchannel2.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 2));
+            SBrickLightSubchannel3.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 3));
+
+            void UpdateSBrickPort(int channel)
+            {
+                SelectedChannel = channel + (SelectedChannel / SBrickProtocol.LIGHT_PORTS_COUNT) * SBrickProtocol.LIGHT_PORTS_COUNT;
+            }
+
+            void UpdateSBrickSubchannel(int subchannel)
+            {
+                SelectedChannel = subchannel + SelectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
+            }
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged, coerceValue: OnCoerceDevice);
@@ -127,6 +151,7 @@ namespace BrickController2.UI.Controls
         {
             var deviceType = device.DeviceType;
             SbrickSection.IsVisible = deviceType == DeviceType.SBrick;
+            SbrickLightSection.IsVisible = deviceType == DeviceType.SBrickLight;
             BuWizzSection.IsVisible = deviceType == DeviceType.BuWizz || deviceType == DeviceType.BuWizz2;
             BuWizz3Section.IsVisible = deviceType == DeviceType.BuWizz3;
             InfraredSection.IsVisible = deviceType == DeviceType.Infrared;
@@ -241,6 +266,22 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.SelectedChannel = selectedChannel;
             CaDARaceCarChannel1.SelectedChannel = selectedChannel;
             CaDARaceCarChannel2.SelectedChannel = selectedChannel;
+            // SBrick Light - special handling
+            var sBrickLightChannel = selectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
+            var sBrickLightSubchannel = selectedChannel < SBrickProtocol.LIGHT_PORTS_COUNT ?
+                0 :
+                selectedChannel / SBrickProtocol.LIGHT_PORTS_COUNT - 1;
+            SBrickLightChannelA.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelB.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelC.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelD.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelE.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelF.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelG.SelectedChannel = sBrickLightChannel;
+            SBrickLightChannelH.SelectedChannel = sBrickLightChannel;
+            SBrickLightSubchannel1.SelectedChannel = sBrickLightSubchannel;
+            SBrickLightSubchannel2.SelectedChannel = sBrickLightSubchannel;
+            SBrickLightSubchannel3.SelectedChannel = sBrickLightSubchannel;
         }
     }
 }

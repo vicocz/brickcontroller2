@@ -726,4 +726,40 @@
   <data name="RemoteControlEnabled" xml:space="preserve">
     <value>Enable remote control</value>
   </data>
+  <data name="ChannelColors" xml:space="preserve">
+    <value>Channel colors</value>
+  </data>
+  <data name="ChannelAColor" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="ChannelBColor" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="ChannelCColor" xml:space="preserve">
+    <value>C</value>
+  </data>
+  <data name="ChannelDColor" xml:space="preserve">
+    <value>D</value>
+  </data>
+  <data name="ChannelEColor" xml:space="preserve">
+    <value>E</value>
+  </data>
+  <data name="ChannelFColor" xml:space="preserve">
+    <value>F</value>
+  </data>
+  <data name="ChannelGColor" xml:space="preserve">
+    <value>G</value>
+  </data>
+  <data name="ChannelHColor" xml:space="preserve">
+    <value>H</value>
+  </data>
+  <data name="SBrickUseRgbPortMode" xml:space="preserve">
+    <value>Channel LED mode</value>
+  </data>
+  <data name="RgbPortMode" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="SubchannelsPortMode" xml:space="preserve">
+    <value>Subchannels</value>
+  </data>
 </root>

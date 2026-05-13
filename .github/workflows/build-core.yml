@@ -7,8 +7,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*core.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Tests/**'
   pull_request:
@@ -17,8 +17,8 @@ on:
       - 'release/**'
     paths:
       - '.github/**/*core.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Tests/**'
   workflow_dispatch:
@@ -31,9 +31,9 @@ jobs:
     runs-on: windows-2025
     name: BrickController Core Build
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
     - name: Install .NET MAUI Workload

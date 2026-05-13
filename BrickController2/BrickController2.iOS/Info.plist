@@ -52,6 +52,8 @@
 	<string>Allow the application to access siri (actually not used by the app)</string>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>

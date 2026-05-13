@@ -67,7 +67,7 @@ jobs:
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
       id: get_release
-      uses: octokit/request-action@v3
+      uses: octokit/request-action@v3.x
       with:
         route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
       env:

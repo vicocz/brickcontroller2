@@ -1,12 +1,8 @@
 ﻿using Autofac;
 using BrickController2.DeviceManagement.BuWizz;
-using BrickController2.DeviceManagement.CaDA;
-using BrickController2.DeviceManagement.Lego;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
-using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.UI.Images;
-using Microsoft.Win32;
 using System;
 
 namespace BrickController2.DeviceManagement.DI
@@ -22,9 +18,6 @@ namespace BrickController2.DeviceManagement.DI
             builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance();
             builder.RegisterType<ManualDeviceManager>().As<IManualDeviceManager>().SingleInstance();
 
-            builder.RegisterType<BuWizzDevice>().Keyed<Device>(DeviceType.BuWizz);
-            builder.RegisterType<BuWizz2Device>().Keyed<Device>(DeviceType.BuWizz2);
-            builder.RegisterType<BuWizz3Device>().Keyed<Device>(DeviceType.BuWizz3);
             builder.RegisterType<InfraredDevice>().Keyed<Device>(DeviceType.Infrared);
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);

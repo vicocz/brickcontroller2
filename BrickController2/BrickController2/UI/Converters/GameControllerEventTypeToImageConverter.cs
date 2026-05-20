@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using Microsoft.Maui.Controls;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
 
 namespace BrickController2.UI.Converters
 {
@@ -9,16 +9,16 @@ namespace BrickController2.UI.Converters
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            var eventType = (GameControllerEventType)value!;
+            var eventType = (InputDeviceEventType)value!;
             return Convert(eventType);
         }
 
-        public string? Convert(GameControllerEventType eventType)
+        public string? Convert(InputDeviceEventType eventType)
         {
             return eventType switch
             {
-                GameControllerEventType.Button => "abc",
-                GameControllerEventType.Axis => "gamepad",
+                InputDeviceEventType.Button => "abc",
+                InputDeviceEventType.Axis => "gamepad",
                 _ => null,
             };
         }

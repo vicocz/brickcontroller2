@@ -23,6 +23,9 @@ namespace BrickController2.UI.Converters
                 case DeviceType.SBrick:
                     return ResourceHelper.GetImageResource("sbrick_image_small.png");
 
+                case DeviceType.SBrickLight:
+                    return ResourceHelper.GetImageResource("sbricklight_image_small.png");
+
                 case DeviceType.Infrared:
                     return ResourceHelper.GetImageResource("infra_image_small.png");
 
@@ -67,6 +70,9 @@ namespace BrickController2.UI.Converters
 
                 case DeviceType.PfxBrick:
                     return ResourceHelper.GetImageResource("pfx_brick_image_small.png");
+
+                case DeviceType.RemoteControl:
+                    return ResourceHelper.GetImageResource("remotecontrol_image_small.png");
 
                 default:
                     return null;

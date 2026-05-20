@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net9.0</TargetFramework>
-	<RootNamespace>BrickController2</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>BrickController2</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +18,7 @@
     <EmbeddedResource Include="UI\Images\circuitcubes_image_small.png" />
     <EmbeddedResource Include="UI\Images\duplotrainhub_image.png" />
     <EmbeddedResource Include="UI\Images\duplotrainhub_image_small.png" />
+    <EmbeddedResource Include="UI\Images\remotecontrol_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk3_8_image.png" />
     <EmbeddedResource Include="UI\Images\mk3_8_image_small.png" />
     <EmbeddedResource Include="UI\Images\mk_diy_image.png" />
@@ -41,6 +42,8 @@
     <EmbeddedResource Include="UI\Images\poweredup_image_small.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image.png" />
     <EmbeddedResource Include="UI\Images\sbrick_image_small.png" />
+    <EmbeddedResource Include="UI\Images\sbricklight_image.png" />
+    <EmbeddedResource Include="UI\Images\sbricklight_image_small.png" />
     <EmbeddedResource Include="UI\Images\technicmove_image.png" />
     <EmbeddedResource Include="UI\Images\technicmove_image_small.png" />
     <EmbeddedResource Include="UI\Images\wedo2_image.png" />
@@ -70,4 +73,24 @@
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Resources\TranslationResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TranslationResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\TranslationResources.de.resx">
+      <DependentUpon>TranslationResources.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\TranslationResources.hu.resx">
+      <DependentUpon>TranslationResources.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\TranslationResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TranslationResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

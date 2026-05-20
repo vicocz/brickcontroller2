@@ -1,4 +1,4 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.Helpers;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
@@ -9,7 +9,7 @@ namespace BrickController2.CreationManagement
 {
     public class ControllerEvent : NotifyPropertyChangedSource
     {
-        private GameControllerEventType _eventType;
+        private InputDeviceEventType _eventType;
         private string _eventCode = string.Empty;
         private string _controllerId = string.Empty;
         private ObservableCollection<ControllerAction> _controllerActions = new ObservableCollection<ControllerAction>();
@@ -32,7 +32,7 @@ namespace BrickController2.CreationManagement
             set { _controllerId = value; RaisePropertyChanged(); }
         }
 
-        public GameControllerEventType EventType
+        public InputDeviceEventType EventType
         {
             get { return _eventType; }
             set { _eventType = value; RaisePropertyChanged(); }

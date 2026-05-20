@@ -36,6 +36,7 @@ namespace BrickController2.UI.ViewModels
             DeviceTappedCommand = new SafeCommand<Device>(async device => await NavigationService.NavigateToAsync<DevicePageViewModel>(new NavigationParameters(("device", device))));
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
             DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
+            RenameDeviceCommand = new SafeCommand<Device>(RenameDeviceAsync);
         }
 
         public IDeviceManager DeviceManager { get; }
@@ -45,6 +46,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand DeviceTappedCommand { get; }
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
+        public ICommand RenameDeviceCommand { get; }
 
         public bool IsBLEAdvertisingSupported { get; private set; }
 
@@ -90,6 +92,33 @@ namespace BrickController2.UI.ViewModels
             try
             {
                 await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new (device));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task RenameDeviceAsync(Device device)
+        {
+            try
+            {
+                var result = await _dialogService.ShowInputDialogAsync(
+                    device.Name,
+                    Translate("DeviceName"),
+                    Translate("Rename"),
+                    Translate("Cancel"),
+                    KeyboardType.Text,
+                    (deviceName) => !string.IsNullOrEmpty(deviceName),
+                    DisappearingToken);
+
+                if (result.IsOk)
+                {
+                    await _dialogService.ShowProgressDialogAsync(
+                        false,
+                        (progressDialog, token) => device.RenameDeviceAsync(result.Result),
+                        Translate("Renaming"),
+                        token: DisappearingToken);
+                }
             }
             catch (OperationCanceledException)
             {

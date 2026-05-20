@@ -1,4 +1,4 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDevice;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -27,7 +27,7 @@ namespace BrickController2.CreationManagement
         Task DeleteControllerProfileAsync(ControllerProfile controllerProfile);
         Task RenameControllerProfileAsync(ControllerProfile controllerProfile, string newName);
 
-        Task<ControllerEvent> AddOrGetControllerEventAsync(ControllerProfile controllerProfile, string controllerId, GameControllerEventType eventType, string eventCode);
+        Task<ControllerEvent> AddOrGetControllerEventAsync(ControllerProfile controllerProfile, string controllerId, InputDeviceEventType eventType, string eventCode);
         Task DeleteControllerEventAsync(ControllerEvent controllerEvent);
 
         Task<ControllerAction> AddOrUpdateControllerActionAsync(

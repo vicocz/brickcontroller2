@@ -6,11 +6,13 @@ Cross platform mobile application for controlling your creations using a bluetoo
 
 - Android 5.0+
 - iOS 12.2+
-- Windows 10 (experimental)
+- Windows 10 version 1809 or higher
+- Windows 11
 
 ## Supported receivers
 
 - SBrick - both normal and plus (output only)
+- SBrick Light
 - BuWizz 1
 - BuWizz 2
 - BuWizz 3
@@ -30,14 +32,19 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - CaDA Race Car
 - PFx Brick (lights & Power Functions ports only)
 
+## Supported controllers
+- Generic Bluetooth / USB gamepads
+- LEGO® Power Functions infrared remotes (part numbers 8885 and 8879) — requires an Android device with an IR emitter
+- LEGO® Powered Up Remote (part number 88010)
+
 ## Project details
 
-BrickController 2 is a MAUI application and can be compiled using Visual Studio 2022 (Professional, Enterprise and Community Editions)
+BrickController 2 is a MAUI application and can be compiled using Visual Studio 2026 (Professional, Enterprise and Community Editions)
 or Visual Studio for Mac.
 
 ## 3rd party libraries used
 
-- Autofac IOC container
+- [Autofac IOC container](https://github.com/autofac/Autofac)
 - [SQLite-Net-Extensions Async](https://bitbucket.org/twincoders/sqlite-net-extensions)
 - [ZXing.Net.Maui](https://github.com/Redth/ZXing.Net.Maui)
 

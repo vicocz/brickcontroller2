@@ -1,6 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
@@ -351,7 +351,7 @@ namespace BrickController2.UI.ViewModels
             await Task.Delay(500, DisappearingToken);
             if (reset)
             {
-                Device.SetOutput(Action.Channel, GameControllers.BUTTON_RELEASED);
+                Device.SetOutput(Action.Channel, InputDevices.BUTTON_RELEASED);
             }
         }
 

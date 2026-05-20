@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
-using BrickController2.PlatformServices.GameController;
+using BrickController2.PlatformServices.InputDevice;
+using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.UI.Services.Dialog;
+
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.UI.Controls
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Dialogs : ContentView, IDialogServer
     {
-        public IGameControllerService? GameControllerService { get; set; }
+        public IInputDeviceEventService? InputDeviceEventService { get; set; }
 
         public Dialogs()
         {
@@ -244,14 +248,14 @@ namespace BrickController2.UI.Controls
             using (token.Register(() =>
             {
                 GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
-                GameControllerService!.GameControllerEvent -= gameControllerEventHandler!;
+                InputDeviceEventService!.InputDeviceEvent -= inputDeviceEventHandler!;
                 HideViewImmediately(GameControllerEventDialog);
-                tcs.TrySetResult(new GameControllerEventDialogResult(false, GameControllerEventType.Axis, string.Empty));
+                tcs.TrySetResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
             }))
             {
                 await ShowView(GameControllerEventDialog);
                 GameControllerEventDialogCancelButton.Clicked += buttonHandler!;
-                GameControllerService!.GameControllerEvent += gameControllerEventHandler!;
+                InputDeviceEventService!.InputDeviceEvent += inputDeviceEventHandler!;
 
                 return await tcs.Task;
             }
@@ -259,30 +263,32 @@ namespace BrickController2.UI.Controls
             async void buttonHandler(object sender, EventArgs args)
             {
                 GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
-                GameControllerService!.GameControllerEvent -= gameControllerEventHandler!;
+                InputDeviceEventService!.InputDeviceEvent -= inputDeviceEventHandler!;
                 await HideView(GameControllerEventDialog);
-                tcs.TrySetResult(new GameControllerEventDialogResult(false, GameControllerEventType.Axis, string.Empty));
+                tcs.TrySetResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
             }
 
-            async void gameControllerEventHandler(object sender, GameControllerEventArgs args)
+            async void inputDeviceEventHandler(object sender, InputDeviceEventArgs args)
             {
-                if (args.ControllerEvents.Count == 0)
+                if (args.InputDeviceEvents.Count == 0)
                 {
                     return;
                 }
 
-                foreach (var controllerEvent in args.ControllerEvents)
+                foreach (var controllerEvent in args.InputDeviceEvents)
                 {
-                    if ((controllerEvent.Key.EventType == GameControllerEventType.Axis && Math.Abs(controllerEvent.Value) > 0.8) ||
-                        (controllerEvent.Key.EventType == GameControllerEventType.Button && Math.Abs(controllerEvent.Value) < 0.05))
+                    if ((controllerEvent.Key.EventType == InputDeviceEventType.Axis && Math.Abs(controllerEvent.Value) > AXIS_PRESSED_THRESHOLD) ||
+                        (controllerEvent.Key.EventType == InputDeviceEventType.Button && Math.Abs(controllerEvent.Value) < BUTTON_RELEASED_THRESHOLD))
                     {
                         GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
-                        GameControllerService.GameControllerEvent -= gameControllerEventHandler!;
-                        await HideView(GameControllerEventDialog);
+                        InputDeviceEventService.InputDeviceEvent -= inputDeviceEventHandler!;
+
+                        // ensure UI is changed in main thread
+                        await MainThread.InvokeOnMainThreadAsync(() => Task.FromResult(HideView(GameControllerEventDialog)));
 
                         var gameControllerEventType = controllerEvent.Key.EventType;
                         var gameControllerEventCode = controllerEvent.Key.EventCode;
-                        tcs.TrySetResult(new GameControllerEventDialogResult(true, args.ControllerId, gameControllerEventType, gameControllerEventCode));
+                        tcs.TrySetResult(new GameControllerEventDialogResult(true, args.InputDeviceId, gameControllerEventType, gameControllerEventCode));
                         return;
                     }
                 }
@@ -298,21 +304,21 @@ namespace BrickController2.UI.Controls
 
             await Task.WhenAll(new Task[]
             {
-                view.ScaleTo(1.2, 50),
-                view.FadeTo(1.0, 50)
+                view.ScaleToAsync(1.2, 50),
+                view.FadeToAsync(1.0, 50)
             });
 
-            await view.ScaleTo(1.0, 50);
+            await view.ScaleToAsync(1.0, 50);
         }
 
         private async Task HideView(View view)
         {
-            await view.ScaleTo(1.2, 50);
+            await view.ScaleToAsync(1.2, 50);
 
             await Task.WhenAll(new Task[]
             {
-                view.ScaleTo(1.0, 50),
-                view.FadeTo(0, 50)
+                view.ScaleToAsync(1.0, 50),
+                view.FadeToAsync(0, 50)
             });
 
             HideViewImmediately(view);

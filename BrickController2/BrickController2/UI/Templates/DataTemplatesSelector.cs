@@ -11,6 +11,8 @@ public class DataTemplatesSelector : DataTemplateSelector
 
     public DataTemplate DoubleDataTemplate { get; set; } = default!;
 
+    public DataTemplate RgbColorDataTemplate { get; set; } = default!;
+
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {
         var itemType = item.GetType();
@@ -21,6 +23,8 @@ public class DataTemplatesSelector : DataTemplateSelector
             return EnumDataTemplate;
         if (itemType == typeof(DoubleSettingViewModel))
             return DoubleDataTemplate;
+        if (itemType == typeof(RgbColorSettingViewModel))
+            return RgbColorDataTemplate;
 
         return default!;
     }

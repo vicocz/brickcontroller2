@@ -39,6 +39,9 @@
                                                             IsVisible="{Binding HasSettings}"
                                                             Command="{Binding BindingContext.DeviceSettingsCommand, Source={x:Reference Page}}"
                                                             CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Rename}" Icon="edit" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding BindingContext.RenameDeviceCommand, Source={x:Reference Page}}"
+                                                            CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>

@@ -15,7 +15,7 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : WirelessProtocolBasedDevice
+internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteControl>
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
@@ -27,6 +27,9 @@ internal class RemoteControl : WirelessProtocolBasedDevice
     {
         SetSettingValue(ENABLED_SETTING_NAME, settings, DEFAULT_ENABLED);
     }
+
+    public static string TypeName => "Remote Control";
+    public static DeviceType Type => DeviceType.RemoteControl;
 
     public override DeviceType DeviceType => DeviceType.RemoteControl;
 

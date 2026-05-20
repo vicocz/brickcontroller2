@@ -5,6 +5,8 @@ using BrickController2.DeviceManagement.Lego;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.UI.Images;
+using Microsoft.Win32;
 using System;
 
 namespace BrickController2.DeviceManagement.DI
@@ -44,6 +46,9 @@ namespace BrickController2.DeviceManagement.DI
 
             // execute registration per vendors
             builder.RegisterAssemblyModules<IVendorModule>(typeof(DeviceManagementModule).Assembly);
+
+            // device image registry
+            builder.RegisterType<DeviceImageRegistry>().As<IDeviceImageRegistry>().SingleInstance();
 
             // additional dependencies
             builder.RegisterInstance(Random.Shared);

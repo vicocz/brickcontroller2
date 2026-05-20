@@ -29,9 +29,9 @@ namespace BrickController2.DeviceManagement
 
         private readonly OutputValuesGroup<Half> _outputValues = new(9);
         private readonly OutputValuesGroup<Half> _playVmValues = new(2);
+        private readonly int[] _calibratedZeroAngles = new int[3]; // zero ABS angles for steering ABC channels in non PLAYVM mode
 
         private bool _applyPlayVmMode;
-        private int _calibratedZeroAngle; // zero ABS angle for steering C channel in non PLAYVM mode
         private TaskCompletionSource<bool>? _playVmCalibrationTcs;
 
         public TechnicMoveDevice(string name,
@@ -51,21 +51,27 @@ namespace BrickController2.DeviceManagement
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
-        public override bool CanResetOutput(int channel) => channel == CHANNEL_C;
+        public override bool CanResetOutput(int channel) =>
+            (EnablePlayVmMode && channel == CHANNEL_C) || // PLAYVM - only C channel supports reset
+            (!EnablePlayVmMode && channel == CHANNEL_C);  // TODO standard mode - all A, B and C channels
 
-        public override bool CanChangeMaxServoAngle(int channel) => !EnablePlayVmMode && channel == CHANNEL_C;
+        public override bool CanChangeMaxServoAngle(int channel)
+            => !EnablePlayVmMode && channel == CHANNEL_C;  // TODO standard mode - all A, B and C channels
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
                 // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
-                // servo for both PLAYVM and normal mode but C channel only
-                ChannelOutputType.ServoMotor => channel == CHANNEL_C,
-                // stepper for normal mode but C channel only
-                ChannelOutputType.StepperMotor => !EnablePlayVmMode && channel == CHANNEL_C,
+                // servo for - PLAYVM and C channel only
+                //           - standard mode but A,B,C channels only
+                ChannelOutputType.ServoMotor =>
+                    (EnablePlayVmMode && channel == CHANNEL_C) ||
+                    (!EnablePlayVmMode && channel == CHANNEL_C),
+                // stepper for standard mode but A,B,C channels only
+                ChannelOutputType.StepperMotor => !EnablePlayVmMode && channel <= CHANNEL_C,
 
-                // other types (such as stepper) are not supported at all
+                // other types are not supported at all
                 _ => false,
             };
 
@@ -133,7 +139,7 @@ namespace BrickController2.DeviceManagement
             {
                 // reset hub LED
                 var ledCmd = BuildPortOutput_DirectMode(PORT_HUB_LED, HUB_LED_MODE_COLOR, HUB_LED_COLOR_WHITE);
-                await WriteAsync(ledCmd, token: token);
+                await WriteNoResponseAsync(ledCmd, token: token);
                 await DelayAsync(token);
             }
         }
@@ -201,7 +207,7 @@ namespace BrickController2.DeviceManagement
                 // otherwise all channels to be initialized
                 _outputValues.Initialize();
             }
-            _calibratedZeroAngle = default;
+            _calibratedZeroAngles.AsSpan().Clear();
         }
 
         protected override async Task<bool> SendOutputValuesAsync(CancellationToken token)
@@ -231,8 +237,8 @@ namespace BrickController2.DeviceManagement
                             // all channels command - use original value
                             int.MaxValue => await SendAllOutputValuesAsync(change.Value, token),
                             // classic output command for A, B, C channels (with servo support)
-                            CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendPortOutput_ServoAsync(change.Key, change.Value, token),
-                            CHANNEL_C when channelOutputType == ChannelOutputType.StepperMotor => await SendPortOutput_StepperAsync(change.Key, change.Value, token),
+                            <= CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendPortOutput_ServoAsync(change.Key, change.Value, token),
+                            <= CHANNEL_C when channelOutputType == ChannelOutputType.StepperMotor => await SendPortOutput_StepperAsync(change.Key, change.Value, token),
                             _ => await SendPortOutput_ValueAsync(change.Key, value, token),
                         };
 
@@ -304,7 +310,7 @@ namespace BrickController2.DeviceManagement
                     TimeSpan.FromMilliseconds(250), token);
 
                 // need to recalculate zero angle to support ABS POS commands
-                _calibratedZeroAngle = CalculateCalibratedTarget(channel);
+                _calibratedZeroAngles[channel] = CalculateCalibratedTarget(channel);
 
                 return true;
 
@@ -373,7 +379,8 @@ namespace BrickController2.DeviceManagement
                 {
                     // use simple Goto ABS position
                     var portId = GetPortId(channel);
-                    var servoCmd = BuildPortOutput_GotoAbsPosition(portId, _calibratedZeroAngle + baseAngle, servoSpeed: 0x28);
+                    var angle = _calibratedZeroAngles[channel] + baseAngle;
+                    var servoCmd = BuildPortOutput_GotoAbsPosition(portId, angle, servoSpeed: 0x28);
                     await WriteAsync(servoCmd, token: token);
 
                     // Wait for position to stabilize before allowing the output loop to start
@@ -432,14 +439,14 @@ namespace BrickController2.DeviceManagement
             return WriteAsync(cmd, token);
         }
 
-        private async ValueTask<bool> SendPortOutput_ServoAsync(int channel, Half value, CancellationToken token)
+        private ValueTask<bool> SendPortOutput_ServoAsync(int channel, Half value, CancellationToken token)
         {
             var portId = GetPortId(channel);
             // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
             var servoAngle = (int)value * GetMaxServoAngle(channel) / 100;
-            var absPosition = _calibratedZeroAngle + ChannelConfigs.Get(channel).ServoBaseAngle + servoAngle;
+            var absPosition = _calibratedZeroAngles[channel] + ChannelConfigs.Get(channel).ServoBaseAngle + servoAngle;
             var cmd = BuildPortOutput_GotoAbsPosition(portId, absPosition, servoSpeed: 50);
-            return await WriteAsync(cmd, token);
+            return WriteAsync(cmd, token);
         }
 
         private ValueTask<bool> SendPortOutput_StepperAsync(int channel, Half value, CancellationToken token)
@@ -456,8 +463,9 @@ namespace BrickController2.DeviceManagement
             var portId = GetPortId(channel);
 
             // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
-            var absPosition = position.Current + (int)value * ChannelConfigs.Get(channel).StepperAngle / 100;
-            var cmd = BuildPortOutput_GotoAbsPosition(portId, absPosition, servoSpeed: 50);
+            var servoValue = position.Current + (int)value * ChannelConfigs.Get(channel).StepperAngle / 100;
+            var servoSpeed = channel == CHANNEL_C ? (byte)50 : (byte)30;
+            var cmd = BuildPortOutput_GotoAbsPosition(portId, servoValue, servoSpeed);
             return WriteAsync(cmd, token);
         }
 
@@ -471,12 +479,13 @@ namespace BrickController2.DeviceManagement
             foreach (var channel in new[] { CHANNEL_A, CHANNEL_B, CHANNEL_C })
             {
                 var outputType = GetOutputType(channel);
-                result = result && outputType switch
+                result = result && await (outputType switch
                 {
-                    ChannelOutputType.ServoMotor => await SendPortOutput_ServoAsync(channel, value, token),
-                    ChannelOutputType.StepperMotor => await SendPortOutput_StepperAsync(channel, value, token),
-                    _ => await SendPortOutput_ValueAsync(channel, rawValue, token),
-                };
+                    ChannelOutputType.ServoMotor => SendPortOutput_ServoAsync(channel, value, token),
+                    ChannelOutputType.StepperMotor => SendPortOutput_StepperAsync(channel, value, token),
+                    _ => SendPortOutput_ValueAsync(channel, rawValue, token),
+                });
+
             }
 
             return result;

@@ -58,6 +58,7 @@ namespace BrickController2.DeviceManagement
 
         public static string TypeName => "BuWizz 2";
         public static DeviceType Type => DeviceType.BuWizz2;
+
         public override DeviceType DeviceType => DeviceType.BuWizz2;
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 4;

@@ -9,11 +9,10 @@ using Xunit;
 
 namespace BrickController2.Tests.UI.Images;
 
-public class DeviceImagesResouceTests
+public class DeviceImagesResourceTests
 {
     public static IEnumerable<object[]> DeviceTypesData =>
-        Enum.GetValues(typeof(DeviceType))
-            .Cast<DeviceType>()
+        Enum.GetValues<DeviceType>()
             .Where(deviceType => deviceType != DeviceType.Unknown) // Exclude Unknown
             .Select(deviceType => new object[] { deviceType });
 

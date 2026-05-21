@@ -39,13 +39,14 @@ public class DeviceImageRegistry : IDeviceImageRegistry
 
     public DeviceImageInfo GetImages(DeviceType deviceType)
     {
-        if (_registry.TryGetValue(deviceType, out var info))
+        if (!_registry.TryGetValue(deviceType, out var info))
         {
-            return info;
+            // Convention-based fallback
+            var typeName = deviceType.ToString().ToLowerInvariant();
+            info = new DeviceImageInfo($"{typeName}_image.png", $"{typeName}_image_small.png");
+            // Cache the convention-based result for future calls
+            _registry[deviceType] = info;
         }
-
-        // Convention-based fallback
-        var typeName = deviceType.ToString().ToLower();
-        return new DeviceImageInfo($"{typeName}_image.png", $"{typeName}_image_small.png");
+        return info;
     }
 }

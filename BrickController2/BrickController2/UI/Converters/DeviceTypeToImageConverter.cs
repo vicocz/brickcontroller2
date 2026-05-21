@@ -10,9 +10,11 @@ namespace BrickController2.UI.Converters
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            var deviceType = (DeviceType)value!;
-            var imageInfo = GetImage(deviceType);
-            return ResourceHelper.GetImageResource(imageInfo.ImageResourceName);
+            if (TryGetImage((DeviceType)value!, out var imageInfo))
+            {
+                return ResourceHelper.GetImageResource(imageInfo.ImageResourceName);
+            }
+            return null;
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

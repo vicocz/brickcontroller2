@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.CreationManagement;
+using BrickController2.Helpers;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -69,12 +70,19 @@ namespace BrickController2.DeviceManagement
         }
 
         public int OutputLevel => _outputLevel;
+        public bool HasOutputChannel => NumberOfChannels > 0;
 
         public abstract int NumberOfChannels { get; }
         public virtual int NumberOfOutputLevels => 1;
         public virtual int DefaultOutputLevel => 1;
 
-        public virtual bool CanChangeOutputType(int channel) => false;
+        /// <summary>
+        /// Check whether the output type specified in <paramref name="outputType"/> is supported
+        /// for given channel <paramref name="channel"/> 
+        /// </summary>
+        public virtual bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
+            // by default support motor output type only
+            => outputType == ChannelOutputType.NormalMotor;
 
         public abstract Task<DeviceConnectionResult> ConnectAsync(
             bool reconnect,
@@ -110,12 +118,12 @@ namespace BrickController2.DeviceManagement
         public virtual Task ActiveShelfModeAsync(CancellationToken token = default)
             => throw new InvalidOperationException("Shelf mode is not supported for this type of device.");
 
-        public async Task RenameDeviceAsync(Device device, string newName)
+        public async Task RenameDeviceAsync(string newName)
         {
             using (await _asyncLock.LockAsync())
             {
-                await _deviceRepository.UpdateDeviceAsync(device.DeviceType, device.Address, newName);
-                device.Name = newName;
+                await _deviceRepository.UpdateDeviceAsync(DeviceType, Address, newName);
+                Name = newName;
             }
         }
 
@@ -169,15 +177,16 @@ namespace BrickController2.DeviceManagement
             return Name;
         }
 
-        protected void CheckChannel(int channel)
+        protected int CheckChannel(int channel)
         {
             if (channel < 0 || channel >= NumberOfChannels)
             {
-                throw new ArgumentOutOfRangeException($"Invalid channel value: {channel}.");
+                throw new ArgumentOutOfRangeException(nameof(channel), $"Invalid channel value: {channel}.");
             }
+            return channel;
         }
 
-        protected float CutOutputValue(float outputValue)
+        protected static float CutOutputValue(float outputValue)
         {
             return Math.Max(-1F, Math.Min(1F, outputValue));
         }

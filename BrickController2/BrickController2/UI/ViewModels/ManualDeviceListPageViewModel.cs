@@ -1,16 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using BrickController2.DeviceManagement;
-using BrickController2.Helpers;
 using BrickController2.Extensions;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
-using ZXing.QrCode.Internal;
 using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.ViewModels
@@ -34,8 +31,11 @@ namespace BrickController2.UI.ViewModels
         {
             public DeviceType DeviceType { get; }
 
-            public DeviceGroup(DeviceType deviceType, List<DeviceEntry> deviceEntry) : base(deviceEntry)
+            public string GroupName { get; }
+
+            public DeviceGroup(DeviceType deviceType, string groupName, List<DeviceEntry> deviceEntries) : base(deviceEntries)
             {
+                GroupName = groupName;
                 DeviceType = deviceType;
             }
         }
@@ -55,9 +55,13 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             var groups = manualDeviceManager.FactoryDataList
-                .GroupBy(o => o.DeviceType, x => new DeviceEntry(x, GetDeviceInstance(x)));
+                // apply ordering per vendor and device type
+                .OrderBy(o => o.VendorName)
+                .ThenBy(o => o.DeviceTypeName)
+                .GroupBy(o => (o.VendorName, o.DeviceType, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));
 
-            GroupedFactoryDatas.AddRange(groups.Select(item => new DeviceGroup(item.Key, item.ToList())));
+            GroupedFactoryDatas.AddRange(groups
+                .Select(item => new DeviceGroup(item.Key.DeviceType, $"{item.Key.VendorName} - {item.Key.DeviceTypeName}", [.. item])));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
         }
@@ -71,13 +75,13 @@ namespace BrickController2.UI.ViewModels
         {
             // get all entries to create (=> entry.Selected && entry.ExistingDevice == null)
             IDeviceFactoryData[] devicesToCreate = GroupedFactoryDatas
-                .SelectMany(group => group.FindAll(entry => entry.Selected && entry.ExistingDevice == null)
+                .SelectMany(group => group.Where(entry => entry.Selected && entry.ExistingDevice == null)
                     .Select(entry => entry.DeviceFactoryData))
                 .ToArray();
 
             // get all entries to delete (=> !entry.Selected && entry.ExistingDevice != null)
             Device[] devicesToDelete = GroupedFactoryDatas
-                .SelectMany(group => group.FindAll(entry => !entry.Selected && entry.ExistingDevice != null)
+                .SelectMany(group => group.Where(entry => !entry.Selected && entry.ExistingDevice != null)
                     .Select(entry => entry.ExistingDevice!))
                 .ToArray();
 

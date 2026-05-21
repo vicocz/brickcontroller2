@@ -34,7 +34,7 @@ namespace BrickController2.DeviceManagement
         private const double DefaultPowerFunctionsCurrentLimit = 2100;
         private const bool DefaultAllowStatusLeds = false;
 
-        private static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
+        internal static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("50052901-74fb-4481-88b3-9919b1676e93");
 
         private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
@@ -95,7 +95,11 @@ namespace BrickController2.DeviceManagement
 
         public override string BatteryVoltageSign => "V";
 
-        public override bool CanChangeOutputType(int channel) => channel < NUMBER_OF_PU_PORTS;
+        public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType) =>
+            // allow motor output type for all channels 
+            outputType == ChannelOutputType.NormalMotor ||
+            // servo / stepper for PoweredUp channels only
+            channel < NUMBER_OF_PU_PORTS;
 
         public override bool CanChangeMaxServoAngle(int channel) => true;
 
@@ -203,6 +207,13 @@ namespace BrickController2.DeviceManagement
 
             return Task.FromResult(_characteristic != null && _firmwareRevisionCharacteristic != null && _modelNumberCharacteristic != null);
         }
+        protected override void BeforeDisconnectCleanup()
+        {
+            // Clear cached characteristic references to prevent using stale native Android objects on reconnection
+            _characteristic = null;
+            _modelNumberCharacteristic = null;
+            _firmwareRevisionCharacteristic = null;
+        }
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
@@ -254,6 +265,8 @@ namespace BrickController2.DeviceManagement
 
                 result = result && await ApplyCurrentLimitsAsync(token).ConfigureAwait(false);
                 result = result && await ResetMotorRampUpDownAsync(token).ConfigureAwait(false);
+                result = result && await StopAllChannelsAsync(token).ConfigureAwait(false);
+
                 result = result && await SetPuPortModesAsync(token).ConfigureAwait(false);
 
                 result = result && await WaitForNextCharacteristicNotificationAsync(token).ConfigureAwait(false);
@@ -568,6 +581,15 @@ namespace BrickController2.DeviceManagement
             }
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
+            return result;
+        }
+
+        private async Task<bool> StopAllChannelsAsync(CancellationToken token)
+        {
+            // send command 0x30 with all channels set to 0 and motor breaks
+            var reset = new byte[] { 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3F, 0x3F };
+            var result = await _bleDevice!.WriteAsync(_characteristic!, reset, token);
+            await Task.Delay(20, token);
             return result;
         }
 

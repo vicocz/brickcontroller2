@@ -124,6 +124,11 @@ namespace BrickController2.DeviceManagement
         protected abstract void InitDevice();
 
         /// <summary>
+        /// set device to discennected state
+        /// </summary>
+        protected abstract void DisconnectDevice();
+
+        /// <summary>
         /// Get or create BluetoothAdvertisingDeviceHandler
         /// </summary>
         /// <returns>Instance of BluetoothAdvertisingDeviceHandler</returns>

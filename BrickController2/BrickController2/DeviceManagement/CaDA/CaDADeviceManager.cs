@@ -8,50 +8,21 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// <summary>
 /// Manager for CaDA devices
 /// </summary>
-public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
+public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager,
+    ICaDADeviceManager
 {
     private const string SECTION = "CaDA";
     private const string APPIDKEY = "AppID";
 
-    // this identifier is patched into the advertising data identify the app
+    private readonly ICaDAPlatformService _cadaPlatformService;
+
+    // this identifier is patched into the advertising data to identify the app
     private readonly byte[] _appIdChecksumMaskArray;
 
-    public CaDADeviceManager(IPreferencesService preferencesService)
+    public CaDADeviceManager(IPreferencesService preferencesService, ICaDAPlatformService cadaPlatformService)
     {
-        // gets or creates an App-persistant AppIdentifier
-        try
-        {
-            if (preferencesService.ContainsKey(APPIDKEY, SECTION))
-            {
-                // throws exception if converting went wrong
-                _appIdChecksumMaskArray = Convert.FromBase64String(preferencesService.Get(APPIDKEY, string.Empty, SECTION));
-
-                // check minimum length
-                if(_appIdChecksumMaskArray?.Length >= 3)
-                {
-                    return; // valid
-                }
-            }
-        }
-        catch // catch all exceptions
-        {
-        }
-
-        // create new byte[] with random values
-        // * on first run
-        // * on exception
-        // * on length to short
-        _appIdChecksumMaskArray = new byte[3];
-
-        Random.Shared.NextBytes(_appIdChecksumMaskArray);
-
-        try
-        {
-            preferencesService.Set(APPIDKEY, Convert.ToBase64String(_appIdChecksumMaskArray), SECTION);
-        }
-        catch // catch all exceptions to keep app alive
-        {
-        }
+        _cadaPlatformService = cadaPlatformService;
+        _appIdChecksumMaskArray = CaDADeviceManager.GetAppIdentifier(preferencesService);
     }
 
     public AdvertisingInterval AdvertisingIterval => AdvertisingInterval.Min;
@@ -59,6 +30,8 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     public TxPowerLevel TXPowerLevel => TxPowerLevel.Max;
 
     public ushort ManufacturerId => CaDAProtocol.ManufacturerID;
+
+    public ReadOnlyMemory<byte> GetAppId() => _appIdChecksumMaskArray;
 
     /// <summary>
     /// Create an byte-array to be advertised on device-scan
@@ -86,7 +59,7 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
               0x00, // [15] 
         };
 
-        CaDAProtocol.GetRfPayload(CaDAProtocol.AddressArray, pairingDataArray, CaDAProtocol.CTXValue, out byte[] rf_payload_Array);
+        _cadaPlatformService.TryGetRfPayload(pairingDataArray, out byte[] rf_payload_Array);
 
         return rf_payload_Array;
     }
@@ -95,7 +68,7 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     {
         switch (manufacturerId)
         {
-            case 0xfff0:
+            case 0xfff0: // classic one
                 if (IsCadaRaceCar(manufacturerData))
                 {
                     // the origin deviceAddress is changing on every scan-response
@@ -112,6 +85,16 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
                 }
                 break;
 
+            case 0x11aa: // rev 2 with new protocol
+                if (IsCadaRaceCarRev2(manufacturerData))
+                {
+                    device = template with
+                    {
+                        DeviceType = DeviceType.CaDA_RaceCar
+                    };
+                    return true;
+                }
+                break;
                 // extend if needed to other CaDA devices
         }
         // no match
@@ -132,5 +115,59 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
             manufacturerData[7] == _appIdChecksumMaskArray[0] && // response has to have the same appId
             manufacturerData[8] == _appIdChecksumMaskArray[1] &&
             manufacturerData[9] == _appIdChecksumMaskArray[2];
+    }
+
+    private static bool IsCadaRaceCarRev2(ReadOnlySpan<byte> manufacturerData) => manufacturerData.Length == 16 &&
+        manufacturerData[2] == 0x11 &&
+        // response has 2 zeros as AppId - not connected yet
+        manufacturerData[3] == 0x00 &&
+        manufacturerData[4] == 0x00 &&
+        // flag not connected yet
+        manufacturerData[7] == 0x85;
+
+    /// <summary>
+    /// gets or creates an App-persistant AppIdentifier
+    /// </summary>
+    /// <param name="preferencesService">reference to preferencesService singleton</param>
+    /// <returns>byte array containing the AppIdentifier</returns>
+    private static byte[] GetAppIdentifier(IPreferencesService preferencesService)
+    {
+        byte[] appIdChecksumMaskArray;
+        // gets or creates an App-persistant AppIdentifier
+        try
+        {
+            if (preferencesService.ContainsKey(APPIDKEY, SECTION))
+            {
+                // throws exception if converting went wrong
+                appIdChecksumMaskArray = Convert.FromBase64String(preferencesService.Get(APPIDKEY, string.Empty, SECTION));
+
+                // check minimum length
+                if (appIdChecksumMaskArray?.Length >= 3)
+                {
+                    return appIdChecksumMaskArray; // valid
+                }
+            }
+        }
+        catch // catch all exceptions
+        {
+        }
+
+        // create new byte[] with random values
+        // * on first run
+        // * on exception
+        // * on length to short
+        appIdChecksumMaskArray = new byte[3];
+
+        Random.Shared.NextBytes(appIdChecksumMaskArray);
+
+        try
+        {
+            preferencesService.Set(APPIDKEY, Convert.ToBase64String(appIdChecksumMaskArray), SECTION);
+        }
+        catch // catch all exceptions to keep app alive
+        {
+        }
+
+        return appIdChecksumMaskArray;
     }
 }

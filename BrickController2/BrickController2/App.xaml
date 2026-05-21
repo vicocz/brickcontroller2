@@ -15,6 +15,7 @@
         </Style>
 
         <Style TargetType="controls:DeviceChannelLabel">
+            <Setter Property="Text" Value="1"/> <!--Workaround for default channel label if there is no device type defined-->
             <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
 
@@ -154,10 +155,10 @@
 
         <!-- Dialog related -->
 
-        <Style x:Key="DialogFrameStyle" TargetType="Frame">
+        <Style x:Key="DialogBorderStyle" TargetType="Border">
             <Setter Property="BackgroundColor" Value="{DynamicResource DialogBackgroundColor}"/>
-            <Setter Property="BorderColor" Value="{DynamicResource DialogBorderColor}"/>
-            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Stroke" Value="{DynamicResource DialogBorderColor}"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 10"/>
             <Setter Property="HorizontalOptions" Value="Center"/>
             <Setter Property="VerticalOptions" Value="Center"/>
             <Setter Property="WidthRequest" Value="{OnIdiom 280, Desktop=360}"/>
@@ -176,6 +177,28 @@
             <Setter Property="VerticalOptions" Value="Center"/>
         </Style>
 
+        <!-- Text button styles -->
+        <Style x:Key="TextButtonStyle" TargetType="Button">
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Margin" Value="0, 30, 0, 30"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource InlineButtonColor}"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="TextColor" Value="{DynamicResource SecondaryColor}" />
+                                <Setter Property="BackgroundColor" Value="{DynamicResource TertiaryTextColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver" />
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>        
+        
         <!-- Floating button styles -->
         <Style x:Key="FloatingActionButtonStyle" TargetType="controls:FloatingActionButton">
             <Setter Property="BackgroundColor" Value="{DynamicResource FloatingButtonColor}"/>
@@ -194,6 +217,20 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="HeightRequest" Value="46"/>
             <Setter Property="WidthRequest" Value="46"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Disabled">
+                            <VisualState.Setters>
+                                <Setter Property="ImageColor" Value="{DynamicResource SecondaryColor}" />
+                                <Setter Property="BackgroundColor" Value="{DynamicResource TertiaryTextColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState x:Name="PointerOver" />
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
         </Style>
 
         <!-- Misc -->

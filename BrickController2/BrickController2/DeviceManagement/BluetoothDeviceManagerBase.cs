@@ -22,31 +22,39 @@ public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
         // build device template using available data from scan
         var template = new FoundDevice(DeviceType.Unknown, scanResult.DeviceName, scanResult.DeviceAddress);
 
-        // if there is no manufacturer data, try other methods
-        if (!scanResult.TryGetManufacturerData(out var manufacturerData) || manufacturerData.Length < 2)
+        // adjust device template if there is manufacturer data present
+        if (scanResult.TryGetManufacturerData(out var manufacturerData) && manufacturerData.Length > 0)
         {
-            // by exact service UUID present in advertisment data
-            if (TryGetDeviceInfoByService(template, scanResult, out device))
+            template = template with
+            {
+                ManufacturerData = manufacturerData.ToArray()
+            };
+        }
+
+        // by exact service UUID present in advertisment data
+        if (TryGetDeviceInfoByService(template, scanResult, out device))
+        {
+            return true;
+        }
+
+        // if there is manufacturer data, try to apply it
+        if (manufacturerData.Length >= 2)
+        {
+            var manufacturerId = manufacturerData.GetUInt16();
+            if (TryGetDeviceByManufacturerData(scanResult, template, manufacturerId, manufacturerData, out device))
             {
                 return true;
             }
-
-            // by well known local name
-            if (scanResult.TryGetCompleteLocalName(out var localName))
-            {
-                return TryGetDeviceByCompleteLocalName(template, localName, out device);
-            }
-
-            device = default;
-            return false;
         }
-        // adjust device template
-        template = template with
+
+        // by well known local name
+        if (scanResult.TryGetCompleteLocalName(out var localName))
         {
-            ManufacturerData = manufacturerData.ToArray()
-        };
-        var manufacturerId = manufacturerData.GetUInt16();
-        return TryGetDeviceByManufacturerData(scanResult, template, manufacturerId, manufacturerData, out device);
+            return TryGetDeviceByCompleteLocalName(template, localName, out device);
+        }
+
+        device = default;
+        return false;
     }
 
     /// <summary>
@@ -93,12 +101,20 @@ public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
     private bool TryGetDeviceInfoByService(FoundDevice template, ScanResult scanResult, out FoundDevice device)
     {
         // 0x06: 128 bits Service UUID type
-        if (scanResult.TryGetData(ADTYPE_SERVICE_128BIT, out var serviceData))
+        if (scanResult.TryGetData(ADTYPE_INCOMPLETE_SERVICE_128BIT, out var incompleteServiceData))
         {
-            if (serviceData.Length == 16)
+            if (TryGetDeviceByServiceUiid(template, scanResult, incompleteServiceData, out device))
             {
-                var serviceGuid = BluetoothLowEnergy.GetGuid(serviceData);
-                return TryGetDeviceByServiceUiid(template, serviceGuid, out device);
+                return true;
+            }
+        }
+        
+        // 0x07: 128 bits Service UUID type
+        if (scanResult.TryGetData(ADTYPE_COMPLETE_SERVICE_128BIT, out var completeServiceData))
+        {
+            if (TryGetDeviceByServiceUiid(template, scanResult, completeServiceData, out device))
+            {
+                return true;
             }
         }
         // detect other types of UUID if needed
@@ -106,4 +122,23 @@ public abstract class BluetoothDeviceManagerBase : IBluetoothLEDeviceManager
         device = default;
         return false;
     }
+
+    private bool TryGetDeviceByServiceUiid(FoundDevice template, ScanResult scanResult, ReadOnlySpan<byte> serviceData, out FoundDevice device)
+    {
+        // go through all service UUIDs if needed
+        while (serviceData.Length >= 16)
+        {
+            var serviceGuid = BluetoothLowEnergy.GetGuid(serviceData[..16]);
+            if (TryGetDeviceByServiceUiid(template, serviceGuid, out device))
+            {
+                return true;
+            }
+
+            serviceData = serviceData[16..];
+        }
+
+        device = default;
+        return false;
+    }
 }
+

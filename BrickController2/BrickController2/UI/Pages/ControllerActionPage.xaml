@@ -6,7 +6,7 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:creationManagement="clr-namespace:BrickController2.CreationManagement"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:gameController="clr-namespace:BrickController2.PlatformServices.GameController"
+    xmlns:gameController="clr-namespace:BrickController2.PlatformServices.InputDevice"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.ControllerActionPage"
@@ -17,7 +17,9 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceAndChannelToChannelOutputTypeVisibleConverter x:Key="DeviceAndChannelToChannelOutputTypeVisible"/>
-            <converters:DeviceAndChannelToMaxServoAngleVisibleConverter x:Key="DeviceAndChannelToMaxServoAngleVisible"/>
+            <converters:DeviceAndChannelOutputTypeToMaxServoAngleVisibleConverter x:Key="DeviceAndChannelOutputTypeToMaxServoAngleVisible"/>
+            <converters:GameControllerEventTypeToImageConverter x:Key="EventTypeToImage"/>
+            <converters:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -27,10 +29,20 @@
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
+            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All" RowDefinitions="Auto,*">
+
+                <!-- Header -->
+                <Grid Grid.Row="0" Style="{StaticResource CollectionViewHeaderGridStyle}" ColumnDefinitions="Auto, *">
+                    <controls:ColorImage Grid.Column="0" Icon="{Binding ControllerEvent.EventType, Converter={StaticResource EventTypeToImage}}" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
+                    <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center">
+                        <Label Text="{Binding ControllerEvent.EventCode}" FontSize="Large" FontAttributes="Bold"/>
+                        <Label Text="-" FontSize="Large" IsVisible="{Binding ControllerEvent.ControllerId, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" Margin="5,0,5,0"/>
+                        <Label Text="{Binding ControllerEvent.ControllerId}" FontSize="Large" FontAttributes="Bold" IsVisible="{Binding ControllerEvent.ControllerId, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"/>
+                    </StackLayout>
+                </Grid>
 
                 <!-- Controller action -->
-                <ScrollView>
+                <ScrollView Grid.Row="1">
                     <VerticalStackLayout Padding="20">
 
                         <!-- Device selector -->
@@ -95,16 +107,20 @@
                                             <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.ServoMotor}">
                                                 <Setter Property="IsVisible" Value="True"/>
                                             </DataTrigger>
+                                            <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.StepperMotor}">
+                                                <Setter Property="IsVisible" Value="True"/>
+                                            </DataTrigger>
                                         </controls:FloatingActionButton.Triggers>
                                     </controls:FloatingActionButton>
                                 </Grid>
                             </Grid>
 
                             <!-- Max servo angle setting -->
-                            <Grid ColumnSpacing="6" Margin="0,10">
+                            <Grid ColumnSpacing="6" Margin="0,10" RowDefinitions="*,*">
                                 <Grid.IsVisible>
-                                    <MultiBinding Converter="{StaticResource DeviceAndChannelToMaxServoAngleVisible}">
+                                    <MultiBinding Converter="{StaticResource DeviceAndChannelOutputTypeToMaxServoAngleVisible}">
                                         <Binding Path="SelectedDevice" />
+										<Binding Path="Action.ChannelOutputType" />
                                         <Binding Path="Action.Channel" />
                                     </MultiBinding>
                                 </Grid.IsVisible>
@@ -119,10 +135,16 @@
                                     <Label Text="{Binding Action.MaxServoAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
                                     <Label Text="°"/>
                                 </StackLayout>
+                                <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate BaseAngle}"/>
+                                <StackLayout Grid.Column="1" Grid.Row="1"  Orientation="Horizontal">
+                                    <controls:ExtendedSlider Value="{Binding Action.ServoBaseAngle}" Minimum="-180" Maximum="179" Step="5" HorizontalOptions="FillAndExpand" MinimumTrackColor="LightGray"/>
+                                    <Label Text="{Binding Action.ServoBaseAngle}" WidthRequest="35" HorizontalOptions="End" HorizontalTextAlignment="End"/>
+                                    <Label Text="°"/>
+                                </StackLayout>
                             </Grid>
 
                             <!-- Stepper angle setting -->
-                            <VerticalStackLayout IsVisible="False">
+                            <VerticalStackLayout IsVisible="False" Margin="0,10">
                                 <VerticalStackLayout.Triggers>
                                     <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.StepperMotor}">
                                         <Setter Property="IsVisible" Value="True"/>
@@ -149,7 +171,7 @@
                         <!-- Button type selector -->
                         <VerticalStackLayout IsVisible="False">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Button}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Button}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
@@ -194,7 +216,7 @@
                         <!-- Axis type selector -->
                         <VerticalStackLayout IsVisible="False">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Axis}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
@@ -214,7 +236,7 @@
                         <!-- Axis characteristic selector -->
                         <VerticalStackLayout IsVisible="False">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Axis}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
@@ -258,7 +280,7 @@
                         <!-- Axis active and dead zones percent -->
                         <VerticalStackLayout IsVisible="False" Margin="0,6">
                             <VerticalStackLayout.Triggers>
-                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:GameControllerEventType.Axis}">
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>

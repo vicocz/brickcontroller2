@@ -6,7 +6,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*windows.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -16,7 +16,7 @@ on:
       - default
       - 'releases/**'
     paths:
-      - '.github/**/*.yml'
+      - '.github/**/*windows.yml'
       - 'BrickController2/*.props'
       - 'BrickController2/*.sln'
       - 'BrickController2/BrickController2/**'
@@ -29,61 +29,91 @@ on:
 permissions:
   contents: read
 
+env:
+  PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
+
 jobs:
-  build-android:
+  build-winui:
     runs-on: windows-2025
     name: BrickController WinUI Build
+    env:
+      APP_DISPLAY_VERSION: ""
+      APP_PACKAGE_VERSION: ""
+
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
+
+    - name: Install .NET MAUI Workload
+      run: dotnet workload install maui-windows
+
+    - name: Find Current Release Info
+      if: github.event_name == 'release' && github.event.action == 'published'
+      id: get_release
+      uses: octokit/request-action@v2.x
+      with:
+        route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set app version for release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      shell: bash
+      run: |
+        TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
+        # Split the tag into parts, remove leading zeros and add missing parts as zeros
+        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"  
+        for i in "${!VERSION_PARTS[@]}"; do  
+          VERSION_PARTS[$i]=$(echo "${VERSION_PARTS[$i]}" | sed 's/^0*//')  
+        done  
+        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV  
+        echo "APP_PACKAGE_VERSION=${VERSION_PARTS[0]:-0}.${VERSION_PARTS[1]:-0}.${VERSION_PARTS[2]:-0}.${VERSION_PARTS[3]:-0}" >> $GITHUB_ENV
+
+    - name: Decode Signing Certificate
+      run: |
+        echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
+        certutil -decode cert.asc cert.pfx
+
+    - name: Install Signing Certificate
+      run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
             
     - name: Restore Dependencies
-      run: dotnet restore BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj
-    - name: Build MAUI WinUI
-      run: dotnet publish BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj -c Release -r win-x64 -f:net9.0-windows10.0.19041.0 /p:PublishProfile=win10-x64 /p:GenerateAppxPackageOnBuild=true
+      run: dotnet restore ${{env.PROJECT_PATH}}
+
+    - name: Build
+      run: dotnet build ${{env.PROJECT_PATH}} `
+        -c Release `
+        -r win-x64 `
+        -p:Platform=x64 `
+        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
+        -p:ApplicationVersion="0" `
+        -p:PackageVersion="${{ env.APP_PACKAGE_VERSION }}"
+
+    - name: Build MAUI WinUI App
+      run: dotnet publish ${{env.PROJECT_PATH}} `
+        -c Release `
+        -r win-x64 `
+        -p:Platform=x64 `
+        -p:GenerateAppxPackageOnBuild=true `
+        -p:AppxPackageSigningEnabled=true `
+        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v4
       with:
         name: brickcontroller-winui-ci-build
-        path: .\**\AppPackages\**\*.*
-
-    - name: Get Release ID by tag
-      id: get_release_id
-      shell: pwsh
-      run: |
-        $ErrorActionPreference = "Stop"
-
-        # Required inputs
-        $tag = "2025.03-alfa2"  # <-- Replace with your actual tag or make it an input/env var
-        $repo = "${{ github.repository }}"
-        $token = "${{ secrets.GITHUB_TOKEN }}"
-
-        # GitHub API URL
-        $url = "https://api.github.com/repos/$repo/releases/tags/$tag"
-        # Fetch the release data
-        $response = Invoke-RestMethod -Uri $url -Headers @{ Authorization = "Bearer $token"; "User-Agent" = "powershell-script" }
-        # Extract release ID
-        $releaseId = $response.id
-        Write-Host "Release ID: $releaseId"
-        # Set output
-        echo "release_id=$releaseId" >> $env:GITHUB_OUTPUT
+        path: .\**\AppPackages\**\BrickController*.msix
 
     - name: Upload Artifact to Release
-      #if: github.event_name == 'release' && github.event.action == 'published'
-      run: |
-        # Get the release ID
-        RELEASE_ID=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
-          https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME} | jq -r '.id')
-
-        # Upload the artifact
-        curl -X POST \
-          -H "Authorization: Bearer $GITHUB_TOKEN" \
-          -H "Content-Type: application/vnd.android.package-archive" \
-          -D @BrickController2/BrickController2.Android/bin/Release/net9.0-android/com.scn.BrickController2-Signed.apk \
-          "https://uploads.github.com/repos/${GITHUB_REPOSITORY}/releases/$RELEASE_ID/assets?name=com.scn.BrickController2-Signed.apk"
+      if: github.event_name == 'release' && github.event.action == 'published'
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
+        asset_path: BrickController2\BrickController2.WinUI\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
+        asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
+        asset_content_type: application/vnd.ms-appx
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

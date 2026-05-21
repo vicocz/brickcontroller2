@@ -86,6 +86,12 @@
                                         <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerActionCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate ChannelSetup}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.OpenControllerActionSetupCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"
+                                                            IsVisible="{Binding IsChannelSetupSupported}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
                                 <Grid Style="{StaticResource CollectionItemGridStyle}">
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding BindingContext.ControllerActionTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
@@ -115,7 +121,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10" IsVisible="{Binding IsControllerIdSupported}"/>
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10"/>
                 <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEvent}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>

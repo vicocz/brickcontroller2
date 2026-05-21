@@ -6,13 +6,13 @@ namespace BrickController2.PlatformServices.BluetoothLE
 {
     public interface IBluetoothLEService
     {
-        bool IsBluetoothLESupported { get; }
-        bool IsBluetoothLEAdvertisingSupported { get; }
-        bool IsBluetoothOn { get; }
+        Task<bool> IsBluetoothLESupportedAsync();
+        Task<bool> IsBluetoothLEAdvertisingSupportedAsync();
+        Task<bool> IsBluetoothOnAsync();
 
         Task<bool> ScanDevicesAsync(Action<ScanResult> scanCallback, CancellationToken token);
 
-        IBluetoothLEDevice? GetKnownDevice(string address);
+        Task<IBluetoothLEDevice?> GetKnownDeviceAsync(string address);
 
         IBluetoothLEAdvertiserDevice? CreateBluetoothLEAdvertiserDevice();
     }

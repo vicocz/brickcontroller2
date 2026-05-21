@@ -18,6 +18,7 @@ namespace BrickController2.PlatformServices.BluetoothLE
         Task DisconnectAsync();
 
         Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token);
+        Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token);
 
         Task<byte[]?> ReadAsync(IGattCharacteristic characteristic, CancellationToken token);
 

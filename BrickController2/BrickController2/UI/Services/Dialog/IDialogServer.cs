@@ -1,9 +1,9 @@
-﻿using BrickController2.PlatformServices.GameController;
+﻿using BrickController2.PlatformServices.InputDeviceService;
 
 namespace BrickController2.UI.Services.Dialog
 {
     public interface IDialogServer : IDialogService
     {
-        IGameControllerService? GameControllerService { get; set; }
+        IInputDeviceEventService? InputDeviceEventService { get; set; }
     }
 }

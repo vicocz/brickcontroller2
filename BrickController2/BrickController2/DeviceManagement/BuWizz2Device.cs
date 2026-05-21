@@ -1,4 +1,5 @@
 ﻿using BrickController2.DeviceManagement.BuWizz;
+using BrickController2.DeviceManagement.IO;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
@@ -12,11 +13,9 @@ namespace BrickController2.DeviceManagement
 {
     internal class BuWizz2Device : BluetoothDevice, IDeviceType<BuWizz2Device>
     {
-        private const int MAX_SEND_ATTEMPTS = 10;
-
         internal static readonly Guid SERVICE_UUID = new Guid("4e050000-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("000092d1-0000-1000-8000-00805f9b34fb");
-                
+
         private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID_MODEL_NUMBER = new Guid("00002a24-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
@@ -27,17 +26,14 @@ namespace BrickController2.DeviceManagement
         private const string DefaultOutputLevelName = "BuWizz2DefaultOutputLevel";
         private const BuWizz2OutputLevels DefaultLevel = BuWizz2OutputLevels.Normal;
 
-        private readonly int[] _outputValues = new int[4];
-        private readonly int[] _lastOutputValues = new int[4];
-        private readonly object _outputLock = new object();
+        private readonly OutputValuesGroup<int> _outputGroup = new(4);
 
         private DateTime _batteryMeasurementTimestamp;
         private byte _batteryVoltageRaw;
         private byte _motorVoltageRaw;
 
         private volatile int _outputLevelValue;
-        private volatile int _sendAttemptsLeft;
-
+        
         private IGattCharacteristic? _characteristic;
         private IGattCharacteristic? _modelNumberCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
@@ -73,15 +69,7 @@ namespace BrickController2.DeviceManagement
             value = CutOutputValue(value);
 
             var intValue = (int)(value * 255);
-
-            lock (_outputLock)
-            {
-                if (_outputValues[channel] != intValue)
-                {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-                }
-            }
+            _outputGroup.SetOutput(channel, intValue);
         }
 
         public override bool CanSetOutputLevel => true;
@@ -176,59 +164,30 @@ namespace BrickController2.DeviceManagement
         {
             try
             {
-                lock (_outputLock)
-                {
-                    _outputValues[0] = 0;
-                    _outputValues[1] = 0;
-                    _outputValues[2] = 0;
-                    _outputValues[3] = 0;
-                    _lastOutputValues[0] = 1;
-                    _lastOutputValues[1] = 1;
-                    _lastOutputValues[2] = 1;
-                    _lastOutputValues[3] = 1;
-                    _outputLevelValue = DefaultOutputLevel;
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-                }
+                _outputGroup.Initialize();
+                _outputLevelValue = DefaultOutputLevel;
 
-                var _lastSentOutputLevelValue = -1;
+                var lastSentOutputLevelValue = -1;
 
                 while (!token.IsCancellationRequested)
                 {
-                    if (_lastSentOutputLevelValue != _outputLevelValue)
+                    if (lastSentOutputLevelValue != _outputLevelValue)
                     {
                         if (await SendOutputLevelValueAsync(_outputLevelValue, token))
                         {
-                            _lastSentOutputLevelValue = _outputLevelValue;
+                            lastSentOutputLevelValue = _outputLevelValue;
+                        }
+                    }
+                    else if (_outputGroup.TryGetValues(out var values))
+                    {
+                        if (await SendOutputValuesAsync(values[0], values[1], values[2], values[3], token).ConfigureAwait(false))
+                        {
+                            _outputGroup.Commit();
                         }
                     }
                     else
                     {
-                        int v0, v1, v2, v3, sendAttemptsLeft;
-
-                        lock (_outputLock)
-                        {
-                            v0 = _outputValues[0];
-                            v1 = _outputValues[1];
-                            v2 = _outputValues[2];
-                            v3 = _outputValues[3];
-                            sendAttemptsLeft = _sendAttemptsLeft;
-                            _sendAttemptsLeft = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
-                        }
-
-                        if (v0 != _lastOutputValues[0] || v1 != _lastOutputValues[1] || v2 != _lastOutputValues[2] || v3 != _lastOutputValues[3] || sendAttemptsLeft > 0)
-                        {
-                            if (await SendOutputValuesAsync(v0, v1, v2, v3, token).ConfigureAwait(false))
-                            {
-                                _lastOutputValues[0] = v0;
-                                _lastOutputValues[1] = v1;
-                                _lastOutputValues[2] = v2;
-                                _lastOutputValues[3] = v3;
-                            }
-                        }
-                        else
-                        {
-                            await Task.Delay(10, token).ConfigureAwait(false);
-                        }
+                        await Task.Delay(10, token).ConfigureAwait(false);
                     }
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using BrickController2.DeviceManagement.BuWizz;
+using BrickController2.DeviceManagement.IO;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
 using System;
@@ -11,7 +12,6 @@ namespace BrickController2.DeviceManagement
 {
     internal class BuWizzDevice : BluetoothDevice
     {
-        private const int MAX_SEND_ATTEMPTS = 10;
 
         private static readonly Guid SERVICE_UUID = new Guid("0000ffe0-0000-1000-8000-00805f9b34fb");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("0000ffe1-0000-1000-8000-00805f9b34fb");
@@ -21,11 +21,7 @@ namespace BrickController2.DeviceManagement
         private const string DefaultOutputLevelName = "BuWizzDefaultOutputLevel";
         private const BuWizzOutputLevels DefaultLevel = BuWizzOutputLevels.Normal;
 
-        private readonly int[] _outputValues = new int[4];
-        private readonly object _outputLock = new object();
-
-        private volatile int _outputLevelValue;
-        private volatile int _sendAttemptsLeft;
+        private readonly OutputValuesGroup<int> _outputGroup = new(5);
 
         private IGattCharacteristic? _characteristic;
 
@@ -50,25 +46,15 @@ namespace BrickController2.DeviceManagement
             value = CutOutputValue(value);
 
             var intValue = (int)(value * 255);
-
-            lock (_outputLock)
-            {
-                if (_outputValues[channel] != intValue)
-                {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-                }
-            }
+            _outputGroup.SetOutput(channel, intValue);
         }
 
         public override bool CanSetOutputLevel => true;
 
         public override void SetOutputLevel(int value)
         {
-            lock (_outputLock)
-            {
-                _outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
-            }
+            var outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
+            _outputGroup.SetOutput(4, outputLevelValue);
         }
 
         public override bool CanBePowerSource => true;
@@ -90,48 +76,20 @@ namespace BrickController2.DeviceManagement
 
         protected override async Task ProcessOutputsAsync(CancellationToken token)
         {
-            lock (_outputLock)
-            {
-                _outputValues[0] = 0;
-                _outputValues[1] = 0;
-                _outputValues[2] = 0;
-                _outputValues[3] = 0;
-                _outputLevelValue = DefaultOutputLevel;
-                _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
-            }
+            _outputGroup.Initialize();
+            _outputGroup.SetOutput(4, DefaultOutputLevel);
 
-            int[] lastOutputValues = new int[4] { 1, 1, 1, 1 };
-            var lastOutputLevelValue = -1;
             DateTime lastOutputWrite = DateTime.MinValue;
 
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    int v0, v1, v2, v3, level, sendAttemptsLeft;
-
-                    lock (_outputLock)
+                    if (_outputGroup.TryGetValues(out var values) || (DateTime.Now - lastOutputWrite > LastOutputTimeout))
                     {
-                        v0 = _outputValues[0];
-                        v1 = _outputValues[1];
-                        v2 = _outputValues[2];
-                        v3 = _outputValues[3];
-                        level = _outputLevelValue;
-                        sendAttemptsLeft = _sendAttemptsLeft;
-                        _sendAttemptsLeft = sendAttemptsLeft > 0 ? sendAttemptsLeft - 1 : 0;
-                    }
-
-                    if (v0 != lastOutputValues[0] || v1 != lastOutputValues[1] || v2 != lastOutputValues[2] || v3 != lastOutputValues[3] || sendAttemptsLeft > 0 ||
-                        level != lastOutputLevelValue || (DateTime.Now - lastOutputWrite > LastOutputTimeout))
-                    {
-                        if (await SendOutputValuesAsync(v0, v1, v2, v3, level, token).ConfigureAwait(false))
+                        if (await SendOutputValuesAsync(values[0], values[1], values[2], values[3], level: values[4], token).ConfigureAwait(false))
                         {
-                            lastOutputValues[0] = v0;
-                            lastOutputValues[1] = v1;
-                            lastOutputValues[2] = v2;
-                            lastOutputValues[3] = v3;
-
-                            lastOutputLevelValue = level;
+                            _outputGroup.Commit();
                             lastOutputWrite = DateTime.Now;
                         }
                     }

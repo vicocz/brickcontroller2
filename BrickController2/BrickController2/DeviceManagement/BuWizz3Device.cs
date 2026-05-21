@@ -630,18 +630,29 @@ namespace BrickController2.DeviceManagement
 
         private async Task<bool> SetLEDStatusAsync(bool enable, CancellationToken token)
         {
-            byte ledBlink = enable ? LED_STATUS_SOLID_ON : LED_STATUS_OFF;
+            byte ledBlink = enable ? LED_STATUS_SOLID_4 : LED_STATUS_OFF;
 //            var buffer = new byte[] { CMD_SET_LED_STATUS, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, ledBlink, ledBlink, ledBlink, ledBlink };
 
-            byte[] buffer = enable ? [CMD_SET_LED_STATUS, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0] :
-                    [CMD_SET_LED_STATUS, 0, 255, 0, 0, 255, 0, 0, 255, 0, 0, 255, 0, ledBlink, ledBlink, ledBlink, ledBlink];
+            byte[] buffer = enable
+                ? [
+                    CMD_SET_LED_STATUS,
+                    0x00, 0xFF, 0x00,
+                    0x00, 0xFF, 0x00,
+                    0x00, 0xFF, 0x00,
+                    0x00, 0xFF, 0x00,
 
+                    ledBlink, ledBlink, ledBlink, ledBlink
+                ]
+                : [
+                    CMD_SET_LED_STATUS,
+                    0, 0xFF, 0,
+                    0, 0xFF, 0,
+                    0, 0xFF, 0,
+                    0, 0xFF, 0,
+                    LED_STATUS_OFF, LED_STATUS_OFF, LED_STATUS_OFF, LED_STATUS_OFF
+                ];
 
-
-
-            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
-            await Task.Delay(50, token).ConfigureAwait(false);
-            return result;
+            return await WriteAsync(buffer, token);
         }
 
         private async Task<bool> ResetMotorRampUpDownAsync(CancellationToken token)
@@ -649,6 +660,14 @@ namespace BrickController2.DeviceManagement
             var buffer = new byte[] { 0x33, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100 };
             var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
             await Task.Delay(50, token).ConfigureAwait(false);
+            return result;
+        }
+
+        private async ValueTask<bool> WriteAsync(byte[] buffer, CancellationToken token)
+        {
+            var result = await _bleDevice!.WriteAsync(_characteristic!, buffer, token).ConfigureAwait(false);
+            await Task.Delay(50, token).ConfigureAwait(false);
+
             return result;
         }
 
@@ -754,30 +773,6 @@ namespace BrickController2.DeviceManagement
         {
             _characteristicNotificationResetEvent.Reset();
             return await _characteristicNotificationResetEvent.WaitAsync(token).ConfigureAwait(false);
-        }
-
-        private int NormalizeAngle(int angle)
-        {
-            if (angle >= 180)
-            {
-                return angle - (360 * ((angle + 180) / 360));
-            }
-            else if (angle < -180)
-            {
-                return angle + (360 * ((180 - angle) / 360));
-            }
-
-            return angle;
-        }
-
-        private int RoundAngleToNearest90(int angle)
-        {
-            angle = NormalizeAngle(angle);
-            if (angle < -135) return -180;
-            if (angle < -45) return -90;
-            if (angle < 45) return 0;
-            if (angle < 135) return 90;
-            return -180;
         }
     }
 }

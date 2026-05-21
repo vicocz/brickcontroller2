@@ -18,7 +18,8 @@ internal static class BuWizz3Protocol
     public const byte PU_PORT_ABSOLUTE_SERVO = 0x16;
 
     public const byte LED_STATUS_OFF = 0x00;
-    public const byte LED_STATUS_SOLID_ON = 0xff;
+    public const byte LED_STATUS_SOLID_4 = 0x1F;
+    public const byte LED_STATUS_SOLID_ON = 0x0f;
 
     public static byte[] ActivteShelfMode() => [ 0xA1 ];
 

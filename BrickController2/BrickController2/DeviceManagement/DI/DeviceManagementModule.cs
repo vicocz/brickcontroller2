@@ -33,7 +33,6 @@ namespace BrickController2.DeviceManagement.DI
             });
 
             // device managers
-            builder.RegisterDeviceManager<BuWizzDeviceManager>();
             builder.RegisterDeviceManager<CircuitCubeDeviceManager>();
             builder.RegisterDeviceManager<PfxBrickDeviceManager>();
 

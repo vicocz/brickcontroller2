@@ -13,12 +13,9 @@ public abstract class DeviceTypeToImageConverterBase
 
     protected bool TryGetImage(DeviceType deviceType, [NotNullWhen(true)] out DeviceImageInfo? imageInfo)
     {
-        if (deviceType != DeviceType.Unknown)
-        {
-            imageInfo = _registry.Value.GetImages(deviceType);
-            return true;
-        }
-        imageInfo = null;
-        return false;
+        imageInfo = deviceType != DeviceType.Unknown
+            ? _registry.Value.GetImages(deviceType)
+            : null;
+        return imageInfo != null;
     }
 }

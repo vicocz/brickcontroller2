@@ -71,7 +71,7 @@ internal class PfxBrickDevice : BluetoothDevice
 
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
     {
-        if (_notifyCharacteristic is null || characteristicGuid != _notifyCharacteristic.Uuid || data.Length == 0)
+        if (characteristicGuid != _notifyCharacteristic?.Uuid || data.Length == 0)
             return;
 
         if (data.Length == 1) // notification

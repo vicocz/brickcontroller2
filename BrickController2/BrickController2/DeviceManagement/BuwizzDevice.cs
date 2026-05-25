@@ -29,7 +29,7 @@ namespace BrickController2.DeviceManagement
 
         private IGattCharacteristic? _characteristic;
 
-        public BuWizzDevice(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizzDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
             // apply values (if any) or default

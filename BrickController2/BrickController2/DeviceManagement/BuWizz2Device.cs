@@ -9,17 +9,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.Protocols.GattProtocol;
+
 namespace BrickController2.DeviceManagement
 {
     internal class BuWizz2Device : BluetoothDevice, IDeviceType<BuWizz2Device>
     {
         internal static readonly Guid SERVICE_UUID = new Guid("4e050000-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("000092d1-0000-1000-8000-00805f9b34fb");
-
-        private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_MODEL_NUMBER = new Guid("00002a24-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
-
+                
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
 
         private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
@@ -86,9 +84,9 @@ namespace BrickController2.DeviceManagement
             var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
             _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID);
 
-            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_DEVICE_INFORMATION);
-            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_FIRMWARE_REVISION);
-            _modelNumberCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_MODEL_NUMBER);
+            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == Services.DeviceInformation);
+            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.FirmwareRevision);
+            _modelNumberCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.ModelNumber);
 
             if (_characteristic is not null)
             {
@@ -96,6 +94,14 @@ namespace BrickController2.DeviceManagement
             }
 
             return _characteristic is not null && _firmwareRevisionCharacteristic is not null && _modelNumberCharacteristic is not null;
+        }
+
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_characteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_characteristic, token);
+            }
         }
 
         protected override void BeforeDisconnectCleanup()
@@ -108,7 +114,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != _characteristic!.Uuid || data.Length < 4 || data[0] != 0x00)
+            if (characteristicGuid != _characteristic?.Uuid || data.Length < 4 || data[0] != 0x00)
             {
                 return;
             }

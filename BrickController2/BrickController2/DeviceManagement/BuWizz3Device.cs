@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using static BrickController2.Protocols.BuWizz3Protocol;
+using static BrickController2.Protocols.GattProtocol;
 
 namespace BrickController2.DeviceManagement
 {
@@ -32,10 +33,6 @@ namespace BrickController2.DeviceManagement
 
         internal static readonly Guid SERVICE_UUID = new Guid("500592d1-74fb-4481-88b3-9919b1676e93");
         private static readonly Guid CHARACTERISTIC_UUID = new Guid("50052901-74fb-4481-88b3-9919b1676e93");
-
-        private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_MODEL_NUMBER = new Guid("00002a24-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
 
         private static readonly TimeSpan VoltageMeasurementTimeout = TimeSpan.FromSeconds(5);
         private static readonly bool ApplyWriteWorkaround = DeviceInfo.Platform == DevicePlatform.Android;
@@ -68,7 +65,7 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _modelNumberCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
 
-        public BuWizz3Device(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public BuWizz3Device(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
             // apply current limit for PU ports
@@ -195,12 +192,20 @@ namespace BrickController2.DeviceManagement
             var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
             _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID);
 
-            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_DEVICE_INFORMATION);
-            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_FIRMWARE_REVISION);
-            _modelNumberCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_MODEL_NUMBER);
+            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == Services.DeviceInformation);
+            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.FirmwareRevision);
+            _modelNumberCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.ModelNumber);
 
             return Task.FromResult(_characteristic != null && _firmwareRevisionCharacteristic != null && _modelNumberCharacteristic != null);
         }
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_characteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_characteristic, token);
+            }
+        }
+
         protected override void BeforeDisconnectCleanup()
         {
             // Clear cached characteristic references to prevent using stale native Android objects on reconnection
@@ -211,7 +216,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != _characteristic!.Uuid || data.Length < 54 || data[0] != 0x01)
+            if (characteristicGuid != _characteristic?.Uuid || data.Length < 54 || data[0] != 0x01)
             {
                 return;
             }

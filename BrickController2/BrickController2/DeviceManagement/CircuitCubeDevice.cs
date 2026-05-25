@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.Protocols.GattProtocol;
+
 namespace BrickController2.DeviceManagement
 {
     internal class CircuitCubeDevice : BluetoothDevice
@@ -16,10 +18,6 @@ namespace BrickController2.DeviceManagement
         internal static readonly Guid SERVICE_UUID = new Guid("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
         private static readonly Guid CHARACTERISTIC_UUID_WRITE = new Guid("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
         private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new Guid("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
-
-        private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_HARDWARE_REVISION = new Guid("00002a27-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
 
         // Turn off power to all motors command: <0>
         private static readonly byte[] TURN_OFF_ALL_COMMAND = new[] { (byte)'0' };
@@ -39,7 +37,7 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _hardwareRevisionCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
 
-        public CircuitCubeDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public CircuitCubeDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
         }
@@ -73,9 +71,9 @@ namespace BrickController2.DeviceManagement
             var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
             _writeCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_WRITE);
 
-            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_DEVICE_INFORMATION);
-            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_FIRMWARE_REVISION);
-            _hardwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_HARDWARE_REVISION);
+            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == Services.DeviceInformation);
+            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.FirmwareRevision);
+            _hardwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.HardwareRevision);
 
             _notifyCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_NOTIFY);
             if (_notifyCharacteristic is not null)
@@ -88,7 +86,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != _notifyCharacteristic!.Uuid || data.Length <= 1)
+            if (characteristicGuid != _notifyCharacteristic?.Uuid || data.Length <= 1)
                 return;
 
             var bateryVoltage = data.ToAsciiStringSafe();
@@ -97,6 +95,14 @@ namespace BrickController2.DeviceManagement
                 BatteryVoltage = bateryVoltage;
             }
         }
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_notifyCharacteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
+            }
+        }
+
         protected override void BeforeDisconnectCleanup()
         {
             _writeCharacteristic = null;

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using static BrickController2.Protocols.GattProtocol;
+
 namespace BrickController2.DeviceManagement
 {
     internal class Wedo2Device : BluetoothDevice
@@ -18,9 +20,6 @@ namespace BrickController2.DeviceManagement
         private static readonly Guid SENSOR_VALUE_CHARACTERISTIC_UUID = new Guid("00001560-1212-efde-1523-785feabcd123");
         private static readonly Guid INPUT_CHARACTERISTIC_UUID = new Guid("00001563-1212-efde-1523-785feabcd123");
         private static readonly Guid OUTPUT_CHARACTERISTIC_UUID = new Guid("00001565-1212-efde-1523-785feabcd123");
-
-        private static readonly Guid SERVICE_UUID_DEVICE_INFORMATION = new Guid("0000180a-0000-1000-8000-00805f9b34fb");
-        private static readonly Guid CHARACTERISTIC_UUID_FIRMWARE_REVISION = new Guid("00002a26-0000-1000-8000-00805f9b34fb");
 
         // Motor Driving Commands
         private readonly byte[] _motorBuffer = new byte[] { 0x00, 0x01, 0x01, 0x00 };
@@ -36,7 +35,7 @@ namespace BrickController2.DeviceManagement
         private IGattCharacteristic? _inputCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
 
-        public Wedo2Device(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public Wedo2Device(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
         }
@@ -76,8 +75,8 @@ namespace BrickController2.DeviceManagement
             _sensorValueCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == SENSOR_VALUE_CHARACTERISTIC_UUID);
             _inputCharacteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == INPUT_CHARACTERISTIC_UUID);
 
-            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID_DEVICE_INFORMATION);
-            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == CHARACTERISTIC_UUID_FIRMWARE_REVISION);
+            var deviceInformationService = services?.FirstOrDefault(s => s.Uuid == Services.DeviceInformation);
+            _firmwareRevisionCharacteristic = deviceInformationService?.Characteristics?.FirstOrDefault(c => c.Uuid == Characteristics.FirmwareRevision);
 
             return Task.FromResult(_motorCharacteristic is not null &&
                 _inputCharacteristic is not null &&
@@ -95,6 +94,14 @@ namespace BrickController2.DeviceManagement
             {
                 var voltage = 0.001f * data.GetFloat(2);
                 BatteryVoltage = $"{voltage:F2}";
+            }
+        }
+
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_sensorValueCharacteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_sensorValueCharacteristic, token);
             }
         }
 

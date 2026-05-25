@@ -98,6 +98,14 @@ namespace BrickController2.DeviceManagement
             }
         }
 
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_sensorValueCharacteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_sensorValueCharacteristic, token);
+            }
+        }
+
         protected override void BeforeDisconnectCleanup()
         {
             // Clear cached characteristic references to prevent using stale native Android objects on reconnection

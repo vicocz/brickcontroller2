@@ -201,6 +201,14 @@ namespace BrickController2.DeviceManagement
 
             return Task.FromResult(_characteristic != null && _firmwareRevisionCharacteristic != null && _modelNumberCharacteristic != null);
         }
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_characteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_characteristic, token);
+            }
+        }
+
         protected override void BeforeDisconnectCleanup()
         {
             // Clear cached characteristic references to prevent using stale native Android objects on reconnection
@@ -211,7 +219,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != _characteristic!.Uuid || data.Length < 54 || data[0] != 0x01)
+            if (_characteristic is null || characteristicGuid != _characteristic.Uuid || data.Length < 54 || data[0] != 0x01)
             {
                 return;
             }

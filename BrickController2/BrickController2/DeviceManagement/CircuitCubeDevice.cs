@@ -88,7 +88,7 @@ namespace BrickController2.DeviceManagement
 
         protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
         {
-            if (characteristicGuid != _notifyCharacteristic!.Uuid || data.Length <= 1)
+            if (_notifyCharacteristic is null || characteristicGuid != _notifyCharacteristic.Uuid || data.Length <= 1)
                 return;
 
             var bateryVoltage = data.ToAsciiStringSafe();
@@ -97,6 +97,14 @@ namespace BrickController2.DeviceManagement
                 BatteryVoltage = bateryVoltage;
             }
         }
+        protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+        {
+            if (_notifyCharacteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
+            }
+        }
+
         protected override void BeforeDisconnectCleanup()
         {
             _writeCharacteristic = null;

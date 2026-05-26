@@ -12,7 +12,7 @@ namespace BrickController2.InputDeviceManagement.DI
             builder.RegisterType<InputDeviceManagerService>().As<IInputDeviceManagerService>().As<IInputDeviceEventServiceInternal>().As<IInputDeviceEventService>().SingleInstance();
 
             // generic sensor based input device
-            builder.RegisterInputDeviceService<InputSensorService>();
+            builder.RegisterInputDeviceService<InputSensorService, OrientationSensorController>();
         }
     }
 }

@@ -1,28 +1,45 @@
 ﻿using BrickController2.PlatformServices.InputDeviceService;
+using BrickController2.UI.Services.Preferences;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Devices.Sensors;
 
 namespace BrickController2.InputDeviceManagement.Sensors;
 
-internal class InputSensorService : InputDeviceServiceBase<OrientationSensorController>
+internal class InputSensorService : InputDeviceServiceBase<OrientationSensorController>, IInputDeviceService<OrientationSensorController>
 {
+    internal const string OrientationSensorEnabledKey = "OrientationSensorEnabled";
+
     private readonly IInputDeviceEventServiceInternal _deviceEventServiceInternal;
+    private readonly IPreferencesService _preferencesService;
 
     public InputSensorService(IInputDeviceManagerService inputDeviceManagerService,
         IInputDeviceEventServiceInternal deviceEventServiceInternal,
+        IPreferencesService preferencesService,
         ILogger<InputSensorService> logger) 
         : base(inputDeviceManagerService, logger)
     {
         _deviceEventServiceInternal = deviceEventServiceInternal;
+        _preferencesService = preferencesService;
     }
+
+    private static IOrientationSensor Sensor => OrientationSensor.Default;
+
+    public bool IsEnabled
+    {
+        get => _preferencesService.Get(OrientationSensorEnabledKey, false);
+        set => _preferencesService.Set(OrientationSensorEnabledKey, value);
+    }
+
+    public bool IsSupported => Sensor.IsSupported;
 
     public override void Initialize()
     {
-        var sensor = OrientationSensor.Default;
-        if (sensor.IsSupported)
+        if (!IsSupported || !IsEnabled)
         {
-            AddInputDevice(new OrientationSensorController(_deviceEventServiceInternal, sensor));
+            return;
         }
+
+        AddInputDevice(new OrientationSensorController(_deviceEventServiceInternal, Sensor));
     }
 
     public override void Stop()

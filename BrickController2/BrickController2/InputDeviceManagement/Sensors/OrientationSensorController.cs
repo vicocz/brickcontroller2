@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace BrickController2.InputDeviceManagement.Sensors;
 
-internal class OrientationSensorController : InputDeviceBase<IOrientationSensor>
+public class OrientationSensorController : InputDeviceBase<IOrientationSensor>
 {
     private const double InversePI = 1.0 / Math.PI;
     private const double InverseHalfPI = 1.0 / (Math.PI / 2.0);

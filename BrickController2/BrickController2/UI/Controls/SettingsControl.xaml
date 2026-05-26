@@ -6,7 +6,9 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:t="clr-namespace:BrickController2.UI.Templates"
+    xmlns:settingsVm="clr-namespace:BrickController2.UI.ViewModels.Settings"
     x:Class="BrickController2.UI.Controls.SettingsControl"
+    x:DataType="settingsVm:SettingsPageViewModelBase"
     x:Name="Control"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
@@ -31,7 +33,7 @@
             </Style>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="settingsVm:BoolSettingViewModel">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -52,7 +54,7 @@
                 </t:DataTemplatesSelector.BoolDataTemplate>
 
                 <t:DataTemplatesSelector.EnumDataTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="settingsVm:EnumSettingViewModel">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2*"/>
@@ -69,7 +71,7 @@
                 </t:DataTemplatesSelector.EnumDataTemplate>
 
                 <t:DataTemplatesSelector.DoubleDataTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="settingsVm:DoubleSettingViewModel">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
@@ -90,7 +92,7 @@
                 </t:DataTemplatesSelector.DoubleDataTemplate>
 
                 <t:DataTemplatesSelector.RgbColorDataTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="settingsVm:RgbColorSettingViewModel">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="1*"/>
@@ -126,7 +128,7 @@
                 <GridItemsLayout Orientation="Vertical" VerticalItemSpacing="{OnIdiom Desktop=10, Default=20}" />
             </CollectionView.ItemsLayout>
             <CollectionView.GroupHeaderTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="settingsVm:SettingGroupViewModel">
                     <SwipeView>
                         <SwipeView.RightItems>
                             <SwipeItems Mode="Reveal">

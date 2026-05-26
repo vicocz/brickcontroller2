@@ -7,8 +7,10 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.ManualDeviceListPage"
     x:Name="Page"
+    x:DataType="viewModels:ManualDeviceListPageViewModel"
     Title="{extensions:Translate AddDevicesManually}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -30,7 +32,7 @@
                 <!-- Device list -->
                 <CollectionView ItemsSource="{Binding GroupedFactoryDatas}" IsGrouped="True">
                     <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:DeviceGroup">
                             <Grid Style="{StaticResource CollectionItemGridStyle}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -44,12 +46,12 @@
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                     <CollectionView.GroupFooterTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:DeviceGroup">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
                         </DataTemplate>
                     </CollectionView.GroupFooterTemplate>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:DeviceEntry">
                             <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="50"/>

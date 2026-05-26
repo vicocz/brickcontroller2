@@ -5,7 +5,9 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    x:Class="BrickController2.UI.Controls.DeviceChannelSelector">
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    x:Class="BrickController2.UI.Controls.DeviceChannelSelector"
+    x:DataType="viewModels:ControllerActionPageViewModel">
 
     <ContentView.Resources>
         <ResourceDictionary>

@@ -43,7 +43,7 @@ namespace BrickController2.UI.ViewModels
             BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs = Enumerable
                 .Range(0, Device.NumberOfChannels)
-                .Select(channel => new DeviceOutputViewModel(this, Device, channel))
+                .Select(channel => new DeviceOutputViewModel(this, NavigationService, Device, channel))
                 .ToArray();
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
@@ -115,7 +115,7 @@ namespace BrickController2.UI.ViewModels
             await DisconnectAsync();
         }
 
-        private async Task DisconnectAsync()
+        internal async Task DisconnectAsync()
         {
             if (_connectionTokenSource is not null && _connectionTask is not null)
             {
@@ -364,67 +364,70 @@ namespace BrickController2.UI.ViewModels
             Device.SetOutputLevel(level);
         }
 
-        public class DeviceOutputViewModel : NotifyPropertyChangedSource
+    }
+
+    public class DeviceOutputViewModel : NotifyPropertyChangedSource
+    {
+        private readonly DevicePageViewModel _pageViewModel;
+        private readonly INavigationService _navigationService;
+        private int _output;
+
+        public DeviceOutputViewModel(DevicePageViewModel pageViewModel, INavigationService navigationService, Device device, int channel)
         {
-            private readonly DevicePageViewModel _pageViewModel;
-            private int _output;
+            _pageViewModel = pageViewModel;
+            _navigationService = navigationService;
+            Device = device;
+            Channel = channel;
+            Output = 0;
 
-            public DeviceOutputViewModel(DevicePageViewModel pageViewModel, Device device, int channel)
+            TouchUpCommand = new Command(() => Output = 0);
+            TestServoStepperCommand = new SafeCommand(OpenChannelSetupAsync, () => IsServoOrStepperSupported);
+        }
+
+        public Device Device { get; }
+        public int Channel { get; }
+
+        public int MinValue => -100;
+        public int MaxValue => 100;
+
+        public int Output
+        {
+            get { return _output; }
+            set
             {
-                _pageViewModel = pageViewModel;
-                Device = device;
-                Channel = channel;
-                Output = 0;
-
-                TouchUpCommand = new Command(() => Output = 0);
-                TestServoStepperCommand = new SafeCommand(OpenChannelSetupAsync, () => IsServoOrStepperSupported);
+                _output = value;
+                Device.SetOutput(Channel, (float)value / MaxValue);
+                RaisePropertyChanged();
             }
+        }
 
-            public Device Device { get; }
-            public int Channel { get; }
+        public bool IsServoOrStepperSupported =>
+            Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) ||
+            Device.IsOutputTypeSupported(Channel, ChannelOutputType.StepperMotor);
 
-            public int MinValue => -100;
-            public int MaxValue => 100;
+        public ICommand TouchUpCommand { get; }
+        public ICommand TestServoStepperCommand { get; }
 
-            public int Output
+        private async Task OpenChannelSetupAsync()
+        {
+            // enforce disconnection before navigating to channel setup to avoid connection conflicts
+            await _pageViewModel.DisconnectAsync();
+
+            var action = new ControllerAction
             {
-                get { return _output; }
-                set
-                {
-                    _output = value;
-                    Device.SetOutput(Channel, (float)value / MaxValue);
-                    RaisePropertyChanged();
-                }
-            }
-
-            public bool IsServoOrStepperSupported =>
-                Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) ||
-                Device.IsOutputTypeSupported(Channel, ChannelOutputType.StepperMotor);
-
-            public ICommand TouchUpCommand { get; }
-            public ICommand TestServoStepperCommand { get; }
-
-            private async Task OpenChannelSetupAsync()
-            {
-                // enforce disconnection before navigating to channel setup to avoid connection conflicts
-                await _pageViewModel.DisconnectAsync();
-
-                var action = new ControllerAction
-                {
-                    DeviceId = Device.Id,
-                    Channel = Channel,
-                    MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE,
-                    ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE,
-                    StepperAngle = DEFAULT_STEPPER_ANGLE,
-                    // choose first supported output type
-                    ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) 
-                        ? ChannelOutputType.ServoMotor
-                        : ChannelOutputType.StepperMotor,
-                };
-                await _pageViewModel.NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
-                    ("controlleraction", action),
-                    ("ischanneltest", true)));
-            }
+                DeviceId = Device.Id,
+                Channel = Channel,
+                MaxServoAngle = DEFAULT_MAX_SERVO_ANGLE,
+                ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE,
+                StepperAngle = DEFAULT_STEPPER_ANGLE,
+                // choose first supported output type
+                ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor)
+                    ? ChannelOutputType.ServoMotor
+                    : ChannelOutputType.StepperMotor,
+            };
+            await _navigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", Device),
+                ("controlleraction", action),
+                ("ischanneltest", true)));
         }
     }
 }

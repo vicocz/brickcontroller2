@@ -51,23 +51,18 @@ namespace BrickController2.DeviceManagement
         public bool EnablePlayVmMode => GetSettingValue(EnablePlayVmSettingName, true);
 
         public override bool CanAutoCalibrateOutput(int channel) => false;
-        public override bool CanResetOutput(int channel) =>
-            (EnablePlayVmMode && channel == CHANNEL_C) || // PLAYVM - only C channel supports reset
-            (!EnablePlayVmMode && channel == CHANNEL_C);  // TODO standard mode - all A, B and C channels
+        public override bool CanResetOutput(int channel) => channel == CHANNEL_C; // only C channel supports reset
 
         public override bool CanChangeMaxServoAngle(int channel)
-            => !EnablePlayVmMode && channel == CHANNEL_C;  // TODO standard mode - all A, B and C channels
+            => !EnablePlayVmMode && channel == CHANNEL_C;  // standard mode - C channel only
 
         public override bool IsOutputTypeSupported(int channel, ChannelOutputType outputType)
             => outputType switch
             {
                 // motor if not PLAYVM for all channels, if PLAYVM only for other channels than C channel
                 ChannelOutputType.NormalMotor => !EnablePlayVmMode || channel != CHANNEL_C,
-                // servo for - PLAYVM and C channel only
-                //           - standard mode but A,B,C channels only
-                ChannelOutputType.ServoMotor =>
-                    (EnablePlayVmMode && channel == CHANNEL_C) ||
-                    (!EnablePlayVmMode && channel == CHANNEL_C),
+                // servo for C channel only
+                ChannelOutputType.ServoMotor => channel == CHANNEL_C,
                 // stepper for standard mode but A,B,C channels only
                 ChannelOutputType.StepperMotor => !EnablePlayVmMode && channel <= CHANNEL_C,
 
@@ -236,8 +231,8 @@ namespace BrickController2.DeviceManagement
                             >= CHANNEL_1 and <= CHANNEL_6 => await SendPortOutput_6LedAsync(ledIndex: change.Key - CHANNEL_1, value, token),
                             // all channels command - use original value
                             int.MaxValue => await SendAllOutputValuesAsync(change.Value, token),
-                            // classic output command for A, B, C channels (with servo support)
-                            <= CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendPortOutput_ServoAsync(change.Key, change.Value, token),
+                            CHANNEL_C when channelOutputType == ChannelOutputType.ServoMotor => await SendPortOutput_ServoAsync(change.Key, change.Value, token),
+                            // classic output command for A, B, C channels (with stepper support)
                             <= CHANNEL_C when channelOutputType == ChannelOutputType.StepperMotor => await SendPortOutput_StepperAsync(change.Key, change.Value, token),
                             _ => await SendPortOutput_ValueAsync(change.Key, value, token),
                         };

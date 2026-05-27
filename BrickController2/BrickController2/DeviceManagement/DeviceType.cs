@@ -24,5 +24,6 @@
         MK3_8,
         RemoteControl,
         SBrickLight,
+        JieStarSCM8,
     }
 }

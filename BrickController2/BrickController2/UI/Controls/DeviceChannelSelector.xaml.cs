@@ -90,6 +90,14 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            JieStarSCM8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            JieStarSCM8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            JieStarSCM8Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            JieStarSCM8Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            JieStarSCM8Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            JieStarSCM8Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
+            JieStarSCM8Channel6.Command = new SafeCommand(() => SelectedChannel = 6);
+            JieStarSCM8Channel7.Command = new SafeCommand(() => SelectedChannel = 7);
             // SBrick Light - special handling
             SBrickLightChannelA.Command = new SafeCommand(() => UpdateSBrickPort(0));
             SBrickLightChannelB.Command = new SafeCommand(() => UpdateSBrickPort(1));
@@ -174,6 +182,7 @@ namespace BrickController2.UI.Controls
             MK6Section.IsVisible = deviceType == DeviceType.MK6;
             MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
             CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
+            JieStarSCM8Section.IsVisible = deviceType == DeviceType.JieStarSCM8;
         }
 
         private static void OnSelectedChannelChanged(BindableObject bindable, object oldValue, object newValue)
@@ -263,6 +272,14 @@ namespace BrickController2.UI.Controls
             MK_DIYChannel1.SelectedChannel = selectedChannel;
             MK_DIYChannel2.SelectedChannel = selectedChannel;
             MK_DIYChannel3.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel0.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel1.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel2.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel3.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel4.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel5.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel6.SelectedChannel = selectedChannel;
+            JieStarSCM8Channel7.SelectedChannel = selectedChannel;
             CaDARaceCarChannel0.SelectedChannel = selectedChannel;
             CaDARaceCarChannel1.SelectedChannel = selectedChannel;
             CaDARaceCarChannel2.SelectedChannel = selectedChannel;

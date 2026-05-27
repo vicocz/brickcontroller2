@@ -81,7 +81,8 @@ namespace BrickController2.DeviceManagement
 
         public override void SetOutput(int channel, float value)
         {
-            var rawValue = (Half)(100 * CutOutputValue(value));
+            var validatedValue = CutOutputValue(value);
+            var rawValue = (Half)(100 * validatedValue);
 
             _ = channel switch
             {
@@ -91,6 +92,9 @@ namespace BrickController2.DeviceManagement
                 CHANNEL_C when _applyPlayVmMode => _playVmValues.SetOutput(PLAYVM_CHANNEL_STEER, rawValue),
                 // Light channels 1 - 6 require absolute value
                 >= CHANNEL_1 and <= CHANNEL_6 => _outputValues.SetOutput(channel, Half.Abs(rawValue)),
+                // stepper channels accumulate the input value as a step coefficient
+                _ when channel >= CHANNEL_A && channel <= CHANNEL_C && GetOutputType(channel) == ChannelOutputType.StepperMotor
+                    => _outputValues.AccumulateOutput(channel, (Half)validatedValue),
                 // rest of ports: such as A, B or C when not in PLAYVM mode - use value as is
                 _ => _outputValues.SetOutput(CheckChannel(channel), rawValue)
             };
@@ -446,21 +450,13 @@ namespace BrickController2.DeviceManagement
 
         private ValueTask<bool> SendPortOutput_StepperAsync(int channel, Half value, CancellationToken token)
         {
-            // get current position to calculate the new target position based on the stepper angle configuration and the value
-            var position = ChannelRelativePositions.Get(channel);
-
-            if (value == Half.Zero || position.UpdateTime.AddMilliseconds(250) > DateTime.Now)
-            {
-                // if value is zero or position was updated recently, skip to avoid flooding the hub with commands when the slider is not yet stabilized
-                return new ValueTask<bool>(true);
-            }
+            // value is the accumulated step coefficient from SetOutput
+            var targetPosition = _calibratedZeroAngles[channel]
+                + (int)value * ChannelConfigs.Get(channel).StepperAngle;
 
             var portId = GetPortId(channel);
-
-            // in non PLAYVM mode, need to apply calibrated base angle as offset to reach correct position
-            var servoValue = position.Current + (int)value * ChannelConfigs.Get(channel).StepperAngle / 100;
             var servoSpeed = channel == CHANNEL_C ? (byte)50 : (byte)30;
-            var cmd = BuildPortOutput_GotoAbsPosition(portId, servoValue, servoSpeed);
+            var cmd = BuildPortOutput_GotoAbsPosition(portId, targetPosition, servoSpeed);
             return WriteAsync(cmd, token);
         }
 

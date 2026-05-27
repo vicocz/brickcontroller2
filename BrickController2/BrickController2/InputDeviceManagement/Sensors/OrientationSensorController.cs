@@ -2,7 +2,7 @@
 using BrickController2.PlatformServices.InputDeviceService;
 using Microsoft.Maui.Devices.Sensors;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace BrickController2.InputDeviceManagement.Sensors;
@@ -11,13 +11,24 @@ public class OrientationSensorController : InputDeviceBase<IOrientationSensor>
 {
     private const double InversePI = 1.0 / Math.PI;
     private const double InverseHalfPI = 1.0 / (Math.PI / 2.0);
+    private const int RoundingPrecision = 4;
+
+    private const string PitchName = "Pitch";
+    private const string RollName = "Roll";
+    private const string YawName = "Yaw";
+
+    private static readonly (InputDeviceEventType, string) PitchKey = (InputDeviceEventType.Axis, PitchName);
+    private static readonly (InputDeviceEventType, string) RollKey = (InputDeviceEventType.Axis, RollName);
+    private static readonly (InputDeviceEventType, string) YawKey = (InputDeviceEventType.Axis, YawName);
+
+    private readonly Dictionary<(InputDeviceEventType, string), float> _eventBuffer = new(3);
 
     public OrientationSensorController(IInputDeviceEventServiceInternal service,
         IOrientationSensor sensor)
         : base(service, sensor)
     {
-        Name = "Orientation";
-        InputDeviceId = nameof(OrientationSensor);
+        InputDeviceId = "Sensor";
+        Name = "Tilt";
     }
 
     public override void Start()
@@ -38,23 +49,18 @@ public class OrientationSensorController : InputDeviceBase<IOrientationSensor>
 
     private void Orientation_ReadingChanged(object? sender, OrientationSensorChangedEventArgs e)
     {
-        var (Pitch, Roll, Yaw) = QuaternionToEulerAngles(e.Reading.Orientation);
+        var (pitch, roll, yaw) = QuaternionToEulerAngles(e.Reading.Orientation);
 
-        RaiseEvents(
-        [
-            (nameof(Pitch), (float)Pitch),
-            (nameof(Roll), (float)Roll),
-            (nameof(Yaw), (float)Yaw)
-        ]);
-    }
+        _eventBuffer.Clear();
 
-    private void RaiseEvents((string eventName, float value)[] axisEvents)
-    {
-        var events = axisEvents
-            .Where(e => HasValueChanged(e.eventName, e.value))
-            .ToDictionary(e => (InputDeviceEventType.Axis, e.eventName), e => e.value);
+        if (HasValueChanged(PitchName, pitch))
+            _eventBuffer[PitchKey] = pitch;
+        if (HasValueChanged(RollName, roll))
+            _eventBuffer[RollKey] = roll;
+        if (HasValueChanged(YawName, yaw))
+            _eventBuffer[YawKey] = yaw;
 
-        RaiseEvent(events);
+        RaiseEvent(_eventBuffer);
     }
 
     private static (float Pitch, float Roll, float Yaw) QuaternionToEulerAngles(Quaternion q)
@@ -77,9 +83,9 @@ public class OrientationSensorController : InputDeviceBase<IOrientationSensor>
         var yaw = Math.Atan2(sinYaw, cosYaw);
 
         return (
-            (float)(pitch * InversePI), // <-180; 180> => <-1; 1>
-            (float)(roll * InverseHalfPI), // <-90; 90> => <-1; 1>
-            (float)(yaw * InversePI) // <-180; 180> => <-1; 1>
+            (float)Math.Round(pitch * InversePI, RoundingPrecision), // <-180; 180> => <-1; 1>
+            (float)Math.Round(roll * InverseHalfPI, RoundingPrecision), // <-90; 90> => <-1; 1>
+            (float)Math.Round(yaw * InversePI, RoundingPrecision) // <-180; 180> => <-1; 1>
         );
     }
 }

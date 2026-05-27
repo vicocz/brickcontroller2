@@ -52,7 +52,7 @@ public static class ContainerBuilderExtensions
         where TInputDeviceService : IInputDeviceService<TInputDevice>, IStartable
         where TInputDevice : class, IInputDevice
     {
-        var registrationBuilder = RegisterInputDeviceService<TInputDeviceService>(builder)
+        RegisterInputDeviceService<TInputDeviceService>(builder)
             .As<IInputDeviceService<TInputDevice>>();
         return builder;
     }

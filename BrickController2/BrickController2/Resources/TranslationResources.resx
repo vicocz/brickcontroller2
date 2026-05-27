@@ -763,6 +763,6 @@
     <value>Subchannels</value>
   </data>
   <data name="OrientationSensor" xml:space="preserve">
-    <value>Orientation Sensor</value>
+    <value>Tilt Steering</value>
   </data>
 </root>

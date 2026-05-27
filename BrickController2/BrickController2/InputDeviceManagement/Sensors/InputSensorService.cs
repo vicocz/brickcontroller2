@@ -7,7 +7,7 @@ namespace BrickController2.InputDeviceManagement.Sensors;
 
 internal class InputSensorService : InputDeviceServiceBase<OrientationSensorController>, IInputDeviceService<OrientationSensorController>
 {
-    internal const string OrientationSensorEnabledKey = "OrientationSensorEnabled";
+    private const string TiltSensorEnabledKey = "TiltSensorEnabled";
 
     private readonly IInputDeviceEventServiceInternal _deviceEventServiceInternal;
     private readonly IPreferencesService _preferencesService;
@@ -26,8 +26,8 @@ internal class InputSensorService : InputDeviceServiceBase<OrientationSensorCont
 
     public bool IsEnabled
     {
-        get => _preferencesService.Get(OrientationSensorEnabledKey, false);
-        set => _preferencesService.Set(OrientationSensorEnabledKey, value);
+        get => _preferencesService.Get(TiltSensorEnabledKey, false); // by default OFF
+        set => _preferencesService.Set(TiltSensorEnabledKey, value);
     }
 
     public bool IsSupported => Sensor.IsSupported;

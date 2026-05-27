@@ -753,4 +753,7 @@
   <data name="SubchannelsPortMode" xml:space="preserve">
     <value>Alcsatorna</value>
   </data>
+  <data name="OrientationSensor" xml:space="preserve">
+    <value>Dönthető kormányzás</value>
+  </data>
 </root>

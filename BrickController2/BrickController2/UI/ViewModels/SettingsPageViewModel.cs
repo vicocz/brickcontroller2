@@ -4,7 +4,6 @@ using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.Services.Theme;
 using BrickController2.UI.Services.Translation;
 using Microsoft.Maui.Controls;

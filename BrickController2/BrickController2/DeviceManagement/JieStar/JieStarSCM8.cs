@@ -39,11 +39,6 @@ internal class JieStarSCM8 : JieStarBase, IDeviceType<JieStarSCM8>
     /// </summary>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
-    /// <summary>
-    /// all SCM8 modules share the same BluetoothAdvertisingDeviceHandler
-    /// </summary>
-    private static BluetoothAdvertisingDeviceHandler? bluetoothAdvertisingDeviceHandler;
-
     public JieStarSCM8(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, JieStarSCM8.Telegram_Connect, GetTelegramBase(address))
     {

@@ -1,15 +1,19 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Vengit;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.Services.Translation;
+using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+
+using static BrickController2.DeviceManagement.Vengit.SBrickProtocol;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -21,6 +25,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IPreferencesService _preferences;
 
         private Device? _selectedDevice;
+        private bool _initialized;
 
         public ControllerActionPageViewModel(
             INavigationService navigationService,
@@ -43,7 +48,6 @@ namespace BrickController2.UI.ViewModels
             var device = _deviceManager.GetDeviceById(ControllerAction?.DeviceId);
             if (ControllerAction is not null && device is not null)
             {
-                SelectedDevice = device;
                 Action.Channel = ControllerAction.Channel;
                 Action.IsInvert = ControllerAction.IsInvert;
                 Action.ChannelOutputType = ControllerAction.ChannelOutputType;
@@ -61,7 +65,7 @@ namespace BrickController2.UI.ViewModels
             else
             {
                 var lastSelectedDeviceId = _preferences.Get<string>("LastSelectedDeviceId", string.Empty, "com.scn.BrickController2.ControllerActionPage");
-                SelectedDevice = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
+                device = _deviceManager.GetDeviceById(lastSelectedDeviceId) ?? _deviceManager.Devices.FirstOrDefault(d => d.HasOutputChannel);
                 Action.Channel = 0;
                 Action.IsInvert = false;
                 Action.ChannelOutputType = ChannelOutputType.NormalMotor;
@@ -78,7 +82,7 @@ namespace BrickController2.UI.ViewModels
             }
 
             // do validation of current channel settings
-            ValidateCurrentChannelSettings();
+            SelectedDevice = device;
 
             Action.PropertyChanged += (s, e) =>
             {
@@ -86,6 +90,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     // validate output type for given channel change
                     ValidateChannelType(Action.Channel, Action.ChannelOutputType);
+                    NotifySBrickLightChanges();
                 }
             };
 
@@ -99,6 +104,7 @@ namespace BrickController2.UI.ViewModels
             OpenSequenceEditorCommand = new SafeCommand(async () => await OpenSequenceEditorAsync());
             SelectAxisTypeCommand = new SafeCommand(async () => await SelectAxisTypeAsync());
             SelectAxisCharacteristicCommand = new SafeCommand(async () => await SelectAxisCharacteristicAsync());
+            OpenDeviceSettingsPageCommand = new SafeCommand(async () => await OpenDeviceSettingsAsync(SelectedDevice!), () => SelectedDevice != null);
         }
 
         public ObservableCollection<Device> Devices => _deviceManager.Devices;
@@ -118,10 +124,44 @@ namespace BrickController2.UI.ViewModels
                 ValidateCurrentChannelSettings();
 
                 RaisePropertyChanged();
+                NotifySBrickLightChanges();
             }
         }
 
         public ControllerAction Action { get; } = new ControllerAction();
+
+        public bool SBrickUseRgbPortMode
+        {
+            // 0 micro channel means no micro channel but RGB port
+            get { return SelectedDevice is SBrickLightDevice && SBrickLightSubchannel == 0; }
+            set
+            {
+                if (SBrickUseRgbPortMode != value)
+                {
+                    // apply switch change
+                    Action.Channel = value ?
+                        // reset any subchannel
+                        SBrickLightPort :
+                        // switch to the first micro channel
+                        SBrickLightPort + LIGHT_PORTS_COUNT * 1;
+
+                    RaisePropertyChanged();
+                    NotifySBrickLightChanges();
+                }
+            }
+        }
+        public Color SBrickChannelColor
+        {
+            get
+            {
+                if (SelectedDevice is SBrickLightDevice light)
+                {
+                    var color = light.GetDefaultChannelColor(Action.Channel);
+                    return Color.FromRgb(color.R, color.G, color.B);
+                }
+                return Colors.Black;
+            }
+        }
 
         public ICommand SaveControllerActionCommand { get; }
         public ICommand SelectDeviceCommand { get; }
@@ -133,13 +173,29 @@ namespace BrickController2.UI.ViewModels
         public ICommand OpenSequenceEditorCommand { get; }
         public ICommand SelectAxisTypeCommand { get; }
         public ICommand SelectAxisCharacteristicCommand { get; }
+        public ICommand OpenDeviceSettingsPageCommand { get; }
 
+        public override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (_initialized)
+            {
+                // revalidate channel settings - e.g. Technic Move might have changed its settings on a child page
+                RaisePropertyChanged(nameof(SelectedDevice));
+                ValidateCurrentChannelSettings();
+                NotifySBrickLightChanges();
+            }
+            _initialized = true;
+        }
         public override void OnDisappearing()
         {
             _preferences.Set<string>("LastSelectedDeviceId", _selectedDevice!.Id, "com.scn.BrickController2.ControllerActionPage");
 
             base.OnDisappearing();
         }
+
+        private int SBrickLightPort => Action.Channel % LIGHT_PORTS_COUNT;
+        private int SBrickLightSubchannel => Action.Channel / LIGHT_PORTS_COUNT;
 
         private async Task SaveControllerActionAsync()
         {
@@ -257,6 +313,8 @@ namespace BrickController2.UI.ViewModels
             await NavigationService.NavigateToAsync<ChannelSetupPageViewModel>(new NavigationParameters(("device", SelectedDevice), ("controlleraction", Action)));
         }
 
+        private Task OpenDeviceSettingsAsync(Device device) => NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(device));
+
         private async Task SelectButtonTypeAsync()
         {
             var result = await _dialogService.ShowSelectionDialogAsync(
@@ -342,13 +400,23 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-
         private void ValidateCurrentChannelSettings()
         {
             if (_selectedDevice!.NumberOfChannels <= Action.Channel)
             {
+                if (_selectedDevice is TechnicMoveDevice technicDevice && technicDevice.EnablePlayVmMode)
+                {
+                    ValidateChannelType(TechnicMoveDevice.CHANNEL_VM, Action.ChannelOutputType);
+                }
+                else if (_selectedDevice is SBrickLightDevice)
+                {
+                    if (SBrickLightSubchannel > LIGHT_SUBCHANNEL_COUNT)
+                    {
+                        ValidateChannelType(SBrickLightPort, Action.ChannelOutputType);
+                    }
+                }
                 // find first suitable channel to assign
-                if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
+                else if (!TryApplySuitableChannelChannel(Action.ChannelOutputType))
                 {
                     ValidateChannelType(0, Action.ChannelOutputType);
                 }
@@ -405,6 +473,15 @@ namespace BrickController2.UI.ViewModels
             if (Action.ChannelOutputType != outputType)
             {
                 Action.ChannelOutputType = outputType;
+            }
+        }
+
+        private void NotifySBrickLightChanges()
+        {
+            // enforce change - e.g. if device has changed settings or selected device has been changed
+            if (SBrickUseRgbPortMode)
+            {
+                RaisePropertyChanged(nameof(SBrickChannelColor));
             }
         }
     }

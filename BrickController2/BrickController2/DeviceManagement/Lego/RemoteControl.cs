@@ -15,12 +15,11 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : BluetoothDevice
+internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteControl>
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
 
-    private IGattCharacteristic? _characteristic;
     private InputDeviceBase<RemoteControl>? _inputController;
 
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
@@ -29,15 +28,14 @@ internal class RemoteControl : BluetoothDevice
         SetSettingValue(ENABLED_SETTING_NAME, settings, DEFAULT_ENABLED);
     }
 
+    public static string TypeName => "Remote Control";
+    public static DeviceType Type => DeviceType.RemoteControl;
+
     public override DeviceType DeviceType => DeviceType.RemoteControl;
 
     public override int NumberOfChannels => 0;
 
-    public override string BatteryVoltageSign => "%";
-
     public bool IsEnabled => GetSettingValue(ENABLED_SETTING_NAME, DEFAULT_ENABLED);
-
-    protected override bool AutoConnectOnFirstConnect => false;
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
@@ -64,65 +62,36 @@ internal class RemoteControl : BluetoothDevice
 
     protected override Task ProcessOutputsAsync(CancellationToken token) => Task.CompletedTask;
 
-    protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
-    {
-        var service = services?.FirstOrDefault(s => s.Uuid == ServiceUuid);
-        _characteristic = service?.Characteristics?.FirstOrDefault(c => c.Uuid == CharacteristicUuid);
-
-        if (_characteristic is not null)
-        {
-            return await _bleDevice!.EnableNotificationAsync(_characteristic, token);
-        }
-
-        return false;
-    }
+    protected override Task<bool> SendOutputValuesAsync(CancellationToken token) => throw new InvalidOperationException();
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
     {
         // wait until ports finish communicating with the hub
-        await Task.Delay(250, token);
+        await AwaitPeripheralsAttachedAsync(TimeSpan.FromMilliseconds(250), token);
 
         if (requestDeviceInformation)
         {
-            // Request battery voltage
-            await _bleDevice!.WriteAsync(_characteristic!, [0x05, 0x00, 0x01, 0x06, 0x05], token);
-            await Task.Delay(TimeSpan.FromMilliseconds(50), token);
+            await RequestHubPropertiesAsync(token);
         }
 
         // setup ports - 0x04 - REMOTE_MODE_KEYS
         var remoteButtonA = BuildPortInputFormatSetup(REMOTE_BUTTONS_LEFT, REMOTE_MODE_KEYS, interval: 1);
-        await _bleDevice!.WriteAsync(_characteristic!, remoteButtonA, token);
+        await WriteAsync(remoteButtonA, token);
 
         var remoteButtonB = BuildPortInputFormatSetup(REMOTE_BUTTONS_RIGHT, REMOTE_MODE_KEYS, interval: 1);
-        return await _bleDevice!.WriteAsync(_characteristic!, remoteButtonB, token);
+        return await WriteAsync(remoteButtonB, token);
     }
 
-    protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
+    protected override bool TryProcessMessageData(byte messageType, ReadOnlySpan<byte> data)
     {
-        if (data.Length < 4)
+        switch (messageType)
         {
-            return;
-        }
-
-        var messageCode = data[2];
-
-        switch (messageCode)
-        {
-            case MESSAGE_TYPE_HUB_PROPERTIES: // Hub properties
-                if (data.Length >= 6 &&
-                    data[3] == HUB_PROPERTY_VOLTAGE &&
-                    data[4] == HUB_PROPERTY_OPERATION_UPDATE)
-                {
-                    BatteryVoltage = data[5].ToString("F0");
-                }
-                break;
-
             case MESSAGE_TYPE_HW_NETWORK_COMMANDS: // HW network commands
                 if (data.Length == 5 && data[3] == 0x02)
                 {
                     // HW button state
                     RaiseButtonEvents([("Home", GetButtonValue(data[4]))]);
-                    break;
+                    return true;
                 }
                 break;
             case MESSAGE_TYPE_PORT_VALUE: // 0x45 Port Value / RemoteButton
@@ -131,19 +100,17 @@ internal class RemoteControl : BluetoothDevice
                     switch (data[3])
                     {
                         case REMOTE_BUTTONS_LEFT:
-                            OnButtonEvents("A.Plus", "A", "A.Minus", data.AsSpan(4));
+                            OnButtonEvents("A.Plus", "A", "A.Minus", data.Slice(4));
                             break;
                         case REMOTE_BUTTONS_RIGHT:
-                            OnButtonEvents("B.Plus", "B", "B.Minus", data.AsSpan(4));
-                            break;
-                        default:
+                            OnButtonEvents("B.Plus", "B", "B.Minus", data.Slice(4));
                             break;
                     }
+                    return true;
                 }
                 break;
-            default:
-                break;
         }
+        return base.TryProcessMessageData(messageType, data);
     }
 
     private void OnButtonEvents(string plus, string stop, string minus, ReadOnlySpan<byte> flags)

@@ -574,6 +574,87 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to A.
+        /// </summary>
+        internal static string ChannelAColor {
+            get {
+                return ResourceManager.GetString("ChannelAColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to B.
+        /// </summary>
+        internal static string ChannelBColor {
+            get {
+                return ResourceManager.GetString("ChannelBColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to C.
+        /// </summary>
+        internal static string ChannelCColor {
+            get {
+                return ResourceManager.GetString("ChannelCColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Channel colors.
+        /// </summary>
+        internal static string ChannelColors {
+            get {
+                return ResourceManager.GetString("ChannelColors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to D.
+        /// </summary>
+        internal static string ChannelDColor {
+            get {
+                return ResourceManager.GetString("ChannelDColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to E.
+        /// </summary>
+        internal static string ChannelEColor {
+            get {
+                return ResourceManager.GetString("ChannelEColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to F.
+        /// </summary>
+        internal static string ChannelFColor {
+            get {
+                return ResourceManager.GetString("ChannelFColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to G.
+        /// </summary>
+        internal static string ChannelGColor {
+            get {
+                return ResourceManager.GetString("ChannelGColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to H.
+        /// </summary>
+        internal static string ChannelHColor {
+            get {
+                return ResourceManager.GetString("ChannelHColor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Channel setup.
         /// </summary>
         internal static string ChannelSetup {
@@ -1555,11 +1636,29 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to RGB.
+        /// </summary>
+        internal static string RgbPortMode {
+            get {
+                return ResourceManager.GetString("RgbPortMode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Saving....
         /// </summary>
         internal static string Saving {
             get {
                 return ResourceManager.GetString("Saving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Channel LED mode.
+        /// </summary>
+        internal static string SBrickUseRgbPortMode {
+            get {
+                return ResourceManager.GetString("SBrickUseRgbPortMode", resourceCulture);
             }
         }
         
@@ -1776,6 +1875,15 @@ namespace BrickController2.Resources {
         internal static string StepperAngle {
             get {
                 return ResourceManager.GetString("StepperAngle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Subchannels.
+        /// </summary>
+        internal static string SubchannelsPortMode {
+            get {
+                return ResourceManager.GetString("SubchannelsPortMode", resourceCulture);
             }
         }
         

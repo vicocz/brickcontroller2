@@ -12,6 +12,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 ## Supported receivers
 
 - SBrick - both normal and plus (output only)
+- SBrick Light
 - BuWizz 1
 - BuWizz 2
 - BuWizz 3
@@ -35,6 +36,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Generic Bluetooth / USB gamepads
 - LEGO® Power Functions infrared remotes (part numbers 8885 and 8879) — requires an Android device with an IR emitter
 - LEGO® Powered Up Remote (part number 88010)
+- Built-in motion sensor — when supported by the device
 
 ## Project details
 

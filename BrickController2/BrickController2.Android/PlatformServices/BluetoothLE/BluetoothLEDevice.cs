@@ -114,6 +114,20 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             if (_bluetoothGatt != null)
             {
                 _bluetoothGatt.Disconnect();
+
+                // Android BLE best practice: Refresh the service cache before closing
+                // This prevents stale service information from being cached between reconnections
+                // The refresh() method is a hidden API, so we use reflection to call it
+                try
+                {
+                    var refreshMethod = _bluetoothGatt.Class?.GetMethod("refresh");
+                    refreshMethod?.Invoke(_bluetoothGatt);
+                }
+                catch
+                {
+                    // Silently ignore if refresh fails (not critical, but helpful)
+                }
+
                 _bluetoothGatt.Close();
                 _bluetoothGatt.Dispose();
                 _bluetoothGatt = null;
@@ -135,7 +149,13 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
             return Task.CompletedTask;
         }
 
-        public async Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+        public Task<bool> EnableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+            => SetNotificationAsync(characteristic, enable: true, token);
+
+        public Task<bool> DisableNotificationAsync(IGattCharacteristic characteristic, CancellationToken token)
+            => SetNotificationAsync(characteristic, enable: false, token);
+
+        public async Task<bool> SetNotificationAsync(IGattCharacteristic characteristic, bool enable, CancellationToken token)
         {
             using (token.Register(() =>
             {
@@ -153,7 +173,7 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                 }
 
                 var nativeCharacteristic = ((GattCharacteristic)characteristic).BluetoothGattCharacteristic;
-                if (!_bluetoothGatt.SetCharacteristicNotification(nativeCharacteristic, true))
+                if (!_bluetoothGatt.SetCharacteristicNotification(nativeCharacteristic, enable))
                 {
                     return false;
                 }
@@ -165,22 +185,23 @@ namespace BrickController2.Droid.PlatformServices.BluetoothLE
                 }
 
 #pragma warning disable CA1422 // Validate platform compatibility
-                    if (!(descriptor?.SetValue(BluetoothGattDescriptor.EnableNotificationValue!.ToArray()) ?? false))
+                var value = enable ? BluetoothGattDescriptor.EnableNotificationValue! : BluetoothGattDescriptor.DisableNotificationValue!;
+                    if (!(descriptor?.SetValue([.. value]) ?? false))
                 {
                     return false;
                 }
 #pragma warning restore CA1422 // Validate platform compatibility
 
-                    _descriptorWriteCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                _descriptorWriteCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
 #pragma warning disable CA1422 // Validate platform compatibility
-                    if (!(_bluetoothGatt?.WriteDescriptor(descriptor) ?? false))
+                if (!(_bluetoothGatt?.WriteDescriptor(descriptor) ?? false))
                 {
                     _descriptorWriteCompletionSource = null;
                     return false;
                 }
 #pragma warning restore CA1422 // Validate platform compatibility
-                }
+            }
 
             var result = await _descriptorWriteCompletionSource.Task.ConfigureAwait(false);
 

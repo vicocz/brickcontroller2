@@ -1,4 +1,6 @@
-﻿namespace BrickController2.PlatformServices.InputDeviceService;
+﻿using BrickController2.PlatformServices.InputDevice;
+
+namespace BrickController2.PlatformServices.InputDeviceService;
 
 public interface IInputDeviceService
 {
@@ -12,4 +14,18 @@ public interface IInputDeviceService
     /// Stop inputdevice service.
     /// </summary>
     void Stop();
+}
+
+public interface IInputDeviceService<TInputDevice> : IInputDeviceService
+    where TInputDevice : class, IInputDevice
+{
+    /// <summary>
+    /// Gets a value whether the input device is supported on this device.  
+    /// </summary>
+    bool IsSupported { get; }
+
+    /// <summary>
+    /// Gets or sets a value whether the input device is enabled.
+    /// </summary>
+    bool IsEnabled { get; set; }
 }

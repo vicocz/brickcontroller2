@@ -10,5 +10,7 @@ public static class AdvertismentExtensions
 
     public static bool CanCarryData(this BluetoothLEAdvertisementReceivedEventArgs args) =>
         args.AdvertisementType == BluetoothLEAdvertisementType.ScanResponse ||
-        args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected;
+        args.AdvertisementType == BluetoothLEAdvertisementType.ConnectableUndirected ||
+        // some per advertisement devices which are not directly connectable
+        args.AdvertisementType == BluetoothLEAdvertisementType.NonConnectableUndirected;
 }

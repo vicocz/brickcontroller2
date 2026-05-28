@@ -24,6 +24,11 @@
                 <Setter Property="Maximum" Value="3500"/>
                 <Setter Property="Step" Value="35"/>
             </Style>
+            <Style x:Key="rgbColorSlider" TargetType="controls:ExtendedSlider">
+                <Setter Property="Minimum" Value="0"/>
+                <Setter Property="Maximum" Value="255"/>
+                <Setter Property="Step" Value="1"/>
+            </Style>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
                     <DataTemplate>
@@ -62,7 +67,7 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.EnumDataTemplate>
-                
+
                 <t:DataTemplatesSelector.DoubleDataTemplate>
                     <DataTemplate>
                         <Grid>
@@ -83,7 +88,33 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.DoubleDataTemplate>
-                
+
+                <t:DataTemplatesSelector.RgbColorDataTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}" Margin="10,0,0,0"/>
+                            <Border Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" Stroke="Gray" BackgroundColor="{Binding Value}" WidthRequest="40" HeightRequest="40" StrokeShape="RoundRectangle 10" VerticalOptions="Center" HorizontalOptions="End" Margin="0,0,10,0"/>
+                            <Label Grid.Column="2" Grid.Row="0" Text="{Binding Red}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
+                            <Label Grid.Column="2" Grid.Row="1" Text="{Binding Green}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
+                            <Label Grid.Column="2" Grid.Row="2" Text="{Binding Blue}" Style="{StaticResource Key=settingLabel}" Margin="10,0,10,0" HorizontalOptions="End"/>
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="0" Value="{Binding Red}" MinimumTrackColor="Red" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="Fill" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="1" Value="{Binding Green}" MinimumTrackColor="Green" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="Fill" />
+                            <controls:ExtendedSlider Grid.Column="1" Grid.Row="2" Value="{Binding Blue}" MinimumTrackColor="Blue" Style="{StaticResource Key=rgbColorSlider}" HorizontalOptions="Fill" />
+                        </Grid>
+                    </DataTemplate>
+                </t:DataTemplatesSelector.RgbColorDataTemplate>
+
             </t:DataTemplatesSelector>
         </ResourceDictionary>
     </ContentView.Resources>

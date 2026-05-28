@@ -7,12 +7,15 @@ public static class InputDevices
     public const float BUTTON_PRESSED = 1.0f;
     public const float BUTTON_PRESSED_INV = -1.0f;
     public const float BUTTON_RELEASED = 0.0f;
+    public const float BUTTON_RELEASED_THRESHOLD = 0.05f;
+    public const float BUTTON_PRESSED_THRESHOLD = 0.5f; // above this value is considered pressed
 
     public const float AXIS_DELTA_VALUE = 0.05f;
 
     public const float AXIS_ZERO_VALUE = 0.0f;
     public const float AXIS_MIN_VALUE = - 1.0f;
     public const float AXIS_MAX_VALUE = 1.0f;
+    public const float AXIS_PRESSED_THRESHOLD = 0.5f; // 50% of full axis value
 
     /// <summary>
     /// Creates an identifier string for the controller from the given <paramref name="controllerNumber"/>

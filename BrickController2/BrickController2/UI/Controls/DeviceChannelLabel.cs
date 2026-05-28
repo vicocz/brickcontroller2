@@ -108,7 +108,6 @@ namespace BrickController2.UI.Controls
                         Text = $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
                     }
                     break;
-                case DeviceType.JieStarSCM4:
                 case DeviceType.JieStarSCM8:
                     SetChannelText(_jieStarChannelLetters);
                     break;

@@ -19,6 +19,9 @@ internal class JieStar : Vendor<JieStar>
             .SingleInstance();
 
         // manually added devices
+        builder.RegisterDevice<JieStarSCM4>()
+            .WithDeviceFactory(JieStarSCM4.Device, $"{JieStarSCM4.TypeName} Device");
+
         builder.RegisterDevice<JieStarSCM8>()
             .WithDeviceFactory(JieStarSCM8.Device1, $"{JieStarSCM8.TypeName} Device 1")
             .WithDeviceFactory(JieStarSCM8.Device2, $"{JieStarSCM8.TypeName} Device 2")

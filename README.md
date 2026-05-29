@@ -31,6 +31,7 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Mould King 6.0 Powered Module
 - CaDA Race Car
 - PFx Brick (lights & Power Functions ports only)
+- JieStar 4 Channel Smart Creative Module
 - JieStar 8 Channel Smart Creative Module
 
 ## Supported controllers

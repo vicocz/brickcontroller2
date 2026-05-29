@@ -67,29 +67,40 @@ namespace BrickController2.UI.Controls
             PfxBrickChannel6.Command = new SafeCommand(() => SelectedChannel = 7);
             PfxBrickChannel7.Command = new SafeCommand(() => SelectedChannel = 8);
             PfxBrickChannel8.Command = new SafeCommand(() => SelectedChannel = 9);
+            // MK3_8
             MK3_8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK3_8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK3_8Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             MK3_8Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             MK3_8Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            // MK4
             MK4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             MK4Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            // MK5
             MK5Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK5Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK5Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             MK5Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             MK5Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
+            // MK6
             MK6Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK6Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             MK6Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             MK6Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             MK6Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             MK6Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
+            // CaDARaceCar
             CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            // JieStarSCM4
+            JieStarSCM4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            JieStarSCM4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            JieStarSCM4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            JieStarSCM4Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
+            // JieStarSCM8
             JieStarSCM8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             JieStarSCM8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             JieStarSCM8Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
@@ -182,6 +193,7 @@ namespace BrickController2.UI.Controls
             MK6Section.IsVisible = deviceType == DeviceType.MK6;
             MK_DIYSection.IsVisible = deviceType == DeviceType.MK_DIY;
             CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
+            JieStarSCM4Section.IsVisible = deviceType == DeviceType.JieStarSCM4;
             JieStarSCM8Section.IsVisible = deviceType == DeviceType.JieStarSCM8;
         }
 
@@ -248,30 +260,41 @@ namespace BrickController2.UI.Controls
             PfxBrickChannel6.SelectedChannel = selectedChannel;
             PfxBrickChannel7.SelectedChannel = selectedChannel;
             PfxBrickChannel8.SelectedChannel = selectedChannel;
+            // MK3_8
             MK3_8Channel0.SelectedChannel = selectedChannel;
             MK3_8Channel1.SelectedChannel = selectedChannel;
             MK3_8Channel2.SelectedChannel = selectedChannel;
             MK3_8Channel3.SelectedChannel = selectedChannel;
             MK3_8Channel4.SelectedChannel = selectedChannel;
+            // MK4
             MK4Channel0.SelectedChannel = selectedChannel;
             MK4Channel1.SelectedChannel = selectedChannel;
             MK4Channel2.SelectedChannel = selectedChannel;
             MK4Channel3.SelectedChannel = selectedChannel;
+            // MK5
             MK5Channel0.SelectedChannel = selectedChannel;
             MK5Channel1.SelectedChannel = selectedChannel;
             MK5Channel2.SelectedChannel = selectedChannel;
             MK5Channel3.SelectedChannel = selectedChannel;
             MK5Channel4.SelectedChannel = selectedChannel;
+            // MK6
             MK6Channel0.SelectedChannel = selectedChannel;
             MK6Channel1.SelectedChannel = selectedChannel;
             MK6Channel2.SelectedChannel = selectedChannel;
             MK6Channel3.SelectedChannel = selectedChannel;
             MK6Channel4.SelectedChannel = selectedChannel;
             MK6Channel5.SelectedChannel = selectedChannel;
+            // MK_DIY
             MK_DIYChannel0.SelectedChannel = selectedChannel;
             MK_DIYChannel1.SelectedChannel = selectedChannel;
             MK_DIYChannel2.SelectedChannel = selectedChannel;
             MK_DIYChannel3.SelectedChannel = selectedChannel;
+            // JieStarSCM4
+            JieStarSCM4Channel0.SelectedChannel = selectedChannel;
+            JieStarSCM4Channel1.SelectedChannel = selectedChannel;
+            JieStarSCM4Channel2.SelectedChannel = selectedChannel;
+            JieStarSCM4Channel3.SelectedChannel = selectedChannel;
+            // JieStarSCM8
             JieStarSCM8Channel0.SelectedChannel = selectedChannel;
             JieStarSCM8Channel1.SelectedChannel = selectedChannel;
             JieStarSCM8Channel2.SelectedChannel = selectedChannel;
@@ -280,6 +303,7 @@ namespace BrickController2.UI.Controls
             JieStarSCM8Channel5.SelectedChannel = selectedChannel;
             JieStarSCM8Channel6.SelectedChannel = selectedChannel;
             JieStarSCM8Channel7.SelectedChannel = selectedChannel;
+            // CaDARaceCar
             CaDARaceCarChannel0.SelectedChannel = selectedChannel;
             CaDARaceCarChannel1.SelectedChannel = selectedChannel;
             CaDARaceCarChannel2.SelectedChannel = selectedChannel;

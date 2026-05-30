@@ -43,7 +43,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
 
         // bytes[1] and [2] of both telegrams can be set to a unique appId
-        ReadOnlySpan<byte> appId = jieStarDeviceManager.GetAppId().Span[..2];
+        ReadOnlySpan<byte> appId = jieStarDeviceManager.GetAppId().Span[..1];
         _telegram_Connect[1] = appId[0];
         _telegram_Connect[2] = appId[1];
 

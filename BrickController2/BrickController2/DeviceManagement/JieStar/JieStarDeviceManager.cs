@@ -39,7 +39,7 @@ public class JieStarDeviceManager : IJieStarDeviceManager
                 appIdChecksumMaskArray = Convert.FromBase64String(preferencesService.Get(APPIDKEY, string.Empty, SECTION));
 
                 // check minimum length
-                if (appIdChecksumMaskArray?.Length >= 3)
+                if (appIdChecksumMaskArray?.Length >= 2)
                 {
                     return appIdChecksumMaskArray; // valid
                 }
@@ -53,7 +53,7 @@ public class JieStarDeviceManager : IJieStarDeviceManager
         // * on first run
         // * on exception
         // * on length to short
-        appIdChecksumMaskArray = new byte[3];
+        appIdChecksumMaskArray = new byte[2];
 
         Random.Shared.NextBytes(appIdChecksumMaskArray);
 

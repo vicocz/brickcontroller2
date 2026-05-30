@@ -1,7 +1,7 @@
 ﻿namespace BrickController2.Protocols;
 
 /// <summary>
-/// static class wich implements the encryption algorithm for the advertising data
+/// static class which implements the encryption algorithm for the advertising data
 /// </summary>
 public static class JieStarProtocol
 {

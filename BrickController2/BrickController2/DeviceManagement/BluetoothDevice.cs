@@ -36,7 +36,7 @@ namespace BrickController2.DeviceManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                if (_bleDevice != null || DeviceState != DeviceState.Disconnected)
+                if (token.IsCancellationRequested || _bleDevice != null || DeviceState != DeviceState.Disconnected)
                 {
                     return DeviceConnectionResult.Error;
                 }
@@ -105,6 +105,10 @@ namespace BrickController2.DeviceManagement
         {
         }
 
+        protected virtual ValueTask BeforeDisconnectAsync(CancellationToken token) => ValueTask.CompletedTask;
+
+        protected abstract void BeforeDisconnectCleanup();
+
         protected virtual Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
         {
             return Task.FromResult(true);
@@ -116,9 +120,23 @@ namespace BrickController2.DeviceManagement
             {
                 await StopOutputTaskAsync();
                 DeviceState = DeviceState.Disconnecting;
+                // handle disconnection cleanup (e.g. disable notifications)
+                try
+                {
+                    // restrict it by 5 seconds to avoid hanging on disconnect if the device is unresponsive
+                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                    await BeforeDisconnectAsync(cts.Token);
+                }
+                catch
+                {
+                }
+                // notify disconnection
+                BeforeDisconnectCleanup();
+                // execute native device disconnection + cleanup
                 await _bleDevice.DisconnectAsync();
                 _bleDevice = null;
             }
+            _onDeviceDisconnected = null;
 
             DeviceState = DeviceState.Disconnected;
         }
@@ -129,8 +147,10 @@ namespace BrickController2.DeviceManagement
             {
                 using (await _asyncLock.LockAsync())
                 {
+                    var disconnectedCallback = _onDeviceDisconnected;
                     await DisconnectInternalAsync();
-                    _onDeviceDisconnected?.Invoke(this);
+                    // notify
+                    disconnectedCallback?.Invoke(this);
                 }
             });
         }

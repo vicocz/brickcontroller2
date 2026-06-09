@@ -17,7 +17,9 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceAndChannelToChannelOutputTypeVisibleConverter x:Key="DeviceAndChannelToChannelOutputTypeVisible"/>
-			<converters:DeviceAndChannelOutputTypeToMaxServoAngleVisibleConverter x:Key="DeviceAndChannelOutputTypeToMaxServoAngleVisible"/>
+            <converters:DeviceAndChannelOutputTypeToMaxServoAngleVisibleConverter x:Key="DeviceAndChannelOutputTypeToMaxServoAngleVisible"/>
+            <converters:GameControllerEventTypeToImageConverter x:Key="EventTypeToImage"/>
+            <converters:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -27,10 +29,20 @@
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
-            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
+            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All" RowDefinitions="Auto,*">
+
+                <!-- Header -->
+                <Grid Grid.Row="0" Style="{StaticResource CollectionViewHeaderGridStyle}" ColumnDefinitions="Auto, *">
+                    <controls:ColorImage Grid.Column="0" Icon="{Binding ControllerEvent.EventType, Converter={StaticResource EventTypeToImage}}" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
+                    <StackLayout Grid.Column="1" Orientation="Horizontal" VerticalOptions="Center">
+                        <Label Text="{Binding ControllerEvent.EventCode}" FontSize="Large" FontAttributes="Bold"/>
+                        <Label Text="-" FontSize="Large" IsVisible="{Binding ControllerEvent.ControllerId, Converter={StaticResource IsStringNotNullOrEmptyConverter}}" Margin="5,0,5,0"/>
+                        <Label Text="{Binding ControllerEvent.ControllerId}" FontSize="Large" FontAttributes="Bold" IsVisible="{Binding ControllerEvent.ControllerId, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"/>
+                    </StackLayout>
+                </Grid>
 
                 <!-- Controller action -->
-                <ScrollView>
+                <ScrollView Grid.Row="1">
                     <VerticalStackLayout Padding="20">
 
                         <!-- Device selector -->

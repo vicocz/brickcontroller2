@@ -10,6 +10,8 @@ using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.UI.Services.Dialog;
 
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
+
 namespace BrickController2.UI.Controls
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
@@ -275,8 +277,8 @@ namespace BrickController2.UI.Controls
 
                 foreach (var controllerEvent in args.InputDeviceEvents)
                 {
-                    if ((controllerEvent.Key.EventType == InputDeviceEventType.Axis && Math.Abs(controllerEvent.Value) > 0.8) ||
-                        (controllerEvent.Key.EventType == InputDeviceEventType.Button && Math.Abs(controllerEvent.Value) < 0.05))
+                    if ((controllerEvent.Key.EventType == InputDeviceEventType.Axis && Math.Abs(controllerEvent.Value) > AXIS_PRESSED_THRESHOLD) ||
+                        (controllerEvent.Key.EventType == InputDeviceEventType.Button && Math.Abs(controllerEvent.Value) < BUTTON_RELEASED_THRESHOLD))
                     {
                         GameControllerEventDialogCancelButton.Clicked -= buttonHandler!;
                         InputDeviceEventService.InputDeviceEvent -= inputDeviceEventHandler!;

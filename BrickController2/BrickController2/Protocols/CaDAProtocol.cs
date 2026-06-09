@@ -1,4 +1,6 @@
-﻿namespace BrickController2.Protocols;
+﻿using System;
+
+namespace BrickController2.Protocols;
 
 public static class CaDAProtocol
 {
@@ -16,6 +18,10 @@ public static class CaDAProtocol
     /// CTXValue for Encryption
     /// </summary>
     public const byte CTXValue2 = 0x26;
+
+    public static Half OneHalf => (Half)0.5f;
+    public static Half HalfByte => (Half)0x80;
+    public static Half MaxByte => (Half)0xFF;
 
     /// <summary>
     /// SeedArray
@@ -48,7 +54,7 @@ public static class CaDAProtocol
         0x30, 0x68, 0x60, 0x04, 0x40, 0x4c, 0xe0, 0xb8, 0xd8, 0xfc, 0x20, 0x10, 0xe4, 0x3c, 0xd0, 0xb4,
     };
 
-    public static void Encrypt(byte[] data)
+    public static void Encrypt(Span<byte> data)
     {
         byte bVar1;
         byte uVar2;
@@ -128,4 +134,7 @@ public static class CaDAProtocol
             data[index] = (byte)(SwitchSheet[(int)(data[index] / 4)] + data[index] % 4);
         }
     }
+
+    public static byte Clamp(Half value) => (byte)Half.Clamp(value, Half.Zero, MaxByte);
+    public static byte MapAsFlag(Half value) => (byte)(Half.Abs(value) > OneHalf ? 0x01 : 0x00);
 }

@@ -8,7 +8,8 @@ namespace BrickController2.DeviceManagement.CaDA;
 /// <summary>
 /// Manager for CaDA devices
 /// </summary>
-public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager
+public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager,
+    ICaDADeviceManager
 {
     private const string SECTION = "CaDA";
     private const string APPIDKEY = "AppID";
@@ -29,6 +30,8 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     public TxPowerLevel TXPowerLevel => TxPowerLevel.Max;
 
     public ushort ManufacturerId => CaDAProtocol.ManufacturerID;
+
+    public ReadOnlyMemory<byte> GetAppId() => _appIdChecksumMaskArray;
 
     /// <summary>
     /// Create an byte-array to be advertised on device-scan
@@ -65,7 +68,7 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
     {
         switch (manufacturerId)
         {
-            case 0xfff0:
+            case 0xfff0: // classic one
                 if (IsCadaRaceCar(manufacturerData))
                 {
                     // the origin deviceAddress is changing on every scan-response
@@ -82,6 +85,16 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
                 }
                 break;
 
+            case 0x11aa: // rev 2 with new protocol
+                if (IsCadaRaceCarRev2(manufacturerData))
+                {
+                    device = template with
+                    {
+                        DeviceType = DeviceType.CaDA_RaceCar
+                    };
+                    return true;
+                }
+                break;
                 // extend if needed to other CaDA devices
         }
         // no match
@@ -103,6 +116,14 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
             manufacturerData[8] == _appIdChecksumMaskArray[1] &&
             manufacturerData[9] == _appIdChecksumMaskArray[2];
     }
+
+    private static bool IsCadaRaceCarRev2(ReadOnlySpan<byte> manufacturerData) => manufacturerData.Length == 16 &&
+        manufacturerData[2] == 0x11 &&
+        // response has 2 zeros as AppId - not connected yet
+        manufacturerData[3] == 0x00 &&
+        manufacturerData[4] == 0x00 &&
+        // flag not connected yet
+        manufacturerData[7] == 0x85;
 
     /// <summary>
     /// gets or creates an App-persistant AppIdentifier

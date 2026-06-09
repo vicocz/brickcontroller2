@@ -61,6 +61,14 @@ public abstract class InputDeviceServiceBase<TInputDevice> : IInputDeviceService
     }
 
     /// <summary>
+    /// Try to remove the first found input device from the manager
+    /// </summary>
+    /// <param name="inputDevice">input device to be removed</param>
+    /// <returns>True on success</returns>
+    protected bool TryRemoveInputDevice([MaybeNullWhen(false)] out TInputDevice inputDevice)
+        => _inputDeviceManagerService.TryRemoveInputDevice(x => true, out inputDevice);
+
+    /// <summary>
     /// try to get inputdevice from the manager
     /// </summary>
     /// <param name="predicate">predicate to find inputdevice</param>

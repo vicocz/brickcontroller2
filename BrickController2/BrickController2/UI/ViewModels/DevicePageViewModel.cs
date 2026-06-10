@@ -150,16 +150,14 @@ namespace BrickController2.UI.ViewModels
 
         void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
         {
-            foreach (KeyValuePair<(InputDeviceEventType EventType, string EventCode), float> inputEvent in events)
+            foreach (var inputEvent in events)
             {
-                var item = InputEventList.FirstOrDefault(x => x.EventCode == inputEvent.Key.EventCode &&
-                    x.EventType == inputEvent.Key.EventType);
+                var (eventType, eventCode) = inputEvent.Key;
+                var item = InputEventList.FirstOrDefault(x => x.EventCode == eventCode && x.EventType == eventType);
 
                 if (item is null)
                 {
-                    InputEventList.Add(new InputDeviceEventViewModel(inputEvent.Key.EventType,
-                        inputEvent.Key.EventCode,
-                        inputEvent.Value));
+                    InputEventList.Add(new InputDeviceEventViewModel(eventType, eventCode, inputEvent.Value));
                 }
                 else if (AXIS_DELTA_VALUE >= Math.Abs(inputEvent.Value))
                 {

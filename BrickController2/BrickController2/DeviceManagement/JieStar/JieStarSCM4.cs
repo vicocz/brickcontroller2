@@ -70,10 +70,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not one of the valid channel numbers (0, 1, 2, 3).</exception>
     protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
     {
-        0 => SetOutput_AnalogChannel(value),
-        1 => SetOutput_AnalogChannel(value),
-        2 => SetOutput_AnalogChannel(value),
-        3 => SetOutput_AnalogChannel(value),
+        >= 0 and <= 3 => SetOutput_AnalogChannel(value),
         _ => throw new ArgumentException($"Illegal Argument \"{channelNo}\"", nameof(channelNo))
     };
 

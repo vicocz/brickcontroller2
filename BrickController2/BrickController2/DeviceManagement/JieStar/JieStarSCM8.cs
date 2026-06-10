@@ -40,7 +40,7 @@ internal class JieStarSCM8 : JieStarBase, IDeviceType<JieStarSCM8>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
     public JieStarSCM8(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, JieStarSCM8.Telegram_Connect, GetTelegramBase(address))
+      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, JieStarSCM8.Telegram_Connect, GetTelegramBase(address), JieStarProtocol.CTXValue2)
     {
     }
 

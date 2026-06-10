@@ -9,18 +9,20 @@ namespace BrickController2.DeviceManagement.JieStar;
 /// </summary>
 internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
 {
-    public const string Device = "Device";
+    public const string Device1 = "Device1";
+    public const string Device2 = "Device2";
+    public const string Device3 = "Device3";
 
     /// <summary>
-    /// Telegram to connect to the SCM4 device
+    /// Telegram to connect to the SCM4 devices
     /// This telegram is sent on init and on reconnect conditions matching
     /// </summary>
-    private static readonly byte[] Telegram_Connect = [0xa4, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0x5b];
+    private static readonly byte[] Telegram_Connect_Device = [0xa4, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0x5b];
 
     /// <summary>
-    /// Base Telegram for SCM4 device
+    /// Base Telegram for SCM4 devices
     /// </summary>
-    private static readonly byte[] Telegram_Base= [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+    private static readonly byte[] Telegram_Base_Device = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -28,7 +30,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
     public JieStarSCM4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, JieStarSCM4.Telegram_Connect, JieStarSCM4.Telegram_Base)
+      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, Telegram_Connect_Device, Telegram_Base_Device, GetCTXValue2(address))
     {
     }
 
@@ -73,4 +75,20 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
         >= 0 and <= 3 => SetOutput_AnalogChannel(value),
         _ => throw new ArgumentException($"Illegal Argument \"{channelNo}\"", nameof(channelNo))
     };
+
+    /// <summary>
+    /// Get reference to Base-Telegram for the given address
+    /// </summary>
+    /// <param name="address">address</param>
+    /// <returns>reference to Base-Telegram</returns>
+    private static byte GetCTXValue2(string address)
+    {
+        return address switch
+        {
+            JieStarSCM4.Device1 => JieStarProtocol.CTXValue2,
+            JieStarSCM4.Device2 => JieStarProtocol.CTXValue2 + 1,
+            JieStarSCM4.Device3 => JieStarProtocol.CTXValue2 + 2,
+            _ => throw new ArgumentException("Illegal Argument", nameof(address))
+        };
+    }
 }

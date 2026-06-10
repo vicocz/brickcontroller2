@@ -5,5 +5,5 @@
 /// </summary>
 public interface IJieStarPlatformService
 {
-    bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload);
+    bool TryGetRfPayload(byte ctxValue2, byte[] rawData, out byte[] rfPayload);
 }

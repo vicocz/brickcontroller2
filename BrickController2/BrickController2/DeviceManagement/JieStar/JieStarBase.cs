@@ -30,15 +30,21 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     protected readonly byte[] _telegram_Base;
 
     /// <summary>
+    /// The second context value for JieStar communication.
+    /// </summary>
+    private readonly byte _ctxValue2;
+
+    /// <summary>
     /// array to hold the incoming output values for all channels.
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base)
+    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;
         _telegram_Base = telegram_Base;
+        _ctxValue2 = ctxValue2;
         _jieStarPlatformService = jieStarPlatformService;
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
 
@@ -243,11 +249,11 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     {
         if (getConnectTelegram)
         {
-            return _jieStarPlatformService.TryGetRfPayload(_telegram_Connect, out payload);
+            return _jieStarPlatformService.TryGetRfPayload(_ctxValue2, _telegram_Connect, out payload);
         }
         else
         {
-            return _jieStarPlatformService.TryGetRfPayload(_telegram_Base, out payload);
+            return _jieStarPlatformService.TryGetRfPayload(_ctxValue2, _telegram_Base, out payload);
         }
     }
 

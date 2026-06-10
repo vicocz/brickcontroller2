@@ -8,10 +8,10 @@ public class JieStarPlatformService : IJieStarPlatformService
     private const int HeaderOffset = 15;
     private const int PayloadLength = 24;
 
-    public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
+    public bool TryGetRfPayload(byte ctxValue2, byte[] rawData, out byte[] rfPayload)
     {
         rfPayload = new byte[PayloadLength];
-        int payloadLength = CryptTools.GetRfPayload(JieStarProtocol.SeedArray, JieStarProtocol.HeaderArray, rawData, HeaderOffset, JieStarProtocol.CTXValue1, JieStarProtocol.CTXValue2, rfPayload);
+        int payloadLength = CryptTools.GetRfPayload(JieStarProtocol.SeedArray, JieStarProtocol.HeaderArray, rawData, HeaderOffset, JieStarProtocol.CTXValue1, ctxValue2, rfPayload);
 
         // fill rest of array
         for (int index = payloadLength; index < PayloadLength; index++)

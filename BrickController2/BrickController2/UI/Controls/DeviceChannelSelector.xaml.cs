@@ -95,12 +95,12 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
-            // JieStarSCM4
+            // JIESTAR SCM 4
             JieStarSCM4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             JieStarSCM4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             JieStarSCM4Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
             JieStarSCM4Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
-            // JieStarSCM8
+            // JIESTAR SCM 8
             JieStarSCM8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             JieStarSCM8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
             JieStarSCM8Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
@@ -289,12 +289,12 @@ namespace BrickController2.UI.Controls
             MK_DIYChannel1.SelectedChannel = selectedChannel;
             MK_DIYChannel2.SelectedChannel = selectedChannel;
             MK_DIYChannel3.SelectedChannel = selectedChannel;
-            // JieStarSCM4
+            // JIESTAR SCM 4
             JieStarSCM4Channel0.SelectedChannel = selectedChannel;
             JieStarSCM4Channel1.SelectedChannel = selectedChannel;
             JieStarSCM4Channel2.SelectedChannel = selectedChannel;
             JieStarSCM4Channel3.SelectedChannel = selectedChannel;
-            // JieStarSCM8
+            // JIESTAR SCM 8
             JieStarSCM8Channel0.SelectedChannel = selectedChannel;
             JieStarSCM8Channel1.SelectedChannel = selectedChannel;
             JieStarSCM8Channel2.SelectedChannel = selectedChannel;

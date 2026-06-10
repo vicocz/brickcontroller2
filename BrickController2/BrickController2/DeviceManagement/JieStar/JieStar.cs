@@ -5,11 +5,11 @@ using BrickController2.DeviceManagement.Vendors;
 namespace BrickController2.DeviceManagement.JieStar;
 
 /// <summary>
-/// Vendor: JieStar and all its devices
+/// Vendor: JIESTAR and all its devices
 /// </summary>
 internal class JieStar : Vendor<JieStar>
 {
-    public override string VendorName => "Jie Star";
+    public override string VendorName => "JIESTAR";
 
     protected override void Register(VendorBuilder<JieStar> builder)
     {

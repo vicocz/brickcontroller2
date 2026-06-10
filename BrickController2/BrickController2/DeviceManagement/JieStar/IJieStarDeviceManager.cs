@@ -3,7 +3,7 @@
 namespace BrickController2.DeviceManagement.JieStar;
 
 /// <summary>
-/// Manager for JieStar devices
+/// Manager for JIESTAR devices
 /// </summary>
 public interface IJieStarDeviceManager
 {

@@ -6,7 +6,7 @@
 public static class JieStarProtocol
 {
     /// <summary>
-    /// ManufacturerID for JieStar
+    /// ManufacturerID for JIESTAR
     /// </summary>
     public const ushort ManufacturerID = 0xFFF0;
 

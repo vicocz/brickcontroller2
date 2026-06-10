@@ -5,7 +5,7 @@ using System;
 namespace BrickController2.DeviceManagement.JieStar;
 
 /// <summary>
-/// Jie Star 4 Channel Smart Creative Module (SCM)
+/// JIESTAR 4 Channel Smart Creative Module (SCM)
 /// </summary>
 internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
 {
@@ -34,7 +34,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
 
     public static DeviceType Type => DeviceType.JieStarSCM4;
 
-    public static string TypeName => "JieStar SCM 4";
+    public static string TypeName => "JIESTAR SCM 4";
 
     public override DeviceType DeviceType => Type;
 
@@ -57,7 +57,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// <returns>Instance of BluetoothAdvertisingDeviceHandler</returns>
     protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler()
     {
-        // JieStarSCM4 needs a BluetoothAdvertiser per module
+        // JIESTAR SCM 4 needs a BluetoothAdvertiser per module
         return new BluetoothAdvertisingDeviceHandler(_bleService, ManufacturerId, TryGetTelegram, JieStarSCM4.ReconnectTimeSpan);
     }
 

@@ -4,7 +4,7 @@ using BrickController2.PlatformServices.BluetoothLE;
 namespace BrickController2.DeviceManagement.JieStar;
 
 /// <summary>
-/// JieStar baseclass for devices with a nibble per channel
+/// JIESTAR baseclass for devices with a nibble per channel
 /// </summary>
 internal abstract class JieStarBase : BluetoothAdvertisingDevice
 {
@@ -14,7 +14,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     private const int CHANNEL_START_OFFSET = 3;
 
     /// <summary>
-    /// platform specific JieStar stuff
+    /// platform specific JIESTAR stuff
     /// </summary>
     protected readonly IJieStarPlatformService _jieStarPlatformService;
 

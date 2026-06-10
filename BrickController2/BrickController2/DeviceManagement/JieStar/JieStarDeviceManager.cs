@@ -4,11 +4,11 @@ using BrickController2.UI.Services.Preferences;
 namespace BrickController2.DeviceManagement.JieStar;
 
 /// <summary>
-/// Manager for JieStar devices
+/// Manager for JIESTAR devices
 /// </summary>
 public class JieStarDeviceManager : IJieStarDeviceManager
 {
-    private const string SECTION = "JieStar";
+    private const string SECTION = "JIESTAR";
     private const string APPIDKEY = "AppID";
 
 

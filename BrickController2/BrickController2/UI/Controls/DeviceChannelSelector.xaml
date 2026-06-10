@@ -458,7 +458,7 @@
 
             </Grid>
 
-            <!-- Jie Star SCM4 -->
+            <!-- JIESTAR SCM4 -->
             <Grid x:Name="JieStarSCM4Section">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="20" />
@@ -479,7 +479,7 @@
                 <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Source="{extensions:ImageResource Source=jiestarscm4_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
             </Grid>
 
-            <!-- Jie Star SCM8 -->
+            <!-- JIESTAR SCM8 -->
             <Grid x:Name="JieStarSCM8Section">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />

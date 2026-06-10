@@ -155,15 +155,18 @@ namespace BrickController2.UI.ViewModels
                 var (eventType, eventCode) = inputEvent.Key;
                 var item = InputEventList.FirstOrDefault(x => x.EventCode == eventCode && x.EventType == eventType);
 
-                if (item is null)
+                if (AXIS_DELTA_VALUE >= Math.Abs(inputEvent.Value))
+                {
+                    if (item != null)
+                    {
+                        InputEventList.Remove(item);
+                    }
+                }
+                else if(item is null)
                 {
                     InputEventList.Add(new InputDeviceEventViewModel(eventType, eventCode, inputEvent.Value));
                 }
-                else if (AXIS_DELTA_VALUE >= Math.Abs(inputEvent.Value))
-                {
-                    InputEventList.Remove(item);
-                }
-                else
+                else 
                 {
                     item.Value = inputEvent.Value;
                 }

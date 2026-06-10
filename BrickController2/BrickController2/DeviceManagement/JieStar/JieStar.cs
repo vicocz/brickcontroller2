@@ -5,7 +5,7 @@ using BrickController2.DeviceManagement.Vendors;
 namespace BrickController2.DeviceManagement.JieStar;
 
 /// <summary>
-/// Vendor: JieStar and all it's device and implementation
+/// Vendor: JieStar and all its devices
 /// </summary>
 internal class JieStar : Vendor<JieStar>
 {

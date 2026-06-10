@@ -36,7 +36,6 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDeviceManager deviceManager,
             IDialogService dialogService,
-            IServiceProvider serviceProvider,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -91,7 +90,7 @@ namespace BrickController2.UI.ViewModels
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
-        public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = new();
+        public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
 
         public override async void OnAppearing()
         {
@@ -115,6 +114,7 @@ namespace BrickController2.UI.ViewModels
 
             // connect input device if available
             InputDevice?.ConnectInputController(this);
+            ResetInputEvents();
 
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectAsync();
@@ -126,28 +126,11 @@ namespace BrickController2.UI.ViewModels
             base.OnDisappearing();
 
             // disconnect input device if available
+            ResetInputEvents();
             InputDevice?.DisconnectInputController();
 
             await DisconnectAsync();
         }
-
-        private async Task DisconnectAsync()
-        {
-            if (_connectionTokenSource is not null && _connectionTask is not null)
-            {
-                _connectionTokenSource.Cancel();
-                await _connectionTask;
-            }
-
-            await Device.DisconnectAsync();
-        }
-
-        private async Task OpenDeviceSettingsAsync()
-        {
-            await DisconnectAsync();
-            await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
-        }
-
 
         bool IInputDeviceConnector.HasValueChanged(string axisName, float value)
         {
@@ -165,23 +148,49 @@ namespace BrickController2.UI.ViewModels
 
         void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
         {
-            foreach (var inputDeviceEvent in events)
+            foreach (KeyValuePair<(InputDeviceEventType EventType, string EventCode), float> inputEvent in events)
             {
-                var item = InputEventList.FirstOrDefault(x => x.EventCode == inputDeviceEvent.Key.Item2);
+                var item = InputEventList.FirstOrDefault(x => x.EventCode == inputEvent.Key.EventCode &&
+                    x.EventType == inputEvent.Key.EventType);
 
-                if (AXIS_DELTA_VALUE >= Math.Abs(inputDeviceEvent.Value))
+                if (item is null)
+                {
+                    InputEventList.Add(new InputDeviceEventViewModel(inputEvent.Key.EventType,
+                        inputEvent.Key.EventCode,
+                        inputEvent.Value));
+                }
+                else if (AXIS_DELTA_VALUE >= Math.Abs(inputEvent.Value))
                 {
                     InputEventList.Remove(item);
                 }
-                else if (item != null)
-                {
-                    item.Value = inputDeviceEvent.Value;
-                }
                 else
                 {
-                    InputEventList.Add(new InputDeviceEventViewModel(inputDeviceEvent.Key.Item1, inputDeviceEvent.Key.Item2, inputDeviceEvent.Value));
+                    item.Value = inputEvent.Value;
                 }
             }
+        }
+
+        private void ResetInputEvents()
+        {
+            _lastAxisValues.Clear();
+            InputEventList.Clear();
+        }
+
+        private async Task DisconnectAsync()
+        {
+            if (_connectionTokenSource is not null && _connectionTask is not null)
+            {
+                _connectionTokenSource.Cancel();
+                await _connectionTask;
+            }
+
+            await Device.DisconnectAsync();
+        }
+
+        private async Task OpenDeviceSettingsAsync()
+        {
+            await DisconnectAsync();
+            await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
         }
 
         private async Task RenameDeviceAsync()
@@ -398,6 +407,8 @@ namespace BrickController2.UI.ViewModels
 
         private void OnDeviceDisconnected(Device device)
         {
+            // clear input events
+            ResetInputEvents();
             // update command enablement
             UpdateCommandsAvailability();
         }

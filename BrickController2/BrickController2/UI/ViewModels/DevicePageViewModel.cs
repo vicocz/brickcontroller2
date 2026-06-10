@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
-        private readonly Dictionary<string, float> _lastAxisValues = [];
+        private readonly ConcurrentDictionary<string, float> _lastAxisValues = [];
 
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
@@ -60,7 +61,6 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Device Device { get; }
-        internal IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
         public bool CanBePowerSource => Device.CanBePowerSource;
@@ -73,8 +73,6 @@ namespace BrickController2.UI.ViewModels
             !_deviceManager.IsScanning;
 
         public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
-
-        public bool IsInputDevice => Device is IDynamicInputDevice;
 
         public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
 
@@ -91,6 +89,10 @@ namespace BrickController2.UI.ViewModels
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
         public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
+
+        public bool IsInputDevice => InputDevice is not null;
+
+        internal IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
 
         public override async void OnAppearing()
         {
@@ -113,8 +115,8 @@ namespace BrickController2.UI.ViewModels
             }
 
             // connect input device if available
-            InputDevice?.ConnectInputController(this);
             ResetInputEvents();
+            InputDevice?.ConnectInputController(this);
 
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectAsync();

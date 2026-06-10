@@ -88,54 +88,6 @@ internal class JieStarSCM8 : JieStarBase, IDeviceType<JieStarSCM8>
     };
 
     /// <summary>
-    /// Converts a floating-point value into a nibble representation for an analog channel output.
-    /// </summary>
-    /// <remarks>The method maps the input value to a nibble representation based on predefined ranges for
-    /// positive, negative, and zero values. The zero value is represented by a specific nibble constant. The caller can
-    /// use the returned boolean to determine if the nibble corresponds to the zero value.</remarks>
-    /// <param name="value">The floating-point value to be converted. Negative values are mapped to the negative range, positive values are
-    /// mapped to the positive range, and zero is mapped to a predefined nibble.</param>
-    /// <returns>A tuple containing the following: <list type="bullet"> <item> <description> A <see cref="byte"/> representing
-    /// the nibble value for the analog channel output. </description> </item> <item> <description> A <see cref="bool"/>
-    /// indicating whether the nibble corresponds to the zero value. <see langword="true"/> if the nibble represents
-    /// zero; otherwise, <see langword="false"/>. </description> </item> </list></returns>
-    private (byte setValue_Nibble, bool zeroSet) SetOutput_AnalogChannel(float value)
-    {
-        // MK4: ZEROVALUE_NIBBLE = 0x08, RANGE_POS_OFFSET = 0x08
-        // value <  0:  7 6 5 4 3 2 1                    RANGE_NEG: 0x07
-        // value == 0:                0 8
-        // value >  0:                    9 A B C D E F  RANGE_POS: 0x07
-
-        const byte RANGE_POS_OFFSET = 0x08;
-        const int RANGE_POS = 0x07;
-        const int RANGE_NEG = 0x07;
-
-        const float MIN_NEG_RANGE_THRESHOLD = -1f / RANGE_NEG;    // Minimum value for negative range
-        const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
-
-        const byte ZEROVALUE_NIBBLE = 0x00;
-
-        if (value <= MIN_NEG_RANGE_THRESHOLD)
-        {
-            float value_abs = Math.Min(0x07, -value * RANGE_NEG);
-            byte setValue_nibble = (byte)(0x0F & (byte)value_abs);
-
-            return (setValue_nibble, false);
-        }
-        else if (value >= MIN_POS_RANGE_THRESHOLD)
-        {
-            float value_abs = Math.Min(0x0F, (value * RANGE_POS) + RANGE_POS_OFFSET);
-            byte setValue_nibble = (byte)(0x0F & (byte)(value_abs));
-
-            return (setValue_nibble, false);
-        }
-        else
-        {
-            return (ZEROVALUE_NIBBLE, true);
-        }
-    }
-
-    /// <summary>
     /// Get reference to Base-Telegram for the given address
     /// </summary>
     /// <param name="address">address</param>

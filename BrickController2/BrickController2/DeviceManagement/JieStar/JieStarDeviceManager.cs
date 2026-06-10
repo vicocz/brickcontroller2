@@ -52,7 +52,7 @@ public class JieStarDeviceManager : IJieStarDeviceManager
         // create new byte[] with random values
         // * on first run
         // * on exception
-        // * on length to short
+        // * on length too short
         appIdChecksumMaskArray = new byte[2];
 
         Random.Shared.NextBytes(appIdChecksumMaskArray);

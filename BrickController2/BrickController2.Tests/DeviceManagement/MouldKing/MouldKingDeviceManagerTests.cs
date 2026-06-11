@@ -59,4 +59,13 @@ public class MouldKingDeviceManagerTests
         result.Should().BeFalse();
         device.DeviceType.Should().Be(DeviceType.Unknown);
     }
+
+    [Fact]
+    public void AppId_TwoBytesInPreferences_AllBytes()
+    {
+        var appId = _manager.GetAppId();
+        appId.Length.Should().Be(2);
+        appId.Span[0].Should().Be(0x61); // 'a' = 0x61
+        appId.Span[1].Should().Be(0x62); // 'b' = 0x62
+    }
 }

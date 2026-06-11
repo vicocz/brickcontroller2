@@ -9,6 +9,7 @@ namespace BrickController2.UI.Services.AppIdentifier
         private const string SECTION = "App";
         private const string APPIDKEY = "Identifier";
 
+        private readonly object _lock = new object();
         private readonly IPreferencesService _preferencesService;
 
         // AppIdentifier is a byte-array that is used to identify the app on the device and to create a unique pairing between app and device.
@@ -26,14 +27,17 @@ namespace BrickController2.UI.Services.AppIdentifier
 
         public ReadOnlyMemory<byte> GetAppId(int length)
         {
-            if (length > _appIdentifier.Length)
+            lock (_lock)
             {
-                // if the requested length is bigger than the current AppIdentifier, create a new one with the requested length,
-                // to keep the AppIdentifier as stable as possible
-                _appIdentifier = GetAppIdentifier(_preferencesService, length);
-            }
+                if (length > _appIdentifier.Length)
+                {
+                    // if the requested length is bigger than the current AppIdentifier, create a new one with the requested length,
+                    // to keep the AppIdentifier as stable as possible
+                    _appIdentifier = GetAppIdentifier(_preferencesService, length);
+                }
 
-            return _appIdentifier[..length];
+                return _appIdentifier[..length];
+            }
         }
 
         /// <summary>

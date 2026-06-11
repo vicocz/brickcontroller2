@@ -3,7 +3,6 @@ using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Settings;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -22,6 +21,10 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IDeviceRepository>());
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
+
+        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
+        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
+        builder.RegisterInstance(mouldKingDeviceManager.Object);
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 

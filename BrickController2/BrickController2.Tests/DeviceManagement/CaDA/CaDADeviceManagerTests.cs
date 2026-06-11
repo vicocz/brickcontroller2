@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.CaDA;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.UI.Services.AppIdentifier;
 using BrickController2.UI.Services.Preferences;
 using FluentAssertions;
 using Moq;
@@ -17,10 +18,11 @@ public class CaDADeviceManagerTests
 
     public CaDADeviceManagerTests()
     {
-        _preferencesService.Setup(x => x.ContainsKey("AppID", "CaDA")).Returns(true);
-        _preferencesService.Setup(x => x.Get("AppID", "", "CaDA")).Returns("YWJj");
+        _preferencesService.Setup(x => x.ContainsKey("Identifier", "App")).Returns(true);
+        _preferencesService.Setup(x => x.Get("Identifier", "", "App")).Returns("YWJj");
 
-        _manager = new CaDADeviceManager(_preferencesService.Object, _cadaPlatformService.Object);
+        IAppIdentifierService appIdentifierService = new AppIdentifierService(_preferencesService.Object);
+        _manager = new CaDADeviceManager(appIdentifierService, _cadaPlatformService.Object);
     }
 
     [Fact]

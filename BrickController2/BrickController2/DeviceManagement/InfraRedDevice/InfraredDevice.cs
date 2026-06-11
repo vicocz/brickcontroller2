@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement.InfraredDevice
 {
-    internal class InfraredDevice : Device
+    internal class InfraredDevice : Device, IDeviceType<InfraredDevice>
     {
         private readonly IInfraredDeviceManager _infraredDeviceManager;
 
@@ -15,7 +15,10 @@ namespace BrickController2.DeviceManagement
             _infraredDeviceManager = infraredDeviceManager;
         }
 
-        public override DeviceType DeviceType => DeviceType.Infrared;
+        public static DeviceType Type => DeviceType.Infrared;
+
+        public static string TypeName => "InfraredDevice";
+        public override DeviceType DeviceType => Type;
         public override int NumberOfChannels => 2;
 
         public override async Task<DeviceConnectionResult> ConnectAsync(

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.Helpers;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement.InfraredDevice
 {
     internal class InfraredDeviceManager : IInfraredDeviceManager
     {

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement.InfraredDevice
 {
     internal interface IInfraredDeviceManager : IDeviceScanner
     {

@@ -26,11 +26,11 @@ namespace BrickController2.UI.Services.AppIdentifier
 
         public ReadOnlyMemory<byte> GetAppId(int length)
         {
-            if (length < _appIdentifier.Length)
+            if (length > _appIdentifier.Length)
             {
-                // if the requested length is smaller than the current AppIdentifier, create a new one with the requested length,
+                // if the requested length is bigger than the current AppIdentifier, create a new one with the requested length,
                 // to keep the AppIdentifier as stable as possible
-                _appIdentifier = GetAppIdentifier(_preferencesService, MIN_APPID_LENGTH);
+                _appIdentifier = GetAppIdentifier(_preferencesService, length);
             }
 
             return _appIdentifier[..length];

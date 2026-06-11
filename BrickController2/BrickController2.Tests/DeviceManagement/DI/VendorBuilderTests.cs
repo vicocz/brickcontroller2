@@ -9,11 +9,161 @@ using System;
 using Xunit;
 
 using MouldKingVendor = BrickController2.DeviceManagement.MouldKing.MouldKing;
+using JieStarVendor = BrickController2.DeviceManagement.JieStar.JieStar;
+using BrickController2.DeviceManagement.JieStar;
 
 namespace BrickController2.Tests.DeviceManagement.DI;
 
 public class VendorBuilderTests
 {
+    [Theory]
+    [InlineData("Device1")]
+    [InlineData("Device2")]
+    [InlineData("Device3")]
+    public void RegisterDevice_JieStar_SCM4_ReturnedDevice(string address)
+    {
+        // Arrange
+        var builder = new ContainerBuilder();
+        builder.RegisterInstance(Mock.Of<IDeviceRepository>());
+        builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
+        builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
+
+        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
+        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
+        builder.RegisterInstance(jieStarDeviceManager.Object);
+
+        var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
+
+        // Act
+        var deviceBuilder = vendorBuilder.RegisterDevice<JieStarSCM4>();
+        var container = builder.Build();
+
+        // Assert
+        deviceBuilder.Should().BeOfType<DeviceBuilder<JieStarVendor, JieStarSCM4>>();
+
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+        var device = container.ResolveKeyed<Device>(DeviceType.JieStarSCM4,
+            new NamedParameter(nameof(name), name),
+            new NamedParameter(nameof(address), address),
+            new NamedParameter(nameof(deviceData), deviceData));
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<JieStarSCM4>();
+    }
+
+    [Theory]
+    [InlineData("Device")]
+    [InlineData("IllegalDevice")]
+    public void RegisterDevice_JieStar_SCM4_IllegalDevice(string address)
+    {
+        // Arrange
+        var builder = new ContainerBuilder();
+        builder.RegisterInstance(Mock.Of<IDeviceRepository>());
+        builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
+        builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
+
+        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
+        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
+        builder.RegisterInstance(jieStarDeviceManager.Object);
+
+        var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
+
+        // Act
+        var deviceBuilder = vendorBuilder.RegisterDevice<JieStarSCM4>();
+        var container = builder.Build();
+
+        // Assert
+        deviceBuilder.Should().BeOfType<DeviceBuilder<JieStarVendor, JieStarSCM4>>();
+
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        Action act = () => container.ResolveKeyed<Device>(DeviceType.JieStarSCM4,
+            new NamedParameter(nameof(name), name),
+            new NamedParameter(nameof(address), address),
+            new NamedParameter(nameof(deviceData), deviceData));
+
+        act.Should().Throw<Autofac.Core.DependencyResolutionException>()
+            .WithInnerException<Autofac.Core.DependencyResolutionException>()
+            .WithInnerException<ArgumentException>()
+            .Which.ParamName.Should().Be(nameof(address));
+    }
+
+    [Theory]
+    [InlineData("Device1")]
+    [InlineData("Device2")]
+    [InlineData("Device3")]
+    public void RegisterDevice_JieStar_SCM8_ReturnedDevice(string address)
+    {
+        // Arrange
+        var builder = new ContainerBuilder();
+        builder.RegisterInstance(Mock.Of<IDeviceRepository>());
+        builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
+        builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
+
+        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
+        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
+        builder.RegisterInstance(jieStarDeviceManager.Object);
+
+        var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
+
+        // Act
+        var deviceBuilder = vendorBuilder.RegisterDevice<JieStarSCM8>();
+        var container = builder.Build();
+
+        // Assert
+        deviceBuilder.Should().BeOfType<DeviceBuilder<JieStarVendor, JieStarSCM8>>();
+
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+        var device = container.ResolveKeyed<Device>(DeviceType.JieStarSCM8,
+            new NamedParameter(nameof(name), name),
+            new NamedParameter(nameof(address), address),
+            new NamedParameter(nameof(deviceData), deviceData));
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<JieStarSCM8>();
+    }
+
+    [Theory]
+    [InlineData("Device")]
+    [InlineData("IllegalDevice")]
+    public void RegisterDevice_JieStar_SCM8_IllegalDevice(string address)
+    {
+        // Arrange
+        var builder = new ContainerBuilder();
+        builder.RegisterInstance(Mock.Of<IDeviceRepository>());
+        builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
+        builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
+
+        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
+        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
+        builder.RegisterInstance(jieStarDeviceManager.Object);
+
+        var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
+
+        // Act
+        var deviceBuilder = vendorBuilder.RegisterDevice<JieStarSCM8>();
+        var container = builder.Build();
+
+        // Assert
+        deviceBuilder.Should().BeOfType<DeviceBuilder<JieStarVendor, JieStarSCM8>>();
+
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        Action act = () => container.ResolveKeyed<Device>(DeviceType.JieStarSCM8,
+            new NamedParameter(nameof(name), name),
+            new NamedParameter(nameof(address), address),
+            new NamedParameter(nameof(deviceData), deviceData));
+
+        act.Should().Throw<Autofac.Core.DependencyResolutionException>()
+            .WithInnerException<Autofac.Core.DependencyResolutionException>()
+            .WithInnerException<ArgumentException>()
+            .Which.ParamName.Should().Be(nameof(address));
+    }
+
     [Theory]
     [InlineData("Device")]        // The address is not relevant for this device
     [InlineData("IllegalDevice")] // The address is not relevant for this device

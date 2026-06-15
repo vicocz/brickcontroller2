@@ -8,7 +8,7 @@ namespace BrickController2.DeviceManagement.InfraredDevice
 {
     internal class InfraredDeviceManager : IInfraredDeviceManager
     {
-        private const int IR_FREQUENCY = 38000;
+        public const int IR_FREQUENCY = 38000;
 
         private const int IR_MARK_US = 158;
         private const int IR_START_GAP_US = 1026;

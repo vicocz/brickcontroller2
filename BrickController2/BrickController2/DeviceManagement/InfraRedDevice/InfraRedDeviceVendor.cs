@@ -14,7 +14,7 @@ internal class InfraRedDeviceVendor : Vendor<InfraRedDeviceVendor>
     
     public override string VendorName => "IRDevice";
 
-    public override bool IsAvailable => _infraredService?.IsInfraredSupported ?? false;
+    public override bool IsAvailable => _infraredService != null && _infraredService.IsInfraredSupported && _infraredService.IsCarrierFrequencySupported(InfraredDeviceManager.IR_FREQUENCY);
 
     protected override void Register(VendorBuilder<InfraRedDeviceVendor> builder)
     {

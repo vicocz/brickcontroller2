@@ -86,11 +86,7 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
-
-                    await Task.WhenAll(bluetoothScan);
-
-                    return bluetoothScan.Result;
+                    return await _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
                 }
                 catch (Exception)
                 {

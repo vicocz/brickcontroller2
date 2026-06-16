@@ -28,9 +28,9 @@ internal class InfraRedDeviceVendor : Vendor<InfraRedDeviceVendor>
 
         // manually added devices
         builder.RegisterDevice<InfraredDevice>()
-            .WithDeviceFactory($"{0}", $"PF Infra {1}", null)
-            .WithDeviceFactory($"{1}", $"PF Infra {2}", null)
-            .WithDeviceFactory($"{2}", $"PF Infra {3}", null)
-            .WithDeviceFactory($"{3}", $"PF Infra {4}", null);
+            .WithDeviceFactory("0", "PF Infra 1")
+            .WithDeviceFactory("1", "PF Infra 2")
+            .WithDeviceFactory("2", "PF Infra 3")
+            .WithDeviceFactory("3", "PF Infra 4");
     }
 }

@@ -2,10 +2,7 @@
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.UI.Images;
-using Microsoft.Maui.Controls;
 using System;
-using System.Net;
-using System.Numerics;
 
 namespace BrickController2.DeviceManagement.DI
 {

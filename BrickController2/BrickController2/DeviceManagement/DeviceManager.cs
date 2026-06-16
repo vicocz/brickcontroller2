@@ -1,5 +1,4 @@
-﻿using BrickController2.DeviceManagement.InfraredDevice;
-using BrickController2.Helpers;
+﻿using BrickController2.Helpers;
 using BrickController2.UI.Services.MainThread;
 using Microsoft.Extensions.Logging;
 using System;

@@ -79,7 +79,7 @@ namespace BrickController2.UI.Controls
                     SetChannelText(_buwizz3ChannelLetters);
                     break;
 
-                case DeviceType.Infrared:
+                case DeviceType.PowerFunctions:
                     Text = Channel == 0 ?
                         TranslationHelper.Translate("Blue") :
                         TranslationHelper.Translate("Red");

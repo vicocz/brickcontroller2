@@ -3,23 +3,23 @@ using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.PlatformServices.Infrared;
 
-namespace BrickController2.DeviceManagement.InfraredDevice;
+namespace BrickController2.DeviceManagement.PowerFunctions;
 
 /// <summary>
-/// fake Vendor for infrared devices
+/// Vendor for Power Functions devices
 /// </summary>
-internal class InfraRedDeviceVendor : Vendor<InfraRedDeviceVendor>
+internal class PowerFunctionsVendor : Vendor<PowerFunctionsVendor>
 {
     private IInfraredService? _infraredService;
     
-    public override string VendorName => "IRDevice";
+    public override string VendorName => "LEGO";
 
-    public override bool IsAvailable => _infraredService != null && _infraredService.IsInfraredSupported && _infraredService.IsCarrierFrequencySupported(InfraredDeviceManager.IR_FREQUENCY);
+    public override bool IsAvailable => _infraredService != null && _infraredService.IsInfraredSupported && _infraredService.IsCarrierFrequencySupported(PowerFunctionsManager.IR_FREQUENCY);
 
-    protected override void Register(VendorBuilder<InfraRedDeviceVendor> builder)
+    protected override void Register(VendorBuilder<PowerFunctionsVendor> builder)
     {
         // device manager
-        builder.ContainerBuilder.RegisterType<InfraredDeviceManager>().As<IInfraredDeviceManager>().SingleInstance();
+        builder.ContainerBuilder.RegisterType<PowerFunctionsManager>().As<IPowerFunctionsManager>().SingleInstance();
 
         builder.ContainerBuilder.RegisterBuildCallback(scope =>
         {
@@ -27,7 +27,7 @@ internal class InfraRedDeviceVendor : Vendor<InfraRedDeviceVendor>
         });
 
         // manually added devices
-        builder.RegisterDevice<InfraredDevice>()
+        builder.RegisterDevice<PowerFunctions>()
             .WithDeviceFactory("0", "PF Infra 1")
             .WithDeviceFactory("1", "PF Infra 2")
             .WithDeviceFactory("2", "PF Infra 3")

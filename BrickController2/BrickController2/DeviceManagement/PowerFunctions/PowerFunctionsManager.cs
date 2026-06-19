@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.Helpers;
 
-namespace BrickController2.DeviceManagement.InfraredDevice
+namespace BrickController2.DeviceManagement.PowerFunctions
 {
-    internal class InfraredDeviceManager : IInfraredDeviceManager
+    internal class PowerFunctionsManager : IPowerFunctionsManager
     {
         public const int IR_FREQUENCY = 38000;
 
@@ -29,12 +29,12 @@ namespace BrickController2.DeviceManagement.InfraredDevice
         private Task? _irTask;
         private CancellationTokenSource? _irTaskCancelationTokenSource;
 
-        public InfraredDeviceManager(IInfraredService infraredService)
+        public PowerFunctionsManager(IInfraredService infraredService)
         {
             _infraredService = infraredService;
         }
 
-        public async Task<DeviceConnectionResult> ConnectDevice(InfraredDevice device)
+        public async Task<DeviceConnectionResult> ConnectDevice(PowerFunctions device)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -53,7 +53,7 @@ namespace BrickController2.DeviceManagement.InfraredDevice
             }
         }
 
-        public async Task DisconnectDevice(InfraredDevice device)
+        public async Task DisconnectDevice(PowerFunctions device)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -70,7 +70,7 @@ namespace BrickController2.DeviceManagement.InfraredDevice
             }
         }
 
-        public void SetOutput(InfraredDevice device, int channel, int value)
+        public void SetOutput(PowerFunctions device, int channel, int value)
         {
             if (int.TryParse(device.Address, out int address))
             {

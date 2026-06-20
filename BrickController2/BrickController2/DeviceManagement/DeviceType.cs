@@ -6,7 +6,7 @@
         SBrick,
         BuWizz,
         BuWizz2,
-        PowerFunctions,
+        Infrared,
         Boost,
         PoweredUp,
         TechnicHub,

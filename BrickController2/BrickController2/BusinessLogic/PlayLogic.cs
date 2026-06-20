@@ -423,7 +423,7 @@ namespace BrickController2.BusinessLogic
             {
                 case DeviceType.BuWizz:
                 case DeviceType.BuWizz2:
-                case DeviceType.PowerFunctions:
+                case DeviceType.Infrared:
                 case DeviceType.SBrick:
                     return 1F / 7;
 

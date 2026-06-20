@@ -15,7 +15,7 @@ namespace BrickController2.DeviceManagement.PowerFunctions
             _powerFunctionsManager = powerFunctionsManager;
         }
 
-        public static DeviceType Type => DeviceType.PowerFunctions;
+        public static DeviceType Type => DeviceType.Infrared;
 
         public static string TypeName => "Power Functions";
         public override DeviceType DeviceType => Type;

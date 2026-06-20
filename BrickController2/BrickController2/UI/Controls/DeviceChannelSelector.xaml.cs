@@ -173,7 +173,7 @@ namespace BrickController2.UI.Controls
             SbrickLightSection.IsVisible = deviceType == DeviceType.SBrickLight;
             BuWizzSection.IsVisible = deviceType == DeviceType.BuWizz || deviceType == DeviceType.BuWizz2;
             BuWizz3Section.IsVisible = deviceType == DeviceType.BuWizz3;
-            PowerFunctionsSection.IsVisible = deviceType == DeviceType.PowerFunctions;
+            PowerFunctionsSection.IsVisible = deviceType == DeviceType.Infrared;
             PoweredUpSection.IsVisible = deviceType == DeviceType.PoweredUp;
             BoostSection.IsVisible = deviceType == DeviceType.Boost;
             TechnicHubSection.IsVisible = deviceType == DeviceType.TechnicHub;

@@ -28,6 +28,7 @@ internal class PowerFunctionsVendor : Vendor<PowerFunctionsVendor>
 
         // manually added devices
         builder.RegisterDevice<PowerFunctions>()
+            .WithImages("powerfunctions_image.png", "powerfunctions_image_small.png")
             .WithDeviceFactory("0", "PF Infra 1")
             .WithDeviceFactory("1", "PF Infra 2")
             .WithDeviceFactory("2", "PF Infra 3")

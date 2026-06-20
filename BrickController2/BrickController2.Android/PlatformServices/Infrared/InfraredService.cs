@@ -47,7 +47,7 @@ namespace BrickController2.Droid.PlatformServices.Infrared
         {
             if (_irManager == null)
             {
-                throw new InvalidOperationException("PowerFunctions is not supported.");
+                throw new InvalidOperationException("Infrared is not supported.");
             }
 
             return _irManager.TransmitAsync(carrierFrequency, packet);

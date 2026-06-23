@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
@@ -150,27 +151,30 @@ namespace BrickController2.UI.ViewModels
 
         void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
         {
-            foreach (var inputEvent in events)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                var (eventType, eventCode) = inputEvent.Key;
-                var item = InputEventList.FirstOrDefault(x => x.EventCode == eventCode && x.EventType == eventType);
-
-                if (AXIS_DELTA_VALUE >= Math.Abs(inputEvent.Value))
+                foreach (var inputEvent in events)
                 {
-                    if (item != null)
+                    var (eventType, eventCode) = inputEvent.Key;
+                    var item = InputEventList.FirstOrDefault(x => x.EventCode == eventCode && x.EventType == eventType);
+
+                    if (AXIS_DELTA_VALUE < Math.Abs(inputEvent.Value))
+                    {
+                        if (item != null)
+                        {
+                            item.Value = inputEvent.Value;
+                        }
+                        else
+                        {
+                            InputEventList.Add(new InputDeviceEventViewModel(eventType, eventCode, inputEvent.Value));
+                        }
+                    }
+                    else if (item != null)
                     {
                         InputEventList.Remove(item);
                     }
                 }
-                else if(item is null)
-                {
-                    InputEventList.Add(new InputDeviceEventViewModel(eventType, eventCode, inputEvent.Value));
-                }
-                else 
-                {
-                    item.Value = inputEvent.Value;
-                }
-            }
+            });
         }
 
         private void ResetInputEvents()
@@ -410,10 +414,13 @@ namespace BrickController2.UI.ViewModels
 
         private void OnDeviceDisconnected(Device device)
         {
-            // clear input events
-            ResetInputEvents();
-            // update command enablement
-            UpdateCommandsAvailability();
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                // clear input events
+                ResetInputEvents();
+                // update command enablement
+                UpdateCommandsAvailability();
+            });
         }
 
         private void UpdateCommandsAvailability()

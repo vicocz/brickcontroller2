@@ -82,7 +82,7 @@ internal class GameControllerService : InputDeviceServiceBase<GamepadController>
                 int controllerNumber = GetFirstUnusedInputDeviceNumber();
                 var newController = new GamepadController(InputDeviceEventService, gamepad!, rawController, controllerNumber, dispatcher!.CreateTimer());
 
-                // UniquePersistantDeviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
+                // UniquePersistentDeviceId looks like "{wgi/nrid/]Xd\\h-M1mO]-il0l-4L\\-Gebf:^3->kBRhM-d4}\0"                
                 AddInputDevice(newController);
             }
         }

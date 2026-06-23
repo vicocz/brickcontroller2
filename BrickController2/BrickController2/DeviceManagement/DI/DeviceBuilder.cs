@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Settings;
+using BrickController2.UI.Images;
 using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement.DI;
@@ -30,4 +31,23 @@ public class DeviceBuilder<TVendor, TDevice>(VendorBuilder<TVendor> builder)
 
         return this;
     }
+
+    /// <summary>
+    /// Register custom image resource names for this device type.
+    /// </summary>
+    public DeviceBuilder<TVendor, TDevice> WithImages(string imageResourceName, string smallImageResourceName)
+    {
+        Builder.RegisterBuildCallback(scope =>
+        {
+            var registry = scope.Resolve<IDeviceImageRegistry>();
+            registry.Register(TDevice.Type, imageResourceName, smallImageResourceName);
+        });
+
+        return this;
+    }
+
+    /// <summary>
+    /// Register custom image resource name for this device type.
+    /// </summary>
+    public DeviceBuilder<TVendor, TDevice> WithImage(string imageResourceName) => WithImages(imageResourceName, imageResourceName);
 }

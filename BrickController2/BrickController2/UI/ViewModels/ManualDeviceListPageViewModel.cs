@@ -56,6 +56,7 @@ namespace BrickController2.UI.ViewModels
 
             var groups = manualDeviceManager.FactoryDataList
                 // apply ordering per vendor and device type
+                .Where(o => o.IsAvailable)
                 .OrderBy(o => o.VendorName)
                 .ThenBy(o => o.DeviceTypeName)
                 .GroupBy(o => (o.VendorName, o.DeviceType, o.DeviceTypeName), x => new DeviceEntry(x, GetDeviceInstance(x)));

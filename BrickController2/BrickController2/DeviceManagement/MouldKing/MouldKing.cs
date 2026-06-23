@@ -5,7 +5,7 @@ using BrickController2.Extensions;
 namespace BrickController2.DeviceManagement.MouldKing;
 
 /// <summary>
-/// Vendor: Mould King and all it's device and implementation of IBluetoothLEDeviceManager
+/// Vendor: Mould King and all its devices and implementation of IBluetoothLEDeviceManager
 /// </summary>
 internal class MouldKing : Vendor<MouldKing>
 {

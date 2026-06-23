@@ -126,14 +126,14 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
         manufacturerData[7] == 0x85;
 
     /// <summary>
-    /// gets or creates an App-persistant AppIdentifier
+    /// Gets or creates an app-persistent AppIdentifier.
     /// </summary>
-    /// <param name="preferencesService">reference to preferencesService singleton</param>
+    /// <param name="preferencesService">Reference to preferencesService singleton.</param>
     /// <returns>byte array containing the AppIdentifier</returns>
     private static byte[] GetAppIdentifier(IPreferencesService preferencesService)
     {
         byte[] appIdChecksumMaskArray;
-        // gets or creates an App-persistant AppIdentifier
+        // gets or creates an app-persistent AppIdentifier
         try
         {
             if (preferencesService.ContainsKey(APPIDKEY, SECTION))

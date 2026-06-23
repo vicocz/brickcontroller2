@@ -16,6 +16,7 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _mk5ChannelLetters = ["AB", "T", "C", "AB+T", "TL"];
         private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
         private readonly static string[] _sBrickLightChannelLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
+        private readonly static string[] _jieStarChannelLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
 
         public static readonly BindableProperty DeviceTypeProperty = BindableProperty.Create(nameof(DeviceType), typeof(DeviceType), typeof(DeviceChannelLabel), default(DeviceType), BindingMode.OneWay, null, OnDeviceChanged);
         public static readonly BindableProperty ChannelProperty = BindableProperty.Create(nameof(Channel), typeof(int), typeof(DeviceChannelLabel), 0, BindingMode.OneWay, null, OnChannelChanged);
@@ -107,7 +108,10 @@ namespace BrickController2.UI.Controls
                         Text = $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
                     }
                     break;
-
+                case DeviceType.JieStarSCM4:
+                case DeviceType.JieStarSCM8:
+                    SetChannelText(_jieStarChannelLetters);
+                    break;
                 default:
                     Text = $"{Channel + 1}";
                     break;

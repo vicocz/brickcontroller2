@@ -132,8 +132,8 @@
                 </Grid>
             </Grid>
 
-            <!-- Infrared -->
-            <Grid x:Name="InfraredSection">
+            <!-- Power Functions -->
+            <Grid x:Name="PowerFunctionsSection">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -141,13 +141,13 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid Grid.Column="0">
-                    <controls:ChannelSelectorRadioButton x:Name="InfraredChannel0" DeviceType="Infrared" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+                    <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel0" DeviceType="Infrared" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
                 </Grid>
 
-                <Image Grid.Column="1" Source="{extensions:ImageResource Source=infra_image.png}" WidthRequest="150" HeightRequest="150"/>
+                <Image Grid.Column="1" Source="{extensions:ImageResource Source=powerfunctions_image.png}" WidthRequest="150" HeightRequest="150"/>
 
                 <Grid Grid.Column="2">
-                    <controls:ChannelSelectorRadioButton x:Name="InfraredChannel1" DeviceType="Infrared" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
+                    <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel1" DeviceType="Infrared" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
                 </Grid>
             </Grid>
             
@@ -260,7 +260,7 @@
                     <controls:ChannelSelectorRadioButton x:Name="WedoChannel0" DeviceType="WeDo2" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
                 </Grid>
 
-                <Image Grid.Column="1" Source="{extensions:ImageResource Source=wedo2hub_image.png}" WidthRequest="150" HeightRequest="120"/>
+                <Image Grid.Column="1" Source="{extensions:ImageResource Source=wedo2_image.png}" WidthRequest="150" HeightRequest="120"/>
 
                 <Grid Grid.Column="2">
                 </Grid>
@@ -290,7 +290,7 @@
                 <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="TechnicMoveChannel5" DeviceType="TechnicMove" Channel="7" HorizontalOptions="Start" VerticalOptions="End"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="TechnicMoveChannel6" DeviceType="TechnicMove" Channel="8" HorizontalOptions="End" VerticalOptions="Start"/>
 
-                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=technic_move.png}" WidthRequest="150" HeightRequest="80" ZIndex="-1"/>
+                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=technicmove_image.png}" WidthRequest="150" HeightRequest="80" ZIndex="-1"/>
             </Grid>
 
             <!-- PFx Brick -->
@@ -317,7 +317,7 @@
                 <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel7" DeviceType="PfxBrick" Channel="8" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,80,0"/>
                 <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="PfxBrickChannel8" DeviceType="PfxBrick" Channel="9" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,120,0"/>
 
-                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=pfx_brick_image.png}" WidthRequest="130" HeightRequest="95" ZIndex="-1"/>
+                <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=pfxbrick_image.png}" WidthRequest="130" HeightRequest="95" ZIndex="-1"/>
             </Grid>
 
             <!-- MK4 -->
@@ -458,6 +458,52 @@
 
             </Grid>
 
+            <!-- JIESTAR SCM4 -->
+            <Grid x:Name="JieStarSCM4Section">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="90" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="2" x:Name="JieStarSCM4Channel0" DeviceType="JieStarSCM4" Channel="0" HorizontalOptions="Start" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="JieStarSCM4Channel1" DeviceType="JieStarSCM4" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="2" x:Name="JieStarSCM4Channel2" DeviceType="JieStarSCM4" Channel="2" HorizontalOptions="End" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="JieStarSCM4Channel3" DeviceType="JieStarSCM4" Channel="3" HorizontalOptions="End" VerticalOptions="Start"/>
+
+                <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Source="{extensions:ImageResource Source=jiestarscm4_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
+            </Grid>
+
+            <!-- JIESTAR SCM8 -->
+            <Grid x:Name="JieStarSCM8Section">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="0" x:Name="JieStarSCM8Channel0" DeviceType="JieStarSCM8" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="0" x:Name="JieStarSCM8Channel1" DeviceType="JieStarSCM8" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="JieStarSCM8Channel2" DeviceType="JieStarSCM8" Channel="2" HorizontalOptions="End" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="JieStarSCM8Channel3" DeviceType="JieStarSCM8" Channel="3" HorizontalOptions="Start" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="2" x:Name="JieStarSCM8Channel4" DeviceType="JieStarSCM8" Channel="4" HorizontalOptions="End" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="2" x:Name="JieStarSCM8Channel5" DeviceType="JieStarSCM8" Channel="5" HorizontalOptions="Start" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="3" x:Name="JieStarSCM8Channel6" DeviceType="JieStarSCM8" Channel="6" HorizontalOptions="Start" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="3" x:Name="JieStarSCM8Channel7" DeviceType="JieStarSCM8" Channel="7" HorizontalOptions="End" VerticalOptions="End"/>
+
+                <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Source="{extensions:ImageResource Source=jiestarscm8_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
+            </Grid>
         </Grid>
     </ContentView.Content>
 </ContentView>

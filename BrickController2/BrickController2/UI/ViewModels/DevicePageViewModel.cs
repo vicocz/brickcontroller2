@@ -93,7 +93,7 @@ namespace BrickController2.UI.ViewModels
 
         public bool IsInputDevice => InputDevice is not null;
 
-        internal IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
+        private IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
 
         public override async void OnAppearing()
         {
@@ -151,6 +151,11 @@ namespace BrickController2.UI.ViewModels
 
         void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
         {
+            if (events.Count == 0)
+            {
+                return;
+            }
+
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 foreach (var inputEvent in events)

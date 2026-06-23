@@ -4,9 +4,9 @@ namespace BrickController2.DeviceManagement.PowerFunctions
 {
     internal interface IPowerFunctionsManager
     {
-        Task<DeviceConnectionResult> ConnectDevice(PowerFunctions device);
-        Task DisconnectDevice(PowerFunctions device);
+        Task<DeviceConnectionResult> ConnectDevice(PowerFunctionsDevice device);
+        Task DisconnectDevice(PowerFunctionsDevice device);
 
-        void SetOutput(PowerFunctions device, int channel, int value);
+        void SetOutput(PowerFunctionsDevice device, int channel, int value);
     }
 }

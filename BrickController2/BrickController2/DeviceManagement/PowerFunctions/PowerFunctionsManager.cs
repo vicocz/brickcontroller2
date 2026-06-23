@@ -34,7 +34,7 @@ namespace BrickController2.DeviceManagement.PowerFunctions
             _infraredService = infraredService;
         }
 
-        public async Task<DeviceConnectionResult> ConnectDevice(PowerFunctions device)
+        public async Task<DeviceConnectionResult> ConnectDevice(PowerFunctionsDevice device)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -53,7 +53,7 @@ namespace BrickController2.DeviceManagement.PowerFunctions
             }
         }
 
-        public async Task DisconnectDevice(PowerFunctions device)
+        public async Task DisconnectDevice(PowerFunctionsDevice device)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -70,7 +70,7 @@ namespace BrickController2.DeviceManagement.PowerFunctions
             }
         }
 
-        public void SetOutput(PowerFunctions device, int channel, int value)
+        public void SetOutput(PowerFunctionsDevice device, int channel, int value)
         {
             if (int.TryParse(device.Address, out int address))
             {

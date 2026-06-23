@@ -1,58 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Autofac;
+using BrickController2.DeviceManagement.DI;
+using BrickController2.DeviceManagement.Vendors;
+using BrickController2.PlatformServices.Infrared;
 
-namespace BrickController2.DeviceManagement.PowerFunctions
+namespace BrickController2.DeviceManagement.PowerFunctions;
+
+/// <summary>
+/// Vendor for Power Functions devices
+/// </summary>
+internal class PowerFunctions : Vendor<PowerFunctions>
 {
-    internal class PowerFunctions : Device, IDeviceType<PowerFunctions>
+    private IInfraredService? _infraredService;
+    
+    public override string VendorName => "LEGO";
+
+    public override bool IsAvailable => _infraredService != null && _infraredService.IsInfraredSupported && _infraredService.IsCarrierFrequencySupported(PowerFunctionsManager.IR_FREQUENCY);
+
+    protected override void Register(VendorBuilder<PowerFunctions> builder)
     {
-        private readonly IPowerFunctionsManager _powerFunctionsManager;
+        // device manager
+        builder.ContainerBuilder.RegisterType<PowerFunctionsManager>().As<IPowerFunctionsManager>().SingleInstance();
 
-        public PowerFunctions(string name, string address, byte[] deviceData, IPowerFunctionsManager powerFunctionsManager, IDeviceRepository deviceRepository)
-            : base(name, address, deviceRepository)
+        builder.ContainerBuilder.RegisterBuildCallback(scope =>
         {
-            _powerFunctionsManager = powerFunctionsManager;
-        }
+            _infraredService = scope.Resolve<IInfraredService>();
+        });
 
-        public static DeviceType Type => DeviceType.Infrared;
-
-        public static string TypeName => "Power Functions";
-        public override DeviceType DeviceType => Type;
-        public override int NumberOfChannels => 2;
-
-        public override async Task<DeviceConnectionResult> ConnectAsync(
-            bool reconnect,
-            Action<Device> onDeviceDisconnected,
-            IEnumerable<ChannelConfiguration> channelConfigurations,
-            bool startOutputProcessing,
-            bool requestDeviceInformation,
-            CancellationToken token)
-        {
-            DeviceState = DeviceState.Connecting;
-
-            var result = await _powerFunctionsManager.ConnectDevice(this);
-
-            DeviceState = result == DeviceConnectionResult.Ok ? DeviceState.Connected : DeviceState.Disconnected;
-            return result;
-        }
-
-        public override async Task DisconnectAsync()
-        {
-            DeviceState = DeviceState.Disconnecting;
-
-            await _powerFunctionsManager.DisconnectDevice(this);
-
-            DeviceState = DeviceState.Disconnected;
-        }
-
-        public override void SetOutput(int channel, float value)
-        {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            var intValue = (int)(7 * value);
-            _powerFunctionsManager.SetOutput(this, channel, intValue);
-        }
+        // manually added devices
+        builder.RegisterDevice<PowerFunctionsDevice>()
+            .WithImages("powerfunctions_image.png", "powerfunctions_image_small.png")
+            .WithDeviceFactory("0", "PF Infra 1")
+            .WithDeviceFactory("1", "PF Infra 2")
+            .WithDeviceFactory("2", "PF Infra 3")
+            .WithDeviceFactory("3", "PF Infra 4");
     }
 }

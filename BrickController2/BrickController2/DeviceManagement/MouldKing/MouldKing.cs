@@ -35,6 +35,6 @@ internal class MouldKing : Vendor<MouldKing>
 
         // device manager
         builder.RegisterDeviceManager<MouldKingDeviceManager>()
-            .As<IMouldKingDeviceManager>();
+            .SingleInstance();
     }
 }

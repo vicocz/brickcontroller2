@@ -183,9 +183,12 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
 
-        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
-        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(mouldKingDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<MouldKingDeviceManager>()
+            .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 
@@ -218,9 +221,12 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
 
-        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
-        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(mouldKingDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<MouldKingDeviceManager>()
+            .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 
@@ -257,9 +263,12 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
 
-        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
-        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(mouldKingDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<MouldKingDeviceManager>()
+            .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 
@@ -292,9 +301,12 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
 
-        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
-        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(mouldKingDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<MouldKingDeviceManager>()
+            .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 
@@ -328,9 +340,12 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
 
-        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
-        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(mouldKingDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<MouldKingDeviceManager>()
+            .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 
@@ -363,9 +378,12 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IMKPlatformService>());
 
-        Mock<IMouldKingDeviceManager> mouldKingDeviceManager = new();
-        mouldKingDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(mouldKingDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<MouldKingDeviceManager>()
+            .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
 

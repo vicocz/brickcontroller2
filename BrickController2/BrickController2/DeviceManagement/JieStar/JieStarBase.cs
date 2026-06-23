@@ -39,7 +39,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
+    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, JieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;

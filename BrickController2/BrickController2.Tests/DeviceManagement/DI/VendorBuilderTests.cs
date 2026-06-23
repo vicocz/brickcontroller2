@@ -1,16 +1,16 @@
 using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.DI;
+using BrickController2.DeviceManagement.JieStar;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.UI.Services.AppIdentifier;
 using FluentAssertions;
 using Moq;
 using System;
 using Xunit;
-
-using MouldKingVendor = BrickController2.DeviceManagement.MouldKing.MouldKing;
 using JieStarVendor = BrickController2.DeviceManagement.JieStar.JieStar;
-using BrickController2.DeviceManagement.JieStar;
+using MouldKingVendor = BrickController2.DeviceManagement.MouldKing.MouldKing;
 
 namespace BrickController2.Tests.DeviceManagement.DI;
 
@@ -28,9 +28,11 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
 
-        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
-        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(jieStarDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<JieStarDeviceManager>();
 
         var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
 
@@ -63,9 +65,11 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
 
-        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
-        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(jieStarDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<JieStarDeviceManager>();
 
         var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
 
@@ -102,9 +106,11 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
 
-        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
-        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(jieStarDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<JieStarDeviceManager>();
 
         var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
 
@@ -137,9 +143,11 @@ public class VendorBuilderTests
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IJieStarPlatformService>());
 
-        Mock<IJieStarDeviceManager> jieStarDeviceManager = new();
-        jieStarDeviceManager.Setup(x => x.GetAppId()).Returns(new byte[] { 0x01, 0x02 });
-        builder.RegisterInstance(jieStarDeviceManager.Object);
+        Mock<IAppIdentifierService> appIdentifierService = new();
+        appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { 0x01, 0x02 });
+
+        builder.RegisterInstance(appIdentifierService.Object);
+        builder.RegisterType<JieStarDeviceManager>();
 
         var vendorBuilder = new VendorBuilder<JieStarVendor>(builder, new JieStarVendor());
 

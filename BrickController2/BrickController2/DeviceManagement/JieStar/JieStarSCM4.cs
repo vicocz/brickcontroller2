@@ -29,7 +29,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// </summary>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
-    public JieStarSCM4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
+    public JieStarSCM4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, JieStarDeviceManager jieStarDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, Telegram_Connect_Device, Telegram_Base_Device, GetCTXValue2(address))
     {
     }

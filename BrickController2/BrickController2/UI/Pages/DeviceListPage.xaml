@@ -7,8 +7,11 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:deviceManagement="clr-namespace:BrickController2.DeviceManagement"
     x:Class="BrickController2.UI.Pages.DeviceListPage"
     x:Name="Page"
+    x:DataType="viewModels:DeviceListPageViewModel"
     Title="{extensions:Translate Devices}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -26,7 +29,7 @@
                 <!-- Device list -->
                 <CollectionView ItemsSource="{Binding DeviceManager.Devices}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="deviceManagement:Device">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">

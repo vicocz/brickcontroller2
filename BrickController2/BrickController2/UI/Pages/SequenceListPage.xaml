@@ -7,8 +7,11 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:models="clr-namespace:BrickController2.CreationManagement"
     x:Class="BrickController2.UI.Pages.SequenceListPage"
     x:Name="Page"
+    x:DataType="viewModels:SequenceListPageViewModel"
     Title="{extensions:Translate Sequences}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -34,7 +37,7 @@
                 <!-- Sequence list -->
                 <CollectionView ItemsSource="{Binding Sequences}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:Sequence">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">

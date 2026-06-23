@@ -6,8 +6,11 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:models="clr-namespace:BrickController2.CreationManagement"
     x:Class="BrickController2.UI.Pages.CreationPage"
     x:Name="Page"
+    x:DataType="viewModels:CreationPageViewModel"
     Title="{extensions:Translate Creation}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -42,7 +45,7 @@
                 <!-- Controller profile list -->
                 <CollectionView Grid.Row="1" ItemsSource="{Binding Creation.ControllerProfiles}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:ControllerProfile">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">

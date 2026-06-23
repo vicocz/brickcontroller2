@@ -5,9 +5,11 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
-    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+	xmlns:local="clr-namespace:BrickController2.UI.Pages"
+	xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
 	xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
-    x:Class="BrickController2.UI.Pages.ScannerPageBase"
+	x:Class="BrickController2.UI.Pages.ScannerPageBase"
+	x:DataType="viewModels:ScannerPageViewModelBase"
     Title="{extensions:Translate ScanQr}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">

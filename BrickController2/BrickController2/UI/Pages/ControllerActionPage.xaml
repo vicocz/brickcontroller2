@@ -9,7 +9,9 @@
     xmlns:gameController="clr-namespace:BrickController2.PlatformServices.InputDevice"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.ControllerActionPage"
+    x:DataType="viewModels:ControllerActionPageViewModel"
     Title="{extensions:Translate ControllerAction}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">

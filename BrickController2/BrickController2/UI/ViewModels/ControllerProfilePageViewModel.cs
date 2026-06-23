@@ -404,55 +404,56 @@ namespace BrickController2.UI.ViewModels
                 device.IsOutputTypeSupported(controllerAction.Channel, controllerAction.ChannelOutputType);
         }
 
-        public class ControllerActionViewModel
+    }
+
+    public class ControllerActionViewModel
+    {
+        private readonly Device? _device;
+
+        public ControllerActionViewModel(
+            ControllerAction controllerAction,
+            IDeviceManager deviceManager,
+            IPlayLogic playLogic,
+            ITranslationService translationService)
         {
-            private readonly Device? _device;
+            ControllerAction = controllerAction;
+            _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
 
-            public ControllerActionViewModel(
-                ControllerAction controllerAction,
-                IDeviceManager deviceManager,
-                IPlayLogic playLogic,
-                ITranslationService translationService)
-            {
-                ControllerAction = controllerAction;
-                _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
-
-                ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
-                DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
-                // primary take type from existing device or try to parse DeviceId
-                DeviceType = _device != null ? _device.DeviceType :
-                    (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
-                Channel = controllerAction.Channel;
-                InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
-            }
-
-            public ControllerAction ControllerAction { get; }
-            public bool ControllerActionValid { get; }
-            public string DeviceName { get; }
-            public DeviceType DeviceType { get; }
-            public int Channel { get; }
-            public string InvertName { get; }
-
-            public bool IsChannelSetupSupported =>
-                _device is not null &&
-                ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
-                _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
+            ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
+            DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
+            // primary take type from existing device or try to parse DeviceId
+            DeviceType = _device != null ? _device.DeviceType :
+                (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
+            Channel = controllerAction.Channel;
+            InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
         }
 
-        public class ControllerEventViewModel : List<ControllerActionViewModel>
+        public ControllerAction ControllerAction { get; }
+        public bool ControllerActionValid { get; }
+        public string DeviceName { get; }
+        public DeviceType DeviceType { get; }
+        public int Channel { get; }
+        public string InvertName { get; }
+
+        public bool IsChannelSetupSupported =>
+            _device is not null &&
+            ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
+            _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
+    }
+
+    public class ControllerEventViewModel : List<ControllerActionViewModel>
+    {
+        public ControllerEventViewModel(
+            ControllerEvent controllerEvent,
+            IDeviceManager deviceManager,
+            IPlayLogic playLogic,
+            ITranslationService translationService)
         {
-            public ControllerEventViewModel(
-                ControllerEvent controllerEvent,
-                IDeviceManager deviceManager,
-                IPlayLogic playLogic,
-                ITranslationService translationService)
-            {
-                ControllerEvent = controllerEvent;
+            ControllerEvent = controllerEvent;
 
-                AddRange(controllerEvent.ControllerActions.Select(ca => new ControllerActionViewModel(ca, deviceManager, playLogic, translationService)));
-            }
-
-            public ControllerEvent ControllerEvent { get; }
+            AddRange(controllerEvent.ControllerActions.Select(ca => new ControllerActionViewModel(ca, deviceManager, playLogic, translationService)));
         }
+
+        public ControllerEvent ControllerEvent { get; }
     }
 }

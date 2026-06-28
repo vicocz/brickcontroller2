@@ -22,7 +22,7 @@ namespace BrickController2.UI.Services.AppIdentifier
         public AppIdentifierService(IPreferencesService preferencesService)
         {
             _preferencesService = preferencesService;
-            _appIdentifier = GetAppIdentifier(_preferencesService, MIN_APPID_LENGTH);
+            _appIdentifier = GetPersistentAppIdentifier(_preferencesService, MIN_APPID_LENGTH);
         }
 
         public ReadOnlyMemory<byte> GetAppId(int length)
@@ -35,7 +35,7 @@ namespace BrickController2.UI.Services.AppIdentifier
                 {
                     // if the requested length is bigger than the current AppIdentifier, create a new one with the requested length,
                     // to keep the AppIdentifier as stable as possible
-                    _appIdentifier = GetAppIdentifier(_preferencesService, length);
+                    _appIdentifier = GetPersistentAppIdentifier(_preferencesService, length);
                 }
 
                 return new ReadOnlyMemory<byte>(_appIdentifier, 0, length);
@@ -48,7 +48,7 @@ namespace BrickController2.UI.Services.AppIdentifier
         /// <param name="preferencesService">Reference to preferencesService singleton.</param>
         /// <param name="minLength">Minimum length of the AppIdentifier.</param>
         /// <returns>byte array containing the AppIdentifier</returns>
-        private static byte[] GetAppIdentifier(IPreferencesService preferencesService, int minLength)
+        private static byte[] GetPersistentAppIdentifier(IPreferencesService preferencesService, int minLength)
         {
             byte[]? appIdentifier = null;
             // gets or creates an app-persistent AppIdentifier

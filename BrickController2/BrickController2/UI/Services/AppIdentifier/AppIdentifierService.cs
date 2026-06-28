@@ -41,7 +41,7 @@ namespace BrickController2.UI.Services.AppIdentifier
                     _appIdentifier = GetAppIdentifier(_preferencesService, length);
                 }
 
-                return _appIdentifier[..length];
+                return new ReadOnlyMemory<byte>(_appIdentifier, 0, length);
             }
         }
 

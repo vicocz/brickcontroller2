@@ -27,10 +27,7 @@ namespace BrickController2.UI.Services.AppIdentifier
 
         public ReadOnlyMemory<byte> GetAppId(int length)
         {
-            if (length <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length));
-            }
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(length);
 
             lock (_lock)
             {

@@ -9,10 +9,9 @@
     <PackageVersion Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.71" />
     <PackageVersion Include="Microsoft.Maui.Essentials" Version="10.0.71" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageVersion Include="sqlite-net-pcl" Version="1.11.272-beta" />
     <PackageVersion Include="SQLiteNetExtensions" Version="2.1.0" />
     <PackageVersion Include="SQLiteNetExtensions.Async" Version="2.1.0" />
-    <PackageVersion Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
     <PackageVersion Include="ZXing.Net.Maui.Controls" Version="0.10.1" />
   </ItemGroup>
   <ItemGroup>

@@ -6,8 +6,10 @@ using Device = BrickController2.DeviceManagement.Device;
 namespace BrickController2.UI.Controls.Devices;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class TechnicMoveChannelSelectorView : DeviceChannelSelectorViewBase
+public partial class TechnicMoveChannelSelectorView : DeviceChannelSelectorViewBase, IDeviceChannelSelectorView
 {
+    public static DeviceType DeviceType => DeviceType.TechnicMove;
+    protected override DeviceType SelectorDeviceType => DeviceType;
     public TechnicMoveChannelSelectorView()
     {
         InitializeComponent();

@@ -1,10 +1,14 @@
+using BrickController2.DeviceManagement;
 using Microsoft.Maui.Controls.Xaml;
 
 namespace BrickController2.UI.Controls.Devices;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class JieStarSCM4ChannelSelectorView : DeviceChannelSelectorViewBase
+public partial class JieStarSCM4ChannelSelectorView : DeviceChannelSelectorViewBase, IDeviceChannelSelectorView
 {
+    public static DeviceType DeviceType => DeviceType.JieStarSCM4;
+    protected override DeviceType SelectorDeviceType => DeviceType;
+
     public JieStarSCM4ChannelSelectorView()
     {
         InitializeComponent();

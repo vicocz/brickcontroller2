@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BrickController2.DeviceManagement;
 using BrickController2.UI.Controls.Devices;
 using Microsoft.Maui.Controls;
@@ -11,6 +12,51 @@ namespace BrickController2.UI.Controls
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DeviceChannelSelector : ContentView
     {
+        private readonly record struct ViewEntry(Type ViewType, Func<DeviceChannelSelectorViewBase> Factory);
+
+        /// <summary>
+        /// Registry built once at class load from each view's static <see cref="IDeviceChannelSelectorView.DeviceType"/>.
+        /// Adding a new device: implement <see cref="IDeviceChannelSelectorView"/> on the new view and add one entry here.
+        /// </summary>
+        private static readonly Dictionary<DeviceType, ViewEntry> _registry = BuildRegistry();
+
+        private static Dictionary<DeviceType, ViewEntry> BuildRegistry()
+        {
+            static ViewEntry Entry<TView>(Func<TView> factory)
+                where TView : DeviceChannelSelectorViewBase, IDeviceChannelSelectorView
+                => new(typeof(TView), factory);
+
+            var registry = new Dictionary<DeviceType, ViewEntry>
+            {
+                [SBrickChannelSelectorView.DeviceType]         = Entry(() => new SBrickChannelSelectorView()),
+                [SBrickLightChannelSelectorView.DeviceType]    = Entry(() => new SBrickLightChannelSelectorView()),
+                [BuWizzChannelSelectorView.DeviceType]         = Entry(() => new BuWizzChannelSelectorView()),
+                [BuWizz3ChannelSelectorView.DeviceType]        = Entry(() => new BuWizz3ChannelSelectorView()),
+                [PowerFunctionsChannelSelectorView.DeviceType] = Entry(() => new PowerFunctionsChannelSelectorView()),
+                [PoweredUpChannelSelectorView.DeviceType]      = Entry(() => new PoweredUpChannelSelectorView()),
+                [BoostChannelSelectorView.DeviceType]          = Entry(() => new BoostChannelSelectorView()),
+                [TechnicHubChannelSelectorView.DeviceType]     = Entry(() => new TechnicHubChannelSelectorView()),
+                [DuploTrainHubChannelSelectorView.DeviceType]  = Entry(() => new DuploTrainHubChannelSelectorView()),
+                [CircuitCubesChannelSelectorView.DeviceType]   = Entry(() => new CircuitCubesChannelSelectorView()),
+                [WeDo2ChannelSelectorView.DeviceType]          = Entry(() => new WeDo2ChannelSelectorView()),
+                [TechnicMoveChannelSelectorView.DeviceType]    = Entry(() => new TechnicMoveChannelSelectorView()),
+                [PfxBrickChannelSelectorView.DeviceType]       = Entry(() => new PfxBrickChannelSelectorView()),
+                [MK3_8ChannelSelectorView.DeviceType]          = Entry(() => new MK3_8ChannelSelectorView()),
+                [MK4ChannelSelectorView.DeviceType]            = Entry(() => new MK4ChannelSelectorView()),
+                [MK5ChannelSelectorView.DeviceType]            = Entry(() => new MK5ChannelSelectorView()),
+                [MK6ChannelSelectorView.DeviceType]            = Entry(() => new MK6ChannelSelectorView()),
+                [MK_DIYChannelSelectorView.DeviceType]         = Entry(() => new MK_DIYChannelSelectorView()),
+                [CaDARaceCarChannelSelectorView.DeviceType]    = Entry(() => new CaDARaceCarChannelSelectorView()),
+                [JieStarSCM4ChannelSelectorView.DeviceType]   = Entry(() => new JieStarSCM4ChannelSelectorView()),
+                [JieStarSCM8ChannelSelectorView.DeviceType]   = Entry(() => new JieStarSCM8ChannelSelectorView()),
+            };
+
+            // BuWizz2 shares the same view as BuWizz
+            registry[DeviceType.BuWizz2] = registry[BuWizzChannelSelectorView.DeviceType];
+
+            return registry;
+        }
+
         private DeviceChannelSelectorViewBase? _activeView;
 
         public DeviceChannelSelector()
@@ -53,11 +99,12 @@ namespace BrickController2.UI.Controls
 
         private void OnDeviceChanged(Device device)
         {
-            var required = GetDeviceTypeKey(device);
+            if (!_registry.TryGetValue(device.DeviceType, out var entry))
+                throw new NotSupportedException($"No channel selector for device type {device.DeviceType}");
 
-            if (_activeView is null || _activeView.GetType() != required)
+            if (_activeView is null || _activeView.GetType() != entry.ViewType)
             {
-                _activeView = CreateViewFor(device);
+                _activeView = entry.Factory();
                 _activeView.BindingContext = BindingContext;
                 _activeView.SelectedChannel = SelectedChannel;
 
@@ -85,59 +132,5 @@ namespace BrickController2.UI.Controls
             if (_activeView is not null)
                 _activeView.BindingContext = BindingContext;
         }
-
-        private static System.Type GetDeviceTypeKey(Device device) => device.DeviceType switch
-        {
-            DeviceType.SBrick         => typeof(SBrickChannelSelectorView),
-            DeviceType.SBrickLight    => typeof(SBrickLightChannelSelectorView),
-            DeviceType.BuWizz
-            or DeviceType.BuWizz2    => typeof(BuWizzChannelSelectorView),
-            DeviceType.BuWizz3       => typeof(BuWizz3ChannelSelectorView),
-            DeviceType.Infrared      => typeof(PowerFunctionsChannelSelectorView),
-            DeviceType.PoweredUp     => typeof(PoweredUpChannelSelectorView),
-            DeviceType.Boost         => typeof(BoostChannelSelectorView),
-            DeviceType.TechnicHub    => typeof(TechnicHubChannelSelectorView),
-            DeviceType.DuploTrainHub => typeof(DuploTrainHubChannelSelectorView),
-            DeviceType.CircuitCubes  => typeof(CircuitCubesChannelSelectorView),
-            DeviceType.WeDo2         => typeof(WeDo2ChannelSelectorView),
-            DeviceType.TechnicMove   => typeof(TechnicMoveChannelSelectorView),
-            DeviceType.PfxBrick      => typeof(PfxBrickChannelSelectorView),
-            DeviceType.MK3_8         => typeof(MK3_8ChannelSelectorView),
-            DeviceType.MK4           => typeof(MK4ChannelSelectorView),
-            DeviceType.MK5           => typeof(MK5ChannelSelectorView),
-            DeviceType.MK6           => typeof(MK6ChannelSelectorView),
-            DeviceType.MK_DIY        => typeof(MK_DIYChannelSelectorView),
-            DeviceType.CaDA_RaceCar  => typeof(CaDARaceCarChannelSelectorView),
-            DeviceType.JieStarSCM4   => typeof(JieStarSCM4ChannelSelectorView),
-            DeviceType.JieStarSCM8   => typeof(JieStarSCM8ChannelSelectorView),
-            _                        => typeof(DeviceChannelSelectorViewBase)
-        };
-
-        private static DeviceChannelSelectorViewBase CreateViewFor(Device device) => device.DeviceType switch
-        {
-            DeviceType.SBrick         => new SBrickChannelSelectorView(),
-            DeviceType.SBrickLight    => new SBrickLightChannelSelectorView(),
-            DeviceType.BuWizz
-            or DeviceType.BuWizz2    => new BuWizzChannelSelectorView(),
-            DeviceType.BuWizz3       => new BuWizz3ChannelSelectorView(),
-            DeviceType.Infrared      => new PowerFunctionsChannelSelectorView(),
-            DeviceType.PoweredUp     => new PoweredUpChannelSelectorView(),
-            DeviceType.Boost         => new BoostChannelSelectorView(),
-            DeviceType.TechnicHub    => new TechnicHubChannelSelectorView(),
-            DeviceType.DuploTrainHub => new DuploTrainHubChannelSelectorView(),
-            DeviceType.CircuitCubes  => new CircuitCubesChannelSelectorView(),
-            DeviceType.WeDo2         => new WeDo2ChannelSelectorView(),
-            DeviceType.TechnicMove   => new TechnicMoveChannelSelectorView(),
-            DeviceType.PfxBrick      => new PfxBrickChannelSelectorView(),
-            DeviceType.MK3_8         => new MK3_8ChannelSelectorView(),
-            DeviceType.MK4           => new MK4ChannelSelectorView(),
-            DeviceType.MK5           => new MK5ChannelSelectorView(),
-            DeviceType.MK6           => new MK6ChannelSelectorView(),
-            DeviceType.MK_DIY        => new MK_DIYChannelSelectorView(),
-            DeviceType.CaDA_RaceCar  => new CaDARaceCarChannelSelectorView(),
-            DeviceType.JieStarSCM4   => new JieStarSCM4ChannelSelectorView(),
-            DeviceType.JieStarSCM8   => new JieStarSCM8ChannelSelectorView(),
-            _                        => throw new NotSupportedException($"No channel selector for device type {device.DeviceType}")
-        };
     }
 }

@@ -19,13 +19,13 @@
             </Grid.RowDefinitions>
 
             <Image Grid.Row="0" Grid.Column="0" Source="{extensions:ImageResource Source=rc_up_down_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
-            <controls:ChannelSelectorRadioButton Grid.Row="0" Grid.Column="1" x:Name="CaDARaceCarChannel0" DeviceType="CaDA_RaceCar" Channel="0" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Row="0" Grid.Column="1" x:Name="CaDARaceCarChannel0" Channel="0" VerticalOptions="Center"/>
 
             <Image Grid.Row="1" Grid.Column="0" Source="{extensions:ImageResource Source=rc_left_right_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
-            <controls:ChannelSelectorRadioButton Grid.Row="1" Grid.Column="1" x:Name="CaDARaceCarChannel1" DeviceType="CaDA_RaceCar" Channel="1" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Row="1" Grid.Column="1" x:Name="CaDARaceCarChannel1" Channel="1" VerticalOptions="Center"/>
 
             <Image Grid.Row="2" Grid.Column="0" Source="{extensions:ImageResource Source=rc_light_on_off.png}" HeightRequest="50" Margin="0,0,10,5"/>
-            <controls:ChannelSelectorRadioButton Grid.Row="2" Grid.Column="1" x:Name="CaDARaceCarChannel2" DeviceType="CaDA_RaceCar" Channel="2" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Row="2" Grid.Column="1" x:Name="CaDARaceCarChannel2" Channel="2" VerticalOptions="Center"/>
         </Grid>
     </ContentView.Content>
 

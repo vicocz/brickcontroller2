@@ -19,10 +19,10 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="BoostChannelD" DeviceType="Boost" Channel="3" HorizontalOptions="Center" VerticalOptions="Center"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="BoostChannelB" DeviceType="Boost" Channel="1" HorizontalOptions="End" VerticalOptions="Start"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="BoostChannelA" DeviceType="Boost" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="2" x:Name="BoostChannelC" DeviceType="Boost" Channel="2" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="BoostChannelD" Channel="3" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="BoostChannelB" Channel="1" HorizontalOptions="End" VerticalOptions="Start"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="BoostChannelA" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="2" x:Name="BoostChannelC" Channel="2" HorizontalOptions="Center" VerticalOptions="Center"/>
 
             <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=boost_image.png}" WidthRequest="150" HeightRequest="80"/>
         </Grid>

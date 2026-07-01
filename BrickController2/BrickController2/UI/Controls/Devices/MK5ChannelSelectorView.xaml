@@ -15,8 +15,8 @@
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
-                <controls:ChannelSelectorRadioButton x:Name="MK5Channel2" DeviceType="MK5" Channel="2" HorizontalOptions="End" VerticalOptions="Start"/>
-                <controls:ChannelSelectorRadioButton x:Name="MK5Channel0" DeviceType="MK5" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK5Channel2" Channel="2" HorizontalOptions="End" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK5Channel0" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
             </Grid>
 
             <Grid Grid.Column="1">
@@ -24,9 +24,9 @@
             </Grid>
 
             <Grid Grid.Column="2">
-                <controls:ChannelSelectorRadioButton x:Name="MK5Channel1" DeviceType="MK5" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
-                <controls:ChannelSelectorRadioButton x:Name="MK5Channel4" DeviceType="MK5" Channel="4" HorizontalOptions="Start" VerticalOptions="Center"/>
-                <controls:ChannelSelectorRadioButton x:Name="MK5Channel3" DeviceType="MK5" Channel="3" HorizontalOptions="Start" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK5Channel1" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK5Channel4" Channel="4" HorizontalOptions="Start" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK5Channel3" Channel="3" HorizontalOptions="Start" VerticalOptions="End"/>
             </Grid>
         </Grid>
     </ContentView.Content>

@@ -15,7 +15,7 @@
             </Grid.ColumnDefinitions>
 
             <StackLayout Grid.Column="0" Orientation="Vertical" VerticalOptions="Center">
-                <controls:ChannelSelectorRadioButton x:Name="DuploTrainHubChannel0" DeviceType="DuploTrainHub" Channel="0" HorizontalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="DuploTrainHubChannel0" Channel="0" HorizontalOptions="End"/>
             </StackLayout>
 
             <Image Grid.Column="1" Source="{extensions:ImageResource Source=duplotrainhub_image.png}" WidthRequest="150" HeightRequest="80" HorizontalOptions="Center"/>

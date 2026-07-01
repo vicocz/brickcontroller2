@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BrickController2.DeviceManagement;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Controls;
 using Microsoft.Maui.Controls;
@@ -9,6 +10,11 @@ namespace BrickController2.UI.Controls.Devices;
 
 public abstract class DeviceChannelSelectorViewBase : ContentView
 {
+    /// <summary>
+    /// The <see cref="DeviceType"/> whose icon/label should be stamped on every registered button.
+    /// Override via the child's static <c>DeviceType</c> property by returning it here.
+    /// </summary>
+    protected abstract DeviceType SelectorDeviceType { get; }
     private readonly List<ChannelSelectorRadioButton> _channelButtons = new();
 
     public static readonly BindableProperty DeviceProperty = BindableProperty.Create(
@@ -47,8 +53,10 @@ public abstract class DeviceChannelSelectorViewBase : ContentView
     /// </summary>
     protected void RegisterChannelButtons(params ChannelSelectorRadioButton[] buttons)
     {
+        var deviceType = SelectorDeviceType;
         foreach (var button in buttons)
         {
+            button.DeviceType = deviceType;
             var captured = button;
             captured.Command = new SafeCommand(() => SelectedChannel = captured.Channel);
             _channelButtons.Add(captured);

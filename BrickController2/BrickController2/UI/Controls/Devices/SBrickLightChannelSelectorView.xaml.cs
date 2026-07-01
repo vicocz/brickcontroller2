@@ -1,3 +1,4 @@
+using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Vengit;
 using BrickController2.UI.Commands;
 using Microsoft.Maui.Controls.Xaml;
@@ -5,8 +6,10 @@ using Microsoft.Maui.Controls.Xaml;
 namespace BrickController2.UI.Controls.Devices;
 
 [XamlCompilation(XamlCompilationOptions.Compile)]
-public partial class SBrickLightChannelSelectorView : DeviceChannelSelectorViewBase
+public partial class SBrickLightChannelSelectorView : DeviceChannelSelectorViewBase, IDeviceChannelSelectorView
 {
+    public static DeviceType DeviceType => DeviceType.SBrickLight;
+    protected override DeviceType SelectorDeviceType => DeviceType;
     public SBrickLightChannelSelectorView()
     {
         InitializeComponent();

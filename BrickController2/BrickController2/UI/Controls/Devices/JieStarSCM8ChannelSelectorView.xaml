@@ -20,14 +20,14 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="0" x:Name="JieStarSCM8Channel0" DeviceType="JieStarSCM8" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="0" x:Name="JieStarSCM8Channel1" DeviceType="JieStarSCM8" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="JieStarSCM8Channel2" DeviceType="JieStarSCM8" Channel="2" HorizontalOptions="End" VerticalOptions="Center"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="JieStarSCM8Channel3" DeviceType="JieStarSCM8" Channel="3" HorizontalOptions="Start" VerticalOptions="Center"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="2" x:Name="JieStarSCM8Channel4" DeviceType="JieStarSCM8" Channel="4" HorizontalOptions="End" VerticalOptions="Start"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="2" x:Name="JieStarSCM8Channel5" DeviceType="JieStarSCM8" Channel="5" HorizontalOptions="Start" VerticalOptions="Start"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="3" x:Name="JieStarSCM8Channel6" DeviceType="JieStarSCM8" Channel="6" HorizontalOptions="Start" VerticalOptions="End"/>
-            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="3" x:Name="JieStarSCM8Channel7" DeviceType="JieStarSCM8" Channel="7" HorizontalOptions="End" VerticalOptions="End"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="0" x:Name="JieStarSCM8Channel0" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="0" x:Name="JieStarSCM8Channel1" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="JieStarSCM8Channel2" Channel="2" HorizontalOptions="End" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="JieStarSCM8Channel3" Channel="3" HorizontalOptions="Start" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="2" x:Name="JieStarSCM8Channel4" Channel="4" HorizontalOptions="End" VerticalOptions="Start"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="2" x:Name="JieStarSCM8Channel5" Channel="5" HorizontalOptions="Start" VerticalOptions="Start"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="3" x:Name="JieStarSCM8Channel6" Channel="6" HorizontalOptions="Start" VerticalOptions="End"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="3" x:Name="JieStarSCM8Channel7" Channel="7" HorizontalOptions="End" VerticalOptions="End"/>
 
             <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Source="{extensions:ImageResource Source=jiestarscm8_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
         </Grid>

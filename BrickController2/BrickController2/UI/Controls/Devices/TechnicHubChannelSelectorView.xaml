@@ -15,15 +15,15 @@
             </Grid.ColumnDefinitions>
 
             <StackLayout Grid.Column="0" Orientation="Vertical" VerticalOptions="End">
-                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel0" DeviceType="TechnicHub" Channel="0" HorizontalOptions="End"/>
-                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel2" DeviceType="TechnicHub" Channel="2" HorizontalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel0" Channel="0" HorizontalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel2" Channel="2" HorizontalOptions="End"/>
             </StackLayout>
 
             <Image Grid.Column="1" Source="{extensions:ImageResource Source=technichub_image.png}" WidthRequest="150" HeightRequest="80"/>
 
             <StackLayout Grid.Column="2" Orientation="Vertical" VerticalOptions="End">
-                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel1" DeviceType="TechnicHub" Channel="1" HorizontalOptions="Start"/>
-                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel3" DeviceType="TechnicHub" Channel="3" HorizontalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel1" Channel="1" HorizontalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel3" Channel="3" HorizontalOptions="Start"/>
             </StackLayout>
         </Grid>
     </ContentView.Content>

@@ -15,13 +15,13 @@
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
-                <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel0" DeviceType="Infrared" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel0" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
             </Grid>
 
             <Image Grid.Column="1" Source="{extensions:ImageResource Source=powerfunctions_image.png}" WidthRequest="150" HeightRequest="150"/>
 
             <Grid Grid.Column="2">
-                <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel1" DeviceType="Infrared" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
+                <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel1" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
             </Grid>
         </Grid>
     </ContentView.Content>

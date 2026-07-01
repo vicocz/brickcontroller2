@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using BrickController2.UI.Commands;
+using BrickController2.UI.Controls;
 using Microsoft.Maui.Controls;
 
 using Device = BrickController2.DeviceManagement.Device;
@@ -6,6 +9,8 @@ namespace BrickController2.UI.Controls.Devices;
 
 public abstract class DeviceChannelSelectorViewBase : ContentView
 {
+    private readonly List<ChannelSelectorRadioButton> _channelButtons = new();
+
     public static readonly BindableProperty DeviceProperty = BindableProperty.Create(
         nameof(Device),
         typeof(Device),
@@ -35,6 +40,21 @@ public abstract class DeviceChannelSelectorViewBase : ContentView
         set => SetValue(SelectedChannelProperty, value);
     }
 
+    /// <summary>
+    /// Registers channel buttons: auto-wires each button's Command to set
+    /// SelectedChannel = button.Channel, and propagates SelectedChannel
+    /// changes back to all registered buttons via OnSelectedChannelChanged.
+    /// </summary>
+    protected void RegisterChannelButtons(params ChannelSelectorRadioButton[] buttons)
+    {
+        foreach (var button in buttons)
+        {
+            var captured = button;
+            captured.Command = new SafeCommand(() => SelectedChannel = captured.Channel);
+            _channelButtons.Add(captured);
+        }
+    }
+
     private static object OnCoerceDevice(BindableObject bindable, object value)
     {
         if (bindable is DeviceChannelSelectorViewBase view && value is Device device)
@@ -56,5 +76,9 @@ public abstract class DeviceChannelSelectorViewBase : ContentView
 
     protected virtual void OnDeviceChanged(Device device) { }
 
-    protected abstract void OnSelectedChannelChanged(int channel);
+    protected virtual void OnSelectedChannelChanged(int channel)
+    {
+        foreach (var button in _channelButtons)
+            button.SelectedChannel = channel;
+    }
 }

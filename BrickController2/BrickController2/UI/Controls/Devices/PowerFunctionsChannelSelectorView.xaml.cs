@@ -1,4 +1,3 @@
-using BrickController2.UI.Commands;
 using Microsoft.Maui.Controls.Xaml;
 
 namespace BrickController2.UI.Controls.Devices;
@@ -9,14 +8,6 @@ public partial class PowerFunctionsChannelSelectorView : DeviceChannelSelectorVi
     public PowerFunctionsChannelSelectorView()
     {
         InitializeComponent();
-
-        PowerFunctionsChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
-        PowerFunctionsChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
-    }
-
-    protected override void OnSelectedChannelChanged(int channel)
-    {
-        PowerFunctionsChannel0.SelectedChannel = channel;
-        PowerFunctionsChannel1.SelectedChannel = channel;
+        RegisterChannelButtons(PowerFunctionsChannel0, PowerFunctionsChannel1);
     }
 }

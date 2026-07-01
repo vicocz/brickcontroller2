@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices:DeviceChannelSelectorViewBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls" xmlns:devices="clr-namespace:BrickController2.UI.Controls.Devices"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.Devices.BoostChannelSelectorView">
+
+    <ContentView.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="BoostChannelD" DeviceType="Boost" Channel="3" HorizontalOptions="Center" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="BoostChannelB" DeviceType="Boost" Channel="1" HorizontalOptions="End" VerticalOptions="Start"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="BoostChannelA" DeviceType="Boost" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="2" x:Name="BoostChannelC" DeviceType="Boost" Channel="2" HorizontalOptions="Center" VerticalOptions="Center"/>
+
+            <Image Grid.Column="1" Grid.Row="1" Source="{extensions:ImageResource Source=boost_image.png}" WidthRequest="150" HeightRequest="80"/>
+        </Grid>
+    </ContentView.Content>
+
+</devices:DeviceChannelSelectorViewBase>

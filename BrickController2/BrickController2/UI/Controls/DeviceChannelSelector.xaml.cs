@@ -65,7 +65,7 @@ namespace BrickController2.UI.Controls
         }
 
         public static readonly BindableProperty DeviceProperty = BindableProperty.Create(nameof(Device), typeof(Device), typeof(DeviceChannelSelector), default(Device), BindingMode.OneWay, null, OnDeviceChanged, coerceValue: OnCoerceDevice);
-        public static readonly BindableProperty SelectedChannelProperty = BindableProperty.Create(nameof(SelectedChannel), typeof(int), typeof(DeviceChannelSelector), 0, BindingMode.TwoWay, null, OnSelectedChannelChanged);
+        public static readonly BindableProperty SelectedChannelProperty = BindableProperty.Create(nameof(SelectedChannel), typeof(int), typeof(DeviceChannelSelector), 0, BindingMode.TwoWay);
 
         public Device Device
         {
@@ -116,14 +116,6 @@ namespace BrickController2.UI.Controls
             }
 
             _activeView.Device = device;
-        }
-
-        private static void OnSelectedChannelChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            if (bindable is DeviceChannelSelector dcs && dcs._activeView is not null)
-            {
-                dcs._activeView.SelectedChannel = (int)newValue;
-            }
         }
 
         protected override void OnBindingContextChanged()

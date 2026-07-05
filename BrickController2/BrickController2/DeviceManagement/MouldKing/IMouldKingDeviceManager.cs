@@ -3,7 +3,7 @@
 namespace BrickController2.DeviceManagement.MouldKing;
 
 /// <summary>
-/// interface for MouldKingMDeviceanager devices
+/// Interface for MouldKingDeviceManager.
 /// </summary>
 public interface IMouldKingDeviceManager
 {

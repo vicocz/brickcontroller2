@@ -39,7 +39,7 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// </summary>
     private byte _turret_lock_Nibble = TURRET_UNLOCKED_NIBBLE;
 
-    public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, MouldKingDeviceManager mkDeviceManager)
+    public MK5(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 0, Telegram_Connect, Telegram_Base)
     {
     }

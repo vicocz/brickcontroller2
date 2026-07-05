@@ -53,7 +53,7 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     /// </summary>
     protected override int BaseTelegram_ChannelStartOffset => 3;
 
-    public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, MouldKingDeviceManager mkDeviceManager)
+    public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
     {
     }

@@ -188,6 +188,7 @@ public class VendorBuilderTests
 
         builder.RegisterInstance(appIdentifierService.Object);
         builder.RegisterType<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
             .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
@@ -226,6 +227,7 @@ public class VendorBuilderTests
 
         builder.RegisterInstance(appIdentifierService.Object);
         builder.RegisterType<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
             .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
@@ -268,6 +270,7 @@ public class VendorBuilderTests
 
         builder.RegisterInstance(appIdentifierService.Object);
         builder.RegisterType<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
             .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
@@ -306,6 +309,7 @@ public class VendorBuilderTests
 
         builder.RegisterInstance(appIdentifierService.Object);
         builder.RegisterType<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
             .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
@@ -345,6 +349,7 @@ public class VendorBuilderTests
 
         builder.RegisterInstance(appIdentifierService.Object);
         builder.RegisterType<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
             .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());
@@ -383,6 +388,7 @@ public class VendorBuilderTests
 
         builder.RegisterInstance(appIdentifierService.Object);
         builder.RegisterType<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
             .SingleInstance();
 
         var vendorBuilder = new VendorBuilder<MouldKingVendor>(builder, new MouldKingVendor());

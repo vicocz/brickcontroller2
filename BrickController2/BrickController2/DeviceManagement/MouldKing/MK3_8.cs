@@ -33,7 +33,7 @@ internal class MK3_8 : MKBaseNibble, IDeviceType<MK3_8>
     /// </summary>
     protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
-    public MK3_8(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, MouldKingDeviceManager mkDeviceManager)
+    public MK3_8(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 0, Telegram_Connect, Telegram_Base)
     {
     }

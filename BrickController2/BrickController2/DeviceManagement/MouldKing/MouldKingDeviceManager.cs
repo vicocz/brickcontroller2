@@ -7,7 +7,8 @@ namespace BrickController2.DeviceManagement.MouldKing;
 /// <summary>
 /// Manager for MouldKing devices
 /// </summary>
-public class MouldKingDeviceManager : BluetoothDeviceManagerBase
+public class MouldKingDeviceManager : BluetoothDeviceManagerBase,
+    IMouldKingDeviceManager
 {
     private const int AppIdentifierLength = 2; // MouldKing protocol defines 2 bytes for the app identifier
 

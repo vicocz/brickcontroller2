@@ -38,7 +38,7 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// </summary>
     private static BluetoothAdvertisingDeviceHandler? bluetoothAdvertisingDeviceHandler;
 
-    public MK4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, MouldKingDeviceManager mkDeviceManager)
+    public MK4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, GetInstanceNo(address), Telegram_Connect, Telegram_Base)
     {
     }

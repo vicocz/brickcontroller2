@@ -762,4 +762,7 @@
   <data name="SubchannelsPortMode" xml:space="preserve">
     <value>Subchannels</value>
   </data>
+  <data name="OrientationSensor" xml:space="preserve">
+    <value>Tilt Steering</value>
+  </data>
 </root>

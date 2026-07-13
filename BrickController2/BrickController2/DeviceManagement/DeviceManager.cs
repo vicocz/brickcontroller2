@@ -12,7 +12,6 @@ namespace BrickController2.DeviceManagement
     internal class DeviceManager : NotifyPropertyChangedSource, IDeviceManager
     {
         private readonly IBluetoothDeviceManager _bluetoothDeviceManager;
-        private readonly IInfraredDeviceManager _infraredDeviceManager;
         private readonly IDeviceRepository _deviceRepository;
         private readonly DeviceFactory _deviceFactory;
         private readonly IMainThreadService _uiThreadService;
@@ -25,14 +24,12 @@ namespace BrickController2.DeviceManagement
 
         public DeviceManager(
             IBluetoothDeviceManager bluetoothDeviceManager,
-            IInfraredDeviceManager infraredDeviceManager,
             IDeviceRepository deviceRepository,
             DeviceFactory deviceFactory,
             IMainThreadService uiThreadService,
             ILogger<DeviceManager> logger)
         {
             _bluetoothDeviceManager = bluetoothDeviceManager;
-            _infraredDeviceManager = infraredDeviceManager;
             _deviceRepository = deviceRepository;
             _deviceFactory = deviceFactory;
             _uiThreadService = uiThreadService;
@@ -88,12 +85,7 @@ namespace BrickController2.DeviceManagement
 
                 try
                 {
-                    var infraScan = _infraredDeviceManager.ScanAsync(CreateDeviceAsync!, token);
-                    var bluetoothScan = _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
-
-                    await Task.WhenAll(infraScan, bluetoothScan);
-
-                    return infraScan.Result && bluetoothScan.Result;
+                    return await _bluetoothDeviceManager.ScanAsync(CreateDeviceAsync!, token);
                 }
                 catch (Exception)
                 {

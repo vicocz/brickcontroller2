@@ -27,7 +27,10 @@ namespace BrickController2.Helpers
         public static ImageSource GetImageResource(string resourceName)
         {
             // define sourceAssembly parameter to avoid looking for assembly by Xamarin (via reflection of Assembly.GetCallingAssembly)
-            return ImageSource.FromResource($"{ImageResourceRootNameSpace}.{resourceName}", typeof(ResourceHelper).Assembly);
+            var resourcePath = GetImageResourcePath(resourceName);
+            return ImageSource.FromResource(resourcePath, typeof(ResourceHelper).Assembly);
         }
+
+        public static string GetImageResourcePath(string resourceName) => $"{ImageResourceRootNameSpace}.{resourceName}";
     }
 }

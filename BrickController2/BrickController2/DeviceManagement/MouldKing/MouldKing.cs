@@ -5,7 +5,7 @@ using BrickController2.Extensions;
 namespace BrickController2.DeviceManagement.MouldKing;
 
 /// <summary>
-/// Vendor: Mould King and all it's device and implementation of IBluetoothLEDeviceManager
+/// Vendor: Mould King and all its devices and implementation of IBluetoothLEDeviceManager
 /// </summary>
 internal class MouldKing : Vendor<MouldKing>
 {
@@ -34,6 +34,8 @@ internal class MouldKing : Vendor<MouldKing>
             .WithDeviceFactory(MK6.Device3, $"{MK6.TypeName} Device 3");
 
         // device manager
-        builder.RegisterDeviceManager<MouldKingDeviceManager>();
+        builder.RegisterDeviceManager<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
+            .SingleInstance();
     }
 }

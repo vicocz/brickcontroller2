@@ -3,6 +3,7 @@ using Autofac.Builder;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Lego;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
 
 namespace BrickController2.Extensions;
@@ -34,13 +35,25 @@ public static class ContainerBuilderExtensions
     /// Register input device service of <typeparamref name="TInputDeviceService"/> type.
     /// </summary>
     /// <returns>Registration instance to support fluent API</returns>
-    internal static ContainerBuilder RegisterInputDeviceService<TInputDeviceService>(this ContainerBuilder builder)
+    internal static IRegistrationBuilder<TInputDeviceService, ConcreteReflectionActivatorData, SingleRegistrationStyle> RegisterInputDeviceService<TInputDeviceService>(this ContainerBuilder builder)
         where TInputDeviceService : IInputDeviceService, IStartable
     {
-        builder.RegisterType<TInputDeviceService>()
+        return builder.RegisterType<TInputDeviceService>()
             .As<IInputDeviceService>()
             .As<IStartable>()
             .SingleInstance(); // ensure it's started as soon as the container is built in Autofac
+    }
+
+    /// <summary>
+    /// Register input device service of <typeparamref name="TInputDeviceService"/> type.
+    /// </summary>
+    /// <returns>Registration instance to support fluent API</returns>
+    internal static ContainerBuilder RegisterInputDeviceService<TInputDeviceService, TInputDevice>(this ContainerBuilder builder)
+        where TInputDeviceService : IInputDeviceService<TInputDevice>, IStartable
+        where TInputDevice : class, IInputDevice
+    {
+        RegisterInputDeviceService<TInputDeviceService>(builder)
+            .As<IInputDeviceService<TInputDevice>>();
         return builder;
     }
 }

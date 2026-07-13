@@ -1,82 +1,20 @@
-﻿using System;
-using System.Globalization;
-using Microsoft.Maui.Controls;
-using BrickController2.DeviceManagement;
+﻿using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
+using Microsoft.Maui.Controls;
+using System;
+using System.Globalization;
 
 namespace BrickController2.UI.Converters
 {
-    public class DeviceTypeToSmallImageConverter : IValueConverter
+    public class DeviceTypeToSmallImageConverter : DeviceTypeToImageConverterBase, IValueConverter
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            var deviceType = (DeviceType)value!;
-            switch (deviceType)
+            if (TryGetImage((DeviceType)value!, out var imageInfo))
             {
-                case DeviceType.BuWizz:
-                case DeviceType.BuWizz2:
-                   return ResourceHelper.GetImageResource("buwizz_image_small.png");
-
-                case DeviceType.BuWizz3:
-                    return ResourceHelper.GetImageResource("buwizz3_image_small.png");
-
-                case DeviceType.SBrick:
-                    return ResourceHelper.GetImageResource("sbrick_image_small.png");
-
-                case DeviceType.SBrickLight:
-                    return ResourceHelper.GetImageResource("sbricklight_image_small.png");
-
-                case DeviceType.Infrared:
-                    return ResourceHelper.GetImageResource("infra_image_small.png");
-
-                case DeviceType.PoweredUp:
-                    return ResourceHelper.GetImageResource("poweredup_image_small.png");
-
-                case DeviceType.Boost:
-                    return ResourceHelper.GetImageResource("boost_image_small.png");
-
-                case DeviceType.TechnicHub:
-                    return ResourceHelper.GetImageResource("technichub_image_small.png");
-
-                case DeviceType.DuploTrainHub:
-                    return ResourceHelper.GetImageResource("duplotrainhub_image_small.png");
-
-                case DeviceType.CircuitCubes:
-                    return ResourceHelper.GetImageResource("circuitcubes_image_small.png");
-
-                case DeviceType.WeDo2:
-                    return ResourceHelper.GetImageResource("wedo2hub_image_small.png");
-
-                case DeviceType.TechnicMove:
-                    return ResourceHelper.GetImageResource("technic_move_small.png");
-
-                case DeviceType.MK3_8:
-                    return ResourceHelper.GetImageResource("mk3_8_image_small.png");
-
-                case DeviceType.MK4:
-                    return ResourceHelper.GetImageResource("mk4_image_small.png");
-
-                case DeviceType.MK5:
-                    return ResourceHelper.GetImageResource("mk5_image_small.png");
-
-                case DeviceType.MK6:
-                    return ResourceHelper.GetImageResource("mk6_image_small.png");
-
-                case DeviceType.MK_DIY:
-                    return ResourceHelper.GetImageResource("mk_diy_image_small.png");
-
-                case DeviceType.CaDA_RaceCar:
-                    return ResourceHelper.GetImageResource("cada_racecar_image_small.png");
-
-                case DeviceType.PfxBrick:
-                    return ResourceHelper.GetImageResource("pfx_brick_image_small.png");
-
-                case DeviceType.RemoteControl:
-                    return ResourceHelper.GetImageResource("remotecontrol_image_small.png");
-
-                default:
-                    return null;
+                return ResourceHelper.GetImageResource(imageInfo.SmallImageResourceName);
             }
+            return null;
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

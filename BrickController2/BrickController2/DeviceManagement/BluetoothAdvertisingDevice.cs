@@ -9,7 +9,7 @@ namespace BrickController2.DeviceManagement
     /// <summary>
     /// Baseclass of Bluetooth LE Advertising devices
     /// </summary>
-    internal abstract class BluetoothAdvertisingDevice : Device
+    internal abstract class BluetoothAdvertisingDevice : Device, IBluetoothDevice
     {
         /// <summary>
         /// BluetoothAdvertisingDeviceHandler

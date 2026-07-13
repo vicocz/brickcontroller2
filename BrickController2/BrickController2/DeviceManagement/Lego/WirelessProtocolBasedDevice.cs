@@ -133,7 +133,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
 
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
     {
-        if (data.Length < 4 || Characteristic is null || characteristicGuid != Characteristic.Uuid)
+        if (data.Length < 4 || characteristicGuid != Characteristic?.Uuid)
         {
             return;
         }

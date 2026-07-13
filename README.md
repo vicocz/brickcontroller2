@@ -31,11 +31,14 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Mould King 6.0 Powered Module
 - CaDA Race Car
 - PFx Brick (lights & Power Functions ports only)
+- JieStar 4 Channel Smart Creative Module
+- JieStar 8 Channel Smart Creative Module
 
 ## Supported controllers
 - Generic Bluetooth / USB gamepads
 - LEGO® Power Functions infrared remotes (part numbers 8885 and 8879) — requires an Android device with an IR emitter
 - LEGO® Powered Up Remote (part number 88010)
+- Built-in motion sensor — when supported by the device
 
 ## Project details
 

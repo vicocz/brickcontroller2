@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.BluetoothLE;
+﻿using System;
+using BrickController2.PlatformServices.BluetoothLE;
 
 namespace BrickController2.DeviceManagement.MouldKing;
 
@@ -43,7 +44,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly int _instanceNo;
 
-    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, int instanceNo, byte[] telegram_Connect, byte[] telegram_Base)
+    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;
@@ -51,6 +52,14 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         _mkPlatformService = mkPlatformService;
 
         _instanceNo = instanceNo;
+
+        // bytes[1] and [2] of both telegrams can be set to a unique appId
+        ReadOnlySpan<byte> appId = mkDeviceManager.GetAppId().Span[..2];
+        _telegram_Connect[1] = appId[0];
+        _telegram_Connect[2] = appId[1];
+
+        _telegram_Base[1] = appId[0];
+        _telegram_Base[2] = appId[1];
 
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
     }

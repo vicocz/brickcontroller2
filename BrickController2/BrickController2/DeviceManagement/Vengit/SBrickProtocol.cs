@@ -20,6 +20,11 @@ internal static class SBrickProtocol
         /// Remote control service: Remote Control Commands characteristic UUID
         /// </summary>
         public static readonly Guid RemoteControlCommand = new("02b8cbcc-0e25-4bda-8790-a15f53e6010f");
+
+        /// <summary>
+        /// Remote control service: Quick Drive characteristic UUID
+        /// </summary>
+        public static readonly Guid QuickDrive = new("489a6ae0-c1ab-4c9c-bdb2-11d373c1b7fb");
     }
 
     // SBrick Light configuration

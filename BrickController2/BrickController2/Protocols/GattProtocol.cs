@@ -24,5 +24,9 @@ internal static class GattProtocol
         /// Device Information Service: Hardware Revision Characteristic UUID
         /// </summary>
         public static readonly Guid HardwareRevision = new("00002a27-0000-1000-8000-00805f9b34fb");
+        /// <summary>
+        /// Device Information Service: Model Number Characteristic UUID
+        /// </summary>
+        public static readonly Guid ModelNumber = new("00002a24-0000-1000-8000-00805f9b34fb");
     }
 }

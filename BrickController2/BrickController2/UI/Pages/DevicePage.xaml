@@ -133,6 +133,27 @@
                             </VerticalStackLayout>
                         </VerticalStackLayout>
 
+                        <!-- Input events -->
+                        <VerticalStackLayout IsVisible="{Binding IsInputDevice}">
+                            <CollectionView ItemsSource="{Binding InputEventList}" SelectionMode="None" ItemsLayout="VerticalList">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
+                                            <HorizontalStackLayout>
+                                                <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
+                                                <Label Text=":" FontSize="Large" Margin="5,0,5,0"/>
+                                                <Label Text="{Binding Value}" FontSize="Large"/>
+                                            </HorizontalStackLayout>
+                                            <Label Text="{Binding EventType}" FontSize="Medium"/>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                                <CollectionView.EmptyView>
+                                    <Label Text="{extensions:Translate PressButtonsOrMoveJoys}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
+                                </CollectionView.EmptyView>
+                            </CollectionView>
+                        </VerticalStackLayout>
+
                     </VerticalStackLayout>
                 </ScrollView>
 

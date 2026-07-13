@@ -1,8 +1,10 @@
 ﻿using Autofac;
 using BrickController2.DeviceManagement.CaDA;
+using BrickController2.DeviceManagement.JieStar;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.Droid.PlatformServices.BluetoothLE;
 using BrickController2.Droid.PlatformServices.DeviceManagement.CaDA;
+using BrickController2.Droid.PlatformServices.DeviceManagement.JieStar;
 using BrickController2.Droid.PlatformServices.DeviceManagement.MouldKing;
 using BrickController2.Droid.PlatformServices.GameController;
 using BrickController2.Droid.PlatformServices.Infrared;
@@ -32,6 +34,7 @@ namespace BrickController2.Droid.PlatformServices.DI
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
             builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
             builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
+            builder.RegisterType<JieStarPlatformService>().As<IJieStarPlatformService>().SingleInstance();
         }
     }
 }

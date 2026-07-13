@@ -71,7 +71,7 @@ internal class PfxBrickDevice : BluetoothDevice
 
     protected override void OnCharacteristicChanged(Guid characteristicGuid, byte[] data)
     {
-        if (characteristicGuid != _notifyCharacteristic!.Uuid || data.Length == 0)
+        if (characteristicGuid != _notifyCharacteristic?.Uuid || data.Length == 0)
             return;
 
         if (data.Length == 1) // notification
@@ -81,6 +81,14 @@ internal class PfxBrickDevice : BluetoothDevice
         {
             HardwareVersion = $"{data[7]:X2}{data[8]:X2}"; // product_id
             FirmwareVersion = $"{data[37]:x2}.{data[38]:x2}"; // firmware_ver
+        }
+    }
+
+    protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+    {
+        if (_notifyCharacteristic != null && _bleDevice != null)
+        {
+            await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
         }
     }
 

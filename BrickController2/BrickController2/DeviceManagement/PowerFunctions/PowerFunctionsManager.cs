@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.Helpers;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement.PowerFunctions
 {
-    internal class InfraredDeviceManager : IInfraredDeviceManager
+    internal class PowerFunctionsManager : IPowerFunctionsManager
     {
-        private const int IR_FREQUENCY = 38000;
+        public const int IR_FREQUENCY = 38000;
 
         private const int IR_MARK_US = 158;
         private const int IR_START_GAP_US = 1026;
@@ -29,33 +29,12 @@ namespace BrickController2.DeviceManagement
         private Task? _irTask;
         private CancellationTokenSource? _irTaskCancelationTokenSource;
 
-        public InfraredDeviceManager(IInfraredService infraredService)
+        public PowerFunctionsManager(IInfraredService infraredService)
         {
             _infraredService = infraredService;
         }
 
-        public async Task<bool> ScanAsync(Func<DeviceType, string, string, byte[]?, Task> deviceFoundCallback, CancellationToken token)
-        {
-            using (await _asyncLock.LockAsync())
-            {
-                if (_infraredService.IsInfraredSupported && _infraredService.IsCarrierFrequencySupported(IR_FREQUENCY))
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (token.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        await deviceFoundCallback(DeviceType.Infrared, $"PF Infra {i + 1}", $"{i}", null);
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public async Task<DeviceConnectionResult> ConnectDevice(InfraredDevice device)
+        public async Task<DeviceConnectionResult> ConnectDevice(PowerFunctionsDevice device)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -74,7 +53,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task DisconnectDevice(InfraredDevice device)
+        public async Task DisconnectDevice(PowerFunctionsDevice device)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -91,7 +70,7 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public void SetOutput(InfraredDevice device, int channel, int value)
+        public void SetOutput(PowerFunctionsDevice device, int channel, int value)
         {
             if (int.TryParse(device.Address, out int address))
             {

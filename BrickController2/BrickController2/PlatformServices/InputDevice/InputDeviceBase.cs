@@ -9,7 +9,7 @@ namespace BrickController2.PlatformServices.InputDevice;
 /// abstract base class for input devices
 /// </summary>
 /// <typeparam name="TInputDeviceDevice">Type of native instance of inputdevice device</typeparam>
-public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice 
+public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInputDeviceConnector
     where TInputDeviceDevice : class
 {
     /// <summary>stored last value per axis to detect changes</summary>
@@ -66,7 +66,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
 
     protected bool ContainsAxisValue(string axisName) => _lastAxisValues.ContainsKey(axisName);
 
-    protected internal bool HasValueChanged(string axisName, float value)
+    public bool HasValueChanged(string axisName, float value)
     {
         // get last reported value or the default one
         _lastAxisValues.TryGetValue(axisName, out float lastValue);
@@ -80,7 +80,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice
         return true;
     }
 
-    protected internal void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+    public void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
     {
         if (!events.Any())
         {

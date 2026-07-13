@@ -29,8 +29,8 @@ namespace BrickController2.UI.Controls
             BuWizz3Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             BuWizz3Channel4.Command = new SafeCommand(() => SelectedChannel = 4);
             BuWizz3Channel5.Command = new SafeCommand(() => SelectedChannel = 5);
-            InfraredChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
-            InfraredChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            PowerFunctionsChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            PowerFunctionsChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             PoweredUpChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             PoweredUpChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             BoostChannelA.Command = new SafeCommand(() => SelectedChannel = 0);
@@ -173,7 +173,7 @@ namespace BrickController2.UI.Controls
             SbrickLightSection.IsVisible = deviceType == DeviceType.SBrickLight;
             BuWizzSection.IsVisible = deviceType == DeviceType.BuWizz || deviceType == DeviceType.BuWizz2;
             BuWizz3Section.IsVisible = deviceType == DeviceType.BuWizz3;
-            InfraredSection.IsVisible = deviceType == DeviceType.Infrared;
+            PowerFunctionsSection.IsVisible = deviceType == DeviceType.Infrared;
             PoweredUpSection.IsVisible = deviceType == DeviceType.PoweredUp;
             BoostSection.IsVisible = deviceType == DeviceType.Boost;
             TechnicHubSection.IsVisible = deviceType == DeviceType.TechnicHub;
@@ -222,8 +222,8 @@ namespace BrickController2.UI.Controls
             BuWizz3Channel3.SelectedChannel = selectedChannel;
             BuWizz3Channel4.SelectedChannel = selectedChannel;
             BuWizz3Channel5.SelectedChannel = selectedChannel;
-            InfraredChannel0.SelectedChannel = selectedChannel;
-            InfraredChannel1.SelectedChannel = selectedChannel;
+            PowerFunctionsChannel0.SelectedChannel = selectedChannel;
+            PowerFunctionsChannel1.SelectedChannel = selectedChannel;
             PoweredUpChannel0.SelectedChannel = selectedChannel;
             PoweredUpChannel1.SelectedChannel = selectedChannel;
             BoostChannelA.SelectedChannel = selectedChannel;

@@ -101,7 +101,7 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = false;
             base.OnAppearing();
 
-            if (Device.DeviceType != DeviceType.Infrared)
+            if (Device is IBluetoothDevice)
             {
                 if (!await _deviceManager.IsBluetoothOnAsync())
                 {

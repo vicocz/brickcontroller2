@@ -101,7 +101,7 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = false;
             base.OnAppearing();
 
-            if (_devices.Any(d => d.DeviceType != DeviceType.Infrared) && !await _deviceManager.IsBluetoothOnAsync())
+            if (_devices.Any(d => d is IBluetoothDevice) && !await _deviceManager.IsBluetoothOnAsync())
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),

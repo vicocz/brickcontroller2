@@ -76,6 +76,7 @@ public class DeviceImagesResourceTests
         var registry = new DeviceImageRegistry();
         registry.Register(DeviceType.BuWizz2, "buwizz_image.png", "buwizz_image_small.png");
         registry.Register(DeviceType.RemoteControl, "remotecontrol_image_small.png", "remotecontrol_image_small.png");
+        registry.Register(DeviceType.Infrared, "powerfunctions_image.png", "powerfunctions_image_small.png");
         return registry;
     }
 }

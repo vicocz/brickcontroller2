@@ -1,26 +1,32 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.Helpers;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
 using static BrickController2.CreationManagement.ControllerDefaults;
+using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
 namespace BrickController2.UI.ViewModels
 {
-    public class DevicePageViewModel : PageViewModelBase
+    public class DevicePageViewModel : PageViewModelBase, IInputDeviceConnector
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
+        private readonly ConcurrentDictionary<string, float> _lastAxisValues = [];
 
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
@@ -83,12 +89,18 @@ namespace BrickController2.UI.ViewModels
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
+        public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
+
+        public bool IsInputDevice => InputDevice is not null;
+
+        private IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
+
         public override async void OnAppearing()
         {
             _isDisappearing = false;
             base.OnAppearing();
 
-            if (Device.DeviceType != DeviceType.Infrared)
+            if (Device is IBluetoothDevice)
             {
                 if (!await _deviceManager.IsBluetoothOnAsync())
                 {
@@ -103,6 +115,10 @@ namespace BrickController2.UI.ViewModels
                 }
             }
 
+            // connect input device if available
+            ResetInputEvents();
+            InputDevice?.ConnectInputController(this);
+
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectAsync();
         }
@@ -112,7 +128,64 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = true;
             base.OnDisappearing();
 
+            // disconnect input device if available
+            ResetInputEvents();
+            InputDevice?.DisconnectInputController();
+
             await DisconnectAsync();
+        }
+
+        bool IInputDeviceConnector.HasValueChanged(string axisName, float value)
+        {
+            // get last reported value or the default one
+            _lastAxisValues.TryGetValue(axisName, out float lastValue);
+            // skip value if there is no change
+            if (AreAlmostEqual(value, lastValue))
+            {
+                return false;
+            }
+            // persist
+            _lastAxisValues[axisName] = value;
+            return true;
+        }
+
+        void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+        {
+            if (events.Count == 0)
+            {
+                return;
+            }
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                foreach (var inputEvent in events)
+                {
+                    var (eventType, eventCode) = inputEvent.Key;
+                    var item = InputEventList.FirstOrDefault(x => x.EventCode == eventCode && x.EventType == eventType);
+
+                    if (AXIS_DELTA_VALUE < Math.Abs(inputEvent.Value))
+                    {
+                        if (item != null)
+                        {
+                            item.Value = inputEvent.Value;
+                        }
+                        else
+                        {
+                            InputEventList.Add(new InputDeviceEventViewModel(eventType, eventCode, inputEvent.Value));
+                        }
+                    }
+                    else if (item != null)
+                    {
+                        InputEventList.Remove(item);
+                    }
+                }
+            });
+        }
+
+        private void ResetInputEvents()
+        {
+            _lastAxisValues.Clear();
+            InputEventList.Clear();
         }
 
         private async Task DisconnectAsync()
@@ -346,8 +419,13 @@ namespace BrickController2.UI.ViewModels
 
         private void OnDeviceDisconnected(Device device)
         {
-            // update command enablement
-            UpdateCommandsAvailability();
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                // clear input events
+                ResetInputEvents();
+                // update command enablement
+                UpdateCommandsAvailability();
+            });
         }
 
         private void UpdateCommandsAvailability()

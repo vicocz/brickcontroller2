@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BrickController2.DeviceManagement
+namespace BrickController2.DeviceManagement.PowerFunctions
 {
-    internal class InfraredDevice : Device
+    internal class PowerFunctionsDevice : Device, IDeviceType<PowerFunctionsDevice>
     {
-        private readonly IInfraredDeviceManager _infraredDeviceManager;
+        private readonly IPowerFunctionsManager _powerFunctionsManager;
 
-        public InfraredDevice(string name, string address, byte[] deviceData, IInfraredDeviceManager infraredDeviceManager, IDeviceRepository deviceRepository)
+        public PowerFunctionsDevice(string name, string address, byte[] deviceData, IPowerFunctionsManager powerFunctionsManager, IDeviceRepository deviceRepository)
             : base(name, address, deviceRepository)
         {
-            _infraredDeviceManager = infraredDeviceManager;
+            _powerFunctionsManager = powerFunctionsManager;
         }
 
-        public override DeviceType DeviceType => DeviceType.Infrared;
+        public static DeviceType Type => DeviceType.Infrared;
+
+        public static string TypeName => "Power Functions";
+        public override DeviceType DeviceType => Type;
         public override int NumberOfChannels => 2;
 
         public override async Task<DeviceConnectionResult> ConnectAsync(
@@ -28,7 +31,7 @@ namespace BrickController2.DeviceManagement
         {
             DeviceState = DeviceState.Connecting;
 
-            var result = await _infraredDeviceManager.ConnectDevice(this);
+            var result = await _powerFunctionsManager.ConnectDevice(this);
 
             DeviceState = result == DeviceConnectionResult.Ok ? DeviceState.Connected : DeviceState.Disconnected;
             return result;
@@ -38,7 +41,7 @@ namespace BrickController2.DeviceManagement
         {
             DeviceState = DeviceState.Disconnecting;
 
-            await _infraredDeviceManager.DisconnectDevice(this);
+            await _powerFunctionsManager.DisconnectDevice(this);
 
             DeviceState = DeviceState.Disconnected;
         }
@@ -49,7 +52,7 @@ namespace BrickController2.DeviceManagement
             value = CutOutputValue(value);
 
             var intValue = (int)(7 * value);
-            _infraredDeviceManager.SetOutput(this, channel, intValue);
+            _powerFunctionsManager.SetOutput(this, channel, intValue);
         }
     }
 }

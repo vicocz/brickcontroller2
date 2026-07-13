@@ -1,7 +1,7 @@
 ﻿using System;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
-using BrickController2.UI.Services.Preferences;
+using BrickController2.UI.Services.AppIdentifier;
 
 namespace BrickController2.DeviceManagement.CaDA;
 
@@ -11,18 +11,16 @@ namespace BrickController2.DeviceManagement.CaDA;
 public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdvertiserDeviceScanInfo, IBluetoothLEDeviceManager,
     ICaDADeviceManager
 {
-    private const string SECTION = "CaDA";
-    private const string APPIDKEY = "AppID";
-
+    private const int AppIdentifierLength = 3; // CaDA protocol defines 3 bytes for the app identifier
     private readonly ICaDAPlatformService _cadaPlatformService;
 
     // this identifier is patched into the advertising data to identify the app
-    private readonly byte[] _appIdChecksumMaskArray;
+    private readonly byte[] _appIdentifier;
 
-    public CaDADeviceManager(IPreferencesService preferencesService, ICaDAPlatformService cadaPlatformService)
+    public CaDADeviceManager(IAppIdentifierService appIdentifierService, ICaDAPlatformService cadaPlatformService)
     {
         _cadaPlatformService = cadaPlatformService;
-        _appIdChecksumMaskArray = CaDADeviceManager.GetAppIdentifier(preferencesService);
+        _appIdentifier = appIdentifierService.GetAppId(AppIdentifierLength).ToArray();
     }
 
     public AdvertisingInterval AdvertisingIterval => AdvertisingInterval.Min;
@@ -31,7 +29,7 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
 
     public ushort ManufacturerId => CaDAProtocol.ManufacturerID;
 
-    public ReadOnlyMemory<byte> GetAppId() => _appIdChecksumMaskArray;
+    public ReadOnlyMemory<byte> GetAppId() => _appIdentifier;
 
     /// <summary>
     /// Create an byte-array to be advertised on device-scan
@@ -46,9 +44,9 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
               0x00, //  [2] DeviceAddress
               0x00, //  [3] DeviceAddress
               0x00, //  [4] DeviceAddress
-              _appIdChecksumMaskArray[0], //  [5] AppID
-              _appIdChecksumMaskArray[1], //  [6] AppID
-              _appIdChecksumMaskArray[2], //  [7] AppID
+              _appIdentifier[0], //  [5] AppID
+              _appIdentifier[1], //  [6] AppID
+              _appIdentifier[2], //  [7] AppID
               0x00, //  [8] 
               0x00, //  [9] 
               0x80, // [10] min 128
@@ -112,9 +110,9 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
             manufacturerData.Length == 18 &&
             manufacturerData[2] == 0x75 &&
             (manufacturerData[3] & 0x40) > 0 &&
-            manufacturerData[7] == _appIdChecksumMaskArray[0] && // response has to have the same appId
-            manufacturerData[8] == _appIdChecksumMaskArray[1] &&
-            manufacturerData[9] == _appIdChecksumMaskArray[2];
+            manufacturerData[7] == _appIdentifier[0] && // response has to have the same appId
+            manufacturerData[8] == _appIdentifier[1] &&
+            manufacturerData[9] == _appIdentifier[2];
     }
 
     private static bool IsCadaRaceCarRev2(ReadOnlySpan<byte> manufacturerData) => manufacturerData.Length == 16 &&
@@ -124,50 +122,4 @@ public class CaDADeviceManager : BluetoothDeviceManagerBase, IBluetoothLEAdverti
         manufacturerData[4] == 0x00 &&
         // flag not connected yet
         manufacturerData[7] == 0x85;
-
-    /// <summary>
-    /// Gets or creates an app-persistent AppIdentifier.
-    /// </summary>
-    /// <param name="preferencesService">Reference to preferencesService singleton.</param>
-    /// <returns>byte array containing the AppIdentifier</returns>
-    private static byte[] GetAppIdentifier(IPreferencesService preferencesService)
-    {
-        byte[] appIdChecksumMaskArray;
-        // gets or creates an app-persistent AppIdentifier
-        try
-        {
-            if (preferencesService.ContainsKey(APPIDKEY, SECTION))
-            {
-                // throws exception if converting went wrong
-                appIdChecksumMaskArray = Convert.FromBase64String(preferencesService.Get(APPIDKEY, string.Empty, SECTION));
-
-                // check minimum length
-                if (appIdChecksumMaskArray?.Length >= 3)
-                {
-                    return appIdChecksumMaskArray; // valid
-                }
-            }
-        }
-        catch // catch all exceptions
-        {
-        }
-
-        // create new byte[] with random values
-        // * on first run
-        // * on exception
-        // * on length to short
-        appIdChecksumMaskArray = new byte[3];
-
-        Random.Shared.NextBytes(appIdChecksumMaskArray);
-
-        try
-        {
-            preferencesService.Set(APPIDKEY, Convert.ToBase64String(appIdChecksumMaskArray), SECTION);
-        }
-        catch // catch all exceptions to keep app alive
-        {
-        }
-
-        return appIdChecksumMaskArray;
-    }
 }

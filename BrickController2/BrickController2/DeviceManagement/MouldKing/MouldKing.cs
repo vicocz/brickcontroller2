@@ -34,6 +34,8 @@ internal class MouldKing : Vendor<MouldKing>
             .WithDeviceFactory(MK6.Device3, $"{MK6.TypeName} Device 3");
 
         // device manager
-        builder.RegisterDeviceManager<MouldKingDeviceManager>();
+        builder.RegisterDeviceManager<MouldKingDeviceManager>()
+            .As<IMouldKingDeviceManager>()
+            .SingleInstance();
     }
 }

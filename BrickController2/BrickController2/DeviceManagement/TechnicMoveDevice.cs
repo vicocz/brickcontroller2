@@ -206,6 +206,11 @@ namespace BrickController2.DeviceManagement
                 // otherwise all channels to be initialized
                 _outputValues.Initialize();
             }
+        }
+
+        protected override void InitializeChannelInfo()
+        {
+            base.InitializeChannelInfo();
             _calibratedZeroAngles.AsSpan().Clear();
         }
 
@@ -305,6 +310,10 @@ namespace BrickController2.DeviceManagement
                 ChannelRelativePositions.ConsumeUpdate(channel); // clear existing value
                 var inputFormatForRelAngle = BuildPortInputFormatSetup(portId, PORT_MODE_2);
                 await WriteAsync(inputFormatForRelAngle, token);
+                await Task.Delay(50, token);
+
+                // explicitly request current POS value to guarantee an initial notification
+                await WriteAsync([0x05, 0x00, MESSAGE_TYPE_PORT_INFORMATION_REQUEST, portId, 0x00], token);
                 await AwaitPositionChangeAsync(() => ChannelRelativePositions.Get(channel),
                     TimeSpan.FromMilliseconds(250), token);
 

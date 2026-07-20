@@ -76,6 +76,8 @@ namespace BrickController2.DeviceManagement
         public virtual int NumberOfOutputLevels => 1;
         public virtual int DefaultOutputLevel => 1;
 
+        public virtual float AccelarationStep => 0.1F;
+
         /// <summary>
         /// Check whether the output type specified in <paramref name="outputType"/> is supported
         /// for given channel <paramref name="channel"/> 

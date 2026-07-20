@@ -1,6 +1,5 @@
 using Autofac;
 using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.JieStar;
 using BrickController2.PlatformServices.BluetoothLE;
 using FluentAssertions;

@@ -1,6 +1,5 @@
 using Autofac;
 using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.DI;
 using BrickController2.DeviceManagement.PowerFunctions;
 using BrickController2.PlatformServices.Infrared;
 using BrickController2.UI.Images;

@@ -29,7 +29,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             _centralManager = centralManager;
         }
 
-        public string Address => _peripheral?.Identifier!.ToString() ?? string.Empty;
+public string Address => _peripheral.Identifier?.ToString() ?? throw new InvalidOperationException("CBPeripheral.Identifier is null.");
         public BluetoothLEDeviceState State { get; private set; } = BluetoothLEDeviceState.Disconnected;
 
         public async Task<IEnumerable<IGattService>?> ConnectAndDiscoverServicesAsync(

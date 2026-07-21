@@ -101,7 +101,7 @@ public class LegoVendorTests : VendorTestsBase
 
     [Theory]
     [InlineData("WeDo2")]
-    public void RegisterDevice_Wedo2Device_ReturnedDevice(string address)
+public void RegisterDevice_WeDo2Device_ReturnedDevice(string address)
     {
         DeviceType deviceType = DeviceType.WeDo2;
         string name = "TestDevice";

@@ -29,7 +29,6 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             _centralManager = centralManager;
         }
 
-        public string Address => _peripheral.Identifier!.ToString();
         public BluetoothLEDeviceState State { get; private set; } = BluetoothLEDeviceState.Disconnected;
 
         public async Task<IEnumerable<IGattService>?> ConnectAndDiscoverServicesAsync(

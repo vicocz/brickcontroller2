@@ -504,6 +504,23 @@
 
                 <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Source="{extensions:ImageResource Source=jiestarscm8_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
             </Grid>
+
+            <!-- PowerBoxMBattery -->
+            <Grid x:Name="PowerBoxMBatterySection">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="0" x:Name="PowerBoxMBatteryChannel0" DeviceType="PowerBoxMBattery" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+
+                <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Source="{extensions:ImageResource Source=powerboxmbattery_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
+            </Grid>
         </Grid>
     </ContentView.Content>
 </ContentView>

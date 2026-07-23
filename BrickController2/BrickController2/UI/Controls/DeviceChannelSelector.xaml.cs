@@ -195,6 +195,7 @@ namespace BrickController2.UI.Controls
             CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
             JieStarSCM4Section.IsVisible = deviceType == DeviceType.JieStarSCM4;
             JieStarSCM8Section.IsVisible = deviceType == DeviceType.JieStarSCM8;
+            PowerBoxMBatterySection.IsVisible = deviceType == DeviceType.PowerBoxMBattery;
         }
 
         private static void OnSelectedChannelChanged(BindableObject bindable, object oldValue, object newValue)
@@ -323,6 +324,8 @@ namespace BrickController2.UI.Controls
             SBrickLightSubchannel1.SelectedChannel = sBrickLightSubchannel;
             SBrickLightSubchannel2.SelectedChannel = sBrickLightSubchannel;
             SBrickLightSubchannel3.SelectedChannel = sBrickLightSubchannel;
+            // PowerBoxMBattery
+            PowerBoxMBatteryChannel0.SelectedChannel = selectedChannel;
         }
     }
 }

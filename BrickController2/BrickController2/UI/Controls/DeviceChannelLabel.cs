@@ -114,6 +114,7 @@ namespace BrickController2.UI.Controls
                     SetChannelText(_jieStarChannelLetters);
                     break;
                 case DeviceType.PowerBoxMBattery:
+                case DeviceType.PowerBoxASeries:
                     SetChannelText(_powerBoxChannelLetters);
                     break;
                 default:

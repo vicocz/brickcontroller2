@@ -21,5 +21,7 @@ internal class PowerBox : Vendor<PowerBox>
         builder.RegisterDevice<PowerBoxMBattery>()
             .WithDeviceFactory(PowerBoxMBattery.Device, $"{PowerBoxMBattery.TypeName} Device");
 
+        builder.RegisterDevice<PowerBoxASeries>()
+            .WithDeviceFactory(PowerBoxASeries.Device, $"{PowerBoxASeries.TypeName} Device");
     }
 }

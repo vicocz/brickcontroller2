@@ -121,6 +121,13 @@ namespace BrickController2.UI.Controls
             SBrickLightSubchannel1.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 1));
             SBrickLightSubchannel2.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 2));
             SBrickLightSubchannel3.Command = new SafeCommand(() => UpdateSBrickSubchannel(SBrickProtocol.LIGHT_PORTS_COUNT * 3));
+            // PowerBoxMBattery
+            PowerBoxMBatteryChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            // PowerBoxASeries
+            PowerBoxASeriesChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            PowerBoxASeriesChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            PowerBoxASeriesChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            PowerBoxASeriesChannel3.Command = new SafeCommand(() => SelectedChannel = 3);
 
             void UpdateSBrickPort(int channel)
             {
@@ -195,6 +202,7 @@ namespace BrickController2.UI.Controls
             CaDARaceCarSection.IsVisible = deviceType == DeviceType.CaDA_RaceCar;
             JieStarSCM4Section.IsVisible = deviceType == DeviceType.JieStarSCM4;
             JieStarSCM8Section.IsVisible = deviceType == DeviceType.JieStarSCM8;
+            PowerBoxASeriesSection.IsVisible = deviceType == DeviceType.PowerBoxASeries;
             PowerBoxMBatterySection.IsVisible = deviceType == DeviceType.PowerBoxMBattery;
         }
 
@@ -326,6 +334,11 @@ namespace BrickController2.UI.Controls
             SBrickLightSubchannel3.SelectedChannel = sBrickLightSubchannel;
             // PowerBoxMBattery
             PowerBoxMBatteryChannel0.SelectedChannel = selectedChannel;
+            // PowerBoxASeries
+            PowerBoxASeriesChannel0.SelectedChannel = selectedChannel;
+            PowerBoxASeriesChannel1.SelectedChannel = selectedChannel;
+            PowerBoxASeriesChannel2.SelectedChannel = selectedChannel;
+            PowerBoxASeriesChannel3.SelectedChannel = selectedChannel;
         }
     }
 }

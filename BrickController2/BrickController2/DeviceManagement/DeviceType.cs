@@ -27,5 +27,6 @@
         JieStarSCM4,
         JieStarSCM8,
         PowerBoxMBattery,
+        PowerBoxASeries
     }
 }

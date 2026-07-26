@@ -6,7 +6,7 @@ namespace BrickController2.DeviceManagement.PowerBox;
 /// <summary>
 /// PowerBox baseclass
 /// </summary>
-internal abstract class PowerBoxBase : BluetoothAdvertisingDevice
+internal abstract class PowerBoxBaseByte : BluetoothAdvertisingDevice
 {
     /// <summary>
     /// offset to position of first channel in base telegram
@@ -34,7 +34,7 @@ internal abstract class PowerBoxBase : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected PowerBoxBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, PowerBoxDeviceManager powerboxDeviceManager, byte[] telegram_Connect, byte[] telegram_Base)
+    protected PowerBoxBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, PowerBoxDeviceManager powerboxDeviceManager, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;
@@ -108,61 +108,14 @@ internal abstract class PowerBoxBase : BluetoothAdvertisingDevice
     /// <param name="setValue_byte">The value to set.param>
     /// <returns><see langword="true"/> if the byte in the telegram buffer was modified;  otherwise, <see langword="false"/> if
     /// the value remained unchanged.</returns>
-    protected bool SetChannelValue(int byteOffset, byte setValue_byte)
+    protected virtual bool SetChannelValue(int byteOffset, byte setValue_byte)
     {
         lock (_outputLock)
         {
             byte originValue_byte = _telegram_Base[byteOffset];
 
             _telegram_Base[byteOffset] = setValue_byte;
-            _telegram_Base[byteOffset + 1] = setValue_byte; // bytes are duplicated in the telegram
             return _telegram_Base[byteOffset] != originValue_byte;
-        }
-    }
-
-    /// <summary>
-    /// Converts a floating-point value into a byte representation for an analog channel output.
-    /// </summary>
-    /// <remarks>The method maps the input value to a byte representation based on predefined ranges for
-    /// positive, negative, and zero values. The zero value is represented by a specific byte constant. The caller can
-    /// use the returned boolean to determine if the byte corresponds to the zero value.</remarks>
-    /// <param name="value">The floating-point value to be converted. Negative values are mapped to the negative range, positive values are
-    /// mapped to the positive range, and zero is mapped to a predefined byte.</param>
-    /// <returns>A tuple containing the following: <list type="bullet"> <item> <description> A <see cref="byte"/> representing
-    /// the byte value for the analog channel output. </description> </item> <item> <description> A <see cref="bool"/>
-    /// indicating whether the byte corresponds to the zero value. <see langword="true"/> if the byte represents
-    /// zero; otherwise, <see langword="false"/>. </description> </item> </list></returns>
-    protected (byte setValue_Byte, bool zeroSet) SetOutput_AnalogChannel(float value)
-    {
-        // value <  0:  7f 6e 5d 4c 3b 2a 19                          RANGE_NEG: 0x07
-        // value == 0:                       00                       ZEROVALUE
-        // value >  0:                          91 a2 b3 c4 d5 e6 f7  RANGE_POS: 0x07
-
-        const int RANGE_POS = 0x07;
-        const int RANGE_NEG = 0x07;
-
-        const float MIN_NEG_RANGE_THRESHOLD = -1f / RANGE_NEG;    // Minimum value for negative range
-        const float MIN_POS_RANGE_THRESHOLD = 1f / RANGE_POS;     // Minimum value for positive range
-
-        const byte ZEROVALUE = 0x00;
-
-        if (value <= MIN_NEG_RANGE_THRESHOLD)
-        {
-            byte value_abs = (byte)Math.Min(0x07, -value * RANGE_NEG);
-            byte setValue_byte = (byte)((value_abs << 4) + value_abs + 8);
-
-            return (setValue_byte, false);
-        }
-        else if (value >= MIN_POS_RANGE_THRESHOLD)
-        {
-            byte value_abs = (byte)Math.Min(0x07, value * RANGE_POS);
-            byte setValue_byte = (byte)(((value_abs + 8) << 4) + value_abs);
-
-            return (setValue_byte, false);
-        }
-        else
-        {
-            return (ZEROVALUE, true);
         }
     }
 

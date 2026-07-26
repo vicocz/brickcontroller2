@@ -36,7 +36,7 @@ public class PowerBoxVendorTests : VendorTestsBase
     }
 
     [Theory]
-    [InlineData("Device1")]
+    [InlineData("Device")]
     public void RegisterDevice_PowerBox_MBattery_ReturnedDevice(string address)
     {
         DeviceType deviceType = DeviceType.PowerBoxMBattery;
@@ -47,5 +47,19 @@ public class PowerBoxVendorTests : VendorTestsBase
 
         device.Should().NotBeNull();
         device.Should().BeOfType<PowerBoxMBattery>();
+    }
+
+    [Theory]
+    [InlineData("Device")]
+    public void RegisterDevice_PowerBox_ASeries_ReturnedDevice(string address)
+    {
+        DeviceType deviceType = DeviceType.PowerBoxASeries;
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        var device = _deviceFactory(deviceType, name, address, deviceData, []);
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<PowerBoxASeries>();
     }
 }

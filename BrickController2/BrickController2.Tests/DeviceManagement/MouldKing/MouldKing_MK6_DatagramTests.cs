@@ -79,7 +79,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device1)]
     [InlineData(MK6.Device2)]
     [InlineData(MK6.Device3)]
-    public async Task MK6_TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
+    public void MK6_TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
     {
         TestableMK6 device = new TestableMK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 

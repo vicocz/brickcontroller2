@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using BrickController2.DeviceManagement;
 using BrickController2.UI.Commands;
-using BrickController2.UI.Controls;
 using Microsoft.Maui.Controls;
 
 using Device = BrickController2.DeviceManagement.Device;
@@ -57,16 +56,20 @@ public abstract class DeviceChannelSelectorViewBase : ContentView
         foreach (var button in buttons)
         {
             button.DeviceType = deviceType;
-            var captured = button;
-            captured.Command = new SafeCommand(() => SelectedChannel = captured.Channel);
-            _channelButtons.Add(captured);
+            button.Command = new SafeCommand(() => SelectedChannel = button.Channel);
+            _channelButtons.Add(button);
         }
     }
 
     private static object OnCoerceDevice(BindableObject bindable, object value)
     {
-        if (bindable is DeviceChannelSelectorViewBase view && value is Device device)
+        if (bindable is DeviceChannelSelectorViewBase view
+            && value is Device device
+            && ReferenceEquals(view.Device, device))
+        {
+            // Same reference re-set: propertyChanged won't fire, so handle it here explicitly.
             view.OnDeviceChanged(device);
+        }
         return value;
     }
 

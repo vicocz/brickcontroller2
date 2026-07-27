@@ -104,6 +104,13 @@ namespace BrickController2.UI.Controls
 
             if (_activeView is null || _activeView.GetType() != entry.ViewType)
             {
+                if (_activeView is not null)
+                {
+                    // detach previous view to avoid it (and its binding to 'this') being kept alive
+                    _activeView.RemoveBinding(DeviceChannelSelectorViewBase.SelectedChannelProperty);
+                    _activeView.BindingContext = null;
+                }
+
                 _activeView = entry.Factory();
                 _activeView.BindingContext = BindingContext;
                 _activeView.SelectedChannel = SelectedChannel;
@@ -121,8 +128,7 @@ namespace BrickController2.UI.Controls
         protected override void OnBindingContextChanged()
         {
             base.OnBindingContextChanged();
-            if (_activeView is not null)
-                _activeView.BindingContext = BindingContext;
+            _activeView?.BindingContext = BindingContext;
         }
     }
 }

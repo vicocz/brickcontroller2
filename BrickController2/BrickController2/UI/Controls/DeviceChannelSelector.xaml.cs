@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.UI.Controls.Devices;
 using Microsoft.Extensions.DependencyInjection;

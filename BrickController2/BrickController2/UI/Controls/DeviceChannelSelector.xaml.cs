@@ -1,7 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.UI.Controls.Devices;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 
@@ -12,52 +14,17 @@ namespace BrickController2.UI.Controls
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class DeviceChannelSelector : ContentView
     {
-        private readonly record struct ViewEntry(Type ViewType, Func<DeviceChannelSelectorViewBase> Factory);
+        private static IComponentContext? _componentContext;
 
         /// <summary>
-        /// Registry built once at class load from each view's static <see cref="IDeviceChannelSelectorView.DeviceType"/>.
-        /// Adding a new device: implement <see cref="IDeviceChannelSelectorView"/> on the new view and add one entry here.
+        /// Lazily resolved Autofac context, used to resolve <see cref="DeviceChannelSelectorViewBase"/>
+        /// instances keyed by <see cref="DeviceType"/> (see UiModule registration).
         /// </summary>
-        private static readonly Dictionary<DeviceType, ViewEntry> _registry = BuildRegistry();
-
-        private static Dictionary<DeviceType, ViewEntry> BuildRegistry()
-        {
-            static ViewEntry Entry<TView>(Func<TView> factory)
-                where TView : DeviceChannelSelectorViewBase, IDeviceChannelSelectorView
-                => new(typeof(TView), factory);
-
-            var registry = new Dictionary<DeviceType, ViewEntry>
-            {
-                [SBrickChannelSelectorView.DeviceType]         = Entry(() => new SBrickChannelSelectorView()),
-                [SBrickLightChannelSelectorView.DeviceType]    = Entry(() => new SBrickLightChannelSelectorView()),
-                [BuWizzChannelSelectorView.DeviceType]         = Entry(() => new BuWizzChannelSelectorView()),
-                [BuWizz3ChannelSelectorView.DeviceType]        = Entry(() => new BuWizz3ChannelSelectorView()),
-                [PowerFunctionsChannelSelectorView.DeviceType] = Entry(() => new PowerFunctionsChannelSelectorView()),
-                [PoweredUpChannelSelectorView.DeviceType]      = Entry(() => new PoweredUpChannelSelectorView()),
-                [BoostChannelSelectorView.DeviceType]          = Entry(() => new BoostChannelSelectorView()),
-                [TechnicHubChannelSelectorView.DeviceType]     = Entry(() => new TechnicHubChannelSelectorView()),
-                [DuploTrainHubChannelSelectorView.DeviceType]  = Entry(() => new DuploTrainHubChannelSelectorView()),
-                [CircuitCubesChannelSelectorView.DeviceType]   = Entry(() => new CircuitCubesChannelSelectorView()),
-                [WeDo2ChannelSelectorView.DeviceType]          = Entry(() => new WeDo2ChannelSelectorView()),
-                [TechnicMoveChannelSelectorView.DeviceType]    = Entry(() => new TechnicMoveChannelSelectorView()),
-                [PfxBrickChannelSelectorView.DeviceType]       = Entry(() => new PfxBrickChannelSelectorView()),
-                [MK3_8ChannelSelectorView.DeviceType]          = Entry(() => new MK3_8ChannelSelectorView()),
-                [MK4ChannelSelectorView.DeviceType]            = Entry(() => new MK4ChannelSelectorView()),
-                [MK5ChannelSelectorView.DeviceType]            = Entry(() => new MK5ChannelSelectorView()),
-                [MK6ChannelSelectorView.DeviceType]            = Entry(() => new MK6ChannelSelectorView()),
-                [MK_DIYChannelSelectorView.DeviceType]         = Entry(() => new MK_DIYChannelSelectorView()),
-                [CaDARaceCarChannelSelectorView.DeviceType]    = Entry(() => new CaDARaceCarChannelSelectorView()),
-                [JieStarSCM4ChannelSelectorView.DeviceType]   = Entry(() => new JieStarSCM4ChannelSelectorView()),
-                [JieStarSCM8ChannelSelectorView.DeviceType]   = Entry(() => new JieStarSCM8ChannelSelectorView()),
-            };
-
-            // BuWizz2 shares the same view as BuWizz
-            registry[DeviceType.BuWizz2] = registry[BuWizzChannelSelectorView.DeviceType];
-
-            return registry;
-        }
+        private static IComponentContext ComponentContext =>
+            _componentContext ??= IPlatformApplication.Current!.Services.GetRequiredService<IComponentContext>();
 
         private DeviceChannelSelectorViewBase? _activeView;
+        private DeviceType? _activeDeviceType;
 
         public DeviceChannelSelector()
         {
@@ -99,11 +66,14 @@ namespace BrickController2.UI.Controls
 
         private void OnDeviceChanged(Device device)
         {
-            if (!_registry.TryGetValue(device.DeviceType, out var entry))
-                throw new NotSupportedException($"No channel selector for device type {device.DeviceType}");
-
-            if (_activeView is null || _activeView.GetType() != entry.ViewType)
+            if (_activeView is null || _activeDeviceType != device.DeviceType)
             {
+                if (!ComponentContext.TryResolveKeyed<DeviceChannelSelectorViewBase>(device.DeviceType, out var resolved))
+                {
+                    // use generic component as fallback
+                    resolved = new GenericChannelSelectorView();
+                }
+
                 if (_activeView is not null)
                 {
                     // detach previous view to avoid it (and its binding to 'this') being kept alive
@@ -111,7 +81,8 @@ namespace BrickController2.UI.Controls
                     _activeView.BindingContext = null;
                 }
 
-                _activeView = entry.Factory();
+                _activeView = resolved;
+                _activeDeviceType = device.DeviceType;
                 _activeView.BindingContext = BindingContext;
                 _activeView.SelectedChannel = SelectedChannel;
 

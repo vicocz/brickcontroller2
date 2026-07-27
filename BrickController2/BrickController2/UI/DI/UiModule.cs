@@ -4,7 +4,9 @@ using System.Linq;
 using Microsoft.Maui.Controls;
 using Autofac;
 using BrickController2.CreationManagement;
+using BrickController2.DeviceManagement;
 using BrickController2.UI.Commands;
+using BrickController2.UI.Controls.Devices;
 using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Dialog;
@@ -49,6 +51,16 @@ namespace BrickController2.UI.DI
                 builder.RegisterType(pageType).Keyed<PageBase>(pageType);
             }
 
+            // Register device channel selector views
+            foreach (var viewType in GetSubClassesOf<DeviceChannelSelectorViewBase>().Where(t => !t.IsAbstract && typeof(IDeviceChannelSelectorView).IsAssignableFrom(t)))
+            {
+                var deviceType = GetDeviceType(viewType);
+                builder.RegisterType(viewType).Keyed<DeviceChannelSelectorViewBase>(deviceType);
+            }
+
+            // custom channel selectors
+            builder.RegisterType<BuWizzChannelSelectorView>().Keyed<DeviceChannelSelectorViewBase>(DeviceType.BuWizz2);
+
             // Register the viewmodel factory
             builder.Register<ViewModelFactory>(c =>
             {
@@ -78,5 +90,17 @@ namespace BrickController2.UI.DI
                 .Where(t => t != typeof(T) && typeof(T).IsAssignableFrom(t))
                 .ToList();
         }
+
+        private static DeviceType GetDeviceType(Type viewType)
+        {
+            var method = typeof(UiModule)
+                .GetMethod(nameof(GetDeviceTypeCore), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
+                .MakeGenericMethod(viewType);
+
+            return (DeviceType)method.Invoke(null, null)!;
+        }
+
+        private static DeviceType GetDeviceTypeCore<T>() where T : IDeviceChannelSelectorView
+            => T.DeviceType;
     }
 }

@@ -35,6 +35,7 @@ namespace BrickController2.DeviceManagement
         public override DeviceType DeviceType => DeviceType.SBrick;
         public override string BatteryVoltageSign => "V";
         public override int NumberOfChannels => 4;
+        public override float AccelarationStep => 1.0f / 7.0f;
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override void SetOutput(int channel, float value)

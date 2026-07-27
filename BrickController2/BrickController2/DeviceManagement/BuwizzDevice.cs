@@ -40,6 +40,8 @@ namespace BrickController2.DeviceManagement
         public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);
         protected override bool AutoConnectOnFirstConnect => false;
 
+        public override float AccelarationStep => 1.0f / 7.0f;
+
         public override void SetOutput(int channel, float value)
         {
             CheckChannel(channel);

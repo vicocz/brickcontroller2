@@ -44,7 +44,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly int _instanceNo;
 
-    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, MouldKingDeviceManager mkDeviceManager, int instanceNo, byte[] telegram_Connect, byte[] telegram_Base)
+    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;

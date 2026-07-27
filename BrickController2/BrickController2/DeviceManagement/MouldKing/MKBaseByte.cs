@@ -30,7 +30,7 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     protected readonly int _channelStartOffset;
 
 
-    protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, MouldKingDeviceManager mkDeviceManager,int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
+    protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _channelStartOffset = channelStartOffset;

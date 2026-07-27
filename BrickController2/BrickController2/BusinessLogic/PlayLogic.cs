@@ -100,12 +100,12 @@ namespace BrickController2.BusinessLogic
                                     continue;
                                 }
 
-                                var outputValue = ProcessButtonEvent(isPressed, controllerAction, device!.DeviceType);
+                                var outputValue = ProcessButtonEvent(isPressed, controllerAction, device);
                                 device.SetOutput(channel, outputValue);
                             }
                             else if (gameControllerEvent.Key.EventType == InputDeviceEventType.Axis)
                             {
-                                var (useAxisValue, axisValue) = ProcessAxisEvent(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction, device!.DeviceType);
+                                var (useAxisValue, axisValue) = ProcessAxisEvent(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction, device);
                                 if (useAxisValue)
                                 {
                                     StoreAxisOutputValue(axisValue, controllerAction.DeviceId, controllerAction.Channel, controllerEvent.EventType, controllerEvent.EventCode);
@@ -124,7 +124,7 @@ namespace BrickController2.BusinessLogic
             return controllerAction.ButtonType == ControllerButtonType.Normal || isPressed;
         }
 
-        private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, DeviceType deviceType)
+        private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, Device device)
         {
             var previousOutputs = GetPreviousOutputs(controllerAction);
             float currentOutput = 0;
@@ -176,7 +176,7 @@ namespace BrickController2.BusinessLogic
                     break;
 
                 case ControllerButtonType.Accelerator:
-                    var accelarationStep = GetAccelarationStep(deviceType);
+                    var accelarationStep = device.AccelarationStep;
                     accelarationStep = controllerAction.IsInvert ? -accelarationStep : accelarationStep;
                     currentOutput = Math.Min(Math.Max(previousOutputs[0] + accelarationStep, -1), 1);
                     break;
@@ -215,7 +215,7 @@ namespace BrickController2.BusinessLogic
             buttonOutputs[0] = value;
         }
 
-        private (bool UseAxisValue, float AxisValue) ProcessAxisEvent(string gameControllerEventCode, float axisValue, ControllerAction controllerAction, DeviceType deviceType)
+        private (bool UseAxisValue, float AxisValue) ProcessAxisEvent(string gameControllerEventCode, float axisValue, ControllerAction controllerAction, Device device)
         {
             var previousAxisValue = GetPreviousAxisOutput(gameControllerEventCode, controllerAction);
 
@@ -317,7 +317,7 @@ namespace BrickController2.BusinessLogic
                 case ControllerAxisType.Accelerator:
                     if (Math.Abs(axisValue) == 1)
                     {
-                        var accelarationStep = GetAccelarationStep(deviceType);
+                        var accelarationStep = device.AccelarationStep;
                         axisValue = Math.Min(Math.Max(previousAxisValue + (axisValue * accelarationStep), -1), 1);
                     }
                     else
@@ -415,21 +415,6 @@ namespace BrickController2.BusinessLogic
             }
 
             return outputValue;
-        }
-
-        private float GetAccelarationStep(DeviceType deviceType)
-        {
-            switch (deviceType)
-            {
-                case DeviceType.BuWizz:
-                case DeviceType.BuWizz2:
-                case DeviceType.Infrared:
-                case DeviceType.SBrick:
-                    return 1F / 7;
-
-                default:
-                    return 0.1F;
-            }
         }
     }
 }

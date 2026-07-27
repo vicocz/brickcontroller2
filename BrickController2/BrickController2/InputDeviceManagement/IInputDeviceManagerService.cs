@@ -1,6 +1,7 @@
 ﻿using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace BrickController2.InputDeviceManagement;
@@ -17,6 +18,11 @@ public interface IInputDeviceManagerService : IInputDeviceEventServiceInternal
     /// returns true if inputdevice events can be processed (i.e. if there is at least one listener)
     /// </summary>
     bool CanProcessEvents { get; }
+
+    /// <summary>
+    /// Get a snapshot of currently available input devices.
+    /// </summary>
+    IReadOnlyCollection<IInputDevice> GetInputDevices();
 
     /// <summary>
     /// add inputdevice to the manager

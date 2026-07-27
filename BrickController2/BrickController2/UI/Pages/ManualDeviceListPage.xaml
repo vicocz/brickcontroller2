@@ -57,7 +57,8 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="1" Text="{Binding DeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
-                                <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
+                                <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"
+                                        MinimumWidthRequest="{OnPlatform WinUI=80, Default=-1}"/>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

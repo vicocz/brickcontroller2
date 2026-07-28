@@ -31,6 +31,7 @@ permissions:
 
 env:
   PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
+  ENABLE_CODE_SIGNING: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
 
 jobs:
   build-winui:
@@ -61,13 +62,15 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Decode Signing Certificate
+      if: env.ENABLE_CODE_SIGNING == 'true'
       run: |
         echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
         certutil -decode cert.asc cert.pfx
 
     - name: Install Signing Certificate
+      if: env.ENABLE_CODE_SIGNING == 'true'
       run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
-            
+
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
 
@@ -84,8 +87,8 @@ jobs:
         -r win-x64 `
         -p:Platform=x64 `
         -p:GenerateAppxPackageOnBuild=true `
-        -p:AppxPackageSigningEnabled=true `
-        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
+        -p:AppxPackageSigningEnabled=${{ env.ENABLE_CODE_SIGNING }} `
+        -p:PackageCertificateThumbprint=${{ env.ENABLE_CODE_SIGNING == 'true' && secrets.SIGNING_CERTIFICATE_THUMBPRINT || '' }}
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v7

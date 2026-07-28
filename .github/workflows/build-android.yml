@@ -31,6 +31,7 @@ permissions:
 
 env:
   TARGET_FRAMEWORK: 'net10.0-android'
+  ENABLE_CODE_SIGNING: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
 
 jobs:
   build-android:
@@ -64,8 +65,10 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
     - name: Setup Android signing 
+      if: env.ENABLE_CODE_SIGNING == 'true'
       shell: bash   
       run: (echo "${{secrets.KEYSTORE}}" | base64 --decode) > BrickController2/BrickController2.Android/keystore.jks
+
     - name: Build MAUI Android (APK)
       run: >-
         dotnet publish BrickController2/BrickController2.Android/BrickController2.Android.csproj
@@ -73,9 +76,9 @@ jobs:
         -f ${{ env.TARGET_FRAMEWORK }}
         --no-restore
         -p:ApplicationVersion="${{ github.run_number }}"
-        -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}}
-        -p:AndroidSigningStorePass=${{secrets.KEYSTORE_PASSWORD}}
         -p:AndroidPackageFormat=apk
+        -p:AndroidSigningEnabled=${{ env.ENABLE_CODE_SIGNING }}
+        ${{ env.ENABLE_CODE_SIGNING == 'true' && format('-p:AndroidSigningKeyPass={0} -p:AndroidSigningStorePass={1}', secrets.KEYSTORE_PASSWORD, secrets.KEYSTORE_PASSWORD) || '' }}
 
     - name: Build MAUI Android (AAB) for Release
       if: github.event_name == 'release' && github.event.action == 'published'

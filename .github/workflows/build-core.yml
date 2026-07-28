@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   build-test-core:
-    runs-on: ubuntu-latest
+    runs-on: windows-2025
     name: BrickController Core Build
     steps:
     - uses: actions/checkout@v6

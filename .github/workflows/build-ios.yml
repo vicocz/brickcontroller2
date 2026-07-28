@@ -33,7 +33,7 @@ env:
   XCODE_VERSION: '26.6'
   TARGET_FRAMEWORK: 'net10.0-ios'
   TARGET_RUNTIME: 'ios-arm64'
-  IOS_TRIM_MODE: ${{ (github.event_name == 'release' && github.event.action == 'published') && 'Full' || 'None' }}
+  ENABLE_CODE_SIGNING: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
 
 jobs:
   build-ios:
@@ -74,12 +74,14 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Import Code-Signing Certificates
+      if: env.ENABLE_CODE_SIGNING == 'true'
       uses: Apple-Actions/import-codesign-certs@v7
       with:
         p12-file-base64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
         p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
 
     - name: Download Apple Provisioning Profiles
+      if: env.ENABLE_CODE_SIGNING == 'true'
       uses: Apple-Actions/download-provisioning-profiles@v6
       with:
         bundle-id: 'cz.vico.brickcontrollerlegacy'
@@ -88,6 +90,7 @@ jobs:
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 
     - name: List Keychain Certificates
+      if: env.ENABLE_CODE_SIGNING == 'true'
       run: security find-identity -v -p codesigning
             
     - name: Restore Dependencies
@@ -99,12 +102,13 @@ jobs:
         -c Release
         -f ${{ env.TARGET_FRAMEWORK }}
         -r ${{ env.TARGET_RUNTIME }}
-        -p:ApplicationId="'cz.vico.brickcontrollerlegacy"
+        -p:ApplicationId="cz.vico.brickcontrollerlegacy"
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:ArchiveOnBuild=true
         -p:CodesignKey="iPhone Distribution"
         -p:CodesignProvision=Automatic
         -p:EnableAssemblyILStripping=false
+        -p:EnableCodeSigning=${{ env.ENABLE_CODE_SIGNING }}
 
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/

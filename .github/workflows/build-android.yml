@@ -64,10 +64,12 @@ jobs:
 
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2.Android/BrickController2.Android.csproj
-    - name: Setup Android signing 
+
+    - name: Setup Android signing
       if: env.ENABLE_CODE_SIGNING == 'true'
-      shell: bash   
-      run: (echo "${{secrets.KEYSTORE}}" | base64 --decode) > BrickController2/BrickController2.Android/keystore.jks
+      shell: bash
+      working-directory: BrickController2/BrickController2.Android
+      run: (echo "${{secrets.KEYSTORE}}" | base64 --decode) > keystore.jks
 
     - name: Build MAUI Android (APK)
       run: >-

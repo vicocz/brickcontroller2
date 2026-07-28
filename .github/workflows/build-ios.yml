@@ -104,7 +104,7 @@ jobs:
         -r ${{ env.TARGET_RUNTIME }}
         -p:ApplicationId="cz.vico.brickcontrollerlegacy"
         -p:ApplicationVersion="${{ github.run_number }}"
-        -p:ArchiveOnBuild=true
+        -p:ArchiveOnBuild=${{ env.ENABLE_CODE_SIGNING }}
         -p:CodesignKey="iPhone Distribution"
         -p:CodesignProvision=Automatic
         -p:EnableAssemblyILStripping=false
@@ -113,11 +113,19 @@ jobs:
     - name: List build output
       run: ls -R BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/
 
-    - name: Upload IOS Artifact
+    - name: Upload IOS Artifact (signed)
+      if: env.ENABLE_CODE_SIGNING == 'true'
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
         path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+
+    - name: Upload IOS Artifact (unsigned, PR)
+      if: env.ENABLE_CODE_SIGNING == 'false'
+      uses: actions/upload-artifact@v7
+      with:
+        name: brickcontroller-ios-ci-build
+        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/BrickController2.iOS.app
 
     - name: Upload Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'

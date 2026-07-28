@@ -10,7 +10,7 @@ namespace BrickController2.Tests.DeviceManagement.MouldKing;
 
 public class MouldKing_MK6_DatagramTests
 {
-    private static readonly byte[] AppIdentifier = [0x61, 0x62, 0x63];
+    private static readonly byte[] AppIdentifier = [0x61, 0x62];
 
     /// <summary>
     /// This class is a testable subclass of MK6 that exposes the protected TryGetTelegram method for testing purposes.

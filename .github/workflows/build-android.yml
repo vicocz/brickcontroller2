@@ -79,7 +79,7 @@ jobs:
         --no-restore
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:AndroidPackageFormat=apk
-        -p:AndroidSigningEnabled=${{ env.ENABLE_CODE_SIGNING }}
+        -p:AndroidKeyStore=${{ env.ENABLE_CODE_SIGNING }}
         ${{ env.ENABLE_CODE_SIGNING == 'true' && format('-p:AndroidSigningKeyPass={0} -p:AndroidSigningStorePass={1}', secrets.KEYSTORE_PASSWORD, secrets.KEYSTORE_PASSWORD) || '' }}
 
     - name: Build MAUI Android (AAB) for Release

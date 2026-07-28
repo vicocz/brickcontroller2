@@ -68,7 +68,7 @@ public class MouldKing_MK6_DatagramTests
 
         device.TestTryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(expectedPayloadIdentifier1);
-        payload[9].Should().Be(expectedPayloadIdentifier2);
+        payload[7].Should().Be(expectedPayloadIdentifier2);
     }
 
     /// <summary>

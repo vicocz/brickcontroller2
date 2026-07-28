@@ -6,7 +6,7 @@
 [assembly: AssemblyTitle("BrickController2")]
 [assembly: AssemblyDescription("Cross platform mobile application for controlling Lego creations using a bluetooth gamepad.")]
 [assembly: AssemblyProduct("BrickController2")]
-[assembly: AssemblyCopyright("Copyright © 2024")]
+[assembly: AssemblyCopyright("Copyright © 2026")]
 
 // Version information for an assembly consists of the following four values:
 //

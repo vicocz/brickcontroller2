@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
+  <PropertyGroup>
     <TargetFrameworks>net10.0-ios</TargetFrameworks>
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-		<SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
-		<ApplicationId>com.scn.BrickController2</ApplicationId>
-		<RootNamespace>BrickController2.iOS</RootNamespace>
+    <ApplicationId>com.scn.BrickController2</ApplicationId>
+    <RootNamespace>BrickController2.iOS</RootNamespace>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
@@ -26,10 +26,6 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
 		<PackageReference Include="Microsoft.Maui.Essentials" />
 		<ProjectReference Include="..\BrickController2\BrickController2.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Properties\" />
 	</ItemGroup>
 
 	<ItemGroup>

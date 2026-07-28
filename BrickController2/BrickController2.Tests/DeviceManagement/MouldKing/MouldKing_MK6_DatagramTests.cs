@@ -13,23 +13,6 @@ public class MouldKing_MK6_DatagramTests
     private static readonly byte[] AppIdentifier = [0x61, 0x62];
 
     /// <summary>
-    /// This class is a testable subclass of MK6 that exposes the protected TryGetTelegram method for testing purposes.
-    /// </summary>
-    private class TestableMK6 : MK6
-    {
-        public TestableMK6(string name, string address, byte[] deviceData,
-            IDeviceRepository deviceRepository, IBluetoothLEService bleService,
-            IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
-            : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager)
-        {
-        }
-
-        // Expose the protected method for testing
-        public bool TestTryGetTelegram(bool getConnectTelegram, out byte[] payload)
-            => TryGetTelegram(getConnectTelegram, out payload);
-    }
-
-    /// <summary>
     /// This class is a test implementation of the IMKPlatformService interface that simulates the behavior of the TryGetRfPayload method for testing purposes.
     /// It always returns true and sets the rfPayload to the rawData provided.
     /// </summary>
@@ -64,9 +47,9 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device3, 0x6d, 0x92)]
     public void MK6_TryGetTelegram_ConnectDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
     {
-        TestableMK6 device = new TestableMK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
-        device.TestTryGetTelegram(true, out byte[] payload).Should().BeTrue();
+        device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(expectedPayloadIdentifier1);
         payload[7].Should().Be(expectedPayloadIdentifier2);
     }
@@ -81,9 +64,9 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device3)]
     public void MK6_TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
     {
-        TestableMK6 device = new TestableMK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
-        device.TestTryGetTelegram(true, out byte[] payload).Should().BeTrue();
+        device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier[0]);
         payload[2].Should().Be(AppIdentifier[1]);
     }
@@ -100,9 +83,9 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device3, 0x63, 0x9c)]
     public async Task MK6_TryGetTelegram_CommandDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
     {
-        TestableMK6 device = new TestableMK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
-        device.TestTryGetTelegram(false, out byte[] payload).Should().BeTrue();
+        device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(expectedPayloadIdentifier1);
         payload[9].Should().Be(expectedPayloadIdentifier2);
     }
@@ -117,9 +100,9 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device3)]
     public async Task MK6_TryGetTelegram_CommandDatagram_AppIdentifier(string deviceAddress)
     {
-        TestableMK6 device = new TestableMK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
-        device.TestTryGetTelegram(false, out byte[] payload).Should().BeTrue();
+        device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier[0]);
         payload[2].Should().Be(AppIdentifier[1]);
     }
@@ -156,7 +139,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device3, new float[] { -9.0f, -9.0f, -9.0f, -9.0f, -9.0f, -9.0f }, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]  // all channels below minimum, should be clamped to minimum
     public async Task MK6_Check_CommandDatagram_Payload(string deviceAddress, float[] setValues, byte[] expectedPayload)
     {
-        TestableMK6 device = new TestableMK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         // Set the output values for the device
         for (int i = 0; i < setValues.Length; i++)
@@ -165,7 +148,7 @@ public class MouldKing_MK6_DatagramTests
         }
 
         // Get the command datagram payload
-        device.TestTryGetTelegram(false, out byte[] payload).Should().BeTrue();
+        device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
 
         // Check that the payload matches the expected values
         for (int i = 0; i < expectedPayload.Length; i++)

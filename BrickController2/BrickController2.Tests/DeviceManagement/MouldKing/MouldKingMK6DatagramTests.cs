@@ -1,39 +1,14 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.MouldKing;
-using BrickController2.PlatformServices.BluetoothLE;
 using FluentAssertions;
 using Moq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.MouldKing;
 
-public class MouldKing_MK6_DatagramTests
+public sealed class MouldKingMK6DatagramTests : MouldKingDatagramTestsBase
 {
-    private static readonly byte[] AppIdentifier = [0x61, 0x62];
-
-    /// <summary>
-    /// This class is a test implementation of the IMKPlatformService interface that simulates the behavior of the TryGetRfPayload method for testing purposes.
-    /// It always returns true and sets the rfPayload to the rawData provided.
-    /// </summary>
-    private class TestMKPlatformService : IMKPlatformService
-    {
-        public bool TryGetRfPayload(byte[] rawData, out byte[] rfPayload)
-        {
-            rfPayload = rawData;
-            return true; // Simulate success
-        }
-    }
-
-    private readonly Mock<IDeviceRepository> _deviceRepository = new(MockBehavior.Strict);
-    private readonly Mock<IBluetoothLEService> _bluetoothLEService = new(MockBehavior.Strict);
-    private readonly Mock<IMouldKingDeviceManager> _manager = new(MockBehavior.Strict);
-    private readonly TestMKPlatformService _mkPlatformService = new();
-
-    public MouldKing_MK6_DatagramTests()
-    {
-        _manager.Setup(x => x.GetAppId()).Returns(AppIdentifier);
-    }
+    private readonly Mock<IDeviceRepository> _deviceRepository = new(MockBehavior.Strict); // IDeviceRepository is defined as internal, so we can't declare it as a field in the base class. We need to declare it here in the derived class.
 
     /// <summary>
     /// This test checks that the payload identifiers are correctly set in the connect datagram for each device address.
@@ -45,7 +20,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device1, 0x6d, 0x92)]
     [InlineData(MK6.Device2, 0x6d, 0x92)]
     [InlineData(MK6.Device3, 0x6d, 0x92)]
-    public void MK6_TryGetTelegram_ConnectDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
+    public void TryGetTelegram_ConnectDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
     {
         MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
@@ -62,7 +37,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device1)]
     [InlineData(MK6.Device2)]
     [InlineData(MK6.Device3)]
-    public void MK6_TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
+    public void TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
     {
         MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
@@ -81,7 +56,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device1, 0x61, 0x9e)]
     [InlineData(MK6.Device2, 0x62, 0x9d)]
     [InlineData(MK6.Device3, 0x63, 0x9c)]
-    public async Task MK6_TryGetTelegram_CommandDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
+    public void TryGetTelegram_CommandDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
     {
         MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
@@ -98,7 +73,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device1)]
     [InlineData(MK6.Device2)]
     [InlineData(MK6.Device3)]
-    public async Task MK6_TryGetTelegram_CommandDatagram_AppIdentifier(string deviceAddress)
+    public void TryGetTelegram_CommandDatagram_AppIdentifier(string deviceAddress)
     {
         MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
@@ -137,7 +112,7 @@ public class MouldKing_MK6_DatagramTests
     [InlineData(MK6.Device3, new float[] { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f }, new byte[] { 0x80, 0x80, 0x80, 0x80, 0x80, 0x80 })]        // all channels neutral
     [InlineData(MK6.Device3, new float[] { 9.0f, 9.0f, 9.0f, 9.0f, 9.0f, 9.0f }, new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff })]        // all channels above maximum, should be clamped to maximum
     [InlineData(MK6.Device3, new float[] { -9.0f, -9.0f, -9.0f, -9.0f, -9.0f, -9.0f }, new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 })]  // all channels below minimum, should be clamped to minimum
-    public async Task MK6_Check_CommandDatagram_Payload(string deviceAddress, float[] setValues, byte[] expectedPayload)
+    public void TryGetTelegram_CommandDatagram_Payload(string deviceAddress, float[] setValues, byte[] expectedPayload)
     {
         MK6 device = new MK6("MK6", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 

@@ -44,10 +44,28 @@ jobs:
     - name: Build MAUI Core tests
       run: dotnet build BrickController2/BrickController2.Tests/BrickController2.Tests.csproj -c Release
     - name: Run MAUI Core tests
-      run: dotnet test BrickController2/BrickController2.Tests/BrickController2.Tests.csproj -c Release --no-build --logger "trx;LogFileName=test-results.trx" --results-directory TestResults
-    - name: Upload Test Results
+      run: >-
+        dotnet test BrickController2/BrickController2.Tests/BrickController2.Tests.csproj
+        -c Release --no-build
+        --logger "trx;LogFileName=test-results.trx"
+        --results-directory TestResults
+        --collect:"XPlat Code Coverage"
+    - name: Generate Coverage Report
+      if: always()
+      uses: danielpalme/ReportGenerator-GitHub-Action@5
+      with:
+        reports: 'TestResults/**/coverage.cobertura.xml'
+        targetdir: 'CoverageReport'
+        reporttypes: 'Html;MarkdownSummaryGithub'
+
+    - name: Upload Coverage Report (HTML)
       if: always()
       uses: actions/upload-artifact@v7
       with:
-        name: test-results
-        path: TestResults/**/*.trx
+        name: coverage-report
+        path: CoverageReport
+
+    - name: Add Coverage Summary to Job Summary
+      if: always()
+      shell: bash
+      run: cat CoverageReport/SummaryGithub.md >> $GITHUB_STEP_SUMMARY

@@ -4,26 +4,23 @@ on:
   push:
     branches:
       - default
-      - 'releases/**'
+      - 'release/**'
     paths:
       - '.github/**/*windows.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.WinUI/**'
   pull_request:
     branches:    
       - default
-      - 'releases/**'
+      - 'release/**'
     paths:
       - '.github/**/*windows.yml'
-      - 'BrickController2/*.props'
-      - 'BrickController2/*.sln'
+      - '*.props'
+      - '*.slnx'
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.WinUI/**'
-  release:
-    types:
-      - published
   workflow_dispatch:
 
 permissions:
@@ -31,89 +28,44 @@ permissions:
 
 env:
   PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
+  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-windows'
+  TARGET_RUNTIME: 'win-x64'
 
 jobs:
   build-winui:
     runs-on: windows-2025
     name: BrickController WinUI Build
-    env:
-      APP_DISPLAY_VERSION: ""
-      APP_PACKAGE_VERSION: ""
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: ${{ vars.DOTNET_VERSION }}
 
     - name: Install .NET MAUI Workload
       run: dotnet workload install maui-windows
 
-    - name: Find Current Release Info
-      if: github.event_name == 'release' && github.event.action == 'published'
-      id: get_release
-      uses: octokit/request-action@v2.x
-      with:
-        route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set app version for release
-      if: github.event_name == 'release' && github.event.action == 'published'
-      shell: bash
-      run: |
-        TAG_NAME=$(echo '${{ fromJson(steps.get_release.outputs.data).tag_name }}')
-        # Split the tag into parts, remove leading zeros and add missing parts as zeros
-        IFS='.' read -r -a VERSION_PARTS <<< "$TAG_NAME"  
-        for i in "${!VERSION_PARTS[@]}"; do  
-          VERSION_PARTS[$i]=$(echo "${VERSION_PARTS[$i]}" | sed 's/^0*//')  
-        done  
-        echo "APP_DISPLAY_VERSION=$TAG_NAME" >> $GITHUB_ENV  
-        echo "APP_PACKAGE_VERSION=${VERSION_PARTS[0]:-0}.${VERSION_PARTS[1]:-0}.${VERSION_PARTS[2]:-0}.${VERSION_PARTS[3]:-0}" >> $GITHUB_ENV
-
-    - name: Decode Signing Certificate
-      run: |
-        echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
-        certutil -decode cert.asc cert.pfx
-
-    - name: Install Signing Certificate
-      run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
-            
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
 
     - name: Build
       run: dotnet build ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win-x64 `
+        -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
-        -p:ApplicationDisplayVersion="${{ env.APP_DISPLAY_VERSION }}" `
-        -p:ApplicationVersion="0" `
-        -p:PackageVersion="${{ env.APP_PACKAGE_VERSION }}"
+        -p:ApplicationVersion="${{ github.run_number }}"
 
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win-x64 `
+        -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
         -p:GenerateAppxPackageOnBuild=true `
-        -p:AppxPackageSigningEnabled=true `
-        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
+        -p:AppxPackageSigningEnabled=false
 
     - name: Upload WinUI Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-winui-ci-build
         path: .\**\AppPackages\**\BrickController*.msix
-
-    - name: Upload Artifact to Release
-      if: github.event_name == 'release' && github.event.action == 'published'
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\AppPackages\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_Test\BrickController2.WinUI_${{env.APP_PACKAGE_VERSION}}_x64.msix
-        asset_name: BrickController2_${{env.APP_DISPLAY_VERSION}}.msix
-        asset_content_type: application/vnd.ms-appx
-      env:
-        GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

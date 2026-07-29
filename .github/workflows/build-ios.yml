@@ -1,0 +1,78 @@
+name: Build BrickController iOS 
+
+on:
+  push:
+    branches:
+      - default
+      - 'release/**'
+    paths:
+      - '.github/**/*ios.yml'
+      - '*.props'
+      - '*.slnx'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.iOS/**'
+  pull_request:
+    branches:    
+      - default
+      - 'release/**'
+    paths:
+      - '.github/**/*ios.yml'
+      - '*.props'
+      - '*.slnx'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.iOS/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  XCODE_VERSION: ${{ vars.XCODE_VERSION }}
+  PROJECT_PATH: "BrickController2/BrickController2.iOS/BrickController2.iOS.csproj"
+  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-ios'
+  TARGET_RUNTIME: 'ios-arm64'
+  
+jobs:
+  build-ios:
+    runs-on: macos-26
+    name: BrickController iOS Build
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: ${{ vars.DOTNET_VERSION }}
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-ios
+
+    - name: Set XCode Version
+      shell: bash
+      run: |
+        sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
+        echo "MD_APPLE_SDK_ROOT=/Applications/Xcode_${{ env.XCODE_VERSION }}.app" >> $GITHUB_ENV
+
+    - name: Verify Xcode version
+      run: xcodebuild -version
+
+    - name: Restore Dependencies
+      run: dotnet restore ${{env.PROJECT_PATH}}
+
+    - name: Build MAUI iOS
+      run: >-
+        dotnet publish ${{env.PROJECT_PATH}}
+        --no-restore
+        -c Release
+        -f ${{ env.TARGET_FRAMEWORK }}
+        -r ${{ env.TARGET_RUNTIME }}
+        -p:ApplicationVersion="${{ github.run_number }}"
+        -p:ArchiveOnBuild=false
+        -p:EnableCodeSigning=false
+
+    - name: Upload IOS Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: brickcontroller-ios-ci-build
+        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+

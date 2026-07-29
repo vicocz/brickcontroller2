@@ -66,7 +66,6 @@ jobs:
         -c Release
         -f ${{ env.TARGET_FRAMEWORK }}
         -r ${{ env.TARGET_RUNTIME }}
-        -p:ApplicationId="cz.vico.brickcontrollerlegacy"
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:ArchiveOnBuild=false
         -p:EnableCodeSigning=false

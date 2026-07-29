@@ -52,7 +52,6 @@ jobs:
     - name: Build
       run: dotnet build ${{env.PROJECT_PATH}} `
         -c Release `
-        -f ${{ env.TARGET_FRAMEWORK }} `
         -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
         -p:ApplicationVersion="${{ github.run_number }}"

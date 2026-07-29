@@ -28,7 +28,7 @@ permissions:
 
 env:
   PROJECT_PATH: "BrickController2/BrickController2.Android/BrickController2.Android.csproj"
-  ENABLE_CODE_SIGNING: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
+  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-android'
 
 jobs:
   build-android:

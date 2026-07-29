@@ -75,5 +75,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
-        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.app
+        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
 

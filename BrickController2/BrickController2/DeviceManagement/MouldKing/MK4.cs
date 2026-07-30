@@ -17,7 +17,7 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// Telegram to connect to the MK4.0 device(s)
     /// This telegram is sent on init and on reconnect conditions matching
     /// </summary>
-    private static readonly byte[] Telegram_Connect = new byte[] { 0xAD, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0x52 };
+    private static readonly byte[] Telegram_Connect = [0xAD, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0x52];
 
     /// <summary>
     /// Base Telegram for MK4.0
@@ -26,7 +26,7 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// * channels 0..3 for Device2 start at offset 5 and are analog channels
     /// * channels 0..3 for Device3 start at offset 7 and are analog channels
     /// </summary>
-    private static readonly byte[] Telegram_Base = new byte[] { 0x7D, 0x7B, 0xA7, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82 };
+    private static readonly byte[] Telegram_Base = [0x7D, 0x7B, 0xA7, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -156,4 +156,16 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
         Device3 => 2,
         _ => throw new ArgumentException($"Illegal Argument: \"{address}\"", nameof(address))
     };
+
+    /// <summary>
+    /// Resets the state of the base telegram.
+    /// This is needed for testing purposes to ensure that the base telegram is in a known state before each test is executed.
+    /// </summary>
+    internal static void ResetBaseTelegram()
+    {
+        for (int index = 3; index <= 8; index++)
+        {
+            Telegram_Base[index] = 0x88;
+        }
+    }
 }

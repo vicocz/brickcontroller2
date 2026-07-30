@@ -15,6 +15,7 @@ internal class JieStar : Vendor<JieStar>
     {
         // device manager
         builder.ContainerBuilder.RegisterType<JieStarDeviceManager>()
+            .As<IJieStarDeviceManager>()
             .SingleInstance();
 
         // manually added devices

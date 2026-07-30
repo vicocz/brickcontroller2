@@ -9,7 +9,7 @@ namespace BrickController2.Tests.DeviceManagement.JieStar;
 
 public class JieStarDeviceManagerTests
 {
-    private readonly JieStarDeviceManager _manager;
+    private readonly IJieStarDeviceManager _manager;
     private readonly Mock<IPreferencesService> _preferencesService = new(MockBehavior.Strict);
 
     public JieStarDeviceManagerTests()

@@ -55,6 +55,10 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
 
         _telegram_Base[1] = appId[0];
         _telegram_Base[2] = appId[1];
+
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>

@@ -63,6 +63,22 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
     /// <summary>
+    /// This method sets the device to initial state before advertising starts
+    /// All channels are initialized with zeroValue.
+    /// </summary>
+    protected override void InitDevice()
+    {
+        base.InitDevice();
+
+        // Reset the base telegram to its initial state for all channels and all instances to the default value of 0x88.
+        // Because the 3 instances of the MK4.0 device are using the same static Telegram_Base, we need to reset the values for all channels of all instances.
+        for (int index = 3; index <= 8; index++)
+        {
+            Telegram_Base[index] = 0x88;
+        }
+    }
+
+    /// <summary>
     /// Get or create BluetoothAdvertisingDeviceHandler
     /// </summary>
     /// <returns>Instance of BluetoothAdvertisingDeviceHandler</returns>
@@ -156,16 +172,4 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
         Device3 => 2,
         _ => throw new ArgumentException($"Illegal Argument: \"{address}\"", nameof(address))
     };
-
-    /// <summary>
-    /// Resets the state of the base telegram.
-    /// This is needed for testing purposes to ensure that the base telegram is in a known state before each test is executed.
-    /// </summary>
-    internal static void ResetBaseTelegram()
-    {
-        for (int index = 3; index <= 8; index++)
-        {
-            Telegram_Base[index] = 0x88;
-        }
-    }
 }

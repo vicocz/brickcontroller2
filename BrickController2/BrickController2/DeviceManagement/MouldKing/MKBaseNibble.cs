@@ -62,6 +62,9 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         _telegram_Base[2] = appId[1];
 
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>

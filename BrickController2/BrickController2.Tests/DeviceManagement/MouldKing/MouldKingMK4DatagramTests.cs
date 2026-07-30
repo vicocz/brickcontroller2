@@ -26,7 +26,6 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
     [InlineData(MK4.Device3)]
     public void TryGetTelegram_ConnectDatagram_PayloadIdentifier(string deviceAddress)
     {
-        MK4.ResetBaseTelegram(); // Resets the state of the base telegram.
         MK4 device = new MK4("MK4", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
@@ -44,7 +43,6 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
     [InlineData(MK4.Device3)]
     public void TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
     {
-        MK4.ResetBaseTelegram(); // Resets the state of the base telegram.
         MK4 device = new MK4("MK4", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
@@ -62,7 +60,6 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
     [InlineData(MK4.Device3)]
     public void TryGetTelegram_CommandDatagram_PayloadIdentifier(string deviceAddress)
     {
-        MK4.ResetBaseTelegram(); // Resets the state of the base telegram.
         MK4 device = new MK4("MK4", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
@@ -80,7 +77,6 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
     [InlineData(MK4.Device3)]
     public void TryGetTelegram_CommandDatagram_AppIdentifier(string deviceAddress)
     {
-        MK4.ResetBaseTelegram(); // Resets the state of the base telegram.
         MK4 device = new MK4("MK4", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
@@ -116,7 +112,6 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
     [InlineData(MK4.Device3, new float[] { -9.0f, -9.0f, -9.0f, -9.0f }, new byte[] { PayloadIdentifierCommand1, AppIdentifier1, AppIdentifier2, 0x88, 0x88, 0x88, 0x88, 0x77, 0x77, PayloadIdentifierCommand2 })]  // all channels below minimum, should be clamped to minimum
     public void TryGetTelegram_CommandDatagram_Payload(string deviceAddress, float[] setValues, byte[] expectedPayload)
     {
-        MK4.ResetBaseTelegram(); // Resets the state of the base telegram.
         MK4 device = new MK4("MK4", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         // Set the output values for the device

@@ -6,7 +6,10 @@ namespace BrickController2.Tests.DeviceManagement.MouldKing;
 
 public abstract class MouldKingDatagramTestsBase
 {
-    protected static readonly byte[] AppIdentifier = [0x61, 0x62];
+    protected const byte AppIdentifier1 = 0x61; // This is the first byte of an randomly choosen AppIdentifier for UnitTesting
+    protected const byte AppIdentifier2 = 0x62; // This is the second byte of an randomly choosen AppIdentifier for UnitTesting
+
+    protected static readonly byte[] AppIdentifier = [AppIdentifier1, AppIdentifier2];
 
     /// <summary>
     /// This class is a test implementation of the IMKPlatformService interface that simulates the behavior of the TryGetRfPayload method for testing purposes.

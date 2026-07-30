@@ -187,32 +187,14 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// This method sets the device to initial state before advertising starts
     /// All channels are initialized with zeroValue.
     /// </summary>
-    protected override void InitDevice()
-    {
-        const float zeroValue = 0.0f;
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            _storedValues[channelNo] = zeroValue;   // restore stored values to zero
-            SetChannelOutput(channelNo, zeroValue); // set all channels to zero using the channel specific function
-        }
-    }
+    protected override void InitDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Disconnects the device and resets the output state of all channels to zero.
     /// </summary>
     /// <remarks>This method ensures that all channels are set to a zero output state during the disconnection
     /// process. It is intended to be called as part of the device's disconnection workflow.</remarks>
-    protected override void DisconnectDevice()
-    {
-        const float zeroValue = 0.0f;
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            // call _bluetoothAdvertisingDeviceHandler.SetChannelState() to set global channel state to zero
-            SetChannelOutput(channelNo, zeroValue);
-        }
-    }
+    protected override void DisconnectDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Attempts to retrieve the RF payload for the specified telegram type.
@@ -272,5 +254,19 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         // instance 1:  4.. 7
         // instance 2:  8..11
         return _instanceNo * NumberOfChannels + channelNo;
+    }
+
+    /// <summary>
+    /// Resets the value and the output state of all channels to zero.
+    /// </summary>
+    private void ResetAllChannelsToZero()
+    {
+        const float zeroValue = 0.0f;
+
+        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+        {
+            _storedValues[channelNo] = zeroValue;
+            SetChannelOutput(channelNo, zeroValue);
+        }
     }
 }

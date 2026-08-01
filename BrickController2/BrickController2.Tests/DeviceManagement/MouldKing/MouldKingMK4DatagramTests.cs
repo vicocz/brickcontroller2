@@ -142,4 +142,47 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
 
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
+
+    /// <summary>
+    /// This test checks that the command datagram payload is correctly constructed based on the set output values for multiple devices, ensuring that each device's payload is independent of the others.
+    /// </summary>
+    [Fact]
+    public void TryGetTelegram_CommandDatagram_InstanceInteraction()
+    {
+        // Attention! - the MK4 devices static base telegram is interacted by all instances!
+
+        float[] setValues_1 = [1.0f, 1.0f, 1.0f, 1.0f];
+        byte[] expectedPayload_1 = [PayloadIdentifierCommand1, AppIdentifier1, AppIdentifier2, 0xff, 0xff, 0x88, 0x88, 0x88, 0x88, PayloadIdentifierCommand2];
+
+        float[] setValues_2 = [0.0f, 0.0f, 0.0f, 0.0f];
+        byte[] expectedPayload_2 = [PayloadIdentifierCommand1, AppIdentifier1, AppIdentifier2, 0xff, 0xff, 0x88, 0x88, 0x88, 0x88, PayloadIdentifierCommand2];
+
+        float[] setValues_3 = [0.0f, 0.0f, 0.0f, 0.0f];
+        byte[] expectedPayload_3 = [PayloadIdentifierCommand1, AppIdentifier1, AppIdentifier2, 0xff, 0xff, 0x88, 0x88, 0x88, 0x88, PayloadIdentifierCommand2];
+
+        MK4 device1 = new MK4("MK4", MK4.Device1, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK4 device2 = new MK4("MK4", MK4.Device2, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK4 device3 = new MK4("MK4", MK4.Device3, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+
+        // Set the output values for the device
+        for (int i = 0; i < setValues_1.Length; i++)
+        {
+            device1.SetOutput(i, setValues_1[i]);
+            device2.SetOutput(i, setValues_2[i]);
+            device3.SetOutput(i, setValues_3[i]);
+        }
+
+        // Get the command datagram payload
+        device1.TryGetTelegram(false, out byte[] payload1).Should().BeTrue();
+        device2.TryGetTelegram(false, out byte[] payload2).Should().BeTrue();
+        device3.TryGetTelegram(false, out byte[] payload3).Should().BeTrue();
+
+        // Check that the payload matches the expected values
+        for (int i = 0; i < expectedPayload_1.Length; i++)
+        {
+            payload1[i].Should().Be(expectedPayload_1[i]);
+            payload2[i].Should().Be(expectedPayload_2[i]);
+            payload3[i].Should().Be(expectedPayload_3[i]);
+        }
+    }
 }

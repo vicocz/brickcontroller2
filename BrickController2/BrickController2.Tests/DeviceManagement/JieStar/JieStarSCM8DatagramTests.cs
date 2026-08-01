@@ -148,4 +148,45 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
 
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
+
+    /// <summary>
+    /// This test checks that the command datagram payload is correctly constructed based on the set output values for multiple devices, ensuring that each device's payload is independent of the others.
+    /// </summary>
+    [Fact]
+    public void TryGetTelegram_CommandDatagram_InstanceInteraction()
+    {
+        float[] setValues_1 = [1.0f, 1.0f, 1.0f, 1.0f];
+        byte[] expectedPayload_1 = [PayloadIdentifierCommand1_1, AppIdentifier1, AppIdentifier2, 0xff, 0xff, 0x00, 0x00, PayloadIdentifierCommand1_2];
+
+        float[] setValues_2 = [0.0f, 0.0f, 0.0f, 0.0f];
+        byte[] expectedPayload_2 = [PayloadIdentifierCommand2_1, AppIdentifier1, AppIdentifier2, 0x00, 0x00, 0x00, 0x00, PayloadIdentifierCommand2_2];
+
+        float[] setValues_3 = [0.0f, 0.0f, 0.0f, 0.0f];
+        byte[] expectedPayload_3 = [PayloadIdentifierCommand3_1, AppIdentifier1, AppIdentifier2, 0x00, 0x00, 0x00, 0x00, PayloadIdentifierCommand3_2];
+
+        JieStarSCM8 device1 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device1, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device2 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device2, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device3 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device3, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+
+        // Set the output values for the device
+        for (int i = 0; i < setValues_1.Length; i++)
+        {
+            device1.SetOutput(i, setValues_1[i]);
+            device2.SetOutput(i, setValues_2[i]);
+            device3.SetOutput(i, setValues_3[i]);
+        }
+
+        // Get the command datagram payload
+        device1.TryGetTelegram(false, out byte[] payload1).Should().BeTrue();
+        device2.TryGetTelegram(false, out byte[] payload2).Should().BeTrue();
+        device3.TryGetTelegram(false, out byte[] payload3).Should().BeTrue();
+
+        // Check that the payload matches the expected values
+        for (int i = 0; i < expectedPayload_1.Length; i++)
+        {
+            payload1[i].Should().Be(expectedPayload_1[i]);
+            payload2[i].Should().Be(expectedPayload_2[i]);
+            payload3[i].Should().Be(expectedPayload_3[i]);
+        }
+    }
 }

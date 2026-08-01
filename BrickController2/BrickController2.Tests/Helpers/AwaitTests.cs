@@ -20,7 +20,7 @@ public class AwaitTests
 
         var result = await Await.WaitForStableValueAsync(GetValue,
             IsStable,
-            TimeSpan.FromMilliseconds(500));
+            TimeSpan.FromMilliseconds(500), TestContext.Current.CancellationToken);
 
         result.Should().BeTrue();
     }
@@ -34,7 +34,7 @@ public class AwaitTests
         var result = await Await.WaitForStableValueAsync(
             GetValue,
             IsStable,
-            TimeSpan.FromMilliseconds(500));
+            TimeSpan.FromMilliseconds(500), TestContext.Current.CancellationToken);
 
         result.Should().BeFalse();
     }
@@ -65,7 +65,7 @@ public class AwaitTests
         var result = await Await.WaitForStableValueAsync(
             GetValue,
             IsStable,
-            TimeSpan.FromSeconds(1));
+            TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
 
         result.Should().BeTrue();
     }

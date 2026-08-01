@@ -23,8 +23,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     name: BrickController Android Build
-    env:
-      PROJECT_PATH: "${{ env.PROJECT_FOLDER }}/BrickController2.Android.csproj"
 
     steps:
     - uses: actions/checkout@v6
@@ -35,11 +33,11 @@ jobs:
         platform: android
 
     - name: Restore Dependencies
-      run: dotnet restore ${{env.PROJECT_PATH}}
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.Android.csproj
 
     - name: Build MAUI Android (APK)
       run: >-
-        dotnet publish ${{env.PROJECT_PATH}}
+        dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.Android.csproj
         -c Release
         -f ${{ steps.setup-maui.outputs.target-framework }}
         --no-restore
@@ -51,5 +49,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-android-ci-build
-        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.apk
-
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/*-Signed.apk
+        retention-days: 5

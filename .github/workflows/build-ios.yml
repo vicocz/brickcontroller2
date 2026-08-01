@@ -19,14 +19,12 @@ permissions:
 env:
   XCODE_VERSION: ${{ vars.XCODE_VERSION }}
   PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
+  TARGET_RUNTIME: 'ios-arm64'
 
 jobs:
   build-ios:
     runs-on: macos-26
     name: BrickController iOS Build
-    env:
-      PROJECT_PATH: "${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj"
-      TARGET_RUNTIME: 'ios-arm64'
 
     steps:
     - uses: actions/checkout@v6
@@ -46,11 +44,11 @@ jobs:
       run: xcodebuild -version
 
     - name: Restore Dependencies
-      run: dotnet restore ${{env.PROJECT_PATH}}
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
 
     - name: Build MAUI iOS
       run: >-
-        dotnet publish ${{env.PROJECT_PATH}}
+        dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
         --no-restore
         -c Release
         -f ${{ steps.setup-maui.outputs.target-framework }}
@@ -64,4 +62,4 @@ jobs:
       with:
         name: brickcontroller-ios-ci-build
         path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
-
+        retention-days: 5

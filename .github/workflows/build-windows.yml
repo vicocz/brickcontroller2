@@ -18,14 +18,12 @@ permissions:
 
 env:
   PROJECT_FOLDER: "BrickController2/BrickController2.WinUI"
+  TARGET_RUNTIME: 'win-x64'
 
 jobs:
   build-winui:
     runs-on: windows-2025
     name: BrickController WinUI Build
-    env:
-      PROJECT_PATH: "${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj"
-      TARGET_RUNTIME: 'win-x64'
 
     steps:
     - uses: actions/checkout@v6
@@ -37,17 +35,17 @@ jobs:
         workload-id: maui-windows
 
     - name: Restore Dependencies
-      run: dotnet restore ${{env.PROJECT_PATH}}
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj
 
     - name: Build
-      run: dotnet build ${{env.PROJECT_PATH}} `
+      run: dotnet build ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
         -p:ApplicationVersion="${{ github.run_number }}"
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} `
+      run: dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
@@ -59,3 +57,4 @@ jobs:
       with:
         name: brickcontroller-winui-ci-build
         path: .\**\AppPackages\**\BrickController*.msix
+        retention-days: 5

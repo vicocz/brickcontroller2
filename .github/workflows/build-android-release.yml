@@ -62,8 +62,8 @@ jobs:
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:AndroidPackageFormat=apk
         -p:AndroidKeyStore=true
-        -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}}
-        -p:AndroidSigningStorePass=${{secrets.KEYSTORE_PASSWORD}}
+        -p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}"
+        -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
 
     - name: Build MAUI Android (AAB) for Release
       if: github.event_name == 'release' && github.event.action == 'published'

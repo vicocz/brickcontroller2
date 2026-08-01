@@ -1,4 +1,4 @@
-﻿name: Setup MAUI
+name: Setup MAUI
 description: Installs the .NET SDK pinned in global.json, optionally installs the MAUI workload for a platform, and exposes the full target framework moniker (e.g. net10.0-android) as an output.
 inputs:
   platform:
@@ -32,10 +32,15 @@ runs:
     - id: tfm
       shell: bash
       run: |
-        VERSION=$(jq -r '.sdk.version' global.json | cut -d. -f1,2)
-        BASE="net$VERSION"
+        DOTNET_VERSION=$(dotnet --version | cut -d. -f1,2)
+        BASE="net$DOTNET_VERSION"
+        PLATFORM="${{ inputs.platform }}"
         echo "base=$BASE" >> "$GITHUB_OUTPUT"
-        echo "target-framework=$BASE-${{ inputs.platform }}" >> "$GITHUB_OUTPUT"
+        if [ -n "$PLATFORM" ]; then
+          echo "target-framework=$BASE-$PLATFORM" >> "$GITHUB_OUTPUT"
+        else
+          echo "target-framework=$BASE" >> "$GITHUB_OUTPUT"
+        fi
     - name: Install MAUI Workload
       if: inputs.install-workload == 'true'
       shell: bash

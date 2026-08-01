@@ -47,12 +47,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Decode Signing Certificate
+      shell: pwsh
       run: |
-        echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
+        Set-Content -Path cert.asc -Value "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" -NoNewline -Encoding Ascii
         certutil -decode cert.asc cert.pfx
 
     - name: Install Signing Certificate
-      run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
+      run: certutil -user -p "${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}" -Silent -importpfx cert.pfx NoRoot
 
     - name: Restore Dependencies
       run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj

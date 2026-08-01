@@ -1,8 +1,8 @@
 name: Setup Xcode
-description: Selects the Xcode version to build with and verifies it. Falls back to a checked-in default when the caller doesn't supply one (e.g. vars.XCODE_VERSION isn't accessible for forked-repo pull requests).
+description: Selects the Xcode version to build with and verifies it. Falls back to a checked-in default when the caller doesn't supply one (e.g. the XCODE_VERSION repository variable isn't accessible for forked-repo pull requests).
 inputs:
   version:
-    description: Xcode version to select, e.g. 26.6. Typically passed as ${{ vars.XCODE_VERSION }}; when empty, the action's built-in fallback is used.
+    description: Xcode version to select, e.g. 26.6. Typically passed as the XCODE_VERSION repository variable; when empty, the action's built-in fallback is used.
     required: false
     default: ''
 

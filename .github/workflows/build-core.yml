@@ -33,10 +33,10 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: ./.github/actions/setup-maui
       with:
-        dotnet-version: ${{ vars.DOTNET_VERSION }}
-          
+        install-workload: 'false'
+
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2/BrickController2.csproj
     - name: Build MAUI Core

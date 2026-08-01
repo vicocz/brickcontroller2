@@ -28,7 +28,6 @@ permissions:
 
 env:
   PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
-  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-windows'
   TARGET_RUNTIME: 'win-x64'
 
 jobs:
@@ -38,13 +37,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
       with:
-        dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-    - name: Install .NET MAUI Workload
-      run: dotnet workload install maui-windows
+        platform: windows10.0.19041.0
+        workload-id: maui-windows
 
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}

@@ -36,12 +36,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - name: Setup .NET
-      id: setup-dotnet
-      uses: ./.github/actions/setup-dotnet
-
-    - name: Install .NET MAUI Workload
-      run: dotnet workload install maui-android
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
+      with:
+        platform: android
 
     - name: Restore Dependencies
       run: dotnet restore ${{env.PROJECT_PATH}}
@@ -50,7 +49,7 @@ jobs:
       run: >-
         dotnet publish ${{env.PROJECT_PATH}}
         -c Release
-        -f ${{ steps.setup-dotnet.outputs.tfm-base }}-android
+        -f ${{ steps.setup-maui.outputs.target-framework }}
         --no-restore
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:AndroidPackageFormat=apk
@@ -60,5 +59,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-android-ci-build
-        path: BrickController2/BrickController2.Android/bin/Release/${{ steps.setup-dotnet.outputs.tfm-base }}-android/com.scn.BrickController2-Signed.apk
+        path: BrickController2/BrickController2.Android/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.apk
 

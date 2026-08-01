@@ -1,0 +1,44 @@
+﻿name: Setup MAUI
+description: Installs the .NET SDK pinned in global.json, optionally installs the MAUI workload for a platform, and exposes the full target framework moniker (e.g. net10.0-android) as an output.
+inputs:
+  platform:
+    description: MAUI platform suffix appended to the TFM base, e.g. android, ios, maccatalyst, windows10.0.19041.0
+    required: false
+    default: ""
+  install-workload:
+    description: Whether to run dotnet workload install maui-<platform>. Set to false to skip (e.g. for windows).
+    required: false
+    default: "true"
+  workload-id:
+    description: Override the workload id passed to dotnet workload install (defaults to maui-<platform>).
+    required: false
+    default: ""
+outputs:
+  target-framework:
+    description: The full target framework moniker, e.g. net10.0-android
+    value: ${{ steps.tfm.outputs.target-framework }}
+  tfm-base:
+    description: The target framework base moniker without platform suffix, e.g. net10.0
+    value: ${{ steps.tfm.outputs.base }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+    - id: tfm
+      shell: bash
+      run: |
+        VERSION=$(jq -r '.sdk.version' global.json | cut -d. -f1,2)
+        BASE="net$VERSION"
+        echo "base=$BASE" >> "$GITHUB_OUTPUT"
+        echo "target-framework=$BASE-${{ inputs.platform }}" >> "$GITHUB_OUTPUT"
+    - name: Install MAUI Workload
+      if: inputs.install-workload == 'true'
+      shell: bash
+      run: |
+        WORKLOAD_ID="${{ inputs.workload-id }}"
+        if [ -z "$WORKLOAD_ID" ]; then
+          WORKLOAD_ID="maui-${{ inputs.platform }}"
+        fi
+        dotnet workload install "$WORKLOAD_ID"

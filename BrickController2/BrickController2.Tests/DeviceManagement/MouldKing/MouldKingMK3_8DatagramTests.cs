@@ -1,7 +1,5 @@
-﻿using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.MouldKing;
+﻿using BrickController2.DeviceManagement.MouldKing;
 using FluentAssertions;
-using Moq;
 using System;
 using Xunit;
 
@@ -13,8 +11,6 @@ public sealed class MouldKingMK3_8DatagramTests : MouldKingDatagramTestsBase
     private const byte PayloadIdentifierConnect2 = 0xc1;
     private const byte PayloadIdentifierCommand1 = 0x81;
     private const byte PayloadIdentifierCommand2 = 0xc2;
-
-    private readonly Mock<IDeviceRepository> _deviceRepository = new(MockBehavior.Strict); // IDeviceRepository is defined as internal, so we can't declare it as a field in the base class. We need to declare it here in the derived class.
 
     /// <summary>
     /// This test checks that the payload identifiers are correctly set in the connect datagram for each device address.

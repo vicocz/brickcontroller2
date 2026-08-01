@@ -1,7 +1,5 @@
-﻿using BrickController2.DeviceManagement;
-using BrickController2.DeviceManagement.JieStar;
+﻿using BrickController2.DeviceManagement.JieStar;
 using FluentAssertions;
-using Moq;
 using System;
 using Xunit;
 
@@ -17,8 +15,6 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     private const byte PayloadIdentifierCommand2_2 = 0xbe;
     private const byte PayloadIdentifierCommand3_1 = 0x43;
     private const byte PayloadIdentifierCommand3_2 = 0xbd;
-
-    private readonly Mock<IDeviceRepository> _deviceRepository = new(MockBehavior.Strict); // IDeviceRepository is defined as internal, so we can't declare it as a field in the base class. We need to declare it here in the derived class.
 
     /// <summary>
     /// This test checks that the payload identifiers are correctly set in the connect datagram for each device address.

@@ -1,4 +1,5 @@
-﻿using BrickController2.DeviceManagement.MouldKing;
+﻿using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.PlatformServices.BluetoothLE;
 using Moq;
 
@@ -27,6 +28,7 @@ public abstract class MouldKingDatagramTestsBase
     protected readonly Mock<IBluetoothLEService> _bluetoothLEService = new(MockBehavior.Strict);
     protected readonly Mock<IMouldKingDeviceManager> _manager = new(MockBehavior.Strict);
     protected readonly TestMKPlatformService _mkPlatformService = new();
+    internal readonly Mock<IDeviceRepository> _deviceRepository = new(MockBehavior.Strict);
 
     protected MouldKingDatagramTestsBase()
     {

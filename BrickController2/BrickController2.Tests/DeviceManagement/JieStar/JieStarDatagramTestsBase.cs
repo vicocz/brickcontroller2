@@ -1,4 +1,5 @@
-﻿using BrickController2.DeviceManagement.JieStar;
+﻿using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.JieStar;
 using BrickController2.PlatformServices.BluetoothLE;
 using Moq;
 
@@ -27,6 +28,7 @@ public abstract class JieStarDatagramTestsBase
     protected readonly Mock<IBluetoothLEService> _bluetoothLEService = new(MockBehavior.Strict);
     protected readonly Mock<IJieStarDeviceManager> _manager = new(MockBehavior.Strict);
     protected readonly TestJieStarPlatformService _jieStarPlatformService = new();
+    internal readonly Mock<IDeviceRepository> _deviceRepository = new(MockBehavior.Strict);
 
     protected JieStarDatagramTestsBase()
     {

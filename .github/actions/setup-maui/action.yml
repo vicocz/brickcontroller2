@@ -54,4 +54,7 @@ runs:
     - id: app-version
       name: Get App Version from Build Properties
       shell: bash
-      run: echo "version=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)" >> "$GITHUB_OUTPUT"
+      run: |
+        VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Found app version: $VERSION" >> "$GITHUB_STEP_SUMMARY"

@@ -1,18 +1,8 @@
-name: Build BrickController iOS 
+name: Release BrickController iOS 
 
 on:
   push:
     branches:
-      - default
-      - 'release/**'
-    paths:
-      - '.github/**/*ios.yml'
-      - '*.props'
-      - '*.slnx'
-      - 'BrickController2/BrickController2/**'
-      - 'BrickController2/BrickController2.iOS/**'
-  pull_request:
-    branches:    
       - default
       - 'release/**'
     paths:
@@ -31,27 +21,25 @@ permissions:
 
 env:
   XCODE_VERSION: ${{ vars.XCODE_VERSION }}
-  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-ios'
-  TARGET_RUNTIME: 'ios-arm64'
-  ENABLE_CODE_SIGNING: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
+  PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
 
 jobs:
   build-ios:
     runs-on: macos-26
     name: BrickController iOS Build
+    env:
+      PROJECT_PATH: "${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj"
+      TARGET_RUNTIME: 'ios-arm64'
 
     steps:
     - uses: actions/checkout@v6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
       with:
-        dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-    - name: Install MAUI workload
-      run: dotnet workload install maui-ios
+        platform: ios
 
     - name: Set XCode Version
-      if: runner.os == 'macOS'
       shell: bash
       run: |
         sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
@@ -59,10 +47,6 @@ jobs:
 
     - name: Verify Xcode version
       run: xcodebuild -version
-
-    - name: Get App Version from Build Properties
-      shell: bash
-      run: echo "APP_VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)" >> $GITHUB_ENV
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -74,14 +58,12 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Import Code-Signing Certificates
-      if: env.ENABLE_CODE_SIGNING == 'true'
       uses: Apple-Actions/import-codesign-certs@v7
       with:
         p12-file-base64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
         p12-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
 
     - name: Download Apple Provisioning Profiles
-      if: env.ENABLE_CODE_SIGNING == 'true'
       uses: Apple-Actions/download-provisioning-profiles@v6
       with:
         bundle-id: 'cz.vico.brickcontrollerlegacy'
@@ -90,50 +72,41 @@ jobs:
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
 
     - name: List Keychain Certificates
-      if: env.ENABLE_CODE_SIGNING == 'true'
       run: security find-identity -v -p codesigning
             
     - name: Restore Dependencies
-      run: dotnet restore BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
+      run: dotnet restore ${{ env.PROJECT_PATH }}
     - name: Build MAUI iOS
       run: >-
-        dotnet publish BrickController2/BrickController2.iOS/BrickController2.iOS.csproj
+        dotnet publish ${{ env.PROJECT_PATH }}
         --no-restore
         -c Release
-        -f ${{ env.TARGET_FRAMEWORK }}
+        -f ${{ steps.setup-maui.outputs.target-framework }}
         -r ${{ env.TARGET_RUNTIME }}
         -p:ApplicationId="cz.vico.brickcontrollerlegacy"
         -p:ApplicationVersion="${{ github.run_number }}"
-        -p:ArchiveOnBuild=${{ env.ENABLE_CODE_SIGNING }}
+        -p:ArchiveOnBuild=true
         -p:CodesignKey="iPhone Distribution"
         -p:CodesignProvision=Automatic
         -p:EnableAssemblyILStripping=false
-        -p:EnableCodeSigning=${{ env.ENABLE_CODE_SIGNING }}
+        -p:EnableCodeSigning=true
 
     - name: List build output
-      run: ls -R BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/
+      run: ls -R ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/
 
-    - name: Upload IOS Artifact (signed)
-      if: env.ENABLE_CODE_SIGNING == 'true'
+    - name: Upload IOS Artifact
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
-        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
-
-    - name: Upload IOS Artifact (unsigned, PR)
-      if: env.ENABLE_CODE_SIGNING == 'false'
-      uses: actions/upload-artifact@v7
-      with:
-        name: brickcontroller-ios-ci-build
-        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.app
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
 
     - name: Upload Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
-        asset_name: BrickController_${{env.APP_VERSION}}.ipa
+        asset_path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        asset_name: BrickController_${{ steps.setup-maui.outputs.app-version }}.ipa
         asset_content_type: application/octet-stream
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}
@@ -142,7 +115,7 @@ jobs:
       if: github.event_name == 'release' && github.event.action == 'published'
       uses: Apple-Actions/upload-testflight-build@v5
       with:
-        app-path: 'BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa'
+        app-path: '${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa'
         issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}

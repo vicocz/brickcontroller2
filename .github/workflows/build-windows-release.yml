@@ -1,18 +1,8 @@
-name: Build BrickController WinUI 
+name: Release BrickController WinUI 
 
 on:
   push:
     branches:
-      - default
-      - 'release/**'
-    paths:
-      - '.github/**/*windows.yml'
-      - '*.props'
-      - '*.slnx'
-      - 'BrickController2/BrickController2/**'
-      - 'BrickController2/BrickController2.WinUI/**'
-  pull_request:
-    branches:    
       - default
       - 'release/**'
     paths:
@@ -30,27 +20,24 @@ permissions:
   contents: read
 
 env:
-  PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
-  ENABLE_CODE_SIGNING: ${{ github.event_name != 'pull_request' && 'true' || 'false' }}
+  PROJECT_FOLDER: "BrickController2/BrickController2.WinUI"
 
 jobs:
   build-winui:
     runs-on: windows-2025
     name: BrickController WinUI Build
+    env:
+      PROJECT_PATH: "${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj"
+      TARGET_RUNTIME: 'win-x64'
 
     steps:
     - uses: actions/checkout@v6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
       with:
-        dotnet-version: 10.0.x
-
-    - name: Install .NET MAUI Workload
-      run: dotnet workload install maui-windows
-
-    - name: Get App Version from Build Properties
-      shell: bash
-      run: echo "APP_VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)" >> $GITHUB_ENV
+        platform: windows10.0.19041.0
+        workload-id: maui-windows
 
     - name: Find Current Release Info
       if: github.event_name == 'release' && github.event.action == 'published'
@@ -62,13 +49,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Decode Signing Certificate
-      if: env.ENABLE_CODE_SIGNING == 'true'
       run: |
         echo "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" > cert.asc
         certutil -decode cert.asc cert.pfx
 
     - name: Install Signing Certificate
-      if: env.ENABLE_CODE_SIGNING == 'true'
       run: certutil -user -p ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }} -Silent -importpfx cert.pfx NoRoot
 
     - name: Restore Dependencies
@@ -77,18 +62,18 @@ jobs:
     - name: Build
       run: dotnet build ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win-x64 `
+        -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
         -p:ApplicationVersion="${{ github.run_number }}"
 
     - name: Build MAUI WinUI App
       run: dotnet publish ${{env.PROJECT_PATH}} `
         -c Release `
-        -r win-x64 `
+        -r ${{ env.TARGET_RUNTIME }} `
         -p:Platform=x64 `
         -p:GenerateAppxPackageOnBuild=true `
-        -p:AppxPackageSigningEnabled=${{ env.ENABLE_CODE_SIGNING }} `
-        -p:PackageCertificateThumbprint=${{ env.ENABLE_CODE_SIGNING == 'true' && secrets.SIGNING_CERTIFICATE_THUMBPRINT || '' }}
+        -p:AppxPackageSigningEnabled=true `
+        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v7
@@ -101,8 +86,8 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: BrickController2\BrickController2.WinUI\AppPackages\BrickController2.WinUI_${{env.APP_VERSION}}.${{github.run_number}}_Test\BrickController2.WinUI_${{env.APP_VERSION}}.${{github.run_number}}_x64.msix
-        asset_name: BrickController2_${{env.APP_VERSION}}.msix
+        asset_path: ${{ env.PROJECT_FOLDER }}\AppPackages\BrickController2.WinUI_${{ steps.setup-maui.outputs.app-version }}.${{github.run_number}}_Test\BrickController2.WinUI_${{ steps.setup-maui.outputs.app-version }}.${{github.run_number}}_x64.msix
+        asset_name: BrickController2_${{ steps.setup-maui.outputs.app-version }}.msix
         asset_content_type: application/vnd.ms-appx
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

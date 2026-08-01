@@ -20,6 +20,9 @@ outputs:
   tfm-base:
     description: The target framework base moniker without platform suffix, e.g. net10.0
     value: ${{ steps.tfm.outputs.base }}
+  app-version:
+    description: The ApplicationDisplayVersion read from Directory.Build.props
+    value: ${{ steps.app-version.outputs.version }}
 runs:
   using: composite
   steps:
@@ -42,3 +45,8 @@ runs:
           WORKLOAD_ID="maui-${{ inputs.platform }}"
         fi
         dotnet workload install "$WORKLOAD_ID"
+
+    - id: app-version
+      name: Get App Version from Build Properties
+      shell: bash
+      run: echo "version=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)" >> "$GITHUB_OUTPUT"

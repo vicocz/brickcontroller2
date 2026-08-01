@@ -29,7 +29,6 @@ permissions:
 env:
   XCODE_VERSION: ${{ vars.XCODE_VERSION }}
   PROJECT_PATH: "BrickController2/BrickController2.iOS/BrickController2.iOS.csproj"
-  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-ios'
   TARGET_RUNTIME: 'ios-arm64'
   
 jobs:
@@ -40,9 +39,8 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: ${{ vars.DOTNET_VERSION }}
+      id: setup-dotnet
+      uses: ./.github/actions/setup-dotnet
 
     - name: Install MAUI workload
       run: dotnet workload install maui-ios
@@ -64,7 +62,7 @@ jobs:
         dotnet publish ${{env.PROJECT_PATH}}
         --no-restore
         -c Release
-        -f ${{ env.TARGET_FRAMEWORK }}
+        -f ${{ steps.setup-dotnet.outputs.tfm-base }}-ios
         -r ${{ env.TARGET_RUNTIME }}
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:ArchiveOnBuild=false
@@ -74,5 +72,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
-        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        path: BrickController2/BrickController2.iOS/bin/Release/${{ steps.setup-dotnet.outputs.tfm-base }}-ios/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
 

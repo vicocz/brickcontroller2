@@ -1,0 +1,19 @@
+name: Setup .NET
+description: Installs the .NET SDK pinned in global.json and exposes the TFM base (e.g. net10.0) as an output so it doesn't need to be duplicated across workflows.
+outputs:
+  tfm-base:
+    description: The target framework base moniker, e.g. net10.0
+    value: ${{ steps.tfm.outputs.base }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+
+    - id: tfm
+      shell: bash
+      run: |
+        VERSION=$(jq -r '.sdk.version' global.json | cut -d. -f1,2)
+        echo "base=net$VERSION" >> "$GITHUB_OUTPUT"

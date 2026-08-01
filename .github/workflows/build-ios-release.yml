@@ -22,6 +22,7 @@ permissions:
 env:
   PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
   TARGET_RUNTIME: 'ios-arm64'
+  APP_ID: 'cz.vico.brickcontrollerlegacy'
 
 jobs:
   build-ios:
@@ -30,6 +31,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref }}
     - name: Setup MAUI
       id: setup-maui
       uses: ./.github/actions/setup-maui
@@ -59,7 +62,7 @@ jobs:
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v6
       with:
-        bundle-id: 'cz.vico.brickcontrollerlegacy'
+        bundle-id: ${{ env.APP_ID }}
         issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
@@ -76,7 +79,7 @@ jobs:
         -c Release
         -f ${{ steps.setup-maui.outputs.target-framework }}
         -r ${{ env.TARGET_RUNTIME }}
-        -p:ApplicationId="cz.vico.brickcontrollerlegacy"
+        -p:ApplicationId="${{ env.APP_ID }}"
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:ArchiveOnBuild=true
         -p:CodesignKey="iPhone Distribution"

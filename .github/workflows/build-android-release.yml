@@ -30,6 +30,8 @@ jobs:
     steps:
 
     - uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref }}
     - name: Setup MAUI
       id: setup-maui
       uses: ./.github/actions/setup-maui
@@ -51,7 +53,7 @@ jobs:
     - name: Setup Android signing
       shell: bash
       working-directory: ${{ env.PROJECT_FOLDER }}
-      run: (echo "${{secrets.KEYSTORE}}" | base64 --decode) > keystore.jks
+      run: (printf '%s' "${{ secrets.KEYSTORE }}" | base64 --decode) > keystore.jks
 
     - name: Build MAUI Android (APK)
       run: >-
@@ -73,8 +75,8 @@ jobs:
         -f ${{ steps.setup-maui.outputs.target-framework }}
         --no-restore
         -p:ApplicationVersion="${{ github.run_number }}"
-        -p:AndroidSigningKeyPass=${{secrets.KEYSTORE_PASSWORD}}
-        -p:AndroidSigningStorePass=${{secrets.KEYSTORE_PASSWORD}}
+        -p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}"
+        -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
         -p:AndroidPackageFormat=aab
 
     - name: Upload Android Artifact

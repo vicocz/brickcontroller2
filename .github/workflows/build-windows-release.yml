@@ -30,6 +30,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref }}
     - name: Setup MAUI
       id: setup-maui
       uses: ./.github/actions/setup-maui

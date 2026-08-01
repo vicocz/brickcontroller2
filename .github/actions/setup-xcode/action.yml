@@ -1,0 +1,36 @@
+name: Setup Xcode
+description: Selects the Xcode version to build with and verifies it. Falls back to a checked-in default when the caller doesn't supply one (e.g. vars.XCODE_VERSION isn't accessible for forked-repo pull requests).
+inputs:
+  version:
+    description: Xcode version to select, e.g. 26.6. Typically passed as ${{ vars.XCODE_VERSION }}; when empty, the action's built-in fallback is used.
+    required: false
+    default: ''
+
+outputs:
+  version:
+    description: The Xcode version that was actually selected (either the input or the fallback).
+    value: ${{ steps.resolve.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - id: resolve
+      shell: bash
+      run: |
+        VERSION="${{ inputs.version }}"
+        if [ -z "$VERSION" ]; then
+          # Single source of truth for the fallback Xcode version, used when
+          # vars.XCODE_VERSION isn't available
+          VERSION="26.6"
+        fi
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Set Xcode Version
+      shell: bash
+      run: |
+        sudo xcode-select -s "/Applications/Xcode_${{ steps.resolve.outputs.version }}.app"
+        echo "MD_APPLE_SDK_ROOT=/Applications/Xcode_${{ steps.resolve.outputs.version }}.app" >> "$GITHUB_ENV"
+
+    - name: Verify Xcode Version
+      shell: bash
+      run: xcodebuild -version

@@ -17,7 +17,6 @@ permissions:
   contents: read
 
 env:
-  XCODE_VERSION: ${{ vars.XCODE_VERSION }}
   PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
   TARGET_RUNTIME: 'ios-arm64'
 
@@ -34,14 +33,10 @@ jobs:
       with:
         platform: ios
 
-    - name: Set XCode Version
-      shell: bash
-      run: |
-        sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
-        echo "MD_APPLE_SDK_ROOT=/Applications/Xcode_${{ env.XCODE_VERSION }}.app" >> $GITHUB_ENV
-
-    - name: Verify Xcode version
-      run: xcodebuild -version
+    - name: Setup Xcode
+      uses: ./.github/actions/setup-xcode
+      with:
+        version: ${{ vars.XCODE_VERSION }}
 
     - name: Restore Dependencies
       run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj

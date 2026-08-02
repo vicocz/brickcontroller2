@@ -25,28 +25,20 @@ env:
 
 jobs:
   build-winui:
-    runs-on: windows-2025
+    runs-on: windows-latest
     name: BrickController WinUI Build
 
     steps:
     - uses: actions/checkout@v6
       with:
         ref: ${{ github.ref }}
+
     - name: Setup MAUI
       id: setup-maui
       uses: ./.github/actions/setup-maui
       with:
         platform: windows10.0.19041.0
         workload-id: maui-windows
-
-    - name: Find Current Release Info
-      if: github.event_name == 'release' && github.event.action == 'published'
-      id: get_release
-      uses: octokit/request-action@v3.x
-      with:
-        route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Decode Signing Certificate
       shell: pwsh
@@ -64,17 +56,17 @@ jobs:
       run: dotnet build ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
-        -p:Platform=x64 `
-        -p:ApplicationVersion="${{ github.run_number }}"
+        -p:ApplicationVersion="${{ github.run_number }}" `
+        -p:Platform=x64
 
     - name: Build MAUI WinUI App
       run: dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
-        -p:Platform=x64 `
-        -p:GenerateAppxPackageOnBuild=true `
         -p:AppxPackageSigningEnabled=true `
-        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }}
+        -p:GenerateAppxPackageOnBuild=true `
+        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }} `
+        -p:Platform=x64
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v7
@@ -85,11 +77,9 @@ jobs:
 
     - name: Upload Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: ${{ env.PROJECT_FOLDER }}\AppPackages\BrickController2.WinUI_${{ steps.setup-maui.outputs.app-version }}.${{github.run_number}}_Test\BrickController2.WinUI_${{ steps.setup-maui.outputs.app-version }}.${{github.run_number}}_x64.msix
-        asset_name: BrickController2_${{ steps.setup-maui.outputs.app-version }}.msix
-        asset_content_type: application/vnd.ms-appx
+        # Uses wildcard to avoid brittle folder names output by MSBuild
+        files: ${{ env.PROJECT_FOLDER }}/AppPackages/**/*.msix
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}

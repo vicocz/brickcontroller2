@@ -26,7 +26,7 @@ env:
 
 jobs:
   build-ios:
-    runs-on: macos-26
+    runs-on: macos-latest
     name: BrickController iOS Build
 
     steps:
@@ -43,15 +43,6 @@ jobs:
       uses: ./.github/actions/setup-xcode
       with:
         version: ${{ vars.XCODE_VERSION }}
-
-    - name: Find Current Release Info
-      if: github.event_name == 'release' && github.event.action == 'published'
-      id: get_release
-      uses: octokit/request-action@v3.x
-      with:
-        route: GET /repos/${{ github.repository }}/releases/tags/${{ github.event.release.tag_name }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Import Code-Signing Certificates
       uses: Apple-Actions/import-codesign-certs@v7
@@ -72,6 +63,7 @@ jobs:
             
     - name: Restore Dependencies
       run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
+
     - name: Build MAUI iOS
       run: >-
         dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
@@ -99,12 +91,9 @@ jobs:
 
     - name: Upload Artifact to Release
       if: github.event_name == 'release' && github.event.action == 'published'
-      uses: actions/upload-release-asset@v1
+      uses: softprops/action-gh-release@v2
       with:
-        upload_url: ${{ fromJson(steps.get_release.outputs.data).upload_url }}
-        asset_path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
-        asset_name: BrickController_${{ steps.setup-maui.outputs.app-version }}.ipa
-        asset_content_type: application/octet-stream
+        files: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
       env:
         GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}
 

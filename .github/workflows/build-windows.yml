@@ -22,7 +22,7 @@ env:
 
 jobs:
   build-winui:
-    runs-on: windows-2025
+    runs-on: windows-latest
     name: BrickController WinUI Build
 
     steps:
@@ -40,16 +40,16 @@ jobs:
       run: dotnet build ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
-        -p:Platform=x64 `
-        -p:ApplicationVersion="${{ github.run_number }}"
+        -p:ApplicationVersion="${{ github.run_number }}" `
+        -p:Platform=x64
 
     - name: Build MAUI WinUI App
       run: dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
-        -p:Platform=x64 `
+        -p:AppxPackageSigningEnabled=false `
         -p:GenerateAppxPackageOnBuild=true `
-        -p:AppxPackageSigningEnabled=false
+        -p:Platform=x64
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v7

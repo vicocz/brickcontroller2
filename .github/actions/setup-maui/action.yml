@@ -47,6 +47,10 @@ runs:
       run: |
         WORKLOAD_ID="${{ inputs.workload-id }}"
         if [ -z "$WORKLOAD_ID" ]; then
+          if [ -z "${{ inputs.platform }}" ]; then
+            echo "No platform or workload-id provided; skipping MAUI workload installation." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           WORKLOAD_ID="maui-${{ inputs.platform }}"
         fi
         dotnet workload install "$WORKLOAD_ID"

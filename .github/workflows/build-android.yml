@@ -41,9 +41,9 @@ jobs:
         -c Release
         -f ${{ steps.setup-maui.outputs.target-framework }}
         --no-restore
-        -p:ApplicationVersion="${{ github.run_number }}"
-        -p:AndroidPackageFormat=apk
         -p:AndroidKeyStore=false
+        -p:AndroidPackageFormat=apk
+        -p:ApplicationVersion="${{ github.run_number }}"
 
     - name: Upload Android Artifact
       uses: actions/upload-artifact@v7

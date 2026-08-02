@@ -34,7 +34,7 @@ internal abstract class PowerBoxBaseByte : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected PowerBoxBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, PowerBoxDeviceManager powerboxDeviceManager, byte[] telegram_Connect, byte[] telegram_Base)
+    protected PowerBoxBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, IPowerBoxDeviceManager powerboxDeviceManager, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;
@@ -49,6 +49,9 @@ internal abstract class PowerBoxBaseByte : BluetoothAdvertisingDevice
 
         _telegram_Base[1] = appId[0];
         _telegram_Base[2] = appId[1];
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>
@@ -162,7 +165,7 @@ internal abstract class PowerBoxBaseByte : BluetoothAdvertisingDevice
     /// <param name="payload">When this method returns, contains the RF payload as a byte array if the operation succeeds; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns><see langword="true"/> if the RF payload was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
     {
         if (getConnectTelegram)
         {

@@ -15,19 +15,19 @@ internal class PowerBoxMBattery : PowerBoxBaseByte, IDeviceType<PowerBoxMBattery
     /// Telegram to connect to the PowerBox devices
     /// This telegram is sent on init and on reconnect conditions matching
     /// </summary>
-    private static readonly byte[] Telegram_Connect_Device = [0xA4, 0xFE, 0x19, 0x80, 0x80, 0x80, 0x00, 0x5B];
+    private static readonly byte[] Telegram_Connect_Device = [0xa4, 0xfe, 0x19, 0x80, 0x80, 0x80, 0x00, 0x5b];
 
     /// <summary>
     /// Base Telegram for PowerBox devices
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device = [0x40, 0xFE, 0x19, 0x00, 0x00, 0x00, 0x00, 0xBF];
+    private static readonly byte[] Telegram_Base_Device = [0x40, 0xfe, 0x19, 0x00, 0x00, 0x00, 0x00, 0xbf];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
     /// </summary>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
-    public PowerBoxMBattery(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, PowerBoxDeviceManager powerboxDeviceManager)
+    public PowerBoxMBattery(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, IPowerBoxDeviceManager powerboxDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, powerboxPlatformService, powerboxDeviceManager, Telegram_Connect_Device, Telegram_Base_Device)
     {
     }

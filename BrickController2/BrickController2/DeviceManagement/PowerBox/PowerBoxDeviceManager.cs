@@ -6,7 +6,7 @@ namespace BrickController2.DeviceManagement.PowerBox;
 /// <summary>
 /// Manager for PowerBox devices
 /// </summary>
-public class PowerBoxDeviceManager
+public class PowerBoxDeviceManager : IPowerBoxDeviceManager
 {
     private const int AppIdentifierLength = 2; // PowerBox protocol defines 2 bytes for the app identifier
 

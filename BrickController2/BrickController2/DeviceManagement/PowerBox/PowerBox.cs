@@ -15,6 +15,7 @@ internal class PowerBox : Vendor<PowerBox>
     {
         // device manager
         builder.ContainerBuilder.RegisterType<PowerBoxDeviceManager>()
+            .As<IPowerBoxDeviceManager>()
             .SingleInstance();
 
         // manually added devices

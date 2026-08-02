@@ -30,7 +30,6 @@ internal class PowerBoxASeries : PowerBoxBaseNibble, IDeviceType<PowerBoxASeries
     public PowerBoxASeries(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, IPowerBoxDeviceManager powerboxDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, powerboxPlatformService, powerboxDeviceManager, Telegram_Connect_Device, Telegram_Base_Device)
     {
-        tozero
     }
 
     public static DeviceType Type => DeviceType.PowerBoxASeries;

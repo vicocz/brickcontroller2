@@ -26,7 +26,9 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     name: BrickController Android Build
-
+    # inherits workflow-level contents: read
+    outputs:
+      target-framework: ${{ steps.setup-maui.outputs.target-framework }}
     steps:
 
     - uses: actions/checkout@v6
@@ -79,13 +81,34 @@ jobs:
         path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.apk
         retention-days: 14
 
-    - name: Upload Built Artifacts to Release
+    - name: Upload AAB as Artifact
       if: github.event_name == 'release' && github.event.action == 'published'
-      uses: softprops/action-gh-release@v2
+      uses: actions/upload-artifact@v7
       with:
-        files: |
-          ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.apk
-          ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.aab
-      env:
-        GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}
+        name: brickcontroller-android-aab
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.aab
+        retention-days: 14
 
+  publish-release:
+    needs: build-android
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: brickcontroller-android-ci-build
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: brickcontroller-android-aab
+      - name: Upload Built Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            com.scn.BrickController2-Signed.apk
+            com.scn.BrickController2-Signed.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }

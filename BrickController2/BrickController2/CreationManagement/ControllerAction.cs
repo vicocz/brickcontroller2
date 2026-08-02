@@ -122,5 +122,17 @@ namespace BrickController2.CreationManagement
         {
             return $"{DeviceId} - {Channel}";
         }
+
+        public bool RemapDevice(string sourceDeviceId, string newDeviceId)
+        {
+            // check action to remap the device ID
+            if (DeviceId == sourceDeviceId)
+            {
+                DeviceId = newDeviceId;
+                return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using BrickController2.BusinessLogic;
+﻿using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
 using BrickController2.Helpers;
@@ -11,6 +7,12 @@ using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using System;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -29,7 +31,7 @@ namespace BrickController2.UI.ViewModels
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
             ISharingManager<ControllerProfile> sharingManagerProfile,
-            ICommandFactory<Creation> commandFactory,
+            ICreationCommandFactory commandFactory,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -48,11 +50,12 @@ namespace BrickController2.UI.ViewModels
             RenameCreationCommand = new SafeCommand(async () => await RenameCreationAsync());
             ShareCreationCommand = new SafeCommand(ShareCreationAsync);
             ShareCreationAsFileCommand = commandFactory.ShareAsJsonFileCommand(this, Creation);
-            PlayCommand = new SafeCommand(async () => await PlayAsync());
+            PlayCommand = commandFactory.PlayCommand(this, Creation);
+            RemapDeviceCommand = commandFactory.RemapDeviceCommand(this, Creation);
             AddControllerProfileCommand = new SafeCommand(async () => await AddControllerProfileAsync());
             ControllerProfileTappedCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile))));
             DeleteControllerProfileCommand = new SafeCommand<ControllerProfile>(async controllerProfile => await DeleteControllerProfileAsync(controllerProfile));
-            PlayControllerProfileCommand = new SafeCommand<ControllerProfile>(PlayAsync);
+            PlayControllerProfileCommand = commandFactory.PlayControllerProfileCommand(this);
         }
 
         public Creation Creation { get; }
@@ -69,6 +72,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand ShareCreationAsFileCommand { get; }
         public ICommand RenameCreationCommand { get; }
         public ICommand PlayCommand { get; }
+        public ICommand RemapDeviceCommand { get; }
         public ICommand AddControllerProfileCommand { get; }
         public ICommand ControllerProfileTappedCommand { get; }
         public ICommand DeleteControllerProfileCommand { get; }
@@ -110,48 +114,6 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task PlayAsync(ControllerProfile? controllerProfile = default!)
-        {
-            try
-            {
-                var validationResult = _playLogic.ValidateCreation(Creation);
-
-                string warning = string.Empty;
-                switch (validationResult)
-                {
-                    case CreationValidationResult.MissingControllerAction:
-                        warning = Translate("NoControllerActions");
-                        break;
-
-                    case CreationValidationResult.MissingDevice:
-                        warning = Translate("MissingDevices");
-                        break;
-
-                    case CreationValidationResult.MissingSequence:
-                        warning = Translate("MissingSequence");
-                        break;
-                }
-
-                if (validationResult == CreationValidationResult.Ok)
-                {
-                    await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(
-                        ("creation", Creation),
-                        ("profile", controllerProfile!)));
-                }
-                else
-                {
-                    await _dialogService.ShowMessageBoxAsync(
-                        Translate("Warning"),
-                        warning,
-                        Translate("Ok"),
-                        DisappearingToken);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
         private async Task AddControllerProfileAsync()
         {
             try
@@ -184,8 +146,6 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => controllerProfile = await _creationManager.AddControllerProfileAsync(Creation, result.Result),
                         Translate("Creating"),
                         token: DisappearingToken);
-                    // notify profile count change
-                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
 
                     await NavigationService.NavigateToAsync<ControllerProfilePageViewModel>(new NavigationParameters(("controllerprofile", controllerProfile!)));
                 }
@@ -211,8 +171,6 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteControllerProfileAsync(controllerProfile),
                         Translate("Deleting"),
                         token: DisappearingToken);
-                    // notify profile count change
-                    RaisePropertyChanged(nameof(HasMultipleControllerProfiles));
                 }
             }
             catch (OperationCanceledException)

@@ -39,6 +39,8 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             ISharedFileStorageService sharedFileStorageService,
             IPlayLogic playLogic,
+            IInputDeviceEventService gameControllerService,
+            ICreationCommandFactory commandFactory,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
@@ -56,7 +58,7 @@ namespace BrickController2.UI.ViewModels
             RenameProfileCommand = new SafeCommand(async () => await RenameControllerProfileAsync());
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false));
             AddControllerEventForSpecificControllerIdCommand = new SafeCommand(async () => await AddControllerEventAsync(true));
-            PlayCommand = new SafeCommand(async () => await PlayAsync());
+            PlayCommand = commandFactory.PlayCommand(this, ControllerProfile.Creation!, ControllerProfile);
             ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
             DeleteControllerEventCommand = new SafeCommand<ControllerEvent>(async controllerEvent => await DeleteControllerEventAsync(controllerEvent));
             AddAnotherActionCommand = new SafeCommand<ControllerEvent>(AddAnotherActionAsync);
@@ -262,41 +264,6 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task PlayAsync()
-        {
-            var validationResult = _playLogic.ValidateCreation(ControllerProfile.Creation!);
-
-            string warning = string.Empty;
-            switch (validationResult)
-            {
-                case CreationValidationResult.MissingControllerAction:
-                    warning = Translate("NoControllerActions");
-                    break;
-
-                case CreationValidationResult.MissingDevice:
-                    warning = Translate("MissingDevices");
-                    break;
-
-                case CreationValidationResult.MissingSequence:
-                    warning = Translate("MissingSequence");
-                    break;
-            }
-
-            if (validationResult == CreationValidationResult.Ok)
-            {
-                await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(
-                  ("creation", ControllerProfile.Creation!),
-                  ("profile", ControllerProfile)));
-            }
-            else
-            {
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Warning"),
-                    warning,
-                    Translate("Ok"),
-                    DisappearingToken);
-            }
-        }
         private async Task AddAnotherActionAsync(ControllerEvent controllerEvent)
         {
             try

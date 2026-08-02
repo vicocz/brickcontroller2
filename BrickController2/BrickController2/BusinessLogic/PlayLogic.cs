@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BrickController2.CreationManagement;
+﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.PlatformServices.InputDevice;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
 
@@ -37,7 +37,7 @@ namespace BrickController2.BusinessLogic
             var deviceIds = creation.GetDeviceIds();
             var sequenceNames = creation.GetSequenceNames();
 
-            if (deviceIds == null || deviceIds.Count() == 0)
+            if (deviceIds.Count == 0)
             {
                 return CreationValidationResult.MissingControllerAction;
             }
@@ -59,6 +59,11 @@ namespace BrickController2.BusinessLogic
             var sequence = _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName);
 
             return device != null && (controllerAction.ButtonType != ControllerButtonType.Sequence || sequence != null);
+        }
+
+        public IEnumerable<string> GetMissingDevices(Creation creation)
+        {
+            return creation.GetDeviceIds().Where(d => _deviceManager.GetDeviceById(d) == null);
         }
 
         public void StartPlay()

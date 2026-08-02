@@ -75,11 +75,14 @@ internal class PowerBoxMBattery : PowerBoxBaseByte, IDeviceType<PowerBoxMBattery
     {
         lock (_outputLock)
         {
-            byte originValue_byte = _telegram_Base[byteOffset];
+            byte originValue1 = _telegram_Base[byteOffset];
+            byte originValue2 = _telegram_Base[byteOffset + 1];
 
             _telegram_Base[byteOffset] = setValue_byte;
             _telegram_Base[byteOffset + 1] = setValue_byte;         // very special: bytes are duplicated in the datagram
-            return _telegram_Base[byteOffset] != originValue_byte;
+
+            return _telegram_Base[byteOffset] != originValue1 || 
+                _telegram_Base[byteOffset + 1] != originValue2;
         }
     }
 

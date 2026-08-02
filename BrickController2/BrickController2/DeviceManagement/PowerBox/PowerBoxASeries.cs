@@ -64,10 +64,10 @@ internal class PowerBoxASeries : PowerBoxBaseNibble, IDeviceType<PowerBoxASeries
     /// <summary>
     /// Processes the value for the specified analog channel and returns the processed result.
     /// </summary>
-    /// <param name="channelNo">The channel number to process. Valid value is 0.</param>
+    /// <param name="channelNo">The channel number to process. Valid values are 0..3.</param>
     /// <param name="value">The input value to be processed for the specified channel.</param>
     /// <returns>A tuple containing the processed value and a flag indicating the success of the operation.</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not the valid channel number 0.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not a valid channel number.</exception>
     protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
     {
         0 => SetOutput_AnalogChannel(value),

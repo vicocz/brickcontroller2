@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices:DeviceChannelSelectorViewBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls" xmlns:devices="clr-namespace:BrickController2.UI.Controls.Devices"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.Devices.MK3_8ChannelSelectorView">
+
+    <ContentView.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel3" Channel="3" HorizontalOptions="End" VerticalOptions="Start" Margin="0,50,0,0"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel2" Channel="2" HorizontalOptions="End" VerticalOptions="End" Margin="0,50,0,0" />
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <VerticalStackLayout>
+                    <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel4" Channel="4" HorizontalOptions="Center" VerticalOptions="Start" Margin="15,0,0,0" />
+                    <Image Source="{extensions:ImageResource Source=mk3_8_image.png}" WidthRequest="40" HeightRequest="100" HorizontalOptions="Center" VerticalOptions="End" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel1" Channel="1" HorizontalOptions="Start" VerticalOptions="Start" Margin="0,50,0,0" />
+                <controls:ChannelSelectorRadioButton x:Name="MK3_8Channel0" Channel="0" HorizontalOptions="Start" VerticalOptions="End" Margin="0,50,0,0" />
+            </Grid>
+        </Grid>
+    </ContentView.Content>
+
+</devices:DeviceChannelSelectorViewBase>

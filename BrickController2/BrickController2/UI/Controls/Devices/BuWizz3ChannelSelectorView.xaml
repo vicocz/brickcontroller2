@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices:DeviceChannelSelectorViewBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls" xmlns:devices="clr-namespace:BrickController2.UI.Controls.Devices"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.Devices.BuWizz3ChannelSelectorView">
+
+    <ContentView.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel0" Channel="0" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,20,0"/>
+                <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel4" Channel="4" HorizontalOptions="End" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel1" Channel="1" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,20,0"/>
+            </Grid>
+
+            <Image Grid.Column="1" Source="{extensions:ImageResource Source=buwizz3_image.png}" WidthRequest="150" HeightRequest="100"/>
+
+            <Grid Grid.Column="2">
+                <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel3" Channel="3" HorizontalOptions="Start" VerticalOptions="Start" Margin="20,0,0,0"/>
+                <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel5" Channel="5" HorizontalOptions="Start" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel2" Channel="2" HorizontalOptions="Start" VerticalOptions="End" Margin="20,0,0,0"/>
+            </Grid>
+        </Grid>
+    </ContentView.Content>
+
+</devices:DeviceChannelSelectorViewBase>

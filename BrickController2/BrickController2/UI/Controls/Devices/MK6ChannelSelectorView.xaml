@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices:DeviceChannelSelectorViewBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls" xmlns:devices="clr-namespace:BrickController2.UI.Controls.Devices"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.Devices.MK6ChannelSelectorView">
+
+    <ContentView.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <controls:ChannelSelectorRadioButton x:Name="MK6Channel5" Channel="5" HorizontalOptions="End" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK6Channel3" Channel="3" HorizontalOptions="End" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK6Channel1" Channel="1" HorizontalOptions="End" VerticalOptions="End"/>
+            </Grid>
+
+            <Image Grid.Column="1" Source="{extensions:ImageResource Source=mk6_image.png}" WidthRequest="80" HeightRequest="100"/>
+
+            <Grid Grid.Column="2">
+                <controls:ChannelSelectorRadioButton x:Name="MK6Channel4" Channel="4" HorizontalOptions="Start" VerticalOptions="Start"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK6Channel2" Channel="2" HorizontalOptions="Start" VerticalOptions="Center"/>
+                <controls:ChannelSelectorRadioButton x:Name="MK6Channel0" Channel="0" HorizontalOptions="Start" VerticalOptions="End"/>
+            </Grid>
+        </Grid>
+    </ContentView.Content>
+
+</devices:DeviceChannelSelectorViewBase>

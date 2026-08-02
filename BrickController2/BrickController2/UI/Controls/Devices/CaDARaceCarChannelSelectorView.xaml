@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices:DeviceChannelSelectorViewBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls" xmlns:devices="clr-namespace:BrickController2.UI.Controls.Devices"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.Devices.CaDARaceCarChannelSelectorView">
+
+    <ContentView.Content>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Image Grid.Row="0" Grid.Column="0" Source="{extensions:ImageResource Source=rc_up_down_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
+            <controls:ChannelSelectorRadioButton Grid.Row="0" Grid.Column="1" x:Name="CaDARaceCarChannel0" Channel="0" VerticalOptions="Center"/>
+
+            <Image Grid.Row="1" Grid.Column="0" Source="{extensions:ImageResource Source=rc_left_right_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
+            <controls:ChannelSelectorRadioButton Grid.Row="1" Grid.Column="1" x:Name="CaDARaceCarChannel1" Channel="1" VerticalOptions="Center"/>
+
+            <Image Grid.Row="2" Grid.Column="0" Source="{extensions:ImageResource Source=rc_light_on_off.png}" HeightRequest="50" Margin="0,0,10,5"/>
+            <controls:ChannelSelectorRadioButton Grid.Row="2" Grid.Column="1" x:Name="CaDARaceCarChannel2" Channel="2" VerticalOptions="Center"/>
+        </Grid>
+    </ContentView.Content>
+
+</devices:DeviceChannelSelectorViewBase>

@@ -89,19 +89,32 @@ jobs:
         path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
         retention-days: 14
 
+  publish-release:
+    needs: build-ios
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: macos-latest
+    name: Publish iOS Release
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download IOS Artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: brickcontroller-ios-ci-build
+        path: ipa-artifacts
+
     - name: Upload Artifact to Release
-      if: github.event_name == 'release' && github.event.action == 'published'
       uses: softprops/action-gh-release@v2
       with:
-        files: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        files: ipa-artifacts/BrickController2.iOS.ipa
       env:
-        GITHUB_TOKEN: ${{ secrets.CI_RELEASE_ASSETS_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload app to TestFlight
-      if: github.event_name == 'release' && github.event.action == 'published'
       uses: Apple-Actions/upload-testflight-build@v5
       with:
-        app-path: '${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa'
+        app-path: 'ipa-artifacts/BrickController2.iOS.ipa'
         issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}

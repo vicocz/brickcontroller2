@@ -111,4 +111,4 @@ jobs:
             com.scn.BrickController2-Signed.apk
             com.scn.BrickController2-Signed.aab
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

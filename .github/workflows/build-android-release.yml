@@ -1,0 +1,114 @@
+name: Release BrickController Android 
+
+on:
+  push:
+    branches:
+      - default
+      - 'release/**'
+    paths:
+      - '.github/**/*android.yml'
+      - '*.props'
+      - '*.slnx'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.Android/**'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_FOLDER: "BrickController2/BrickController2.Android"
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    name: BrickController Android Build
+    # inherits workflow-level contents: read
+    outputs:
+      target-framework: ${{ steps.setup-maui.outputs.target-framework }}
+    steps:
+
+    - uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
+      with:
+        platform: android
+
+    - name: Restore Dependencies
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.Android.csproj
+
+    - name: Setup Android signing
+      shell: bash
+      working-directory: ${{ env.PROJECT_FOLDER }}
+      run: (printf '%s' "${{ secrets.KEYSTORE }}" | base64 --decode) > keystore.jks
+
+    - name: Build MAUI Android (APK)
+      run: >-
+        dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.Android.csproj
+        -c Release
+        -f ${{ steps.setup-maui.outputs.target-framework }}
+        --no-restore
+        -p:AndroidKeyStore=true
+        -p:AndroidPackageFormat=apk
+        -p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}"
+        -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        -p:ApplicationVersion="${{ github.run_number }}"
+
+    - name: Build MAUI Android (AAB) for Release
+      if: github.event_name == 'release' && github.event.action == 'published'
+      run: >-
+        dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.Android.csproj
+        -c Release
+        -f ${{ steps.setup-maui.outputs.target-framework }}
+        --no-restore
+        -p:AndroidKeyStore=true
+        -p:AndroidPackageFormat=aab
+        -p:AndroidSigningKeyPass="${{ secrets.KEYSTORE_PASSWORD }}"
+        -p:AndroidSigningStorePass="${{ secrets.KEYSTORE_PASSWORD }}"
+        -p:ApplicationVersion="${{ github.run_number }}"
+
+    - name: Upload Android Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: brickcontroller-android-ci-build
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.apk
+        retention-days: 14
+
+    - name: Upload AAB as Artifact
+      if: github.event_name == 'release' && github.event.action == 'published'
+      uses: actions/upload-artifact@v7
+      with:
+        name: brickcontroller-android-aab
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/com.scn.BrickController2-Signed.aab
+        retention-days: 14
+
+  publish-release:
+    needs: build-android
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download APK artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: brickcontroller-android-ci-build
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: brickcontroller-android-aab
+      - name: Upload Built Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            com.scn.BrickController2-Signed.apk
+            com.scn.BrickController2-Signed.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

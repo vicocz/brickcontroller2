@@ -1,16 +1,6 @@
-name: Build BrickController iOS 
+name: Validation build BrickController iOS 
 
 on:
-  push:
-    branches:
-      - default
-      - 'release/**'
-    paths:
-      - '.github/**/*ios.yml'
-      - '*.props'
-      - '*.slnx'
-      - 'BrickController2/BrickController2/**'
-      - 'BrickController2/BrickController2.iOS/**'
   pull_request:
     branches:    
       - default
@@ -27,44 +17,36 @@ permissions:
   contents: read
 
 env:
-  XCODE_VERSION: ${{ vars.XCODE_VERSION }}
-  PROJECT_PATH: "BrickController2/BrickController2.iOS/BrickController2.iOS.csproj"
-  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-ios'
+  PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
   TARGET_RUNTIME: 'ios-arm64'
-  
+
 jobs:
   build-ios:
-    runs-on: macos-26
+    runs-on: macos-latest
     name: BrickController iOS Build
 
     steps:
     - uses: actions/checkout@v6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
       with:
-        dotnet-version: ${{ vars.DOTNET_VERSION }}
+        platform: ios
 
-    - name: Install MAUI workload
-      run: dotnet workload install maui-ios
-
-    - name: Set XCode Version
-      shell: bash
-      run: |
-        sudo xcode-select -s "/Applications/Xcode_${{ env.XCODE_VERSION }}.app"
-        echo "MD_APPLE_SDK_ROOT=/Applications/Xcode_${{ env.XCODE_VERSION }}.app" >> $GITHUB_ENV
-
-    - name: Verify Xcode version
-      run: xcodebuild -version
+    - name: Setup Xcode
+      uses: ./.github/actions/setup-xcode
+      with:
+        version: ${{ vars.XCODE_VERSION }}
 
     - name: Restore Dependencies
-      run: dotnet restore ${{env.PROJECT_PATH}}
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
 
     - name: Build MAUI iOS
       run: >-
-        dotnet publish ${{env.PROJECT_PATH}}
+        dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
         --no-restore
         -c Release
-        -f ${{ env.TARGET_FRAMEWORK }}
+        -f ${{ steps.setup-maui.outputs.target-framework }}
         -r ${{ env.TARGET_RUNTIME }}
         -p:ApplicationVersion="${{ github.run_number }}"
         -p:ArchiveOnBuild=false
@@ -74,5 +56,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
-        path: BrickController2/BrickController2.iOS/bin/Release/${{ env.TARGET_FRAMEWORK }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
-
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        retention-days: 5

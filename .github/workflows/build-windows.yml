@@ -1,16 +1,6 @@
-name: Build BrickController WinUI 
+name: Validation build BrickController WinUI 
 
 on:
-  push:
-    branches:
-      - default
-      - 'release/**'
-    paths:
-      - '.github/**/*windows.yml'
-      - '*.props'
-      - '*.slnx'
-      - 'BrickController2/BrickController2/**'
-      - 'BrickController2/BrickController2.WinUI/**'
   pull_request:
     branches:    
       - default
@@ -27,45 +17,43 @@ permissions:
   contents: read
 
 env:
-  PROJECT_PATH: "BrickController2/BrickController2.WinUI/BrickController2.WinUI.csproj"
-  TARGET_FRAMEWORK: '${{ vars.DOTNET_VERSION_TARGETS }}-windows'
+  PROJECT_FOLDER: "BrickController2/BrickController2.WinUI"
   TARGET_RUNTIME: 'win-x64'
 
 jobs:
   build-winui:
-    runs-on: windows-2025
+    runs-on: windows-latest
     name: BrickController WinUI Build
 
     steps:
     - uses: actions/checkout@v6
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
       with:
-        dotnet-version: ${{ vars.DOTNET_VERSION }}
-
-    - name: Install .NET MAUI Workload
-      run: dotnet workload install maui-windows
+        install-workload: 'false'
 
     - name: Restore Dependencies
-      run: dotnet restore ${{env.PROJECT_PATH}}
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj
 
     - name: Build
-      run: dotnet build ${{env.PROJECT_PATH}} `
+      run: dotnet build ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
-        -p:Platform=x64 `
-        -p:ApplicationVersion="${{ github.run_number }}"
+        -p:ApplicationVersion="${{ github.run_number }}" `
+        -p:Platform=x64
 
     - name: Build MAUI WinUI App
-      run: dotnet publish ${{env.PROJECT_PATH}} `
+      run: dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
         -c Release `
         -r ${{ env.TARGET_RUNTIME }} `
-        -p:Platform=x64 `
+        -p:AppxPackageSigningEnabled=false `
         -p:GenerateAppxPackageOnBuild=true `
-        -p:AppxPackageSigningEnabled=false
+        -p:Platform=x64
 
     - name: Upload WinUI Artifact
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-winui-ci-build
         path: .\**\AppPackages\**\BrickController*.msix
+        retention-days: 5

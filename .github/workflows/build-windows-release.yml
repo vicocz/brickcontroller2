@@ -1,0 +1,98 @@
+name: Release BrickController WinUI 
+
+on:
+  push:
+    branches:
+      - default
+      - 'release/**'
+    paths:
+      - '.github/**/*windows.yml'
+      - '*.props'
+      - '*.slnx'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.WinUI/**'
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_FOLDER: "BrickController2/BrickController2.WinUI"
+  TARGET_RUNTIME: 'win-x64'
+
+jobs:
+  build-winui:
+    runs-on: windows-latest
+    name: BrickController WinUI Build
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
+      with:
+        platform: windows10.0.19041.0
+        workload-id: maui-windows
+
+    - name: Decode Signing Certificate
+      shell: pwsh
+      run: |
+        Set-Content -Path cert.asc -Value "${{ secrets.SIGNING_CERTIFICATE_BASE_64_CONTENT }}" -NoNewline -Encoding Ascii
+        certutil -decode cert.asc cert.pfx
+
+    - name: Install Signing Certificate
+      run: certutil -user -p "${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}" -Silent -importpfx cert.pfx NoRoot
+
+    - name: Restore Dependencies
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj
+
+    - name: Build
+      run: dotnet build ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
+        -c Release `
+        -r ${{ env.TARGET_RUNTIME }} `
+        -p:ApplicationVersion="${{ github.run_number }}" `
+        -p:Platform=x64
+
+    - name: Build MAUI WinUI App
+      run: dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.WinUI.csproj `
+        -c Release `
+        -r ${{ env.TARGET_RUNTIME }} `
+        -p:AppxPackageSigningEnabled=true `
+        -p:GenerateAppxPackageOnBuild=true `
+        -p:PackageCertificateThumbprint=${{ secrets.SIGNING_CERTIFICATE_THUMBPRINT }} `
+        -p:Platform=x64
+
+    - name: Upload WinUI Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: brickcontroller-winui-ci-build
+        path: ${{ env.PROJECT_FOLDER }}\AppPackages\**\BrickController*.msix
+        retention-days: 14
+
+  publish-release:
+    needs: build-winui
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
+    name: Publish WinUI Release
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download WinUI Artifact
+      uses: actions/download-artifact@v6
+      with:
+        name: brickcontroller-winui-ci-build
+        path: msix-artifacts
+
+    - name: Upload Artifact to Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: msix-artifacts/**/*.msix
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

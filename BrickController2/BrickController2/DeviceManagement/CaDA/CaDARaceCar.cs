@@ -18,6 +18,8 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         // create message encoder for this device based on advertised data
         _messageEncoder = messageEncoderFactory.Create(deviceData);
+
+        InitDevice();
     }
     public override DeviceType DeviceType => DeviceType.CaDA_RaceCar;
 
@@ -51,7 +53,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
     }
 
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
         var changed = _outputValues.TryGetValues(out var outputValues);
         currentData = _messageEncoder.Encode(outputValues, getConnectTelegram);

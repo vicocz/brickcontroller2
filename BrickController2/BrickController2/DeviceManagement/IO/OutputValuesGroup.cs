@@ -47,7 +47,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         {
             // reset all values
             _outputValues.AsSpan().Clear();
-            _commitedOutputValues.AsSpan().Fill(TValue.One);
+            _commitedOutputValues.AsSpan().Fill(TValue.One + TValue.One); // set to invalid value
             _values.AsSpan().Clear();
             // enable sending for the first round
             _sendAttemptsLeft = MAX_SEND_ATTEMPTS;

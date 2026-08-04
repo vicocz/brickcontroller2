@@ -12,8 +12,6 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     private const byte MockedRandomValue1 = 0xf4;
     private const byte MockedRandomValue2 = 0xf4;
 
-    private static readonly byte[] ScanData = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-
     /// <summary>
     /// This test checks that the payload identifiers are correctly set in the connect datagram for each device address.
     /// </summary>
@@ -23,9 +21,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     [InlineData(new byte[] { 0x12, 0x34, 0x56 })]
     public void TryGetTelegram_ConnectDatagram_PayloadIdentifier(byte[] deviceAddress)
     {
-        deviceAddress.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData = [0x00, 0x00, 0x00, 0x00, deviceAddress[0], deviceAddress[1], deviceAddress[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), scanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifier1);
@@ -41,9 +39,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     [InlineData(new byte[] { 0x12, 0x34, 0x35 })]
     public void TryGetTelegram_ConnectDatagram_AppIdentifier(byte[] deviceAddress)
     {
-        deviceAddress.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData = [0x00, 0x00, 0x00, 0x00, deviceAddress[0], deviceAddress[1], deviceAddress[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), scanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[5].Should().Be(AppIdentifier1);
@@ -60,9 +58,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     [InlineData(new byte[] { 0x12, 0x34, 0x35 })]
     public void TryGetTelegram_CommandDatagram_PayloadIdentifier(byte[] deviceAddress)
     {
-        deviceAddress.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData = [0x00, 0x00, 0x00, 0x00, deviceAddress[0], deviceAddress[1], deviceAddress[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), scanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifier1);
@@ -78,9 +76,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     [InlineData(new byte[] { 0x12, 0x34, 0x35 })]
     public void TryGetTelegram_CommandDatagram_AppIdentifier(byte[] deviceAddress)
     {
-        deviceAddress.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData = [0x00, 0x00, 0x00, 0x00, deviceAddress[0], deviceAddress[1], deviceAddress[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), scanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[5].Should().Be(AppIdentifier1);
@@ -97,9 +95,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     [InlineData(new byte[] { 0x12, 0x34, 0x35 })]
     public void TryGetTelegram_CommandDatagram_SetIllegalChannel(byte[] deviceAddress)
     {
-        deviceAddress.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData = [0x00, 0x00, 0x00, 0x00, deviceAddress[0], deviceAddress[1], deviceAddress[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), scanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         Action action = () => device.SetOutput(device.NumberOfChannels, 0);
 
@@ -113,9 +111,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     public void TryGetTelegram_CommandDatagram_InstanceInteraction()
     {
         byte[] deviceAddress1 = [0xab, 0xcd, 0xef];
-        deviceAddress1.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData1 = [0x00, 0x00, 0x00, 0x00, deviceAddress1[0], deviceAddress1[1], deviceAddress1[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device1 = new CaDARaceCar("CaDARaceCar1", BitConverter.ToString(deviceAddress1).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device1 = new CaDARaceCar("CaDARaceCar1", BitConverter.ToString(deviceAddress1).ToLower(), scanData1, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         float[] setValues1 = [1.0f, 1.0f, 0.0f];
         byte[] expectedPayload1 = [
@@ -126,9 +124,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
             0xc9, 0x1a, 0x21, 0xc9, 0xc9, 0xc9];
 
         byte[] deviceAddress2 = [0x12, 0x34, 0x56];
-        deviceAddress2.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData2 = [0x00, 0x00, 0x00, 0x00, deviceAddress2[0], deviceAddress2[1], deviceAddress2[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device2 = new CaDARaceCar("CaDARaceCar2", BitConverter.ToString(deviceAddress2).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device2 = new CaDARaceCar("CaDARaceCar2", BitConverter.ToString(deviceAddress2).ToLower(), scanData2, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         float[] setValues2 = [-1.0f, -1.0f, 0.0f];
         byte[] expectedPayload2 = [
@@ -139,9 +137,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
             0x1a, 0xc9, 0x21, 0xc9, 0xc9, 0xc9];
 
         byte[] deviceAddress3 = [0x78, 0x90, 0xab];
-        deviceAddress3.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData3 = [0x00, 0x00, 0x00, 0x00, deviceAddress3[0], deviceAddress3[1], deviceAddress3[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 
-        CaDARaceCar device3 = new CaDARaceCar("CaDARaceCar3", BitConverter.ToString(deviceAddress3).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+        CaDARaceCar device3 = new CaDARaceCar("CaDARaceCar3", BitConverter.ToString(deviceAddress3).ToLower(), scanData3, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         float[] setValues3 = [1.0f, -1.0f, 1.0f];
         byte[] expectedPayload3 = [
@@ -164,13 +162,9 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
         device2.TryGetTelegram(false, out byte[] payload2).Should().BeTrue();
         device3.TryGetTelegram(false, out byte[] payload3).Should().BeTrue();
 
-        // Check that the payload matches the expected values
-        for (int i = 0; i < expectedPayload1.Length; i++)
-        {
-            payload1[i].Should().Be(expectedPayload1[i]);
-            payload2[i].Should().Be(expectedPayload2[i]);
-            payload3[i].Should().Be(expectedPayload3[i]);
-        }
+        payload1.Should().BeEquivalentTo(expectedPayload1);
+        payload2.Should().BeEquivalentTo(expectedPayload2);
+        payload3.Should().BeEquivalentTo(expectedPayload3);
     }
 
     /// <summary>
@@ -191,9 +185,10 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
     [InlineData(new byte[] { 0x66, 0x77, 0x88 }, new float[] { -9.0f, -9.0f, -9.0f }, new byte[] { PayloadIdentifier1, PayloadIdentifier2, 0x00, 0x00, 0x00, AppIdentifier1, AppIdentifier2, AppIdentifier3, MockedRandomValue1, MockedRandomValue2, 0x1a, 0xc9, 0xc9, 0xc9, 0xc9, 0xc9 })]  // all channels below minimum, should be clamped to minimum
     public void TryGetTelegram_CommandDatagram_Payload(byte[] deviceAddress, float[] setValues, byte[] expectedPayload)
     {
-        deviceAddress.CopyTo(ScanData, 4); // Copy device address to ScanData at index 4
+        byte[] scanData = [0x00, 0x00, 0x00, 0x00, deviceAddress[0], deviceAddress[1], deviceAddress[2], AppIdentifier1, AppIdentifier2, AppIdentifier3, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), scanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
+
         deviceAddress.CopyTo(expectedPayload, 2); // Copy device address to expectedPayload at index 2
-        CaDARaceCar device = new CaDARaceCar("CaDARaceCar", BitConverter.ToString(deviceAddress).ToLower(), ScanData, _deviceRepository.Object, _bluetoothLEService.Object, _messageEncoderFactory);
 
         // Set the output values for the device
         for (int i = 0; i < device.NumberOfChannels; i++)
@@ -205,9 +200,6 @@ public sealed class CaDARaceCarRev1DatagramTests : CaDADatagramTestsBase
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
 
         // Check that the payload matches the expected values
-        for (int i = 0; i < expectedPayload.Length; i++)
-        {
-            payload[i].Should().Be(expectedPayload[i]);
-        }
+        payload.Should().BeEquivalentTo(expectedPayload);
     }
 }

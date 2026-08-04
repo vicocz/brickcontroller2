@@ -7,7 +7,7 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <Nullable>enable</Nullable>
-    <NeutralLanguage>en-US</NeutralLanguage>
+    <NeutralLanguage>en</NeutralLanguage>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(RootNamespace)' == ''">

@@ -18,9 +18,8 @@
 	</PropertyGroup>
 		
 	<PropertyGroup>
-		<NeutralLanguage>en</NeutralLanguage>
 		<DefaultLanguage>en</DefaultLanguage>
-		<SatelliteResourceLanguages>en;de;hu</SatelliteResourceLanguages>
+		<SatelliteResourceLanguages>de;hu</SatelliteResourceLanguages>
 		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
 	</PropertyGroup>
 

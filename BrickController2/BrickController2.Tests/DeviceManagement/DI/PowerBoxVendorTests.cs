@@ -2,6 +2,7 @@ using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.PowerBox;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.UI.Images;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -28,6 +29,7 @@ public class PowerBoxVendorTests : VendorTestsBase
         // Arrange
         builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
         builder.RegisterInstance(Mock.Of<IPowerBoxPlatformService>());
+        builder.RegisterInstance(Mock.Of<IDeviceImageRegistry>()); // needed because RegisterDevice<PowerFunctionsDevice>().WithImages("powerfunctions_image.png", "powerfunctions_image_small.png")
 
         // execute registration of vendor PowerBox
         builder.RegisterModule<PowerBoxVendor>();

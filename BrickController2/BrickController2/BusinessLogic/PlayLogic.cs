@@ -37,7 +37,7 @@ namespace BrickController2.BusinessLogic
             var deviceIds = creation.GetDeviceIds();
             var sequenceNames = creation.GetSequenceNames();
 
-            if (deviceIds == null || deviceIds.Count() == 0)
+            if (deviceIds == null || deviceIds.Count == 0)
             {
                 return CreationValidationResult.MissingControllerAction;
             }
@@ -90,6 +90,10 @@ namespace BrickController2.BusinessLogic
                         foreach (var controllerAction in controllerEvent.ControllerActions)
                         {
                             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+                            if (device is null)
+                            {
+                                continue;
+                            }
                             var channel = controllerAction.Channel;
 
                             if (gameControllerEvent.Key.EventType == InputDeviceEventType.Button)

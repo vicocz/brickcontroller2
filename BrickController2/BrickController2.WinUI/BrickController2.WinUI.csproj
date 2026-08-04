@@ -15,7 +15,10 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<!-- We do not want XAML files to be processed as .NET MAUI XAML -->
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
-
+		
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
 	</PropertyGroup>
 
 	<ItemGroup>

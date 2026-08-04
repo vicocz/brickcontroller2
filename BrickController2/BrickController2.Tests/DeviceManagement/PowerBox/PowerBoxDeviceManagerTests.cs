@@ -9,16 +9,16 @@ namespace BrickController2.Tests.DeviceManagement.PowerBox;
 
 public class PowerBoxDeviceManagerTests
 {
+    private const byte AppIdentifier1 = 0x61; // 'a' = 0x61
+    private const byte AppIdentifier2 = 0x62; // 'b' = 0x62
+
     private readonly IPowerBoxDeviceManager _manager;
-    private readonly Mock<IPreferencesService> _preferencesService = new(MockBehavior.Strict);
+    private readonly Mock<IAppIdentifierService> _appIdentifierService = new(MockBehavior.Strict);
 
     public PowerBoxDeviceManagerTests()
     {
-        _preferencesService.Setup(x => x.ContainsKey("Identifier", "App")).Returns(true);
-        _preferencesService.Setup(x => x.Get("Identifier", "", "App")).Returns("YWJj");
-
-        IAppIdentifierService appIdentifierService = new AppIdentifierService(_preferencesService.Object);
-        _manager = new PowerBoxDeviceManager(appIdentifierService);
+        _appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { AppIdentifier1, AppIdentifier2 });
+        _manager = new PowerBoxDeviceManager(_appIdentifierService.Object);
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public class PowerBoxDeviceManagerTests
     {
         var appId = _manager.GetAppId();
         appId.Length.Should().Be(2);
-        appId.Span[0].Should().Be(0x61); // 'a' = 0x61
-        appId.Span[1].Should().Be(0x62); // 'b' = 0x62
+        appId.Span[0].Should().Be(AppIdentifier1);
+        appId.Span[1].Should().Be(AppIdentifier2);
     }
 }

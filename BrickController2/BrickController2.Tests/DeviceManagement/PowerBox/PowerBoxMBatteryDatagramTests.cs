@@ -89,10 +89,7 @@ public sealed class PowerBoxMBatteryDatagramTests : PowerBoxDatagramTestsBase
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
 
         // Check that the payload matches the expected values
-        for (int i = 0; i < expectedPayload.Length; i++)
-        {
-            payload[i].Should().Be(expectedPayload[i]);
-        }
+        payload.Should().Equal(expectedPayload);
     }
 
     /// <summary>

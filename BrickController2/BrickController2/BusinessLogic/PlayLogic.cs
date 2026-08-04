@@ -37,7 +37,7 @@ namespace BrickController2.BusinessLogic
             var deviceIds = creation.GetDeviceIds();
             var sequenceNames = creation.GetSequenceNames();
 
-            if (deviceIds == null || deviceIds.Count == 0)
+            if (deviceIds.Count == 0)
             {
                 return CreationValidationResult.MissingControllerAction;
             }

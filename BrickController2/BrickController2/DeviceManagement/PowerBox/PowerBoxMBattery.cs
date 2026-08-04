@@ -68,8 +68,8 @@ internal class PowerBoxMBattery : PowerBoxBaseByte, IDeviceType<PowerBoxMBattery
     /// thread-safe and ensures exclusive access to the buffer during the
     /// update.</remarks>
     /// <param name="byteOffset">The zero-based index of the byte in the telegram buffer to modify.</param>
-    /// <param name="setValue_byte">The value to set.param>
-    /// <returns><see langword="true"/> if the byte in the telegram buffer was modified;  otherwise, <see langword="false"/> if
+    /// <param name="setValue_byte">The value to set.</param>
+    /// <returns><see langword="true"/> if the byte in the telegram buffer was modified; otherwise, <see langword="false"/> if
     /// the value remained unchanged.</returns>
     protected override bool SetChannelValue(int byteOffset, byte setValue_byte)
     {

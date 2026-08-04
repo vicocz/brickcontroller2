@@ -8,9 +8,9 @@ namespace BrickController2.Tests.DeviceManagement.CaDA;
 
 public abstract class CaDADatagramTestsBase
 {
-    protected const byte AppIdentifier1 = 0x61; // This is the first byte of an randomly choosen AppIdentifier for UnitTesting
-    protected const byte AppIdentifier2 = 0x62; // This is the second byte of an randomly choosen AppIdentifier for UnitTesting
-    protected const byte AppIdentifier3 = 0x63; // This is the third byte of an randomly choosen AppIdentifier for UnitTesting
+    protected const byte AppIdentifier1 = 0x61; // This is the first byte of a randomly chosen AppIdentifier for unit testing
+    protected const byte AppIdentifier2 = 0x62; // This is the second byte of a randomly chosen AppIdentifier for unit testing
+    protected const byte AppIdentifier3 = 0x63; // This is the third byte of a randomly chosen AppIdentifier for unit testing
 
     protected static readonly byte[] AppIdentifier = [AppIdentifier1, AppIdentifier2, AppIdentifier3];
 

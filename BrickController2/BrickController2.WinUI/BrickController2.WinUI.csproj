@@ -15,11 +15,19 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<!-- We do not want XAML files to be processed as .NET MAUI XAML -->
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
+	</PropertyGroup>
 		
+	<PropertyGroup>		
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<DefaultLanguage>en-US</DefaultLanguage>
 		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<SupportedCultures Include="en" />
+		<SupportedCultures Include="de" />
+		<SupportedCultures Include="hu" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Autofac" />

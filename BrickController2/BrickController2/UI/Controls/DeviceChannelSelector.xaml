@@ -504,6 +504,44 @@
 
                 <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Source="{extensions:ImageResource Source=jiestarscm8_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
             </Grid>
+
+            <!-- PowerBoxASeries -->
+            <Grid x:Name="PowerBoxASeriesSection">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0">
+                    <controls:ChannelSelectorRadioButton x:Name="PowerBoxASeriesChannel1" DeviceType="PowerBoxASeries" Channel="1" HorizontalOptions="End" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="PowerBoxASeriesChannel3" DeviceType="PowerBoxASeries" Channel="3" HorizontalOptions="End" VerticalOptions="End"/>
+                </Grid>
+
+                <Image Grid.Column="1" Source="{extensions:ImageResource Source=powerboxaseries_image.png}" WidthRequest="100" HeightRequest="60"/>
+
+                <Grid Grid.Column="2">
+                    <controls:ChannelSelectorRadioButton x:Name="PowerBoxASeriesChannel0" DeviceType="PowerBoxASeries" Channel="0" HorizontalOptions="Start" VerticalOptions="Start"/>
+                    <controls:ChannelSelectorRadioButton x:Name="PowerBoxASeriesChannel2" DeviceType="PowerBoxASeries" Channel="2" HorizontalOptions="Start" VerticalOptions="End"/>
+                </Grid>
+            </Grid>
+
+            <!-- PowerBoxMBattery -->
+            <Grid x:Name="PowerBoxMBatterySection">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="0" x:Name="PowerBoxMBatteryChannel0" DeviceType="PowerBoxMBattery" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
+
+                <Image Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Source="{extensions:ImageResource Source=powerboxmbattery_image.png}" WidthRequest="100" HeightRequest="150" HorizontalOptions="Center" VerticalOptions="Start"/>
+            </Grid>
         </Grid>
     </ContentView.Content>
 </ContentView>

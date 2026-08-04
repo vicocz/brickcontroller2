@@ -62,7 +62,9 @@ jobs:
       run: security find-identity -v -p codesigning
             
     - name: Restore Dependencies
-      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
+      run: >-
+        dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
+        -p:ApplicationId="${{ env.APP_ID }}"
 
     - name: Build MAUI iOS
       run: >-

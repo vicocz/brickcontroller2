@@ -131,10 +131,7 @@ public sealed class MouldKingMK6DatagramTests : MouldKingDatagramTestsBase
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
 
         // Check that the payload matches the expected values
-        for (int i = 0; i < expectedPayload.Length; i++)
-        {
-            payload[i].Should().Be(expectedPayload[i]);
-        }
+        payload.Should().BeEquivalentTo(expectedPayload);
     }
 
     /// <summary>
@@ -160,25 +157,25 @@ public sealed class MouldKingMK6DatagramTests : MouldKingDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_InstanceInteraction()
     {
-        float[] setValues_1 = [1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f];
-        byte[] expectedPayload_1 = [PayloadIdentifierCommand1_1, AppIdentifier1, AppIdentifier2, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, PayloadIdentifierCommand1_2];
+        float[] setValues1 = [1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f];
+        byte[] expectedPayload1 = [PayloadIdentifierCommand1_1, AppIdentifier1, AppIdentifier2, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, PayloadIdentifierCommand1_2];
 
-        float[] setValues_2 = [0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f];
-        byte[] expectedPayload_2 = [PayloadIdentifierCommand2_1, AppIdentifier1, AppIdentifier2, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, PayloadIdentifierCommand2_2];
+        float[] setValues2 = [0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f];
+        byte[] expectedPayload2 = [PayloadIdentifierCommand2_1, AppIdentifier1, AppIdentifier2, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, PayloadIdentifierCommand2_2];
 
-        float[] setValues_3 = [0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f];
-        byte[] expectedPayload_3 = [PayloadIdentifierCommand3_1, AppIdentifier1, AppIdentifier2, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, PayloadIdentifierCommand3_2];
+        float[] setValues3 = [0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f];
+        byte[] expectedPayload3 = [PayloadIdentifierCommand3_1, AppIdentifier1, AppIdentifier2, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, PayloadIdentifierCommand3_2];
 
         MK6 device1 = new MK6("MK6", MK6.Device1, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
         MK6 device2 = new MK6("MK6", MK6.Device2, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
         MK6 device3 = new MK6("MK6", MK6.Device3, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         // Set the output values for the device
-        for (int i = 0; i < setValues_1.Length; i++)
+        for (int i = 0; i < setValues1.Length; i++)
         {
-            device1.SetOutput(i, setValues_1[i]);
-            device2.SetOutput(i, setValues_2[i]);
-            device3.SetOutput(i, setValues_3[i]);
+            device1.SetOutput(i, setValues1[i]);
+            device2.SetOutput(i, setValues2[i]);
+            device3.SetOutput(i, setValues3[i]);
         }
 
         // Get the command datagram payload
@@ -187,11 +184,8 @@ public sealed class MouldKingMK6DatagramTests : MouldKingDatagramTestsBase
         device3.TryGetTelegram(false, out byte[] payload3).Should().BeTrue();
 
         // Check that the payload matches the expected values
-        for (int i = 0; i < expectedPayload_1.Length; i++)
-        {
-            payload1[i].Should().Be(expectedPayload_1[i]);
-            payload2[i].Should().Be(expectedPayload_2[i]);
-            payload3[i].Should().Be(expectedPayload_3[i]);
-        }
+        payload1.Should().BeEquivalentTo(expectedPayload1);
+        payload2.Should().BeEquivalentTo(expectedPayload2);
+        payload3.Should().BeEquivalentTo(expectedPayload3);
     }
 }

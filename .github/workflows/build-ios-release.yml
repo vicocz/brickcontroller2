@@ -68,7 +68,7 @@ jobs:
       run: >-
         dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
         --no-restore
-        -c Release
+        -c Debug
         -f ${{ steps.setup-maui.outputs.target-framework }}
         -r ${{ env.TARGET_RUNTIME }}
         -p:ApplicationId="${{ env.APP_ID }}"

@@ -80,13 +80,13 @@ jobs:
         -p:EnableCodeSigning=true
 
     - name: List build output
-      run: ls -R ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/
+      run: ls -R ${{ env.PROJECT_FOLDER }}/bin/Debug/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/
 
     - name: Upload IOS Artifact
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
-        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        path: ${{ env.PROJECT_FOLDER }}/bin/Debug/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
         retention-days: 14
 
   publish-release:

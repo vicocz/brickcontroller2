@@ -16,18 +16,6 @@
 		<!-- We do not want XAML files to be processed as .NET MAUI XAML -->
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
 	</PropertyGroup>
-		
-	<PropertyGroup>
-		<DefaultLanguage>en</DefaultLanguage>
-		<SatelliteResourceLanguages>de;hu</SatelliteResourceLanguages>
-		<AppxSymbolPackageEnabled>false</AppxSymbolPackageEnabled>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<SupportedCultures Include="en" />
-		<SupportedCultures Include="de" />
-		<SupportedCultures Include="hu" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Autofac" />

@@ -15,6 +15,7 @@
 		<EnableMsixTooling>true</EnableMsixTooling>
 		<!-- We do not want XAML files to be processed as .NET MAUI XAML -->
 		<EnableDefaultMauiItems>false</EnableDefaultMauiItems>
+
 	</PropertyGroup>
 
 	<ItemGroup>

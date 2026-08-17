@@ -44,11 +44,6 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
     /// <summary>
-    /// number of bytes containing channel values in base telegram
-    /// </summary>
-    protected override int BaseTelegram_ChannelBytesCount => 6;
-
-    /// <summary>
     /// offset to position of first channel in base telegram
     /// </summary>
     protected override int BaseTelegram_ChannelStartOffset => 3;
@@ -56,8 +51,8 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
       : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
     {
+        InitDevice();
     }
-
 
     public static DeviceType Type => DeviceType.MK6;
 
@@ -66,6 +61,17 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     public override DeviceType DeviceType => Type;
 
     public override int NumberOfChannels => 6;
+
+    protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
+    {
+        0 => SetOutput_AnalogChannel(value),
+        1 => SetOutput_AnalogChannel(value),
+        2 => SetOutput_AnalogChannel(value),
+        3 => SetOutput_AnalogChannel(value),
+        4 => SetOutput_AnalogChannel(value),
+        5 => SetOutput_AnalogChannel(value),
+        _ => throw new ArgumentException($"Illegal Argument \"{channelNo}\"", nameof(channelNo))
+    };
 
     /// <summary>
     /// Get reference to Base-Telegram for the given address

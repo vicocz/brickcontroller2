@@ -11,6 +11,10 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <MauiImplicitCastOperatorsUsageViaReflectionSupport>false</MauiImplicitCastOperatorsUsageViaReflectionSupport>
+  </PropertyGroup>
+
   <ItemGroup>
 	  <BundleResource Remove="Resources\splash.svg" />
 	</ItemGroup>

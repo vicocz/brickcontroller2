@@ -39,7 +39,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, JieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
+    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;
@@ -55,6 +55,10 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
 
         _telegram_Base[1] = appId[0];
         _telegram_Base[2] = appId[1];
+
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>
@@ -227,7 +231,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// <param name="payload">When this method returns, contains the RF payload as a byte array if the operation succeeds; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns><see langword="true"/> if the RF payload was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
     {
         if (getConnectTelegram)
         {

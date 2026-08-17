@@ -20,17 +20,27 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     private static readonly byte[] Telegram_Connect_Device = [0xa4, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0x5b];
 
     /// <summary>
-    /// Base Telegram for SCM4 devices
+    /// Base Telegram for SCM4 device 1
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+    private static readonly byte[] Telegram_Base_Device_1 = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+
+    /// <summary>
+    /// Base Telegram for SCM4 device 2
+    /// </summary>
+    private static readonly byte[] Telegram_Base_Device_2 = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+
+    /// <summary>
+    /// Base Telegram for SCM4 device 3
+    /// </summary>
+    private static readonly byte[] Telegram_Base_Device_3 = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
     /// </summary>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
-    public JieStarSCM4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, JieStarDeviceManager jieStarDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, Telegram_Connect_Device, Telegram_Base_Device, GetCTXValue2(address))
+    public JieStarSCM4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
+      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, Telegram_Connect_Device, GetTelegramBase(address), GetCTXValue2(address))
     {
     }
 
@@ -81,6 +91,22 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// </summary>
     /// <param name="address">address</param>
     /// <returns>reference to Base-Telegram</returns>
+    private static byte[] GetTelegramBase(string address)
+    {
+        return address switch
+        {
+            JieStarSCM4.Device1 => Telegram_Base_Device_1,
+            JieStarSCM4.Device2 => Telegram_Base_Device_2,
+            JieStarSCM4.Device3 => Telegram_Base_Device_3,
+            _ => throw new ArgumentException("Illegal Argument", nameof(address))
+        };
+    }
+
+    /// <summary>
+    /// Get CTXValue2 for the given address
+    /// </summary>
+    /// <param name="address">address</param>
+    /// <returns>CTXValue2</returns>
     private static byte GetCTXValue2(string address)
     {
         return address switch

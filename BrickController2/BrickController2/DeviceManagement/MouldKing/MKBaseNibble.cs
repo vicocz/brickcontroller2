@@ -62,6 +62,9 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         _telegram_Base[2] = appId[1];
 
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>
@@ -206,7 +209,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// <param name="payload">When this method returns, contains the RF payload as a byte array if the operation succeeds; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns><see langword="true"/> if the RF payload was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
     {
         if (getConnectTelegram)
         {

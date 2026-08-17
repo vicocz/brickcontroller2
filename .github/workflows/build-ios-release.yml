@@ -79,7 +79,7 @@ jobs:
         -p:CodesignProvision=Automatic
         -p:EnableAssemblyILStripping=false
         -p:EnableCodeSigning=true
-        -p:PublishTrimmed=false
+        -p:MtouchLink=SdkOnly
 
     - name: List build output
       run: ls -R ${{ env.PROJECT_FOLDER }}/bin/${{env.BUILD_CONFIGURATION}}/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/

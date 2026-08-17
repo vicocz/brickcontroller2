@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  BUILD_CONFIGURATION: 'Debug'
+  BUILD_CONFIGURATION: 'Release'
   PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
   TARGET_RUNTIME: 'ios-arm64'
   APP_ID: 'cz.vico.brickcontrollerlegacy'

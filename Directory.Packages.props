@@ -12,7 +12,7 @@
     <PackageVersion Include="sqlite-net-pcl" Version="1.11.285" />
     <PackageVersion Include="SQLiteNetExtensions" Version="2.1.0" />
     <PackageVersion Include="SQLiteNetExtensions.Async" Version="2.1.0" />
-    <PackageVersion Include="ZXing.Net.Maui.Controls" Version="0.10.3" />
+    <PackageVersion Include="ZXing.Net.Maui.Controls" Version="0.10.4" />
   </ItemGroup>
   <ItemGroup>
     <!--unit / component tests-->

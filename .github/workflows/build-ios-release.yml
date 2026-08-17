@@ -20,6 +20,7 @@ permissions:
   contents: read
 
 env:
+  BUILD_CONFIGURATION: 'Debug'
   PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
   TARGET_RUNTIME: 'ios-arm64'
   APP_ID: 'cz.vico.brickcontrollerlegacy'
@@ -68,7 +69,7 @@ jobs:
       run: >-
         dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
         --no-restore
-        -c Debug
+        -c ${{env.BUILD_CONFIGURATION}}
         -f ${{ steps.setup-maui.outputs.target-framework }}
         -r ${{ env.TARGET_RUNTIME }}
         -p:ApplicationId="${{ env.APP_ID }}"
@@ -80,13 +81,13 @@ jobs:
         -p:EnableCodeSigning=true
 
     - name: List build output
-      run: ls -R ${{ env.PROJECT_FOLDER }}/bin/Debug/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/
+      run: ls -R ${{ env.PROJECT_FOLDER }}/bin/${{env.BUILD_CONFIGURATION}}/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/
 
     - name: Upload IOS Artifact
       uses: actions/upload-artifact@v7
       with:
         name: brickcontroller-ios-ci-build
-        path: ${{ env.PROJECT_FOLDER }}/bin/Debug/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        path: ${{ env.PROJECT_FOLDER }}/bin/${{env.BUILD_CONFIGURATION}}/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
         retention-days: 14
 
   publish-release:

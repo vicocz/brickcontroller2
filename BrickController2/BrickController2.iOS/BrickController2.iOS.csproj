@@ -12,7 +12,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <MauiImplicitCastOperatorsUsageViaReflectionSupport>false</MauiImplicitCastOperatorsUsageViaReflectionSupport>
+    <!-- Workaround: Prevents AOT crashes with complex generics/reflection -->
+    <UseInterpreter>true</UseInterpreter>
   </PropertyGroup>
 
   <ItemGroup>

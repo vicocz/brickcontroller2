@@ -11,6 +11,11 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <!-- Workaround: Prevents AOT crashes with complex generics/reflection -->
+    <UseInterpreter>true</UseInterpreter>
+  </PropertyGroup>
+
   <ItemGroup>
 	  <BundleResource Remove="Resources\splash.svg" />
 	</ItemGroup>

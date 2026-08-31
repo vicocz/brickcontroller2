@@ -14,7 +14,7 @@ using System;
 [assembly: XamlCompilation(XamlCompilationOptions.Skip)]
 namespace BrickController2
 {
-	public partial class App : Application
+    public partial class App : Application
 	{
         private readonly ViewModelFactory _viewModelFactory;
         private readonly PageFactory _pageFactory;
@@ -75,8 +75,6 @@ namespace BrickController2
             var vm = viewModel ?? _viewModelFactory(typeof(CreationListPageViewModel), null);
             var page = _pageFactory(typeof(CreationListPage), vm);
             var navigationPage = _navigationPageFactory(page);
-            navigationPage.BarBackgroundColor = Colors.Red;
-            navigationPage.BarTextColor = Colors.White;
             return navigationPage;
         }
 

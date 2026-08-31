@@ -9,7 +9,11 @@
         <ResourceDictionary Source="UI/Themes/LightTheme.xaml"/>
 
         <!-- Global targets -->
-        
+        <Style TargetType="NavigationPage">
+            <Setter Property="BarBackgroundColor" Value="{DynamicResource NavigationBarColor}"/>
+            <Setter Property="BarTextColor" Value="{DynamicResource NavigationBarItemColor}"/>
+        </Style>
+
         <Style TargetType="Label">
             <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>

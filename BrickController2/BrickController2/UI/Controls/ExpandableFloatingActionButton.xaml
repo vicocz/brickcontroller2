@@ -1,27 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:BrickController2.UI.Controls"
              x:Class="BrickController2.UI.Controls.ExpandableFloatingActionButton">
     <ContentView.Content>
-    <Grid x:Name="RootGrid">
+        <Grid x:Name="RootGrid">
 
-        <!-- Overlay: IsVisible=False natively ignores all touches -->
-        <BoxView x:Name="Overlay" 
-                 BackgroundColor="Transparent" 
-                 IsVisible="False">
-            <BoxView.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnOverlayTapped" />
-            </BoxView.GestureRecognizers>
-        </BoxView>
+            <BoxView x:Name="Overlay" BackgroundColor="Transparent" IsVisible="False">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnOverlayTapped" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
 
-        <!-- No background color here means touches naturally pass through to your main page -->
-        <Grid VerticalOptions="End" 
+            <Grid VerticalOptions="End" 
               HorizontalOptions="End" 
-              Margin="16,16,16,32" 
+              Margin="16,0,16,0" 
               ColumnDefinitions="Auto, Auto">
 
-            <!-- Hide it entirely using IsVisible instead of transparency -->
-            <HorizontalStackLayout x:Name="SecondaryContainer" 
+                <HorizontalStackLayout x:Name="SecondaryContainer" 
                                    Grid.Column="0" 
                                    Spacing="15" 
                                    Opacity="0" 
@@ -30,16 +26,12 @@
                                    VerticalOptions="Center" 
                                    IsVisible="False" />
 
-            <ImageButton x:Name="MainFab" Grid.Column="1"
-                         BackgroundColor="Black" WidthRequest="30" HeightRequest="30"
-                         VerticalOptions="Center" Margin="4,0,4,0"
-                         InputTransparent="False"
-                         Clicked="OnFabClicked">
-                <ImageButton.Source>
-                    <FontImageSource x:Name="ImageSource" FontFamily="Icons" Glyph="menu" Color="{DynamicResource NegativeColor}" />
-                </ImageButton.Source>
-            </ImageButton>
+                <controls:FloatingActionButton Grid.Column="1" x:Name="Icon"
+                        Style="{StaticResource FloatingActionButtonStyle}"                      
+                        Icon="menu"
+                        Clicked="OnFabClicked">
+                </controls:FloatingActionButton>
+            </Grid>
         </Grid>
-    </Grid>
     </ContentView.Content>
 </ContentView>

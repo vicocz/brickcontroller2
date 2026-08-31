@@ -20,9 +20,7 @@ public partial class ExpandableFloatingActionButton : ContentView
         SecondaryButtons.CollectionChanged += OnSecondaryButtonsChanged;
     }
 
-    public ObservableCollection<IView> SecondaryButtons { get; } = new ObservableCollection<IView>();
-
-    // --- BINDABLE PROPERTIES ---
+    public ObservableCollection<IView> SecondaryButtons { get; } = [];
 
     public static readonly BindableProperty FabIconProperty =
         BindableProperty.Create(nameof(FabIcon), typeof(string), typeof(ExpandableFloatingActionButton), "+");
@@ -42,15 +40,13 @@ public partial class ExpandableFloatingActionButton : ContentView
         set => SetValue(FabColorProperty, value);
     }
 
-    // --- ANIMATION LOGIC ---
-
     private void OnFabClicked(object sender, EventArgs e)
     {
         _isMenuOpen = !_isMenuOpen;
         AnimateMenu();
     }
 
-    private void OnSecondaryButtonsChanged(object sender, NotifyCollectionChangedEventArgs e)
+    private void OnSecondaryButtonsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (e.NewItems != null)
         {
@@ -89,7 +85,7 @@ public partial class ExpandableFloatingActionButton : ContentView
             await Task.WhenAll(
                 SecondaryContainer.FadeToAsync(1, 250, Easing.CubicOut),
                 SecondaryContainer.TranslateToAsync(0, 0, 250, Easing.CubicOut),
-                MainFab.RotateToAsync(45, 250, Easing.CubicOut)
+                Icon.RotateToAsync(45, 250, Easing.CubicOut)
             );
         }
         else
@@ -98,7 +94,7 @@ public partial class ExpandableFloatingActionButton : ContentView
             await Task.WhenAll(
                 SecondaryContainer.FadeToAsync(0, 250, Easing.CubicIn),
                 SecondaryContainer.TranslateToAsync(20, 0, 250, Easing.CubicIn),
-                MainFab.RotateToAsync(0, 250, Easing.CubicIn)
+                Icon.RotateToAsync(0, 250, Easing.CubicIn)
             );
 
             // Hide elements entirely after animation finishes

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.InputDevice;
 
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
@@ -36,6 +37,7 @@ namespace BrickController2.BusinessLogic
         {
             var deviceIds = creation.GetDeviceIds();
             var sequenceNames = creation.GetSequenceNames();
+            var macroReferences = creation.GetMacroReferences();
 
             if (deviceIds.Count == 0)
             {
@@ -49,6 +51,14 @@ namespace BrickController2.BusinessLogic
             {
                 return CreationValidationResult.MissingSequence;
             }
+            else if (macroReferences.Any(mr =>
+            {
+                var device = _deviceManager.GetDeviceById(mr.DeviceId);
+                return device == null || !device.AvailableMacros.Any(m => m.Id == mr.MacroId && m.Scope == mr.Scope);
+            }))
+            {
+                return CreationValidationResult.MissingMacro;
+            }
 
             return CreationValidationResult.Ok;
         }
@@ -56,9 +66,27 @@ namespace BrickController2.BusinessLogic
         public bool ValidateControllerAction(ControllerAction controllerAction)
         {
             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
-            var sequence = _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName);
+            if (device == null)
+            {
+                return false;
+            }
 
-            return device != null && (controllerAction.ButtonType != ControllerButtonType.Sequence || sequence != null);
+            if (controllerAction.ButtonType == ControllerButtonType.Sequence)
+            {
+                return _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName) != null;
+            }
+
+            if (controllerAction.ButtonType == ControllerButtonType.Macro)
+            {
+                return device.AvailableMacros.Any(m => m.Id == controllerAction.MacroId && m.Scope == MacroScope.Channel);
+            }
+
+            if (controllerAction.ButtonType == ControllerButtonType.DeviceMacro)
+            {
+                return device.AvailableMacros.Any(m => m.Id == controllerAction.MacroId && m.Scope == MacroScope.Device);
+            }
+
+            return true;
         }
 
         public void StartPlay()
@@ -128,6 +156,29 @@ namespace BrickController2.BusinessLogic
             return controllerAction.ButtonType == ControllerButtonType.Normal || isPressed;
         }
 
+        private static void InvokeMacro(ControllerAction controllerAction, Device device, MacroScope scope)
+        {
+            var macro = device.AvailableMacros.FirstOrDefault(m => m.Id == controllerAction.MacroId && m.Scope == scope);
+            if (macro == null)
+            {
+                return;
+            }
+
+            int? channel = scope == MacroScope.Channel ? controllerAction.Channel : null;
+            var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoiceValue, channel);
+            _ = System.Threading.Tasks.Task.Run(async () =>
+            {
+                try
+                {
+                    await device.ExecuteMacroAsync(invocation, System.Threading.CancellationToken.None);
+                }
+                catch
+                {
+                    // fire-and-forget: swallow macro execution errors
+                }
+            });
+        }
+
         private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, Device device)
         {
             var previousOutputs = GetPreviousOutputs(controllerAction);
@@ -190,6 +241,20 @@ namespace BrickController2.BusinessLogic
                     if (sequence != null)
                     {
                         _sequencePlayer.ToggleSequence(controllerAction.DeviceId, controllerAction.Channel, controllerAction.IsInvert, sequence);
+                    }
+                    break;
+
+                case ControllerButtonType.Macro:
+                    if (isPressed)
+                    {
+                        InvokeMacro(controllerAction, device, MacroScope.Channel);
+                    }
+                    break;
+
+                case ControllerButtonType.DeviceMacro:
+                    if (isPressed)
+                    {
+                        InvokeMacro(controllerAction, device, MacroScope.Device);
                     }
                     break;
             }

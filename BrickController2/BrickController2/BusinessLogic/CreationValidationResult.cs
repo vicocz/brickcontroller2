@@ -5,6 +5,7 @@
         Ok,
         MissingControllerAction,
         MissingDevice,
-        MissingSequence
+        MissingSequence,
+        MissingMacro,
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BrickController2.DeviceManagement.BuWizz;
 using BrickController2.DeviceManagement.IO;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
@@ -23,6 +24,22 @@ namespace BrickController2.DeviceManagement
         private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
         private const string DefaultOutputLevelName = "BuWizz2DefaultOutputLevel";
         private const BuWizz2OutputLevels DefaultLevel = BuWizz2OutputLevels.Normal;
+        private const string SetOutputLevelMacroId = "SetOutputLevel";
+
+        private static readonly IReadOnlyList<MacroDescriptor> Macros =
+        [
+            new MacroDescriptor(
+                SetOutputLevelMacroId,
+                "Macro_SetOutputLevel",
+                MacroScope.Device,
+                MacroKind.OneShot,
+                [
+                    new MacroChoice("MacroChoice_BuWizz_Low", (int)BuWizz2OutputLevels.Low),
+                    new MacroChoice("MacroChoice_BuWizz_Normal", (int)BuWizz2OutputLevels.Normal),
+                    new MacroChoice("MacroChoice_BuWizz_High", (int)BuWizz2OutputLevels.High),
+                    new MacroChoice("MacroChoice_BuWizz_Ludicrous", (int)BuWizz2OutputLevels.Ludicrous),
+                ])
+        ];
 
         private readonly OutputValuesGroup<int> _outputGroup = new(4);
 
@@ -74,10 +91,24 @@ namespace BrickController2.DeviceManagement
         }
 
         public override bool CanSetOutputLevel => true;
+        public override bool SupportsMacros => true;
+        public override IReadOnlyList<MacroDescriptor> AvailableMacros => Macros;
 
         public override void SetOutputLevel(int value)
         {
             _outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
+        }
+
+        public override Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+
+            if (invocation.DescriptorId == SetOutputLevelMacroId && invocation.ChoiceValue.HasValue)
+            {
+                SetOutputLevel(invocation.ChoiceValue.Value);
+            }
+
+            return Task.CompletedTask;
         }
 
         public override bool CanBePowerSource => true;

@@ -120,8 +120,12 @@
                         <Label Text="{extensions:Translate AddControllerEvents}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
                     </CollectionView.EmptyView>
                 </CollectionView>
-
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10"/>
+                <!--<controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10"/>-->
+                <controls:ExpandableFloatingActionButton Grid.Row="0" Grid.RowSpan="2" FabIcon="playlist_add" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10">
+                    <Button Text="A" CornerRadius="20" WidthRequest="40" HeightRequest="40" BackgroundColor="LightBlue" />
+                    <Button Text="B" CornerRadius="20" WidthRequest="40" HeightRequest="40" BackgroundColor="LightGreen" />
+                    <Button Text="C" CornerRadius="20" WidthRequest="40" HeightRequest="40" BackgroundColor="LightPink" />
+                </controls:ExpandableFloatingActionButton>
                 <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEvent}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>

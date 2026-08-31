@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BrickController2.UI.Controls.ExpandableFloatingActionButton">
+    <ContentView.Content>
+    <Grid x:Name="RootGrid">
+
+        <!-- Overlay: IsVisible=False natively ignores all touches -->
+        <BoxView x:Name="Overlay" 
+                 BackgroundColor="Transparent" 
+                 IsVisible="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnOverlayTapped" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- No background color here means touches naturally pass through to your main page -->
+        <Grid VerticalOptions="End" 
+              HorizontalOptions="End" 
+              Margin="16,16,16,32" 
+              ColumnDefinitions="Auto, Auto">
+
+            <!-- Hide it entirely using IsVisible instead of transparency -->
+            <HorizontalStackLayout x:Name="SecondaryContainer" 
+                                   Grid.Column="0" 
+                                   Spacing="15" 
+                                   Opacity="0" 
+                                   TranslationX="20" 
+                                   Margin="0,0,15,0" 
+                                   VerticalOptions="Center" 
+                                   IsVisible="False" />
+
+            <ImageButton x:Name="MainFab" Grid.Column="1"
+                         BackgroundColor="Black" WidthRequest="30" HeightRequest="30"
+                         VerticalOptions="Center" Margin="4,0,4,0"
+                         InputTransparent="False"
+                         Clicked="OnFabClicked">
+                <ImageButton.Source>
+                    <FontImageSource x:Name="ImageSource" FontFamily="Icons" Glyph="menu" Color="{DynamicResource NegativeColor}" />
+                </ImageButton.Source>
+            </ImageButton>
+        </Grid>
+    </Grid>
+    </ContentView.Content>
+</ContentView>

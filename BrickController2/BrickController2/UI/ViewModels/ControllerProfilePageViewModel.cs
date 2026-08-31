@@ -8,9 +8,9 @@ using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.CreationManagement.Sharing;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Extensions;
 using BrickController2.Helpers;
-using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -233,7 +233,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Creating"),
                         token: DisappearingToken);
 
-                    await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent!)));
+                    await NavigateToActionEditorAsync(controllerEvent!, result.EventType);
                 }
             }
             catch (OperationCanceledException)
@@ -255,11 +255,21 @@ namespace BrickController2.UI.ViewModels
                     return;
                 }
 
-                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new (controllerActionViewModel.ControllerAction, "controlleraction"));
+                await NavigateToActionEditorForExistingAsync(controllerActionViewModel.ControllerAction);
             }
             catch (OperationCanceledException)
             {
             }
+        }
+
+        private Task NavigateToActionEditorForExistingAsync(ControllerAction controllerAction)
+        {
+            if (controllerAction.ButtonType == ControllerButtonType.DeviceMacro)
+            {
+                return NavigationService.NavigateToAsync<ControllerDeviceMacroPageViewModel>(new(controllerAction, "controlleraction"));
+            }
+
+            return NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new(controllerAction, "controlleraction"));
         }
 
         private async Task PlayAsync()
@@ -279,6 +289,10 @@ namespace BrickController2.UI.ViewModels
 
                 case CreationValidationResult.MissingSequence:
                     warning = Translate("MissingSequence");
+                    break;
+
+                case CreationValidationResult.MissingMacro:
+                    warning = Translate("MissingMacro");
                     break;
             }
 
@@ -317,13 +331,46 @@ namespace BrickController2.UI.ViewModels
                     Translate("Creating"),
                     token: DisappearingToken);
 
-                await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent!)));
-                
+                await NavigateToActionEditorAsync(controllerEvent!, controllerEvent.EventType);
+
             }
             catch (OperationCanceledException)
             {
             }
         }
+
+        private async Task NavigateToActionEditorAsync(ControllerEvent controllerEvent, PlatformServices.InputDevice.InputDeviceEventType eventType)
+        {
+            // only offer DeviceMacro branch for button events - axis events do not fit one-shot semantics
+            var offerDeviceMacro = eventType == PlatformServices.InputDevice.InputDeviceEventType.Button && HasDeviceScopedMacros();
+            if (offerDeviceMacro)
+            {
+                var channelChoice = Translate("ChannelAction");
+                var deviceMacroChoice = Translate("DeviceMacro");
+
+                var selection = await _dialogService.ShowSelectionDialogAsync(
+                    [channelChoice, deviceMacroChoice],
+                    Translate("SelectBindingKind"),
+                    Translate("Cancel"),
+                    DisappearingToken);
+
+                if (!selection.IsOk)
+                {
+                    return;
+                }
+
+                if (selection.SelectedItem == deviceMacroChoice)
+                {
+                    await NavigationService.NavigateToAsync<ControllerDeviceMacroPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent)));
+                    return;
+                }
+            }
+
+            await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent)));
+        }
+
+        private bool HasDeviceScopedMacros()
+            => _deviceManager.Devices.Any(d => d.AvailableMacros.Any(m => m.Scope == MacroScope.Device));
 
         private async Task DeleteControllerEventAsync(ControllerEvent controllerEvent)
         {

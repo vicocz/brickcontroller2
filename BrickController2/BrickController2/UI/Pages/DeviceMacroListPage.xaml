@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:PageBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
+    x:Class="BrickController2.UI.Pages.DeviceMacroListPage"
+    x:DataType="viewmodels:DeviceMacroListPageViewModel"
+    Title="{extensions:Translate Macros}"
+    ios:Page.UseSafeArea="True"
+    BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <local:PageBase.Content>
+        <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
+
+                <!-- Macro list -->
+                <CollectionView ItemsSource="{Binding Macros}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="viewmodels:DeviceMacroListPageViewModel+MacroItemViewModel">
+                            <VerticalStackLayout>
+                                <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="0,0">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding BindingContext.ExecuteMacroCommand, Source={RelativeSource AncestorType={x:Type local:DeviceMacroListPage}}}" CommandParameter="{Binding .}"/>
+                                    </Grid.GestureRecognizers>
+                                    <Label Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" VerticalOptions="CenterAndExpand" Margin="10,0"/>
+                                </Grid>
+                                <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <Label Text="{extensions:Translate NoMacrosAvailable}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+
+            </Grid>
+
+            <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>
+        </AbsoluteLayout>
+    </local:PageBase.Content>
+</local:PageBase>

@@ -210,6 +210,37 @@
                                 </Grid>
                             </VerticalStackLayout>
 
+                            <!-- Macro selector -->
+                            <VerticalStackLayout IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <MultiTrigger TargetType="VerticalStackLayout">
+                                        <MultiTrigger.Conditions>
+                                            <BindingCondition Binding="{Binding Action.ButtonType}" Value="{x:Static creationManagement:ControllerButtonType.Macro}"/>
+                                            <BindingCondition Binding="{Binding HasChannelMacros}" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="IsVisible" Value="True"/>
+                                    </MultiTrigger>
+                                </VerticalStackLayout.Triggers>
+                                <Grid ColumnSpacing="6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Grid.Column="0" Text="{extensions:Translate Macro}" VerticalOptions="Center"/>
+                                    <Button Grid.Column="1" Text="{Binding SelectedMacroDisplayName}" Command="{Binding SelectMacroCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                                </Grid>
+                                <Grid ColumnSpacing="6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Grid.Column="0" Text="{extensions:Translate MacroChoice}" VerticalOptions="Center"/>
+                                    <Button Grid.Column="1" Text="{Binding SelectedMacroChoiceDisplayName}" Command="{Binding SelectMacroChoiceCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                                </Grid>
+                            </VerticalStackLayout>
+
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
                         </VerticalStackLayout>
 

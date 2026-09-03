@@ -210,6 +210,24 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz output level</value>
   </data>
+  <data name="DeviceActions" xml:space="preserve">
+    <value>Device actions</value>
+  </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Set output level</value>
+  </data>
+  <data name="MacroChoice_BuWizz_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="MacroChoice_BuWizz_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="MacroChoice_BuWizz_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="MacroChoice_BuWizz_Ludicrous" xml:space="preserve">
+    <value>Ludicrous</value>
+  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Calibrating...</value>
   </data>
@@ -419,6 +437,36 @@
   </data>
   <data name="MissingSequence" xml:space="preserve">
     <value>Missing sequence</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>Missing macro</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Select a macro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Select a value</value>
+  </data>
+  <data name="NoMacros" xml:space="preserve">
+    <value>The selected device has no macros.</value>
+  </data>
+  <data name="SelectMacroBeforeSaving" xml:space="preserve">
+    <value>Select a macro before saving.</value>
+  </data>
+  <data name="DeviceMacro" xml:space="preserve">
+    <value>Device macro</value>
+  </data>
+  <data name="ChannelAction" xml:space="preserve">
+    <value>Channel action</value>
+  </data>
+  <data name="SelectBindingKind" xml:space="preserve">
+    <value>What do you want to bind?</value>
   </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
@@ -647,6 +695,15 @@
   </data>
   <data name="Applying" xml:space="preserve">
     <value>Applying...</value>
+  </data>
+  <data name="Macros" xml:space="preserve">
+    <value>Macros</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>No macros available for this device.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>Execution of the macro has failed:</value>
   </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>

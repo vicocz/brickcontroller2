@@ -1,6 +1,8 @@
 ﻿using BrickController2.DeviceManagement.IO;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Protocols;
+using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +15,11 @@ internal class PfxBrickDevice : BluetoothDevice
 {
     private const int PF_CHANNELS = 2;
     private const int LIGHT_CHANNELS = 8;
+    private const string DefaultStartupVolume = "PfxBrickDefaultVolume";
+    private const double DefaultVolumeValue = 0.8f;
+    private const string PlaySoundMacroId = "PlaySound";
+    private const string PlaySoundMacroNameKey = "PfxPlaySoundMacroName";
+
 
     private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
@@ -20,18 +27,32 @@ internal class PfxBrickDevice : BluetoothDevice
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
+    private readonly List<MacroDescriptor> _macros = [];
+    private readonly Dictionary<string, byte> _macroFileIds = []; // MacroChoice<string>.Value (file id as string) -> PFx File ID
 
     private IGattCharacteristic? _writeCharacteristic;
     private IGattCharacteristic? _notifyCharacteristic;
 
-    public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    private TaskCompletionSource<byte[]>? _fileDirTcs;
+
+    private int _filesCount;
+
+    public PfxBrickDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
+        // apply values (if any) or default
+        SetSettingValue(DefaultStartupVolume, settings, DefaultVolume);
     }
 
     public override DeviceType DeviceType => DeviceType.PfxBrick;
 
     public override int NumberOfChannels => 10;
+
+    public override bool SupportsMacros => true;
+
+    public override IReadOnlyList<MacroDescriptor> AvailableMacros => _macros;
+
+    public double DefaultVolume => GetSettingValue(DefaultStartupVolume, DefaultVolumeValue);
 
     protected override bool AutoConnectOnFirstConnect => false;
 
@@ -55,6 +76,20 @@ internal class PfxBrickDevice : BluetoothDevice
         }
     }
 
+    public override Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+
+        if (invocation.DescriptorId == PlaySoundMacroId
+            && invocation.ChoiceValue is string fileName
+            && _macroFileIds.TryGetValue(fileName, out var fileId))
+        {
+            return WriteCommandAsync(PfxProtocol.PlaySoundFile(fileId), token);
+        }
+
+        return Task.CompletedTask;
+    }
+
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {
         var service = services?.FirstOrDefault(s => s.Uuid == SERVICE_UUID);
@@ -74,7 +109,14 @@ internal class PfxBrickDevice : BluetoothDevice
         if (characteristicGuid != _notifyCharacteristic?.Uuid || data.Length == 0)
             return;
 
-        if (data.Length == 1) // notification
+        // check opcode first: file directory responses may be padded/truncated to the same
+        // fixed BLE notification frame size as status packets (e.g. 48 bytes), so length alone
+        // isn't a reliable discriminator.
+        if (data[0] == PfxProtocol.RSP_FILE_DIR)
+        {
+            _fileDirTcs?.TrySetResult(data);
+        }
+        else if (data.Length == 1) // notification
         {
         }
         else if (data.Length == 48) // status
@@ -105,6 +147,7 @@ internal class PfxBrickDevice : BluetoothDevice
             if (requestDeviceInformation)
             {
                 await ReadDeviceInfo(token);
+                await GetAvailableMacros(token);
             }
         }
         catch { }
@@ -206,5 +249,56 @@ internal class PfxBrickDevice : BluetoothDevice
     {
         // request status update
         await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
+    }
+
+    private async Task GetAvailableMacros(CancellationToken token)
+    {
+        const int MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
+        const int FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
+
+        _macros.Clear();
+        _macroFileIds.Clear();
+
+        var countResponse = await RequestFileDirAsync(PfxProtocol.GetFileCount(), token);
+        _filesCount = PfxProtocol.ParseFileCount(countResponse) ?? 0;
+
+        var foundCount = 0;
+        var choices = new List<MacroChoice>();
+
+        for (var i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < _filesCount; i++)
+        {
+            var entryResponse = await RequestFileDirAsync(PfxProtocol.GetDirEntryAtIndex((byte)i), token);
+            var entry = PfxProtocol.ParseFileDirEntry(entryResponse);
+            if (entry is null || !PfxProtocol.IsValidFileDirEntry(entry.Value))
+            {
+                continue; // empty/unused directory slot
+            }
+
+            foundCount++;
+
+            var soundId = entry.Value.FileId.ToString();
+            _macroFileIds[soundId] = (byte)entry.Value.FileId;
+
+            choices.Add(new MacroChoice<string>(entry.Value.FileName, soundId));
+        }
+
+        _macros.Add(new MacroDescriptor(
+            id: PlaySoundMacroId,
+            nameKey: PlaySoundMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.Repeatable,
+            choices: choices));
+    }
+
+    private async Task<byte[]> RequestFileDirAsync(byte[] command, CancellationToken token, int timeoutMs = 2000)
+    {
+        _fileDirTcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+        await WriteCommandAsync(command, token);
+
+        using var timeoutCts = new CancellationTokenSource(timeoutMs);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token);
+        using var reg = linkedCts.Token.Register(() => _fileDirTcs.TrySetCanceled(linkedCts.Token));
+
+        return await _fileDirTcs.Task;
     }
 }

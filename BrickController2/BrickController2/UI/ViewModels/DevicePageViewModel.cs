@@ -59,6 +59,7 @@ namespace BrickController2.UI.ViewModels
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
+            OpenDeviceMacroListPageCommand = new SafeCommand(OpenDeviceMacroListPageAsync, () => CanOpenMacros);
         }
 
         public Device Device { get; }
@@ -73,6 +74,10 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool CanOpenMacros => Device.SupportsMacros &&
+            Device.DeviceState == DeviceState.Connected &&
+            !_deviceManager.IsScanning;
+
         public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
 
         public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
@@ -83,6 +88,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand ActivateShelfModeCommand { get; }
         public ICommand ScanCommand { get; }
         public ICommand OpenDeviceSettingsPageCommand { get; }
+        public ICommand OpenDeviceMacroListPageCommand { get; }
 
         public int BuWizzOutputLevel { get; set; }
         public int BuWizz2OutputLevel { get; set; }
@@ -204,6 +210,8 @@ namespace BrickController2.UI.ViewModels
             await DisconnectAsync();
             await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
         }
+
+        private Task OpenDeviceMacroListPageAsync() => NavigationService.NavigateToAsync<DeviceMacroListPageViewModel>(new NavigationParameters(("device", Device)));
 
         private async Task RenameDeviceAsync()
         {
@@ -433,6 +441,7 @@ namespace BrickController2.UI.ViewModels
             ScanCommand.RaiseCanExecuteChanged();
             ActivateShelfModeCommand.RaiseCanExecuteChanged();
             OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
+            OpenDeviceMacroListPageCommand.RaiseCanExecuteChanged();
             // to ensure that servo/stepper commands are enabled / disabled properly
             RaisePropertyChanged(nameof(IsServoOrStepperSupported));
         }

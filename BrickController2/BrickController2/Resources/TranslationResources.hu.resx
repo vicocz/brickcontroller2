@@ -210,6 +210,24 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz kimeneti szint</value>
   </data>
+  <data name="DeviceActions" xml:space="preserve">
+    <value>Eszközműveletek</value>
+  </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Kimeneti szint beállítása</value>
+  </data>
+  <data name="MacroChoice_BuWizz_Low" xml:space="preserve">
+    <value>Alacsony</value>
+  </data>
+  <data name="MacroChoice_BuWizz_Normal" xml:space="preserve">
+    <value>Normál</value>
+  </data>
+  <data name="MacroChoice_BuWizz_High" xml:space="preserve">
+    <value>Magas</value>
+  </data>
+  <data name="MacroChoice_BuWizz_Ludicrous" xml:space="preserve">
+    <value>Ludicrous</value>
+  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Kalibrálás...</value>
   </data>

@@ -1,5 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.Helpers;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -99,6 +100,10 @@ namespace BrickController2.DeviceManagement
 
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }
+
+        public virtual bool SupportsMacros => false;
+        public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
+        public virtual Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token) => Task.CompletedTask;
 
         public virtual bool CanResetOutput(int channel) => false;
         public virtual Task ResetOutputAsync(int channel, float value, CancellationToken token)

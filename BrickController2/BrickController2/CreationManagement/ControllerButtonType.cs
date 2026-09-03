@@ -9,6 +9,8 @@
         PingPong,
         Stop,
         Accelerator,
-        Sequence
+        Sequence,
+        Macro,
+        DeviceMacro,
     }
 }

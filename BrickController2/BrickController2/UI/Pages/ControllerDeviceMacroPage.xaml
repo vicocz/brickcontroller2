@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:PageBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:converters="clr-namespace:BrickController2.UI.Converters"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    x:Class="BrickController2.UI.Pages.ControllerDeviceMacroPage"
+    Title="{extensions:Translate DeviceMacro}"
+    ios:Page.UseSafeArea="True"
+    BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <local:PageBase.Resources>
+        <ResourceDictionary>
+            <converters:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
+        </ResourceDictionary>
+    </local:PageBase.Resources>
+
+    <ContentPage.ToolbarItems>
+        <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <local:PageBase.Content>
+        <ScrollView>
+            <VerticalStackLayout Padding="10" Spacing="10">
+                <!-- Device selector -->
+                <Grid ColumnSpacing="6" ColumnDefinitions="2*,3*">
+                    <Label Grid.Column="0" Text="{extensions:Translate Device}" VerticalOptions="Center"/>
+                    <Button Grid.Column="1" Text="{Binding SelectedDevice.Name}" Command="{Binding SelectDeviceCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                </Grid>
+
+                <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
+
+                <!-- Macro selector -->
+                <Grid ColumnSpacing="6" ColumnDefinitions="2*,3*">
+                    <Label Grid.Column="0" Text="{extensions:Translate Macro}" VerticalOptions="Center"/>
+                    <Button Grid.Column="1" Text="{Binding SelectedMacroDisplayName}" Command="{Binding SelectMacroCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                </Grid>
+
+                <!-- Macro choice selector -->
+                <Grid ColumnSpacing="6" ColumnDefinitions="2*,3*"
+                      IsVisible="{Binding SelectedMacroChoiceDisplayName, Converter={StaticResource IsStringNotNullOrEmptyConverter}}">
+                    <Label Grid.Column="0" Text="{extensions:Translate MacroChoice}" VerticalOptions="Center"/>
+                    <Button Grid.Column="1" Text="{Binding SelectedMacroChoiceDisplayName}" Command="{Binding SelectMacroChoiceCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </local:PageBase.Content>
+</local:PageBase>

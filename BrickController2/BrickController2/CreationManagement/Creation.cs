@@ -5,6 +5,7 @@ using SQLite;
 using SQLiteNetExtensions.Attributes;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace BrickController2.CreationManagement
 {
@@ -77,6 +78,32 @@ namespace BrickController2.CreationManagement
             }
 
             return sequenceNames;
+        }
+
+        public IReadOnlyCollection<(string DeviceId, string MacroId, DeviceManagement.Macros.MacroScope Scope)> GetMacroReferences()
+        {
+            var macroReferences = new HashSet<(string, string, DeviceManagement.Macros.MacroScope)>();
+
+            foreach (var profile in ControllerProfiles)
+            {
+                foreach (var controllerEvent in profile.ControllerEvents)
+                {
+                    foreach (var controllerAction in controllerEvent.ControllerActions
+                        .Where(x => !string.IsNullOrEmpty(x.MacroId)))
+                    {
+                        if (controllerAction.ButtonType == ControllerButtonType.Macro)
+                        {
+                            macroReferences.Add((controllerAction.DeviceId, controllerAction.MacroId, DeviceManagement.Macros.MacroScope.Channel));
+                        }
+                        else if (controllerAction.ButtonType == ControllerButtonType.DeviceMacro)
+                        {
+                            macroReferences.Add((controllerAction.DeviceId, controllerAction.MacroId, DeviceManagement.Macros.MacroScope.Device));
+                        }
+                    }
+                }
+            }
+
+            return macroReferences;
         }
     }
 }

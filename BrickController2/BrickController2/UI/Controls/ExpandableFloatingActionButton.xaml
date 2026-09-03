@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+             x:Class="BrickController2.UI.Controls.ExpandableFloatingActionButton">
+    <ContentView.Content>
+        <Grid x:Name="RootGrid">
+
+            <BoxView x:Name="Overlay" BackgroundColor="Transparent" IsVisible="False">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnOverlayTapped" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+
+            <Grid VerticalOptions="End" 
+              HorizontalOptions="End" 
+              Margin="16,0,16,0" 
+              ColumnDefinitions="Auto, Auto">
+
+                <HorizontalStackLayout x:Name="SecondaryContainer" 
+                                   Grid.Column="0" 
+                                   Spacing="15" 
+                                   Opacity="0" 
+                                   TranslationX="20" 
+                                   Margin="0,0,15,0" 
+                                   VerticalOptions="Center" 
+                                   IsVisible="False" />
+
+                <controls:FloatingActionButton Grid.Column="1" x:Name="Icon"
+                        Style="{StaticResource FloatingActionButtonStyle}"                      
+                        Icon="menu"
+                        Clicked="OnFabClicked">
+                </controls:FloatingActionButton>
+            </Grid>
+        </Grid>
+    </ContentView.Content>
+</ContentView>

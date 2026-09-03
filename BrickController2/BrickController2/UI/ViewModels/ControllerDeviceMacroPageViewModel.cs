@@ -83,7 +83,7 @@ public class ControllerDeviceMacroPageViewModel : PageViewModelBase
                 {
                     var first = AvailableMacros.FirstOrDefault();
                     Action.MacroId = first?.Id ?? string.Empty;
-                    Action.MacroChoiceValue = first?.Choices.Count > 0 ? first.Choices[0].Value : null;
+                    Action.MacroChoiceValue = first?.Choices.Count > 0 ? (int)first.Choices[0].BoxedValue : null;
                 }
             }
             RaisePropertyChanged();
@@ -112,7 +112,7 @@ public class ControllerDeviceMacroPageViewModel : PageViewModelBase
             {
                 return string.Empty;
             }
-            var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoiceValue);
+            var choice = macro.Choices.FirstOrDefault(c => c.BoxedValue == Action.MacroChoiceValue);
             return choice is null ? string.Empty : Translate(choice.LabelKey);
         }
     }
@@ -230,7 +230,7 @@ public class ControllerDeviceMacroPageViewModel : PageViewModelBase
             {
                 var macro = macros[index];
                 Action.MacroId = macro.Id;
-                Action.MacroChoiceValue = macro.Choices.Count > 0 ? macro.Choices[0].Value : null;
+                Action.MacroChoiceValue = macro.Choices.Count > 0 ? (int)macro.Choices[0].BoxedValue : null;
                 RaisePropertyChanged(nameof(SelectedMacro));
                 RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                 RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
@@ -259,7 +259,7 @@ public class ControllerDeviceMacroPageViewModel : PageViewModelBase
             var index = Array.IndexOf(labels, result.SelectedItem);
             if (index >= 0)
             {
-                Action.MacroChoiceValue = macro.Choices[index].Value;
+                Action.MacroChoiceValue = (int)macro.Choices[index].BoxedValue;
                 RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
             }
         }

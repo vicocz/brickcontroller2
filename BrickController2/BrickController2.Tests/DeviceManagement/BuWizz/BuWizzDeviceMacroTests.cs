@@ -27,7 +27,7 @@ public class BuWizzDeviceMacroTests
         macro.Id.Should().Be("SetOutputLevel");
         macro.Scope.Should().Be(MacroScope.Device);
         macro.Kind.Should().Be(MacroKind.OneShot);
-        macro.Choices.Select(c => c.Value).Should().Equal(
+        macro.Choices.Select(c => c.BoxedValue).Should().Equal(
             (int)BuWizzOutputLevels.Low,
             (int)BuWizzOutputLevels.Normal,
             (int)BuWizzOutputLevels.High);
@@ -55,7 +55,7 @@ public class BuWizzDeviceMacroTests
         macro.Id.Should().Be("SetOutputLevel");
         macro.Scope.Should().Be(MacroScope.Device);
         macro.Kind.Should().Be(MacroKind.OneShot);
-        macro.Choices.Select(c => c.Value).Should().Equal(
+        macro.Choices.Select(c => c.BoxedValue).Should().Equal(
             (int)BuWizz2OutputLevels.Low,
             (int)BuWizz2OutputLevels.Normal,
             (int)BuWizz2OutputLevels.High,

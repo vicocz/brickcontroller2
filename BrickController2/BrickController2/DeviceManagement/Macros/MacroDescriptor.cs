@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace BrickController2.DeviceManagement.Macros;
 
-public sealed class MacroDescriptor
+public sealed record MacroDescriptor
 {
     public MacroDescriptor(
         string id,

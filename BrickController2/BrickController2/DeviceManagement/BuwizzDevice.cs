@@ -31,9 +31,9 @@ namespace BrickController2.DeviceManagement
                 MacroScope.Device,
                 MacroKind.OneShot,
                 [
-                    new MacroChoice("MacroChoice_BuWizz_Low", (int)BuWizzOutputLevels.Low),
-                    new MacroChoice("MacroChoice_BuWizz_Normal", (int)BuWizzOutputLevels.Normal),
-                    new MacroChoice("MacroChoice_BuWizz_High", (int)BuWizzOutputLevels.High)
+                    new MacroChoice<int>("MacroChoice_BuWizz_Low", (int)BuWizzOutputLevels.Low),
+                    new MacroChoice<int>("MacroChoice_BuWizz_Normal", (int)BuWizzOutputLevels.Normal),
+                    new MacroChoice<int>("MacroChoice_BuWizz_High", (int)BuWizzOutputLevels.High)
                 ])
         ];
 
@@ -81,9 +81,9 @@ namespace BrickController2.DeviceManagement
         {
             token.ThrowIfCancellationRequested();
 
-            if (invocation.DescriptorId == SetOutputLevelMacroId && invocation.ChoiceValue.HasValue)
+            if (invocation.DescriptorId == SetOutputLevelMacroId && invocation.ChoiceValue is int intValue)
             {
-                SetOutputLevel(invocation.ChoiceValue.Value);
+                SetOutputLevel(intValue);
             }
 
             return Task.CompletedTask;

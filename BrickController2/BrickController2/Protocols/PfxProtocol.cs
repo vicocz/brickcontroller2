@@ -1,11 +1,22 @@
 ﻿using System;
+using System.Buffers.Binary;
+using System.Text;
 
 namespace BrickController2.Protocols;
 
 internal static class PfxProtocol
 {
+    public const byte CMD_FILE_DIR = 0x45;
+    public const byte RSP_FILE_DIR = 0xC5; // CMD_FILE_DIR | 0x80 (response/ack opcode)
     public const byte CMD_PRE_DELIMITER = 0x5B;
     public const byte CMD_POST_DELIMITER = 0x5D;
+
+    // File directory request codes
+    public const byte PFX_DIR_REQ_GET_FILE_COUNT = 0x00;
+    public const byte PFX_DIR_REQ_GET_FREE_SPACE = 0x01;
+    public const byte PFX_DIR_REQ_GET_DIR_ENTRY_IDX = 0x02;
+    public const byte PFX_DIR_REQ_GET_DIR_ENTRY_ID = 0x03;
+    public const byte PFX_DIR_REQ_GET_NAMED_FILE_ID = 0x0B;
 
     public const byte CMD_GET_STATUS = 0x01;
     public const byte CMD_TEST_ACTION = 0x13;
@@ -57,6 +68,28 @@ internal static class PfxProtocol
     public const byte EVT_LIGHTFX_TRANSITION_ON = 0x01;
     public const byte EVT_LIGHTFX_TRANSITION_OFF = 0x02;
 
+    // Sound FX IDs (SOUND_FX_ID, section 6.2.14)
+    public const byte SOUNDFX_NONE = 0x00;
+    public const byte SOUNDFX_INC_VOLUME = 0x01;
+    public const byte SOUNDFX_DEC_VOLUME = 0x02;
+    public const byte SOUNDFX_SET_VOLUME = 0x03;
+    public const byte SOUNDFX_PLAY_ONCE = 0x04;
+    public const byte SOUNDFX_PLAY_CONTINUOUS = 0x05;
+    public const byte SOUNDFX_PLAY_NTIMES = 0x06;
+    public const byte SOUNDFX_PLAY_DURATION = 0x07;
+    public const byte SOUNDFX_PLAY_PITCHBEND_MOTOR = 0x08;
+    public const byte SOUNDFX_PLAY_GATED_MOTOR = 0x09;
+    public const byte SOUNDFX_PLAY_AM_MOTOR = 0x0A;
+    public const byte SOUNDFX_STOP = 0x0B;
+    public const byte SOUNDFX_PLAY_IDX_MOTOR = 0x0C;
+    public const byte SOUNDFX_PLAY_RAND = 0x0D;
+    public const byte SOUNDFX_FILE_SEEK = 0x0E;
+    public const byte SOUNDFX_FILE_SCRUB = 0x0F;
+
+    // SOUNDFX_PLAY_ONCE / RETRIGGER (SOUND_PARAM1)
+    public const byte SOUNDFX_RETRIGGER_TOGGLE = 0x00;
+    public const byte SOUNDFX_RETRIGGER_RESTART = 0x01;
+
     /// <summary>
     /// Set speed of the selected <paramref name="motorOutput"/> channel
     /// </summary>
@@ -107,6 +140,105 @@ internal static class PfxProtocol
             lightParam4: value);
 
     /// <summary>
+    /// Request the total number of files stored on the PFx Brick file system.
+    /// </summary>
+    public static byte[] GetFileCount() => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+        CMD_FILE_DIR, PFX_DIR_REQ_GET_FILE_COUNT,
+        CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
+
+    /// <summary>
+    /// Request the directory entry (file id, size, name, ...) at the given index.
+    /// </summary>
+    public static byte[] GetDirEntryAtIndex(byte index) => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+        CMD_FILE_DIR, PFX_DIR_REQ_GET_DIR_ENTRY_IDX, index,
+        CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
+
+    /// <summary>
+    /// Parses a "Get Directory Entry" response (request 0x02 / 0x03) into a <see cref="PfxFileDirEntry"/>.
+    /// </summary>
+    /// <remarks>
+    /// Confirmed against a real device response: fields are big-endian, and the layout matches the ICD
+    /// exactly (no extra echoed request-code byte, unlike the "Get File Count" response). An entry with
+    /// <see cref="PfxFileDirEntry.FirstSector"/> == 0xFFFF is an empty/unused directory slot.
+    /// </remarks>
+    public static PfxFileDirEntry? ParseFileDirEntry(byte[] data)
+    {
+        const int FixedFieldsLength = 24;
+        const int MaxNameLength = 32;
+
+        if (data.Length < FixedFieldsLength || data[0] != RSP_FILE_DIR)
+        {
+            return null;
+        }
+
+        var fileId = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(2, 2));
+        var fileSize = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(4, 4));
+        var firstSector = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(8, 2));
+        var attributes = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(10, 2));
+        var userData1 = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(12, 4));
+        var userData2 = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(16, 4));
+        var crc32 = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(20, 4));
+
+        var nameLength = Math.Min(MaxNameLength, data.Length - FixedFieldsLength);
+        var name = nameLength > 0
+            ? Encoding.UTF8.GetString(data, FixedFieldsLength, nameLength).TrimEnd('\0', ' ')
+            : string.Empty;
+
+        return new PfxFileDirEntry(fileId, fileSize, firstSector, attributes, userData1, userData2, crc32, name);
+    }
+
+    /// <summary>
+    /// An empty/unused directory slot is marked with <see cref="PfxFileDirEntry.FirstSector"/> == 0xFFFF.
+    /// </summary>
+    public static bool IsValidFileDirEntry(PfxFileDirEntry entry) => entry.FirstSector != 0xFFFF && !string.IsNullOrEmpty(entry.FileName);
+
+    /// <summary>
+    /// Parses a "Get File Count" response.
+    /// </summary>
+    /// <remarks>
+    /// The ICD documents a 4-byte response: [0xC5, RequestStatus, FileCount[15:0] (big-endian)].
+    /// Observed device responses are 5 bytes: [0xC5, RequestStatus, 0x00, FileCount[15:0] (big-endian)],
+    /// with an extra byte at offset 2 that appears to echo the request sub-code (0x00 for GET_FILE_COUNT).
+    /// Reading the count from the last 2 bytes handles both layouts.
+    /// </remarks>
+    public static ushort? ParseFileCount(byte[] data)
+    {
+        if (data.Length < 4 || data[0] != RSP_FILE_DIR)
+        {
+            return null;
+        }
+
+        return BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(data.Length - 2, 2));
+    }
+
+    /// <summary>
+    /// Plays the sound file identified by <paramref name="fileId"/> a single time.
+    /// </summary>
+    /// <param name="fileId">PFx Brick file id (0-255).</param>
+    /// <param name="retrigger">
+    /// Behavior if the file is already playing when triggered again:
+    /// <see cref="SOUNDFX_RETRIGGER_TOGGLE"/> (toggle on/off) or <see cref="SOUNDFX_RETRIGGER_RESTART"/> (restart from beginning).
+    /// Defaults to restart, which is usually the expected behavior for a macro trigger.
+    /// </param>
+    /// <param name="relativeVolume">
+    /// 2's complement relative volume (dB gain/attenuation) applied from the current playback volume. Range: -8..7. Defaults to 0 (no change).
+    /// </param>
+    public static byte[] PlaySoundFile(byte fileId, byte retrigger = SOUNDFX_RETRIGGER_RESTART, sbyte relativeVolume = 0)
+        => TestEventAction(EVT_COMMAND_NONE,
+            soundFxId: SOUNDFX_PLAY_ONCE,
+            soundFileId: fileId,
+            soundParam1: retrigger,
+            soundParam2: unchecked((byte)relativeVolume));
+
+    /// <summary>
+    /// Stops playback of the sound file identified by <paramref name="fileId"/>.
+    /// </summary>
+    public static byte[] StopSoundFile(byte fileId)
+        => TestEventAction(EVT_COMMAND_NONE,
+            soundFxId: SOUNDFX_STOP,
+            soundFileId: fileId);
+
+    /// <summary>
     /// Get the status of the device.
     /// </summary>
     public static byte[] GetStatus() => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
@@ -132,7 +264,11 @@ internal static class PfxProtocol
         byte lightParam1 = 0x00,
         byte lightParam2 = 0x00,
         byte lightParam3 = 0x00,
-        byte lightParam4 = 0x00)
+        byte lightParam4 = 0x00,
+        byte soundFxId = 0x00,
+        byte soundFileId = 0x00,
+        byte soundParam1 = 0x00,
+        byte soundParam2 = 0x00)
         => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
             CMD_TEST_ACTION,
             command,          // command
@@ -147,10 +283,10 @@ internal static class PfxProtocol
             lightParam3,      // lightParam3;
             lightParam4,      // lightParam4;
             0x00,             // lightParam5;
-            0x00,             // soundFxId;
-            0x00,             // soundFileId;
-            0x00,             // soundParam1;
-            0x00,             // soundParam2;
+            soundFxId,        // soundFxId;
+            soundFileId,      // soundFileId;
+            soundParam1,      // soundParam1;
+            soundParam2,      // soundParam2;
             CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
 
     private static byte GetMotorParam(int speed)

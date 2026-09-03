@@ -47,7 +47,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            int? macroChoiceValue);
+            object? macroChoiceValue);
         Task DeleteControllerActionAsync(ControllerAction controllerAction);
         Task UpdateControllerActionAsync(
             ControllerAction controllerAction,
@@ -66,7 +66,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            int? macroChoiceValue);
+            object? macroChoiceValue);
 
         Task ImportSequenceAsync(string sequenceFilename);
         Task ImportSequenceAsync(Sequence sequence);

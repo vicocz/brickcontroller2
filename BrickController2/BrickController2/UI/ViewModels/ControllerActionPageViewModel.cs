@@ -137,7 +137,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     return string.Empty;
                 }
-                var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoiceValue);
+                var choice = macro.Choices.FirstOrDefault(c => Equals(c.BoxedValue, Action.MacroChoiceValue));
                 return choice is null ? string.Empty : Translate(choice.LabelKey);
             }
         }
@@ -448,7 +448,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     var macro = macros[index];
                     Action.MacroId = macro.Id;
-                    Action.MacroChoiceValue = macro.Choices.Count > 0 ? macro.Choices[0].Value : null;
+                    SetSelectedChoice(macro.Choices.Count > 0 ? macro.Choices[0] : null);
                     RaisePropertyChanged(nameof(SelectedMacro));
                     RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
@@ -477,10 +477,20 @@ namespace BrickController2.UI.ViewModels
                 var index = Array.IndexOf(labels, result.SelectedItem);
                 if (index >= 0)
                 {
-                    Action.MacroChoiceValue = macro.Choices[index].Value;
+                    SetSelectedChoice(macro.Choices[index]);
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
                 }
             }
+        }
+
+        private void SetSelectedChoice(MacroChoice? choice)
+        {
+            Action.MacroChoiceValue = (choice?.BoxedValue) switch
+            {
+                int intValue => intValue,
+                string stringValue => stringValue,
+                _ => null,
+            };
         }
 
         private async Task SelectAxisTypeAsync()

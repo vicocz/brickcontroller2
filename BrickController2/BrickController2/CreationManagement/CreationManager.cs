@@ -255,7 +255,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            int? macroChoiceValue)
+            object? macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -333,7 +333,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            int? macroChoiceValue)
+            object? macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {

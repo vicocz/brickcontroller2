@@ -24,6 +24,7 @@
     
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" />
+        <controls:ToolbarIcon Icon="playlist_play" Text="{extensions:Translate Macros}" Command="{Binding OpenDeviceMacroListPageCommand}" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 

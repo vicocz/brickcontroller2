@@ -696,6 +696,15 @@
   <data name="Applying" xml:space="preserve">
     <value>Applying...</value>
   </data>
+  <data name="Macros" xml:space="preserve">
+    <value>Macros</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>No macros available for this device.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>Execution of the macro has failed:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
   </data>

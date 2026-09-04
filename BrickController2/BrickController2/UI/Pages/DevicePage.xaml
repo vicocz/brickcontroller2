@@ -20,6 +20,8 @@
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
+            <converters:TextToCapitalInitialConverter x:Key="TextToCapitalInitial"/>
+            <converters:IntToColorConverter x:Key="IntToColor"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
     
@@ -163,13 +165,16 @@
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="viewmodels:MacroItemViewModel">
                                         <VerticalStackLayout>
-                                            <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="0,0">
-                                                <Grid.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding BindingContext.ExecuteMacroCommand, Source={RelativeSource AncestorType={x:Type local:DevicePage}}}" CommandParameter="{Binding .}"/>
-                                                </Grid.GestureRecognizers>
-                                                <Label Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" VerticalOptions="CenterAndExpand" Margin="10,0"/>
+                                            <Grid Style="{StaticResource CollectionItemGridStyle}" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                                                <Border Grid.Column="0" Grid.RowSpan="2" WidthRequest="40" HeightRequest="40" BackgroundColor="{Binding Idx, Converter={StaticResource IntToColor}}" StrokeShape="RoundRectangle 20" Padding="0" VerticalOptions="Center">
+                                                    <Label Text="{Binding DisplayName, Converter={StaticResource TextToCapitalInitial}}" TextColor="White" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                </Border>
+                                                <Label Grid.Column="1" Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" Margin="10,0"/>
+                                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding Scope}" FontSize="Micro" FontAttributes="Bold" Margin="10,0"/>
+                                                <controls:FloatingActionButton Grid.Column="2" Grid.RowSpan="2" Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" ToolTipProperties.Text="{extensions:Translate ExecuteMacro}"
+                                                    Command="{Binding ExecuteMacroCommand}" Margin="10,0,0,0"/>
                                             </Grid>
-                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
+                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,0,6,0"/>
                                         </VerticalStackLayout>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>

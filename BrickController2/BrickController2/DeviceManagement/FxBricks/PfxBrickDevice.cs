@@ -14,11 +14,37 @@ internal class PfxBrickDevice : BluetoothDevice
     private const int PF_CHANNELS = 2;
     private const int LIGHT_CHANNELS = 8;
     private const string PlaySoundMacroId = "PlaySound";
-    private const string PlaySoundMacroNameKey = "PfxPlaySoundMacroName";
+    private const string StopSoundMacroId = "StopSound";
+    private const string SetVolumeMacroId = "SetVolume";
+    private const string IncreaseVolumeMacroId = "IncreaseVolume";
+    private const string DecreaseVolumeMacroId = "DecreaseVolume";
+    private const string PlaySoundMacroNameKey = "PfxPlaySoundMacro";
+    private const string StopSoundMacroNameKey = "PfxStopSoundMacro";
+    private const string SetVolumeMacroNameKey = "PfxSetVolumeMacro";
+    private const string IncreaseVolumeMacroNameKey = "PfxIncreaseVolumeMacro";
+    private const string DecreaseVolumeMacroNameKey = "PfxDecreaseVolumeMacro";
 
     private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
+
+    private static readonly IReadOnlyCollection<int> Volumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    private static readonly IReadOnlyCollection<MacroDescriptor> StaticMacros =
+    [
+        new MacroDescriptor(id: SetVolumeMacroId,
+            nameKey: SetVolumeMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot,
+            choices: [.. Volumes.Select(x => new MacroChoice<int>(x.ToString(), x))]),
+        new MacroDescriptor(id: IncreaseVolumeMacroId,
+            nameKey: IncreaseVolumeMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot),
+        new MacroDescriptor(id: DecreaseVolumeMacroId,
+            nameKey: DecreaseVolumeMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot),
+    ];
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
@@ -74,6 +100,25 @@ internal class PfxBrickDevice : BluetoothDevice
             && _macroFileIds.TryGetValue(fileName, out var fileId))
         {
             return WriteCommandAsync(PfxProtocol.PlaySoundFile(fileId), token);
+        }
+        else if (invocation.DescriptorId == StopSoundMacroId
+            && invocation.ChoiceValue is string stopFileName
+            && _macroFileIds.TryGetValue(stopFileName, out var stopFileId))
+        {
+            return WriteCommandAsync(PfxProtocol.StopSoundFile(stopFileId), token);
+        }
+        else if (invocation.DescriptorId == SetVolumeMacroId
+            && invocation.ChoiceValue is int volume)
+        {
+            return WriteCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
+        }
+        else if (invocation.DescriptorId == IncreaseVolumeMacroId)
+        {
+            return WriteCommandAsync(PfxProtocol.IncreaseVolume(), token);
+        }
+        else if (invocation.DescriptorId == DecreaseVolumeMacroId)
+        {
+            return WriteCommandAsync(PfxProtocol.DecreaseVolume(), token);
         }
 
         return Task.CompletedTask;
@@ -243,6 +288,7 @@ internal class PfxBrickDevice : BluetoothDevice
         const int FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
 
         _macros.Clear();
+        _macros.AddRange(StaticMacros);
         _macroFileIds.Clear();
 
         var countResponse = await RequestFileDirAsync(PfxProtocol.GetFileCount(), token);
@@ -273,6 +319,13 @@ internal class PfxBrickDevice : BluetoothDevice
             nameKey: PlaySoundMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.Repeatable,
+            choices: choices));
+
+        _macros.Add(new MacroDescriptor(
+            id: StopSoundMacroId,
+            nameKey: StopSoundMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot,
             choices: choices));
     }
 

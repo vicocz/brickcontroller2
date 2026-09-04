@@ -1636,6 +1636,51 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Decrease volume.
+        /// </summary>
+        internal static string PfxDecreaseVolumeMacro {
+            get {
+                return ResourceManager.GetString("PfxDecreaseVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase volume.
+        /// </summary>
+        internal static string PfxIncreaseVolumeMacro {
+            get {
+                return ResourceManager.GetString("PfxIncreaseVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play audio.
+        /// </summary>
+        internal static string PfxPlaySoundMacro {
+            get {
+                return ResourceManager.GetString("PfxPlaySoundMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set volume.
+        /// </summary>
+        internal static string PfxSetVolumeMacro {
+            get {
+                return ResourceManager.GetString("PfxSetVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop audio.
+        /// </summary>
+        internal static string PfxStopSoundMacro {
+            get {
+                return ResourceManager.GetString("PfxStopSoundMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Play.
         /// </summary>
         internal static string Play {

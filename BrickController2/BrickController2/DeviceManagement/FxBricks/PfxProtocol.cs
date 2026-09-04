@@ -69,26 +69,19 @@ internal static class PfxProtocol
     public const byte EVT_LIGHTFX_TRANSITION_OFF = 0x02;
 
     // Sound FX IDs (SOUND_FX_ID, section 6.2.14)
-    public const byte SOUNDFX_NONE = 0x00;
-    public const byte SOUNDFX_INC_VOLUME = 0x01;
-    public const byte SOUNDFX_DEC_VOLUME = 0x02;
-    public const byte SOUNDFX_SET_VOLUME = 0x03;
-    public const byte SOUNDFX_PLAY_ONCE = 0x04;
-    public const byte SOUNDFX_PLAY_CONTINUOUS = 0x05;
-    public const byte SOUNDFX_PLAY_NTIMES = 0x06;
-    public const byte SOUNDFX_PLAY_DURATION = 0x07;
-    public const byte SOUNDFX_PLAY_PITCHBEND_MOTOR = 0x08;
-    public const byte SOUNDFX_PLAY_GATED_MOTOR = 0x09;
-    public const byte SOUNDFX_PLAY_AM_MOTOR = 0x0A;
-    public const byte SOUNDFX_STOP = 0x0B;
-    public const byte SOUNDFX_PLAY_IDX_MOTOR = 0x0C;
-    public const byte SOUNDFX_PLAY_RAND = 0x0D;
-    public const byte SOUNDFX_FILE_SEEK = 0x0E;
-    public const byte SOUNDFX_FILE_SCRUB = 0x0F;
+    public const byte EVT_SOUNDFX_NONE = 0x00;
+    public const byte EVT_SOUNDFX_INC_VOLUME = 0x01;
+    public const byte EVT_SOUNDFX_DEC_VOLUME = 0x02;
+    public const byte EVT_SOUNDFX_SET_VOLUME = 0x03;
+    public const byte EVT_SOUNDFX_PLAY_ONCE = 0x04;
+    public const byte EVT_SOUNDFX_PLAY_CONTINUOUS = 0x05;
+    public const byte EVT_SOUNDFX_PLAY_NTIMES = 0x06;
+    public const byte EVT_SOUNDFX_PLAY_DURATION = 0x07;
+    public const byte EVT_SOUNDFX_STOP = 0x0B;
 
-    // SOUNDFX_PLAY_ONCE / RETRIGGER (SOUND_PARAM1)
-    public const byte SOUNDFX_RETRIGGER_TOGGLE = 0x00;
-    public const byte SOUNDFX_RETRIGGER_RESTART = 0x01;
+    // EVT_SOUNDFX_PLAY_ONCE / RETRIGGER (SOUND_PARAM1)
+    public const byte EVT_SOUNDFX_RETRIGGER_TOGGLE = 0x00;
+    public const byte EVT_SOUNDFX_RETRIGGER_RESTART = 0x01;
 
     /// <summary>
     /// Set speed of the selected <paramref name="motorOutput"/> channel
@@ -223,9 +216,9 @@ internal static class PfxProtocol
     /// <param name="relativeVolume">
     /// 2's complement relative volume (dB gain/attenuation) applied from the current playback volume. Range: -8..7. Defaults to 0 (no change).
     /// </param>
-    public static byte[] PlaySoundFile(byte fileId, byte retrigger = SOUNDFX_RETRIGGER_RESTART, sbyte relativeVolume = 0)
+    public static byte[] PlaySoundFile(byte fileId, byte retrigger = EVT_SOUNDFX_RETRIGGER_RESTART, sbyte relativeVolume = 0)
         => TestEventAction(EVT_COMMAND_NONE,
-            soundFxId: SOUNDFX_PLAY_ONCE,
+            soundFxId: EVT_SOUNDFX_PLAY_ONCE,
             soundFileId: fileId,
             soundParam1: retrigger,
             soundParam2: unchecked((byte)relativeVolume));
@@ -235,8 +228,19 @@ internal static class PfxProtocol
     /// </summary>
     public static byte[] StopSoundFile(byte fileId)
         => TestEventAction(EVT_COMMAND_NONE,
-            soundFxId: SOUNDFX_STOP,
+            soundFxId: EVT_SOUNDFX_STOP,
             soundFileId: fileId);
+
+    /// <summary>
+    /// Stops playback of the sound file identified by <paramref name="fileId"/>.
+    /// </summary>
+    public static byte[] SetVolume(byte volume)
+        => TestEventAction(EVT_COMMAND_NONE,
+            soundFxId: EVT_SOUNDFX_SET_VOLUME,
+            soundParam1: volume);
+
+    public static byte[] IncreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_INC_VOLUME);
+    public static byte[] DecreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_DEC_VOLUME);
 
     /// <summary>
     /// Get the status of the device.

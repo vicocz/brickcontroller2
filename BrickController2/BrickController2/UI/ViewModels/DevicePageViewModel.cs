@@ -67,9 +67,6 @@ namespace BrickController2.UI.ViewModels
             SwitchToChannelViewCommand = new SafeCommand(() => SwitchView(showChannels:true), () => CanSwitchToChannelView);
             SwitchToSensorViewCommand = new SafeCommand(() => SwitchView(showInputs: true), () => CanSwitchToSensorView);
             SwitchToMacroViewCommand = new SafeCommand(() => SwitchView(showMacros: true), () => CanSwitchToMacroView);
-            ExecuteMacroCommand = new SafeCommand<MacroItemViewModel>(
-                ExecuteMacroAsync,
-                _ => Device.DeviceState == DeviceState.Connected && !_dialogService.IsDialogOpen);
         }
 
         public Device Device { get; }
@@ -101,7 +98,6 @@ namespace BrickController2.UI.ViewModels
         public ICommand SwitchToChannelViewCommand { get; }
         public ICommand SwitchToSensorViewCommand { get; }
         public ICommand SwitchToMacroViewCommand { get; }
-        public ICommand ExecuteMacroCommand { get; }
 
         public int BuWizzOutputLevel { get; set; }
         public int BuWizz2OutputLevel { get; set; }
@@ -387,7 +383,7 @@ namespace BrickController2.UI.ViewModels
                                 Macros.Clear();
                                 foreach (var macro in Device.AvailableMacros)
                                 {
-                                    Macros.Add(new MacroItemViewModel(macro, TranslationService));
+                                    Macros.Add(new MacroItemViewModel(Device, macro, TranslationService, _dialogService));
                                 }
                             }
 
@@ -522,53 +518,6 @@ namespace BrickController2.UI.ViewModels
         private void SetBuWizzOutputLevel(int level)
         {
             Device.SetOutputLevel(level);
-        }
-
-        private async Task ExecuteMacroAsync(MacroItemViewModel macroItem)
-        {
-            var descriptor = macroItem.Descriptor;
-            object? choiceValue = null;
-
-            if (descriptor.Choices.Count > 0)
-            {
-                var labels = descriptor.Choices.Select(c => Translate(c.LabelKey)).ToArray();
-
-                var result = await _dialogService.ShowSelectionDialogAsync(
-                    labels,
-                    Translate("SelectMacroChoice"),
-                    Translate("Cancel"),
-                    DisappearingToken);
-
-                if (!result.IsOk)
-                {
-                    return;
-                }
-
-                var index = Array.IndexOf(labels, result.SelectedItem);
-                if (index < 0)
-                {
-                    return;
-                }
-
-                choiceValue = descriptor.Choices[index].BoxedValue;
-            }
-
-            try
-            {
-                await _dialogService.ShowProgressDialogAsync(
-                    false,
-                    async (progressDialog, token) => await Device.ExecuteMacroAsync(new MacroInvocation(descriptor.Id, choiceValue, null), token),
-                    Translate("Applying"),
-                    token: DisappearingToken);
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Warning"),
-                    Translate("ExecuteMacroFailed", ex),
-                    Translate("Ok"),
-                    DisappearingToken);
-            }
         }
 
         public class DeviceOutputViewModel : NotifyPropertyChangedSource

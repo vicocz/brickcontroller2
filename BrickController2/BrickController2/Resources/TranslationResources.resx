@@ -819,4 +819,19 @@
   <data name="OrientationSensor" xml:space="preserve">
     <value>Tilt Steering</value>
   </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Play audio</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Stop audio</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Set volume</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Increase volume</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Decrease volume</value>
+  </data>
 </root>

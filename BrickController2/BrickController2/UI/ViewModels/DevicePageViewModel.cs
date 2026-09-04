@@ -55,13 +55,7 @@ namespace BrickController2.UI.ViewModels
             // initialize views
             ShowChannelView = IsChannelDeviceDevice;
             ShowSensorView = IsInputDevice && !ShowChannelView;
-
-
-            //TODO
-            Macros = [.. Device.AvailableMacros
-            .Where(m => m.Scope == MacroScope.Device)
-            .Select(m => new MacroItemViewModel(m, base.TranslationService))];
-
+            ShowMacroView = IsMacroDevice && !ShowChannelView && !ShowSensorView;
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
@@ -92,7 +86,7 @@ namespace BrickController2.UI.ViewModels
 
         public bool CanSwitchToChannelView => IsChannelDeviceDevice && !ShowChannelView;
         public bool CanSwitchToSensorView => IsInputDevice && !ShowSensorView;
-        public bool CanSwitchToMacroView => IsInputDevice && !ShowMacroView;
+        public bool CanSwitchToMacroView => IsMacroDevice && !ShowMacroView;
 
         public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
 
@@ -116,10 +110,11 @@ namespace BrickController2.UI.ViewModels
 
         public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
 
-        public IReadOnlyList<MacroItemViewModel> Macros { get; }
+        public ObservableCollection<MacroItemViewModel> Macros { get; } = [];
 
         public bool IsChannelDeviceDevice => Device.HasOutputChannel;
         public bool IsInputDevice => InputDevice is not null;
+        public bool IsMacroDevice => Device.SupportsMacros;
 
         public bool ShowSensorView
         {
@@ -386,6 +381,16 @@ namespace BrickController2.UI.ViewModels
                             {
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
+                            // update macros
+                            if (IsMacroDevice)
+                            {
+                                Macros.Clear();
+                                foreach (var macro in Device.AvailableMacros)
+                                {
+                                    Macros.Add(new MacroItemViewModel(macro, TranslationService));
+                                }
+                            }
+
                             // update command enablement
                             UpdateCommandsAvailability();
                         }

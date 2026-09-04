@@ -158,7 +158,7 @@
                             </CollectionView>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout IsVisible="{Binding ShowSensorView}">
+                        <VerticalStackLayout IsVisible="{Binding ShowMacroView}">
                             <CollectionView ItemsSource="{Binding Macros}" SelectionMode="None">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="viewmodels:MacroItemViewModel">

@@ -1,4 +1,15 @@
-﻿using System;
+﻿using BrickController2.CreationManagement;
+using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
+using BrickController2.Helpers;
+using BrickController2.PlatformServices.InputDevice;
+using BrickController2.UI.Commands;
+using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Navigation;
+using BrickController2.UI.Services.Translation;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -6,19 +17,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
-using BrickController2.CreationManagement;
-using BrickController2.DeviceManagement;
-using BrickController2.Helpers;
-using BrickController2.PlatformServices.InputDevice;
-using BrickController2.UI.Commands;
-using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Dialog;
-using BrickController2.UI.Services.Translation;
-using Device = BrickController2.DeviceManagement.Device;
 using static BrickController2.CreationManagement.ControllerDefaults;
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
+using Device = BrickController2.DeviceManagement.Device;
 
 namespace BrickController2.UI.ViewModels
 {
@@ -55,6 +56,13 @@ namespace BrickController2.UI.ViewModels
             ShowChannelView = IsChannelDeviceDevice;
             ShowSensorView = IsInputDevice && !ShowChannelView;
 
+
+            //TODO
+            Macros = [.. Device.AvailableMacros
+            .Where(m => m.Scope == MacroScope.Device)
+            .Select(m => new MacroItemViewModel(m, base.TranslationService))];
+
+
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
             BuWizz2OutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
@@ -62,8 +70,12 @@ namespace BrickController2.UI.ViewModels
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
-            SwitchToChannelViewCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanSwitchToChannelView);
-            SwitchToSensorViewCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanSwitchToSensorView);
+            SwitchToChannelViewCommand = new SafeCommand(() => SwitchView(showChannels:true), () => CanSwitchToChannelView);
+            SwitchToSensorViewCommand = new SafeCommand(() => SwitchView(showInputs: true), () => CanSwitchToSensorView);
+            SwitchToMacroViewCommand = new SafeCommand(() => SwitchView(showMacros: true), () => CanSwitchToMacroView);
+            ExecuteMacroCommand = new SafeCommand<MacroItemViewModel>(
+                ExecuteMacroAsync,
+                _ => Device.DeviceState == DeviceState.Connected && !_dialogService.IsDialogOpen);
         }
 
         public Device Device { get; }
@@ -80,6 +92,7 @@ namespace BrickController2.UI.ViewModels
 
         public bool CanSwitchToChannelView => IsChannelDeviceDevice && !ShowChannelView;
         public bool CanSwitchToSensorView => IsInputDevice && !ShowSensorView;
+        public bool CanSwitchToMacroView => IsInputDevice && !ShowMacroView;
 
         public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
 
@@ -93,6 +106,8 @@ namespace BrickController2.UI.ViewModels
         public ICommand OpenDeviceSettingsPageCommand { get; }
         public ICommand SwitchToChannelViewCommand { get; }
         public ICommand SwitchToSensorViewCommand { get; }
+        public ICommand SwitchToMacroViewCommand { get; }
+        public ICommand ExecuteMacroCommand { get; }
 
         public int BuWizzOutputLevel { get; set; }
         public int BuWizz2OutputLevel { get; set; }
@@ -100,6 +115,8 @@ namespace BrickController2.UI.ViewModels
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
         public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
+
+        public IReadOnlyList<MacroItemViewModel> Macros { get; }
 
         public bool IsChannelDeviceDevice => Device.HasOutputChannel;
         public bool IsInputDevice => InputDevice is not null;
@@ -117,6 +134,18 @@ namespace BrickController2.UI.ViewModels
             }
         }
         public bool ShowChannelView
+        {
+            get;
+            set
+            {
+                if (field != value)
+                {
+                    field = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+        public bool ShowMacroView
         {
             get;
             set
@@ -241,14 +270,16 @@ namespace BrickController2.UI.ViewModels
             await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
         }
 
-        private async Task SwitchViewAsync(bool showChannels = false, bool showInputs = false)
+        private void SwitchView(bool showChannels = false, bool showInputs = false, bool showMacros = false)
         {
             ShowChannelView = showChannels;
             ShowSensorView = showInputs;
+            ShowMacroView = showMacros;
 
             // trigger command availability
             SwitchToChannelViewCommand.RaiseCanExecuteChanged();
             SwitchToSensorViewCommand.RaiseCanExecuteChanged();
+            SwitchToMacroViewCommand.RaiseCanExecuteChanged();
         }
 
         private async Task RenameDeviceAsync()
@@ -486,6 +517,53 @@ namespace BrickController2.UI.ViewModels
         private void SetBuWizzOutputLevel(int level)
         {
             Device.SetOutputLevel(level);
+        }
+
+        private async Task ExecuteMacroAsync(MacroItemViewModel macroItem)
+        {
+            var descriptor = macroItem.Descriptor;
+            object? choiceValue = null;
+
+            if (descriptor.Choices.Count > 0)
+            {
+                var labels = descriptor.Choices.Select(c => Translate(c.LabelKey)).ToArray();
+
+                var result = await _dialogService.ShowSelectionDialogAsync(
+                    labels,
+                    Translate("SelectMacroChoice"),
+                    Translate("Cancel"),
+                    DisappearingToken);
+
+                if (!result.IsOk)
+                {
+                    return;
+                }
+
+                var index = Array.IndexOf(labels, result.SelectedItem);
+                if (index < 0)
+                {
+                    return;
+                }
+
+                choiceValue = descriptor.Choices[index].BoxedValue;
+            }
+
+            try
+            {
+                await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, token) => await Device.ExecuteMacroAsync(new MacroInvocation(descriptor.Id, choiceValue, null), token),
+                    Translate("Applying"),
+                    token: DisappearingToken);
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Warning"),
+                    Translate("ExecuteMacroFailed", ex),
+                    Translate("Ok"),
+                    DisappearingToken);
+            }
         }
 
         public class DeviceOutputViewModel : NotifyPropertyChangedSource

@@ -5,6 +5,7 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.DevicePage"
@@ -25,6 +26,7 @@
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="tune" Text="{extensions:Translate Channels}" Command="{Binding SwitchToChannelViewCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="sensors" Text="{extensions:Translate Sensors}" Command="{Binding SwitchToSensorViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="playlist_play" Text="{extensions:Translate Macros}" Command="{Binding SwitchToMacroViewCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
@@ -156,6 +158,26 @@
                             </CollectionView>
                         </VerticalStackLayout>
 
+                        <VerticalStackLayout IsVisible="{Binding ShowSensorView}">
+                            <CollectionView ItemsSource="{Binding Macros}" SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:MacroItemViewModel">
+                                        <VerticalStackLayout>
+                                            <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="0,0">
+                                                <Grid.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding BindingContext.ExecuteMacroCommand, Source={RelativeSource AncestorType={x:Type local:DevicePage}}}" CommandParameter="{Binding .}"/>
+                                                </Grid.GestureRecognizers>
+                                                <Label Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" VerticalOptions="CenterAndExpand" Margin="10,0"/>
+                                            </Grid>
+                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                                <CollectionView.EmptyView>
+                                    <Label Text="{extensions:Translate NoMacrosAvailable}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
+                                </CollectionView.EmptyView>
+                            </CollectionView>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </ScrollView>
 

@@ -1,5 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.Helpers;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -77,6 +78,8 @@ namespace BrickController2.DeviceManagement
         public virtual int DefaultOutputLevel => 1;
 
         public virtual float AccelarationStep => 0.1F;
+        public virtual bool SupportsMacros => false;
+        public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
 
         /// <summary>
         /// Check whether the output type specified in <paramref name="outputType"/> is supported
@@ -99,6 +102,9 @@ namespace BrickController2.DeviceManagement
 
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }
+
+        public virtual Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+            => throw new InvalidOperationException("Macros are not supported for this type of device.");
 
         public virtual bool CanResetOutput(int channel) => false;
         public virtual Task ResetOutputAsync(int channel, float value, CancellationToken token)

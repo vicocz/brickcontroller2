@@ -51,6 +51,9 @@ namespace BrickController2.UI.ViewModels
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(this, Device, channel))
                 .ToArray();
+            // initialize views
+            ShowChannelView = IsChannelDeviceDevice;
+            ShowSensorView = IsInputDevice && !ShowChannelView;
 
             RenameCommand = new SafeCommand(async () => await RenameDeviceAsync());
             BuWizzOutputLevelChangedCommand = new SafeCommand<int>(outputLevel => SetBuWizzOutputLevel(outputLevel));
@@ -59,6 +62,8 @@ namespace BrickController2.UI.ViewModels
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
+            SwitchToChannelViewCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanSwitchToChannelView);
+            SwitchToSensorViewCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanSwitchToSensorView);
         }
 
         public Device Device { get; }
@@ -73,6 +78,9 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
+        public bool CanSwitchToChannelView => IsChannelDeviceDevice && !ShowChannelView;
+        public bool CanSwitchToSensorView => IsInputDevice && !ShowSensorView;
+
         public bool IsAdvertisingDevice => Device is BluetoothAdvertisingDevice;
 
         public bool IsServoOrStepperSupported => DeviceOutputs.Any(x => x.IsServoOrStepperSupported);
@@ -83,6 +91,8 @@ namespace BrickController2.UI.ViewModels
         public ICommand ActivateShelfModeCommand { get; }
         public ICommand ScanCommand { get; }
         public ICommand OpenDeviceSettingsPageCommand { get; }
+        public ICommand SwitchToChannelViewCommand { get; }
+        public ICommand SwitchToSensorViewCommand { get; }
 
         public int BuWizzOutputLevel { get; set; }
         public int BuWizz2OutputLevel { get; set; }
@@ -91,7 +101,33 @@ namespace BrickController2.UI.ViewModels
 
         public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
 
+        public bool IsChannelDeviceDevice => Device.HasOutputChannel;
         public bool IsInputDevice => InputDevice is not null;
+
+        public bool ShowSensorView
+        {
+            get;
+            set
+            {
+                if (field != value)
+                {
+                    field = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+        public bool ShowChannelView
+        {
+            get;
+            set
+            {
+                if (field != value)
+                {
+                    field = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
         private IDynamicInputDevice? InputDevice => Device as IDynamicInputDevice;
 
@@ -203,6 +239,16 @@ namespace BrickController2.UI.ViewModels
         {
             await DisconnectAsync();
             await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
+        }
+
+        private async Task SwitchViewAsync(bool showChannels = false, bool showInputs = false)
+        {
+            ShowChannelView = showChannels;
+            ShowSensorView = showInputs;
+
+            // trigger command availability
+            SwitchToChannelViewCommand.RaiseCanExecuteChanged();
+            SwitchToSensorViewCommand.RaiseCanExecuteChanged();
         }
 
         private async Task RenameDeviceAsync()

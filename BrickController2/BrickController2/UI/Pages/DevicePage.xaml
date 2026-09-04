@@ -23,7 +23,9 @@
     </local:PageBase.Resources>
     
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" />
+        <controls:ToolbarIcon Icon="tune" Text="{extensions:Translate Channels}" Command="{Binding SwitchToChannelViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="sensors" Text="{extensions:Translate Sensors}" Command="{Binding SwitchToSensorViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 
@@ -110,7 +112,7 @@
                         </VerticalStackLayout>
 
                         <!-- Outputs -->
-                        <VerticalStackLayout>
+                        <VerticalStackLayout IsVisible="{Binding ShowChannelView}">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding DeviceOutputs}">
                                 <BindableLayout.ItemTemplate>
@@ -134,7 +136,7 @@
                         </VerticalStackLayout>
 
                         <!-- Input events -->
-                        <VerticalStackLayout IsVisible="{Binding IsInputDevice}">
+                        <VerticalStackLayout IsVisible="{Binding ShowSensorView}">
                             <CollectionView ItemsSource="{Binding InputEventList}" SelectionMode="None" ItemsLayout="VerticalList">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>

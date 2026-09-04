@@ -1,4 +1,4 @@
-namespace BrickController2.Protocols;
+namespace BrickController2.DeviceManagement.FxBricks;
 
 internal readonly record struct PfxFileDirEntry(
     ushort FileId,

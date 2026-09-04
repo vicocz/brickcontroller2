@@ -1,10 +1,11 @@
 ﻿using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.FxBricks;
 using FluentAssertions;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
-namespace BrickController2.Tests.DeviceManagement;
+namespace BrickController2.Tests.DeviceManagement.FxBricks;
 
 public class PfxBrickDeviceManagerTests : DeviceManagerTestBase<PfxBrickDeviceManager>
 {

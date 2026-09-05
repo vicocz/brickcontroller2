@@ -619,15 +619,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Channel action.
-        /// </summary>
-        internal static string ChannelAction {
-            get {
-                return ResourceManager.GetString("ChannelAction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to B.
         /// </summary>
         internal static string ChannelBColor {
@@ -916,15 +907,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device macro.
-        /// </summary>
-        internal static string DeviceMacro {
-            get {
-                return ResourceManager.GetString("DeviceMacro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Device name.
         /// </summary>
         internal static string DeviceName {
@@ -1065,6 +1047,15 @@ namespace BrickController2.Resources {
         internal static string ErrorDuringScanning {
             get {
                 return ResourceManager.GetString("ErrorDuringScanning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run Macro.
+        /// </summary>
+        internal static string ExecuteMacro {
+            get {
+                return ResourceManager.GetString("ExecuteMacro", resourceCulture);
             }
         }
         
@@ -1366,38 +1357,11 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Macro.
-        /// </summary>
-        internal static string Macro {
-            get {
-                return ResourceManager.GetString("Macro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Set output level.
         /// </summary>
         internal static string Macro_SetOutputLevel {
             get {
                 return ResourceManager.GetString("Macro_SetOutputLevel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value.
-        /// </summary>
-        internal static string MacroChoice {
-            get {
-                return ResourceManager.GetString("MacroChoice", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Macros.
-        /// </summary>
-        internal static string Macros {
-            get {
-                return ResourceManager.GetString("Macros", resourceCulture);
             }
         }
         
@@ -1425,15 +1389,6 @@ namespace BrickController2.Resources {
         internal static string MissingDevices {
             get {
                 return ResourceManager.GetString("MissingDevices", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Missing macro.
-        /// </summary>
-        internal static string MissingMacro {
-            get {
-                return ResourceManager.GetString("MissingMacro", resourceCulture);
             }
         }
         
@@ -1470,15 +1425,6 @@ namespace BrickController2.Resources {
         internal static string NoCreationsToImport {
             get {
                 return ResourceManager.GetString("NoCreationsToImport", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The selected device has no macros..
-        /// </summary>
-        internal static string NoMacros {
-            get {
-                return ResourceManager.GetString("NoMacros", resourceCulture);
             }
         }
         
@@ -1888,15 +1834,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to What do you want to bind?.
-        /// </summary>
-        internal static string SelectBindingKind {
-            get {
-                return ResourceManager.GetString("SelectBindingKind", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Select device.
         /// </summary>
         internal static string SelectDevice {
@@ -1911,24 +1848,6 @@ namespace BrickController2.Resources {
         internal static string SelectDeviceBeforeSaving {
             get {
                 return ResourceManager.GetString("SelectDeviceBeforeSaving", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select a macro.
-        /// </summary>
-        internal static string SelectMacro {
-            get {
-                return ResourceManager.GetString("SelectMacro", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select a macro before saving..
-        /// </summary>
-        internal static string SelectMacroBeforeSaving {
-            get {
-                return ResourceManager.GetString("SelectMacroBeforeSaving", resourceCulture);
             }
         }
         
@@ -2064,6 +1983,33 @@ namespace BrickController2.Resources {
         internal static string ShortChannel {
             get {
                 return ResourceManager.GetString("ShortChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to Channels.
+        /// </summary>
+        internal static string ShowChannels {
+            get {
+                return ResourceManager.GetString("ShowChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to Macros.
+        /// </summary>
+        internal static string ShowMacros {
+            get {
+                return ResourceManager.GetString("ShowMacros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to Sensors.
+        /// </summary>
+        internal static string ShowSensors {
+            get {
+                return ResourceManager.GetString("ShowSensors", resourceCulture);
             }
         }
         

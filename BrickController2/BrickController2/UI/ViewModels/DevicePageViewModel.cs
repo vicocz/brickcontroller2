@@ -53,7 +53,7 @@ namespace BrickController2.UI.ViewModels
                 .Select(channel => new DeviceOutputViewModel(this, Device, channel))
                 .ToArray();
             // initialize views
-            ShowChannelView = IsChannelDeviceDevice;
+            ShowChannelView = IsChannelDevice;
             ShowSensorView = IsInputDevice && !ShowChannelView;
             ShowMacroView = IsMacroDevice && !ShowChannelView && !ShowSensorView;
 
@@ -81,7 +81,7 @@ namespace BrickController2.UI.ViewModels
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
 
-        public bool CanSwitchToChannelView => IsChannelDeviceDevice && !ShowChannelView;
+        public bool CanSwitchToChannelView => IsChannelDevice && !ShowChannelView;
         public bool CanSwitchToSensorView => IsInputDevice && !ShowSensorView;
         public bool CanSwitchToMacroView => IsMacroDevice && !ShowMacroView;
 
@@ -108,7 +108,7 @@ namespace BrickController2.UI.ViewModels
 
         public ObservableCollection<MacroItemViewModel> Macros { get; } = [];
 
-        public bool IsChannelDeviceDevice => Device.HasOutputChannel;
+        public bool IsChannelDevice => Device.HasOutputChannel;
         public bool IsInputDevice => InputDevice is not null;
         public bool IsMacroDevice => Device.SupportsMacros;
 

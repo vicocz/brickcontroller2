@@ -435,35 +435,8 @@
   <data name="MissingSequence" xml:space="preserve">
     <value>Missing sequence</value>
   </data>
-  <data name="MissingMacro" xml:space="preserve">
-    <value>Missing macro</value>
-  </data>
-  <data name="Macro" xml:space="preserve">
-    <value>Macro</value>
-  </data>
-  <data name="MacroChoice" xml:space="preserve">
-    <value>Value</value>
-  </data>
-  <data name="SelectMacro" xml:space="preserve">
-    <value>Select a macro</value>
-  </data>
   <data name="SelectMacroChoice" xml:space="preserve">
     <value>Select a value</value>
-  </data>
-  <data name="NoMacros" xml:space="preserve">
-    <value>The selected device has no macros.</value>
-  </data>
-  <data name="SelectMacroBeforeSaving" xml:space="preserve">
-    <value>Select a macro before saving.</value>
-  </data>
-  <data name="DeviceMacro" xml:space="preserve">
-    <value>Device macro</value>
-  </data>
-  <data name="ChannelAction" xml:space="preserve">
-    <value>Channel action</value>
-  </data>
-  <data name="SelectBindingKind" xml:space="preserve">
-    <value>What do you want to bind?</value>
   </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
@@ -693,8 +666,8 @@
   <data name="Applying" xml:space="preserve">
     <value>Applying...</value>
   </data>
-  <data name="Macros" xml:space="preserve">
-    <value>Macros</value>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Go to Macros</value>
   </data>
   <data name="NoMacrosAvailable" xml:space="preserve">
     <value>No macros available for this device.</value>
@@ -833,5 +806,14 @@
   </data>
   <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
     <value>Decrease volume</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Go to Sensors</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Run Macro</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Go to Channels</value>
   </data>
 </root>

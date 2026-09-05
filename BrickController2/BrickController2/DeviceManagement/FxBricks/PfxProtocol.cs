@@ -214,7 +214,7 @@ internal static class PfxProtocol
     /// Defaults to restart, which is usually the expected behavior for a macro trigger.
     /// </param>
     /// <param name="relativeVolume">
-    /// 2's complement relative volume (dB gain/attenuation) applied from the current playback volume. Range: -8..7. Defaults to 0 (no change).
+    /// Complement relative volume (dB gain/attenuation) applied from the current playback volume. Range: -8..7. Defaults to 0 (no change).
     /// </param>
     public static byte[] PlaySoundFile(byte fileId, byte retrigger = EVT_SOUNDFX_RETRIGGER_RESTART, sbyte relativeVolume = 0)
         => TestEventAction(EVT_COMMAND_NONE,
@@ -232,12 +232,17 @@ internal static class PfxProtocol
             soundFileId: fileId);
 
     /// <summary>
-    /// Stops playback of the sound file identified by <paramref name="fileId"/>.
+    /// Sets the playback volume.
     /// </summary>
-    public static byte[] SetVolume(byte volume)
+    public static byte[] SetVolume(float volume)
         => TestEventAction(EVT_COMMAND_NONE,
             soundFxId: EVT_SOUNDFX_SET_VOLUME,
-            soundParam1: volume);
+            soundParam1: volume switch
+            {
+                < 0.0f => 0,
+                > 100.0f => 255,
+                _ => (byte)(volume / 100f * 255.0f)
+            });
 
     public static byte[] IncreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_INC_VOLUME);
     public static byte[] DecreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_DEC_VOLUME);

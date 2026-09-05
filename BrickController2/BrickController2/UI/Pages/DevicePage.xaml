@@ -26,9 +26,9 @@
     </local:PageBase.Resources>
     
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="tune" Text="{extensions:Translate Channels}" Command="{Binding SwitchToChannelViewCommand}" Order="Secondary" />
-        <controls:ToolbarIcon Icon="sensors" Text="{extensions:Translate Sensors}" Command="{Binding SwitchToSensorViewCommand}" Order="Secondary" />
-        <controls:ToolbarIcon Icon="playlist_play" Text="{extensions:Translate Macros}" Command="{Binding SwitchToMacroViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="tune" Text="{extensions:Translate ShowChannels}" Command="{Binding SwitchToChannelViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="sensors" Text="{extensions:Translate ShowSensors}" Command="{Binding SwitchToSensorViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="playlist_play" Text="{extensions:Translate ShowMacros}" Command="{Binding SwitchToMacroViewCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
     </ContentPage.ToolbarItems>

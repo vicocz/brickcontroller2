@@ -28,14 +28,14 @@ internal class PfxBrickDevice : BluetoothDevice
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
-    private static readonly IReadOnlyCollection<int> Volumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    private static readonly IReadOnlyCollection<float> Volumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
     private static readonly IReadOnlyCollection<MacroDescriptor> StaticMacros =
     [
         new MacroDescriptor(id: SetVolumeMacroId,
             nameKey: SetVolumeMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot,
-            choices: [.. Volumes.Select(x => new MacroChoice<int>(x.ToString(), x))]),
+            choices: [.. Volumes.Select(x => new MacroChoice<float>(x.ToString(), x))]),
         new MacroDescriptor(id: IncreaseVolumeMacroId,
             nameKey: IncreaseVolumeMacroNameKey,
             scope: MacroScope.Device,
@@ -108,7 +108,7 @@ internal class PfxBrickDevice : BluetoothDevice
             return WriteCommandAsync(PfxProtocol.StopSoundFile(stopFileId), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
-            && invocation.ChoiceValue is int volume)
+            && invocation.ChoiceValue is float volume)
         {
             return WriteCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
         }
@@ -143,7 +143,7 @@ internal class PfxBrickDevice : BluetoothDevice
         if (characteristicGuid != _notifyCharacteristic?.Uuid || data.Length == 0)
             return;
 
-        else if (data.Length == 1) // notification
+        if (data.Length == 1) // notification
         {
         }
         else if (data[0] == PfxProtocol.RSP_FILE_DIR)
@@ -284,8 +284,8 @@ internal class PfxBrickDevice : BluetoothDevice
 
     private async Task GetAvailableMacros(CancellationToken token)
     {
-        const int MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
-        const int FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
+        const byte MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
+        const byte FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
 
         _macros.Clear();
         _macros.AddRange(StaticMacros);
@@ -297,9 +297,9 @@ internal class PfxBrickDevice : BluetoothDevice
         var foundCount = 0;
         var choices = new List<MacroChoice>();
 
-        for (var i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount; i++)
+        for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount; i++)
         {
-            var entryResponse = await RequestFileDirAsync(PfxProtocol.GetDirEntryAtIndex((byte)i), token);
+            var entryResponse = await RequestFileDirAsync(PfxProtocol.GetDirEntryAtIndex(i), token);
             var entry = PfxProtocol.ParseFileDirEntry(entryResponse);
             if (entry is null || !PfxProtocol.IsValidFileDirEntry(entry.Value))
             {

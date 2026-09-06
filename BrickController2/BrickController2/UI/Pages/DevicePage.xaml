@@ -172,9 +172,12 @@
                                                 </Border>
                                                 <Label Grid.Column="1" Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" Margin="10,0"/>
                                                 <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="8" Margin="10,0">
-                                                    <Label Text="{Binding Scope}" FontSize="Micro"/>
-                                                    <Label Text="{Binding Kind}" FontSize="Micro"/>
-                                                    <Label Text="{Binding ChoicesCountText}" FontSize="Micro" IsVisible="{Binding HasChoices}"/>
+                                                    <Label Text="{extensions:Translate Scope}" FontSize="Micro"/>
+                                                    <Label Text="{Binding Scope}" FontSize="Micro" FontAttributes="Bold"/>
+                                                    <Label Text="{extensions:Translate Kind}" FontSize="Micro"/>
+                                                    <Label Text="{Binding Kind}" FontSize="Micro" FontAttributes="Bold"/>
+                                                    <Label Text="{extensions:Translate Choices}" FontSize="Micro" IsVisible="{Binding HasChoices}"/>
+                                                    <Label Text="{Binding ChoicesCount}" FontSize="Micro" FontAttributes="Bold" IsVisible="{Binding HasChoices}"/>
                                                 </HorizontalStackLayout>
                                                 <controls:FloatingActionButton Grid.Column="2" Grid.RowSpan="2" Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" ToolTipProperties.Text="{extensions:Translate ExecuteMacro}"
                                                     Command="{Binding ExecuteMacroCommand}" Margin="10,0,0,0"/>

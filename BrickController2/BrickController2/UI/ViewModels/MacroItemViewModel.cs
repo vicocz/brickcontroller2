@@ -17,29 +17,29 @@ public class MacroItemViewModel
     private readonly ITranslationService _translationService;
     private readonly IDialogService _dialogService;
 
-    public MacroItemViewModel(Device device, MacroDescriptor descriptor, ITranslationService translationService, IDialogService dialogService)
+    public MacroItemViewModel(Device device, MacroDescriptor descriptor, int idx, ITranslationService translationService, IDialogService dialogService)
     {
         _device = device;
         _descriptor = descriptor;
         _translationService = translationService;
         _dialogService = dialogService;
 
+        Idx = idx;
         ExecuteMacroCommand = new SafeCommand(ExecuteMacroAsync, () => _device.DeviceState == DeviceState.Connected && !_dialogService.IsDialogOpen);
     }
 
     public ICommand ExecuteMacroCommand { get; }
 
-    public int Idx => Math.Abs(_descriptor.Id.GetHashCode());
+    public int Idx { get; }
     public string DisplayName => Translate(_descriptor.NameKey);
     public string Scope => Translate(_descriptor.Scope);
     public string Kind => Translate(_descriptor.Kind);
 
     public int ChoicesCount => _descriptor.Choices.Count;
     public bool HasChoices => ChoicesCount > 1;
-    public string ChoicesCountText => string.Format(Translate("ChoicesCountFormat"), ChoicesCount);
 
     private string Translate(string key) => _translationService.Translate(key);
-    private string Translate<T>(T key) where T : struct
+    private string Translate<T>(T key) where T : Enum
         => _translationService.Translate(key.ToString());
 
     private async Task ExecuteMacroAsync()
@@ -86,7 +86,7 @@ public class MacroItemViewModel
         {
             await _dialogService.ShowMessageBoxAsync(
                 Translate("Warning"),
-                Translate("ExecuteMacroFailed") + ": " + ex.Message,
+                Translate("ExecuteMacroFailed") + " " + ex.Message,
                 Translate("Ok"),
                 default);
         }

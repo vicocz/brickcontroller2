@@ -709,6 +709,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Choices:.
+        /// </summary>
+        internal static string Choices {
+            get {
+                return ResourceManager.GetString("Choices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Choose a JSON file to import.
         /// </summary>
         internal static string ChooseJsonFileToImport {
@@ -1312,6 +1321,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Kind:.
+        /// </summary>
+        internal static string Kind {
+            get {
+                return ResourceManager.GetString("Kind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language.
         /// </summary>
         internal static string Language {
@@ -1821,6 +1839,15 @@ namespace BrickController2.Resources {
         internal static string ScanQr {
             get {
                 return ResourceManager.GetString("ScanQr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scope:.
+        /// </summary>
+        internal static string Scope {
+            get {
+                return ResourceManager.GetString("Scope", resourceCulture);
             }
         }
         

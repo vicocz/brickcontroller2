@@ -438,9 +438,6 @@
   <data name="SelectMacroChoice" xml:space="preserve">
     <value>Select a value</value>
   </data>
-  <data name="ChoicesCountFormat" xml:space="preserve">
-    <value>{0} choices</value>
-  </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
   </data>
@@ -818,5 +815,14 @@
   </data>
   <data name="ShowChannels" xml:space="preserve">
     <value>Go to Channels</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Scope:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Kind:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Choices:</value>
   </data>
 </root>

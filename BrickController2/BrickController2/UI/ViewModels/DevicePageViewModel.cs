@@ -383,7 +383,7 @@ namespace BrickController2.UI.ViewModels
                                 Macros.Clear();
                                 foreach (var macro in Device.AvailableMacros)
                                 {
-                                    Macros.Add(new MacroItemViewModel(Device, macro, TranslationService, _dialogService));
+                                    Macros.Add(new MacroItemViewModel(Device, macro, Macros.Count, TranslationService, _dialogService));
                                 }
                             }
 
@@ -511,6 +511,9 @@ namespace BrickController2.UI.ViewModels
             ScanCommand.RaiseCanExecuteChanged();
             ActivateShelfModeCommand.RaiseCanExecuteChanged();
             OpenDeviceSettingsPageCommand.RaiseCanExecuteChanged();
+            SwitchToChannelViewCommand.RaiseCanExecuteChanged();
+            SwitchToSensorViewCommand.RaiseCanExecuteChanged();
+            SwitchToMacroViewCommand.RaiseCanExecuteChanged();
             // to ensure that servo/stepper commands are enabled / disabled properly
             RaisePropertyChanged(nameof(IsServoOrStepperSupported));
         }

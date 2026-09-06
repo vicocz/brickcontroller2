@@ -312,9 +312,7 @@ internal class PfxBrickDevice : BluetoothDevice
             if (entry.Value.IsAudio)
             {
                 audioFilesChoices.Add(new MacroChoice<string>(entry.Value.FileName, entry.Value.FileName));
-  
-                var fileId = entry.Value.FileId.ToString();
-                _macroFileIds[fileId] = (byte)entry.Value.FileId;
+                _macroFileIds[entry.Value.FileName] = (byte)entry.Value.FileId;
             }
         }
 

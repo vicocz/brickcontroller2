@@ -147,7 +147,7 @@ internal static class PfxProtocol
         CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
 
     /// <summary>
-    /// Parses a "Get Directory Entry" response (request 0x02 / 0x03) into a <see cref="PfxFileDirEntry"/>.
+    /// Parses a "Get Directory Entry" response (request 0x02 / 0x03) into a <see cref="FileDirEntry"/>.
     /// </summary>
     /// <remarks>
     /// Confirmed against a real device response: fields are big-endian, and the layout matches the ICD

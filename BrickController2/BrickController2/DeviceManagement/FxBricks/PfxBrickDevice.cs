@@ -295,23 +295,26 @@ internal class PfxBrickDevice : BluetoothDevice
         var filesCount = PfxProtocol.ParseFileCount(countResponse) ?? 0;
 
         var foundCount = 0;
-        var choices = new List<MacroChoice>();
+        var audioFilesChoices = new List<MacroChoice<string>>();
 
         for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount; i++)
         {
             var entryResponse = await RequestFileDirAsync(PfxProtocol.GetDirEntryAtIndex(i), token);
             var entry = PfxProtocol.ParseFileDirEntry(entryResponse);
-            if (entry is null || !PfxProtocol.IsValidFileDirEntry(entry.Value))
+            if (entry is null || !entry.Value.IsValid)
             {
                 continue; // empty/unused directory slot
             }
 
             foundCount++;
 
-            var soundId = entry.Value.FileId.ToString();
-            _macroFileIds[soundId] = (byte)entry.Value.FileId;
-
-            choices.Add(new MacroChoice<string>(entry.Value.FileName, soundId));
+            if (entry.Value.IsAudio)
+            {
+                audioFilesChoices.Add(new MacroChoice<string>(entry.Value.FileName, entry.Value.FileName));
+  
+                var fileId = entry.Value.FileId.ToString();
+                _macroFileIds[fileId] = (byte)entry.Value.FileId;
+            }
         }
 
         _macros.Add(new MacroDescriptor(
@@ -319,14 +322,14 @@ internal class PfxBrickDevice : BluetoothDevice
             nameKey: PlaySoundMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.Repeatable,
-            choices: choices));
+            choices: audioFilesChoices));
 
         _macros.Add(new MacroDescriptor(
             id: StopSoundMacroId,
             nameKey: StopSoundMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot,
-            choices: choices));
+            choices: audioFilesChoices));
     }
 
     private async Task<byte[]> RequestFileDirAsync(byte[] command, CancellationToken token, int timeoutMs = 2000)

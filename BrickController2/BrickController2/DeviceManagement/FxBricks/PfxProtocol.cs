@@ -152,9 +152,9 @@ internal static class PfxProtocol
     /// <remarks>
     /// Confirmed against a real device response: fields are big-endian, and the layout matches the ICD
     /// exactly (no extra echoed request-code byte, unlike the "Get File Count" response). An entry with
-    /// <see cref="PfxFileDirEntry.FirstSector"/> == 0xFFFF is an empty/unused directory slot.
+    /// <see cref="FileDirEntry.FirstSector"/> == 0xFFFF is an empty/unused directory slot.
     /// </remarks>
-    public static PfxFileDirEntry? ParseFileDirEntry(byte[] data)
+    public static FileDirEntry? ParseFileDirEntry(byte[] data)
     {
         const int FixedFieldsLength = 24;
         const int MaxNameLength = 32;
@@ -177,13 +177,8 @@ internal static class PfxProtocol
             ? Encoding.UTF8.GetString(data, FixedFieldsLength, nameLength).TrimEnd('\0', ' ')
             : string.Empty;
 
-        return new PfxFileDirEntry(fileId, fileSize, firstSector, attributes, userData1, userData2, crc32, name);
+        return new FileDirEntry(fileId, fileSize, firstSector, attributes, userData1, userData2, crc32, name);
     }
-
-    /// <summary>
-    /// An empty/unused directory slot is marked with <see cref="PfxFileDirEntry.FirstSector"/> == 0xFFFF.
-    /// </summary>
-    public static bool IsValidFileDirEntry(PfxFileDirEntry entry) => entry.FirstSector != 0xFFFF && !string.IsNullOrEmpty(entry.FileName);
 
     /// <summary>
     /// Parses a "Get File Count" response.
@@ -303,5 +298,40 @@ internal static class PfxProtocol
         var value = MOTOR_SPEED_FLAG_HIRES | (Math.Abs(speed * 63 / 100) & MOTOR_SPEED_MASK);
 
         return speed < 0 ? (byte)(value | MOTOR_SPEED_FLAG_HIRES_REV) : (byte)value;
+    }
+
+    internal enum FileFormat : byte
+    {
+        Wav = 0x00,
+        Flac = 0x01,
+        Mp3 = 0x02,
+        Ogg = 0x03,
+        Au = 0x04,
+        Gsm = 0x05,
+        Txt = 0x10,
+        Hex = 0x11,
+        Zip = 0x20,
+        Gz = 0x21,
+        Pfx = 0x30,
+        Img = 0x50,
+    }
+
+    internal readonly record struct FileDirEntry(ushort FileId,
+        uint FileSize,
+        ushort FirstSector,
+        ushort Attributes,
+        uint UserData1,
+        uint UserData2,
+        uint Crc32,
+        string FileName)
+    {
+        /// <summary>
+        /// File format code stored in User Attributes[15:8] (ICD 9.1.5).
+        /// </summary>
+        public FileFormat FileFormat => (FileFormat)(Attributes >> 8);
+
+        public bool IsValid => FirstSector != 0xFFFF && !string.IsNullOrEmpty(FileName);
+
+        public bool IsAudio => FileFormat <= FileFormat.Gsm;
     }
 }

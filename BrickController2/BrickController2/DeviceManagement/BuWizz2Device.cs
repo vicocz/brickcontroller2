@@ -34,10 +34,10 @@ namespace BrickController2.DeviceManagement
                 MacroScope.Device,
                 MacroKind.OneShot,
                 [
-                    new MacroChoice<int>("MacroChoice_BuWizz_Low", (int)BuWizz2OutputLevels.Low),
-                    new MacroChoice<int>("MacroChoice_BuWizz_Normal", (int)BuWizz2OutputLevels.Normal),
-                    new MacroChoice<int>("MacroChoice_BuWizz_High", (int)BuWizz2OutputLevels.High),
-                    new MacroChoice<int>("MacroChoice_BuWizz_Ludicrous", (int)BuWizz2OutputLevels.Ludicrous),
+                    new MacroChoice<int>("BuWizz_Low", (int)BuWizz2OutputLevels.Low),
+                    new MacroChoice<int>("BuWizz_Normal", (int)BuWizz2OutputLevels.Normal),
+                    new MacroChoice<int>("BuWizz_High", (int)BuWizz2OutputLevels.High),
+                    new MacroChoice<int>("BuWizz_Ludicrous", (int)BuWizz2OutputLevels.Ludicrous),
                 ])
         ];
 

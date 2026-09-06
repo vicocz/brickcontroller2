@@ -11,6 +11,13 @@ public abstract record MacroChoice(string LabelKey)
     /// concrete choice type is known at the call site.
     /// </summary>
     public abstract object BoxedValue { get; }
+
+    /// <summary>
+    /// Creates a <see cref="MacroChoice{T}"/> for a struct value, using the value's <see cref="object.ToString"/>
+    /// as the label key.
+    /// </summary>
+    public static MacroChoice<T> Create<T>(T value) where T : struct
+        => new(value.ToString() ?? string.Empty, value);
 }
 
 /// <summary>

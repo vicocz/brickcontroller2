@@ -29,14 +29,14 @@ internal class PfxBrickDevice : BluetoothDevice
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
-    private static readonly IReadOnlyCollection<float> Volumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    private static readonly IReadOnlyCollection<float> DefaultVolumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
     private static readonly IReadOnlyCollection<MacroDescriptor> StaticMacros =
     [
         new MacroDescriptor(id: SetVolumeMacroId,
             nameKey: SetVolumeMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot,
-            choices: [.. Volumes.Select(x => new MacroChoice<float>(x.ToString(), x))]),
+            choices: [.. DefaultVolumes.Select(x => MacroChoice.Create(x))]),
         new MacroDescriptor(id: IncreaseVolumeMacroId,
             nameKey: IncreaseVolumeMacroNameKey,
             scope: MacroScope.Device,

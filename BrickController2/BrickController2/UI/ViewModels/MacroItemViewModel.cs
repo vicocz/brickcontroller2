@@ -46,7 +46,11 @@ public class MacroItemViewModel
     {
         object? choiceValue = null;
 
-        if (_descriptor.Choices.Count > 0)
+        if (_descriptor.Choices.Count == 1)
+        {
+            choiceValue = _descriptor.Choices[0].BoxedValue;
+        }
+        else if (_descriptor.Choices.Count > 1)
         {
             var labels = _descriptor.Choices.Select(c => Translate(c.LabelKey)).ToArray();
 

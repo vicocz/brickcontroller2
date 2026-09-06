@@ -825,4 +825,7 @@
   <data name="Choices" xml:space="preserve">
     <value>Choices:</value>
   </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Executing...</value>
+  </data>
 </root>

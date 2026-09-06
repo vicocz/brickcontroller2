@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.UI.Commands;
+using BrickController2.UI.Extensions;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
 using System;
@@ -40,7 +41,7 @@ public class MacroItemViewModel
 
     private string Translate(string key) => _translationService.Translate(key);
     private string Translate<T>(T key) where T : Enum
-        => _translationService.Translate(key.ToString());
+        => _translationService.Translate(key);
 
     private async Task ExecuteMacroAsync()
     {
@@ -56,7 +57,7 @@ public class MacroItemViewModel
 
             var result = await _dialogService.ShowSelectionDialogAsync(
                 labels,
-                Translate("SelectMacroChoice"),
+                Translate(_descriptor.NameKey),
                 Translate("Cancel"),
                 default);
 
@@ -79,14 +80,14 @@ public class MacroItemViewModel
             await _dialogService.ShowProgressDialogAsync(
                 false,
                 async (progressDialog, token) => await _device.ExecuteMacroAsync(new MacroInvocation(_descriptor.Id, choiceValue, null), token),
-                Translate("Applying"),
+                Translate("Executing"),
                 token: default);
         }
         catch (Exception ex)
         {
             await _dialogService.ShowMessageBoxAsync(
                 Translate("Warning"),
-                Translate("ExecuteMacroFailed") + " " + ex.Message,
+                _translationService.Translate("ExecuteMacroFailed", ex),
                 Translate("Ok"),
                 default);
         }

@@ -1078,6 +1078,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Executing....
+        /// </summary>
+        internal static string Executing {
+            get {
+                return ResourceManager.GetString("Executing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Export the controller profile.
         /// </summary>
         internal static string ExportControllerProfile {

@@ -9,6 +9,7 @@
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.DevicePage"
+    x:DataType="viewmodels:DevicePageViewModel"
     Title="{extensions:Translate Device}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -120,7 +121,7 @@
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding DeviceOutputs}">
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:DevicePageViewModel+DeviceOutputViewModel">
                                         <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="5,0,5,0" RowDefinitions="*,*">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="25"/>
@@ -131,7 +132,7 @@
                                             <controls:ExtendedSlider Grid.Column="1" Minimum="-100" Maximum="100" IsEnabled="{Binding Device.DeviceState, Converter={StaticResource DeviceConnectedToBool}}" Value="{Binding Output}" TouchUpCommand="{Binding TouchUpCommand}" VerticalOptions="Center"/>
                                             <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate TestDeviceChannel}"
                                                                            Command="{Binding TestServoStepperCommand}" Margin="10,0,0,0"
-                                                                           IsVisible="{Binding x:DataType='bool', Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.IsServoOrStepperSupported}"/>
+                                                                           IsVisible="{Binding IsServoOrStepperSupported}"/>
                                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,4,6,0"/>
                                         </Grid>
                                     </DataTemplate>
@@ -143,7 +144,7 @@
                         <VerticalStackLayout IsVisible="{Binding ShowSensorView}">
                             <CollectionView ItemsSource="{Binding InputEventList}" SelectionMode="None" ItemsLayout="VerticalList">
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:InputDeviceEventViewModel">
                                         <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
                                             <HorizontalStackLayout>
                                                 <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
@@ -170,7 +171,11 @@
                                                     <Label Text="{Binding DisplayName, Converter={StaticResource TextToCapitalInitial}}" TextColor="White" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"/>
                                                 </Border>
                                                 <Label Grid.Column="1" Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" Margin="10,0"/>
-                                                <Label Grid.Column="1" Grid.Row="1" Text="{Binding Scope}" FontSize="Micro" FontAttributes="Bold" Margin="10,0"/>
+                                                <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="8" Margin="10,0">
+                                                    <Label Text="{Binding Scope}" FontSize="Micro"/>
+                                                    <Label Text="{Binding Kind}" FontSize="Micro"/>
+                                                    <Label Text="{Binding ChoicesCountText}" FontSize="Micro" IsVisible="{Binding HasChoices}"/>
+                                                </HorizontalStackLayout>
                                                 <controls:FloatingActionButton Grid.Column="2" Grid.RowSpan="2" Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" ToolTipProperties.Text="{extensions:Translate ExecuteMacro}"
                                                     Command="{Binding ExecuteMacroCommand}" Margin="10,0,0,0"/>
                                             </Grid>

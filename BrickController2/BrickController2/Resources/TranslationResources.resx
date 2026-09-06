@@ -438,6 +438,9 @@
   <data name="SelectMacroChoice" xml:space="preserve">
     <value>Select a value</value>
   </data>
+  <data name="ChoicesCountFormat" xml:space="preserve">
+    <value>{0} choices</value>
+  </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
   </data>

@@ -1,8 +1,8 @@
-﻿using BrickController2.DeviceManagement.FxBricks;
+﻿using BrickController2.Protocols;
 using FluentAssertions;
 using Xunit;
 
-namespace BrickController2.Tests.DeviceManagement.FxBricks;
+namespace BrickController2.Tests.Protocols;
 
 public class PfxProtocolTests
 {

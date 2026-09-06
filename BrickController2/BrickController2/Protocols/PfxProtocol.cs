@@ -2,7 +2,7 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace BrickController2.DeviceManagement.FxBricks;
+namespace BrickController2.Protocols;
 
 internal static class PfxProtocol
 {

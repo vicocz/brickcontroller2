@@ -30,10 +30,17 @@ public class MacroItemViewModel
     public ICommand ExecuteMacroCommand { get; }
 
     public int Idx => Math.Abs(_descriptor.Id.GetHashCode());
-    public string DisplayName => _translationService.Translate(_descriptor.NameKey);
-    public string Scope => _translationService.Translate(_descriptor.Scope.ToString());
+    public string DisplayName => Translate(_descriptor.NameKey);
+    public string Scope => Translate(_descriptor.Scope);
+    public string Kind => Translate(_descriptor.Kind);
+
+    public int ChoicesCount => _descriptor.Choices.Count;
+    public bool HasChoices => ChoicesCount > 1;
+    public string ChoicesCountText => string.Format(Translate("ChoicesCountFormat"), ChoicesCount);
 
     private string Translate(string key) => _translationService.Translate(key);
+    private string Translate<T>(T key) where T : struct
+        => _translationService.Translate(key.ToString());
 
     private async Task ExecuteMacroAsync()
     {

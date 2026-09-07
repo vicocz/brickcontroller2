@@ -439,42 +439,6 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to High.
-        /// </summary>
-        internal static string BuWizz_High {
-            get {
-                return ResourceManager.GetString("BuWizz_High", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Low.
-        /// </summary>
-        internal static string BuWizz_Low {
-            get {
-                return ResourceManager.GetString("BuWizz_Low", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ludicrous.
-        /// </summary>
-        internal static string BuWizz_Ludicrous {
-            get {
-                return ResourceManager.GetString("BuWizz_Ludicrous", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Normal.
-        /// </summary>
-        internal static string BuWizz_Normal {
-            get {
-                return ResourceManager.GetString("BuWizz_Normal", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Default output level.
         /// </summary>
         internal static string BuWizz2DefaultOutputLevel {

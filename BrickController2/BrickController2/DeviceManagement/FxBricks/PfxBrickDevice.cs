@@ -92,7 +92,7 @@ internal class PfxBrickDevice : BluetoothDevice
         }
     }
 
-    public override Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+    public override Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
 
@@ -122,7 +122,8 @@ internal class PfxBrickDevice : BluetoothDevice
             return WriteCommandAsync(PfxProtocol.DecreaseVolume(), token);
         }
 
-        return Task.CompletedTask;
+        // unknown command
+        return Task.FromResult(false);
     }
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
@@ -170,6 +171,7 @@ internal class PfxBrickDevice : BluetoothDevice
     {
         _writeCharacteristic = null;
         _notifyCharacteristic = null;
+        _macroFileIds.Clear();
     }
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)

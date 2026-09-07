@@ -140,11 +140,9 @@ public class PfxProtocolTests
         result.Should().NotBeNull();
         result!.Value.FileId.Should().Be(1);
         result.Value.FileSize.Should().Be(100u);
-        result.Value.FirstSector.Should().Be(5);
         result.Value.Attributes.Should().Be(0x0200);
         result.Value.UserData1.Should().Be(0x11223344u);
         result.Value.UserData2.Should().Be(0x55667788u);
-        result.Value.Crc32.Should().Be(0xAABBCCDDu);
         result.Value.FileName.Should().Be("test.mp3");
         result.Value.FileFormat.Should().Be(PfxProtocol.FileFormat.Mp3);
         result.Value.IsValid.Should().BeTrue();
@@ -162,7 +160,6 @@ public class PfxProtocolTests
         var result = PfxProtocol.ParseFileDirEntry(data);
 
         result.Should().NotBeNull();
-        result!.Value.FirstSector.Should().Be(0xFFFF);
         result.Value.FileName.Should().BeEmpty();
         result.Value.IsValid.Should().BeFalse();
     }
@@ -250,7 +247,7 @@ public class PfxProtocolTests
     [InlineData(50f, (byte)127)]
     [InlineData(100f, (byte)255)]
     [InlineData(150f, (byte)255)]
-    public void SetVolume_ShouldReturnExpectedByteArray(float volume, byte expectedSoundParam1)
+    public void SetVolume_ShouldReturnExpectedByteArray(float volume, byte expectedSoundParam2)
     {
         var result = PfxProtocol.SetVolume(volume);
 
@@ -262,8 +259,8 @@ public class PfxProtocolTests
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x03, // soundFxId = EVT_SOUNDFX_SET_VOLUME
             0x00,
-            expectedSoundParam1,
             0x00,
+            expectedSoundParam2,
             0x5D, 0x5D, 0x5D
         });
     }
@@ -310,7 +307,7 @@ public class PfxProtocolTests
     [InlineData((ushort)0x3000, (byte)0x30, false)]
     public void FileDirEntry_FileFormatAndIsAudio_ShouldBeComputedFromAttributes(ushort attributes, byte expectedFormat, bool expectedIsAudio)
     {
-        var entry = new PfxProtocol.FileDirEntry(1, 100, 5, attributes, 0, 0, 0, "file");
+        var entry = new PfxProtocol.FileDirEntry(1, 100, attributes, 0, 0, "file");
 
         ((byte)entry.FileFormat).Should().Be(expectedFormat);
         entry.IsAudio.Should().Be(expectedIsAudio);
@@ -320,9 +317,9 @@ public class PfxProtocolTests
     [InlineData((ushort)5, "file.mp3", true)]
     [InlineData((ushort)0xFFFF, "file.mp3", false)]
     [InlineData((ushort)5, "", false)]
-    public void FileDirEntry_IsValid_ShouldReturnExpectedValue(ushort firstSector, string fileName, bool expected)
+    public void FileDirEntry_IsValid_ShouldReturnExpectedValue(ushort fileId, string fileName, bool expected)
     {
-        var entry = new PfxProtocol.FileDirEntry(1, 100, firstSector, 0, 0, 0, 0, fileName);
+        var entry = new PfxProtocol.FileDirEntry(fileId, 100, 0x0500, 0, 0, fileName);
 
         entry.IsValid.Should().Be(expected);
     }

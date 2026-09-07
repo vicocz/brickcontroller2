@@ -213,18 +213,6 @@
   <data name="Macro_SetOutputLevel" xml:space="preserve">
     <value>Set output level</value>
   </data>
-  <data name="BuWizz_Low" xml:space="preserve">
-    <value>Low</value>
-  </data>
-  <data name="BuWizz_Normal" xml:space="preserve">
-    <value>Normal</value>
-  </data>
-  <data name="BuWizz_High" xml:space="preserve">
-    <value>High</value>
-  </data>
-  <data name="BuWizz_Ludicrous" xml:space="preserve">
-    <value>Ludicrous</value>
-  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Calibrating...</value>
   </data>

@@ -21,21 +21,6 @@ namespace BrickController2.DeviceManagement
 
         private const string DefaultOutputLevelName = "BuWizzDefaultOutputLevel";
         private const BuWizzOutputLevels DefaultLevel = BuWizzOutputLevels.Normal;
-        private const string SetOutputLevelMacroId = "SetOutputLevel";
-
-        private static readonly IReadOnlyList<MacroDescriptor> StaticMacros =
-        [
-            new MacroDescriptor(
-                SetOutputLevelMacroId,
-                "Macro_SetOutputLevel",
-                MacroScope.Device,
-                MacroKind.OneShot,
-                [
-                    new MacroChoice<int>("BuWizz_Low", (int)BuWizzOutputLevels.Low),
-                    new MacroChoice<int>("BuWizz_Normal", (int)BuWizzOutputLevels.Normal),
-                    new MacroChoice<int>("BuWizz_High", (int)BuWizzOutputLevels.High)
-                ])
-        ];
 
         private readonly OutputValuesGroup<int> _outputGroup = new(5);
 
@@ -68,25 +53,11 @@ namespace BrickController2.DeviceManagement
         }
 
         public override bool CanSetOutputLevel => true;
-        public override bool SupportsMacros => true;
-        public override IReadOnlyList<MacroDescriptor> AvailableMacros => StaticMacros;
 
         public override void SetOutputLevel(int value)
         {
             var outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
             _outputGroup.SetOutput(4, outputLevelValue);
-        }
-
-        public override Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            if (invocation.DescriptorId == SetOutputLevelMacroId && invocation.ChoiceValue is int outputLevel)
-            {
-                SetOutputLevel(outputLevel);
-            }
-
-            return Task.CompletedTask;
         }
 
         public override bool CanBePowerSource => true;

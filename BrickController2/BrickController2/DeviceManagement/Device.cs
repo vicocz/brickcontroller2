@@ -103,7 +103,7 @@ namespace BrickController2.DeviceManagement
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }
 
-        public virtual Task ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+        public virtual Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
             => throw new InvalidOperationException("Macros are not supported for this type of device.");
 
         public virtual bool CanResetOutput(int channel) => false;

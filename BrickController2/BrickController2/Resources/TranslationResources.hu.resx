@@ -213,18 +213,6 @@
   <data name="Macro_SetOutputLevel" xml:space="preserve">
     <value>Kimeneti szint beállítása</value>
   </data>
-  <data name="BuWizz_Low" xml:space="preserve">
-    <value>Alacsony</value>
-  </data>
-  <data name="BuWizz_Normal" xml:space="preserve">
-    <value>Normál</value>
-  </data>
-  <data name="BuWizz_High" xml:space="preserve">
-    <value>Magas</value>
-  </data>
-  <data name="BuWizz_Ludicrous" xml:space="preserve">
-    <value>Ludicrous</value>
-  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Kalibrálás...</value>
   </data>

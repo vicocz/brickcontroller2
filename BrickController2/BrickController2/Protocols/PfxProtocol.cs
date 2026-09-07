@@ -166,18 +166,16 @@ internal static class PfxProtocol
 
         var fileId = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(2, 2));
         var fileSize = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(4, 4));
-        var firstSector = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(8, 2));
         var attributes = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(10, 2));
         var userData1 = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(12, 4));
         var userData2 = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(16, 4));
-        var crc32 = BinaryPrimitives.ReadUInt32BigEndian(data.AsSpan(20, 4));
 
         var nameLength = Math.Min(MaxNameLength, data.Length - FixedFieldsLength);
         var name = nameLength > 0
             ? Encoding.UTF8.GetString(data, FixedFieldsLength, nameLength).TrimEnd('\0', ' ')
             : string.Empty;
 
-        return new FileDirEntry(fileId, fileSize, firstSector, attributes, userData1, userData2, crc32, name);
+        return new FileDirEntry(fileId, fileSize, attributes, userData1, userData2, name);
     }
 
     /// <summary>
@@ -232,11 +230,11 @@ internal static class PfxProtocol
     public static byte[] SetVolume(float volume)
         => TestEventAction(EVT_COMMAND_NONE,
             soundFxId: EVT_SOUNDFX_SET_VOLUME,
-            soundParam1: volume switch
+            soundParam2: volume switch
             {
                 < 0.0f => 0,
                 > 100.0f => 255,
-                _ => (byte)(volume / 100f * 255.0f)
+                _ => (byte)(volume * 255.0f / 100f)
             });
 
     public static byte[] IncreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_INC_VOLUME);
@@ -318,11 +316,9 @@ internal static class PfxProtocol
 
     internal readonly record struct FileDirEntry(ushort FileId,
         uint FileSize,
-        ushort FirstSector,
         ushort Attributes,
         uint UserData1,
         uint UserData2,
-        uint Crc32,
         string FileName)
     {
         /// <summary>
@@ -330,7 +326,7 @@ internal static class PfxProtocol
         /// </summary>
         public FileFormat FileFormat => (FileFormat)(Attributes >> 8);
 
-        public bool IsValid => FirstSector != 0xFFFF && !string.IsNullOrEmpty(FileName);
+        public bool IsValid => FileId < 0xFF && !string.IsNullOrEmpty(FileName);
 
         public bool IsAudio => FileFormat <= FileFormat.Gsm;
     }

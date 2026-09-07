@@ -1483,6 +1483,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Immediate.
+        /// </summary>
+        internal static string OneShot {
+            get {
+                return ResourceManager.GetString("OneShot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Manually add devices.
         /// </summary>
         internal static string OpenAddDevicesManually {
@@ -1726,6 +1735,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Repeatable.
+        /// </summary>
+        internal static string Repeatable {
+            get {
+                return ResourceManager.GetString("Repeatable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Reset.
         /// </summary>
         internal static string Reset {
@@ -1848,15 +1866,6 @@ namespace BrickController2.Resources {
         internal static string SelectDeviceBeforeSaving {
             get {
                 return ResourceManager.GetString("SelectDeviceBeforeSaving", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Select a value.
-        /// </summary>
-        internal static string SelectMacroChoice {
-            get {
-                return ResourceManager.GetString("SelectMacroChoice", resourceCulture);
             }
         }
         

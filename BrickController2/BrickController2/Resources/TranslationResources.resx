@@ -423,9 +423,6 @@
   <data name="MissingSequence" xml:space="preserve">
     <value>Missing sequence</value>
   </data>
-  <data name="SelectMacroChoice" xml:space="preserve">
-    <value>Select a value</value>
-  </data>
   <data name="No" xml:space="preserve">
     <value>No</value>
   </data>
@@ -815,5 +812,11 @@
   </data>
   <data name="Executing" xml:space="preserve">
     <value>Executing...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Immediate</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Repeatable</value>
   </data>
 </root>

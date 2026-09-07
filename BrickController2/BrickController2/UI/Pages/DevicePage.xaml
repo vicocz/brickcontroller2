@@ -5,9 +5,11 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.DevicePage"
+    x:DataType="viewmodels:DevicePageViewModel"
     Title="{extensions:Translate Device}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -19,11 +21,16 @@
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
+            <converters:TextToCapitalInitialConverter x:Key="TextToCapitalInitial"/>
+            <converters:IntToColorConverter x:Key="IntToColor"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
     
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" />
+        <controls:ToolbarIcon Icon="tune" Text="{extensions:Translate ShowChannels}" Command="{Binding SwitchToChannelViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="sensors" Text="{extensions:Translate ShowSensors}" Command="{Binding SwitchToSensorViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="playlist_play" Text="{extensions:Translate ShowMacros}" Command="{Binding SwitchToMacroViewCommand}" Order="Secondary" />
+        <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
     </ContentPage.ToolbarItems>
 
@@ -97,6 +104,11 @@
 
                         <!-- BuWizz 1 output level -->
                         <VerticalStackLayout IsVisible="{Binding IsBuWizzDevice}" Padding="10">
+                            <VerticalStackLayout.Triggers>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ShowChannelView}" Value="False">
+                                    <Setter Property="IsVisible" Value="False"/>
+                                </DataTrigger>
+                            </VerticalStackLayout.Triggers>
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                             <Label Text="{extensions:Translate OutputLevel}"/>
                             <controls:SegmentedControl ItemsCsv="Low,Normal,High" SelectionChangedCommand="{Binding BuWizzOutputLevelChangedCommand}" SelectedIndex="{Binding BuWizzOutputLevel}" HorizontalOptions="Fill" VerticalOptions="Start"/>
@@ -104,17 +116,22 @@
 
                         <!-- BuWizz 2 output level -->
                         <VerticalStackLayout IsVisible="{Binding IsBuWizz2Device}" Padding="10">
+                            <VerticalStackLayout.Triggers>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ShowChannelView}" Value="False">
+                                    <Setter Property="IsVisible" Value="False"/>
+                                </DataTrigger>
+                            </VerticalStackLayout.Triggers>
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                             <Label Text="{extensions:Translate OutputLevel}"/>
                             <controls:SegmentedControl ItemsCsv="Low,Normal,High,Ludicrous" SelectionChangedCommand="{Binding BuWizz2OutputLevelChangedCommand}" SelectedIndex="{Binding BuWizz2OutputLevel}" HorizontalOptions="Fill" VerticalOptions="Start"/>
                         </VerticalStackLayout>
 
                         <!-- Outputs -->
-                        <VerticalStackLayout>
+                        <VerticalStackLayout IsVisible="{Binding ShowChannelView}">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding DeviceOutputs}">
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:DevicePageViewModel+DeviceOutputViewModel">
                                         <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="5,0,5,0" RowDefinitions="*,*">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="25"/>
@@ -125,7 +142,7 @@
                                             <controls:ExtendedSlider Grid.Column="1" Minimum="-100" Maximum="100" IsEnabled="{Binding Device.DeviceState, Converter={StaticResource DeviceConnectedToBool}}" Value="{Binding Output}" TouchUpCommand="{Binding TouchUpCommand}" VerticalOptions="Center"/>
                                             <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="settings" ToolTipProperties.Text="{extensions:Translate TestDeviceChannel}"
                                                                            Command="{Binding TestServoStepperCommand}" Margin="10,0,0,0"
-                                                                           IsVisible="{Binding x:DataType='bool', Source={RelativeSource AncestorType={x:Type VerticalStackLayout}}, Path=BindingContext.IsServoOrStepperSupported}"/>
+                                                                           IsVisible="{Binding IsServoOrStepperSupported}"/>
                                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Grid.Row="1" Grid.ColumnSpan="2" Margin="6,4,6,0"/>
                                         </Grid>
                                     </DataTemplate>
@@ -134,10 +151,11 @@
                         </VerticalStackLayout>
 
                         <!-- Input events -->
-                        <VerticalStackLayout IsVisible="{Binding IsInputDevice}">
+                        <VerticalStackLayout IsVisible="{Binding ShowSensorView}">
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <CollectionView ItemsSource="{Binding InputEventList}" SelectionMode="None" ItemsLayout="VerticalList">
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate>
+                                    <DataTemplate x:DataType="viewmodels:InputDeviceEventViewModel">
                                         <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
                                             <HorizontalStackLayout>
                                                 <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
@@ -154,6 +172,37 @@
                             </CollectionView>
                         </VerticalStackLayout>
 
+                        <VerticalStackLayout IsVisible="{Binding ShowMacroView}">
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
+                            <CollectionView ItemsSource="{Binding Macros}" SelectionMode="None">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="viewmodels:MacroItemViewModel">
+                                        <VerticalStackLayout>
+                                            <Grid Style="{StaticResource CollectionItemGridStyle}" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
+                                                <Border Grid.Column="0" Grid.RowSpan="2" WidthRequest="40" HeightRequest="40" BackgroundColor="{Binding Idx, Converter={StaticResource IntToColor}}" StrokeShape="RoundRectangle 20" Padding="0" VerticalOptions="Center">
+                                                    <Label Text="{Binding DisplayName, Converter={StaticResource TextToCapitalInitial}}" TextColor="White" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                </Border>
+                                                <Label Grid.Column="1" Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" Margin="10,0"/>
+                                                <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="8" Margin="10,0">
+                                                    <Label Text="{extensions:Translate Scope}" FontSize="Micro"/>
+                                                    <Label Text="{Binding Scope}" FontSize="Micro" FontAttributes="Bold"/>
+                                                    <Label Text="{extensions:Translate Kind}" FontSize="Micro"/>
+                                                    <Label Text="{Binding Kind}" FontSize="Micro" FontAttributes="Bold"/>
+                                                    <Label Text="{extensions:Translate Choices}" FontSize="Micro" IsVisible="{Binding HasChoices}"/>
+                                                    <Label Text="{Binding ChoicesCount}" FontSize="Micro" FontAttributes="Bold" IsVisible="{Binding HasChoices}"/>
+                                                </HorizontalStackLayout>
+                                                <controls:FloatingActionButton Grid.Column="2" Grid.RowSpan="2" Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" ToolTipProperties.Text="{extensions:Translate ExecuteMacro}"
+                                                    Command="{Binding ExecuteMacroCommand}" Margin="10,0,0,0"/>
+                                            </Grid>
+                                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,0,6,0"/>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                                <CollectionView.EmptyView>
+                                    <Label Text="{extensions:Translate NoMacrosAvailable}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
+                                </CollectionView.EmptyView>
+                            </CollectionView>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </ScrollView>
 

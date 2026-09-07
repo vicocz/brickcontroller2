@@ -210,6 +210,9 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz kimeneti szint</value>
   </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Kimeneti szint beállítása</value>
+  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Kalibrálás...</value>
   </data>
@@ -648,6 +651,15 @@
   <data name="Applying" xml:space="preserve">
     <value>Jelentkezés...</value>
   </data>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Ugrás a makrókhoz</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>Nincsenek makrók ehhez az eszközhöz.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>A makró végrehajtása sikertelen:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Alapértelmezett kimeneti szint</value>
   </data>
@@ -755,5 +767,47 @@
   </data>
   <data name="OrientationSensor" xml:space="preserve">
     <value>Dönthető kormányzás</value>
+  </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Hang lejátszása</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Hang leállítása</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Hangerő beállítása</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Hangerő növelése</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Hangerő csökkentése</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Ugrás az Érzékelőkhöz</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Makró futtatása</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Ugrás a Csatornák oldalra</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Hatály:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Fajta:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Választási lehetőségek:</value>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Végrehajtó...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Azonnali</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Ismételhető</value>
   </data>
 </root>

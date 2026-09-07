@@ -210,6 +210,9 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz Ausgabestufe</value>
   </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Ausgabestufe setzen</value>
+  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Kalibriere...</value>
   </data>
@@ -648,6 +651,15 @@
   <data name="Applying" xml:space="preserve">
     <value>Übernehme...</value>
   </data>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Gehe zu Makros</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>Für dieses Gerät sind keine Makros verfügbar.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>Die Ausführung des Makros ist fehlgeschlagen:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Grundwert Ausgabestufe</value>
   </data>
@@ -764,5 +776,47 @@
   </data>
   <data name="OrientationSensor" xml:space="preserve">
     <value>Neigungssteuerung</value>
+  </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Audio abspielen</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Audio stoppen</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Lautstärke einstellen</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Lautstärke erhöhen</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Volumen verringern</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Gehe zu Sensoren</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Makro ausführen</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Gehe zu den Kanälen</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Umfang:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Art:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Auswahlmöglichkeiten:</value>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Ausführung...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Sofort</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Wiederholbar</value>
   </data>
 </root>

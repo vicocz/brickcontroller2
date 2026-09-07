@@ -150,9 +150,8 @@ internal static class PfxProtocol
     /// Parses a "Get Directory Entry" response (request 0x02 / 0x03) into a <see cref="FileDirEntry"/>.
     /// </summary>
     /// <remarks>
-    /// Confirmed against a real device response: fields are big-endian, and the layout matches the ICD
-    /// exactly (no extra echoed request-code byte, unlike the "Get File Count" response). An entry with
-    /// <see cref="FileDirEntry.FirstSector"/> == 0xFFFF is an empty/unused directory slot.
+    /// Confirmed against a real device response: fields are big-endian. An entry with
+    /// <see cref="FileDirEntry.FileId"/> == 0xFF is an empty/unused directory slot.
     /// </remarks>
     public static FileDirEntry? ParseFileDirEntry(byte[] data)
     {

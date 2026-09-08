@@ -253,7 +253,9 @@ namespace BrickController2.CreationManagement
             int maxServoAngle,
             int servoBaseAngle,
             int stepperAngle,
-            string sequenceName)
+            string sequenceName,
+            string macroId,
+            object? macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -272,6 +274,8 @@ namespace BrickController2.CreationManagement
                     controllerAction.ServoBaseAngle = servoBaseAngle;
                     controllerAction.StepperAngle = stepperAngle;
                     controllerAction.SequenceName = sequenceName;
+                    controllerAction.MacroId = macroId;
+                    controllerAction.MacroChoiceValue = macroChoiceValue;
                     await _creationRepository.UpdateControllerActionAsync(controllerAction);
                 }
                 else
@@ -291,7 +295,9 @@ namespace BrickController2.CreationManagement
                         MaxServoAngle = maxServoAngle,
                         ServoBaseAngle = servoBaseAngle,
                         StepperAngle = stepperAngle,
-                        SequenceName = sequenceName
+                        SequenceName = sequenceName,
+                        MacroId = macroId,
+                        MacroChoiceValue = macroChoiceValue
                     };
                     await _creationRepository.InsertControllerActionAsync(controllerEvent, controllerAction);
                 }
@@ -325,7 +331,9 @@ namespace BrickController2.CreationManagement
             int maxServoAngle,
             int servoBaseAngle,
             int stepperAngle,
-            string sequenceName)
+            string sequenceName,
+            string macroId,
+            object? macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -351,6 +359,8 @@ namespace BrickController2.CreationManagement
                 controllerAction.ServoBaseAngle = servoBaseAngle;
                 controllerAction.StepperAngle = stepperAngle;
                 controllerAction.SequenceName = sequenceName;
+                controllerAction.MacroId = macroId;
+                controllerAction.MacroChoiceValue = macroChoiceValue;
                 await _creationRepository.UpdateControllerActionAsync(controllerAction);
             }
         }
@@ -463,7 +473,9 @@ namespace BrickController2.CreationManagement
                                         controllerAction.MaxServoAngle,
                                         controllerAction.ServoBaseAngle,
                                         controllerAction.StepperAngle,
-                                        sequenceName);
+                                        sequenceName,
+                                        controllerAction.MacroId,
+                                        controllerAction.MacroChoiceValue);
                                 }
                             }
                         }

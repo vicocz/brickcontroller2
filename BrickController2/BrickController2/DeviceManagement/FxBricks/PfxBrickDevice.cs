@@ -30,7 +30,7 @@ internal class PfxBrickDevice : BluetoothDevice
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
     private static readonly IReadOnlyCollection<float> DefaultVolumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-    private static readonly IReadOnlyCollection<MacroDescriptor> StaticMacros =
+    private static readonly IReadOnlyList<MacroDescriptor> DefaultStaticMacros =
     [
         new MacroDescriptor(id: SetVolumeMacroId,
             nameKey: SetVolumeMacroNameKey,
@@ -49,7 +49,6 @@ internal class PfxBrickDevice : BluetoothDevice
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
-    private readonly List<MacroDescriptor> _macros = [];
     private readonly Dictionary<string, byte> _macroFileIds = []; // MacroChoice<string>.Value (file id as string) -> PFx File ID
 
     private IGattCharacteristic? _writeCharacteristic;
@@ -67,8 +66,7 @@ internal class PfxBrickDevice : BluetoothDevice
     public override int NumberOfChannels => 10;
 
     public override bool SupportsMacros => true;
-
-    public override IReadOnlyList<MacroDescriptor> AvailableMacros => _macros;
+    protected override IReadOnlyList<MacroDescriptor> StaticMacros => DefaultStaticMacros;
 
     protected override bool AutoConnectOnFirstConnect => false;
 
@@ -95,6 +93,11 @@ internal class PfxBrickDevice : BluetoothDevice
     public override Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
+
+        if (DeviceState != DeviceState.Connected || _writeCharacteristic is null || _bleDevice is null)
+        {
+            return Task.FromResult(false);
+        }
 
         if (invocation.DescriptorId == PlaySoundMacroId
             && invocation.ChoiceValue is string fileName
@@ -171,7 +174,6 @@ internal class PfxBrickDevice : BluetoothDevice
     {
         _writeCharacteristic = null;
         _notifyCharacteristic = null;
-        _macroFileIds.Clear();
     }
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -181,7 +183,11 @@ internal class PfxBrickDevice : BluetoothDevice
             if (requestDeviceInformation)
             {
                 await ReadDeviceInfo(token);
-                await GetAvailableMacros(token);
+            }
+
+            if (requestDeviceInformation || !HasDiscoveredDynamicMacros)
+            {
+                await GetMacrosAsync(forceRefresh: true, token);
             }
         }
         catch { }
@@ -285,13 +291,11 @@ internal class PfxBrickDevice : BluetoothDevice
         await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
     }
 
-    private async Task GetAvailableMacros(CancellationToken token)
+    protected override async Task<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
     {
         const byte MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
         const byte FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
 
-        _macros.Clear();
-        _macros.AddRange(StaticMacros);
         _macroFileIds.Clear();
 
         var countResponse = await RequestFileDirAsync(PfxProtocol.GetFileCount(), token);
@@ -318,19 +322,21 @@ internal class PfxBrickDevice : BluetoothDevice
             }
         }
 
-        _macros.Add(new MacroDescriptor(
+        return
+        [
+            new MacroDescriptor(
             id: PlaySoundMacroId,
             nameKey: PlaySoundMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.Repeatable,
-            choices: audioFilesChoices));
-
-        _macros.Add(new MacroDescriptor(
+            choices: audioFilesChoices),
+            new MacroDescriptor(
             id: StopSoundMacroId,
             nameKey: StopSoundMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot,
-            choices: audioFilesChoices));
+            choices: audioFilesChoices)
+        ];
     }
 
     private async Task<byte[]> RequestFileDirAsync(byte[] command, CancellationToken token, int timeoutMs = 2000)

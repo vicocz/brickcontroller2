@@ -380,8 +380,10 @@ namespace BrickController2.UI.ViewModels
                             // update macros
                             if (IsMacroDevice)
                             {
+                                var availableMacros = await Device.GetMacrosAsync(forceRefresh: true, DisappearingToken);
+
                                 Macros.Clear();
-                                foreach (var macro in Device.AvailableMacros)
+                                foreach (var macro in availableMacros)
                                 {
                                     Macros.Add(new MacroItemViewModel(Device, macro, Macros.Count, TranslationService, _dialogService));
                                 }

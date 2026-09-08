@@ -10,7 +10,6 @@ using BrickController2.CreationManagement.Sharing;
 using BrickController2.DeviceManagement;
 using BrickController2.Extensions;
 using BrickController2.Helpers;
-using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -280,6 +279,10 @@ namespace BrickController2.UI.ViewModels
                 case CreationValidationResult.MissingSequence:
                     warning = Translate("MissingSequence");
                     break;
+
+                case CreationValidationResult.MissingMacro:
+                    warning = Translate("MissingMacro");
+                    break;
             }
 
             if (validationResult == CreationValidationResult.Ok)
@@ -318,7 +321,7 @@ namespace BrickController2.UI.ViewModels
                     token: DisappearingToken);
 
                 await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent!)));
-                
+
             }
             catch (OperationCanceledException)
             {

@@ -24,6 +24,9 @@ namespace BrickController2.DeviceManagement
         private volatile DeviceState _deviceState;
         protected int _outputLevel;
 
+        private volatile IReadOnlyList<MacroDescriptor> _availableMacros = [];
+        private volatile bool _hasDiscoveredDynamicMacros;
+
         internal Device(string name, string address, IDeviceRepository deviceRepository)
         {
             _deviceRepository = deviceRepository;
@@ -32,6 +35,7 @@ namespace BrickController2.DeviceManagement
             Address = address;
             _deviceState = DeviceState.Disconnected;
             _outputLevel = DefaultOutputLevel;
+            _availableMacros = StaticMacros;
         }
 
         public abstract DeviceType DeviceType { get; }
@@ -79,7 +83,50 @@ namespace BrickController2.DeviceManagement
 
         public virtual float AccelarationStep => 0.1F;
         public virtual bool SupportsMacros => false;
-        public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
+        protected virtual IReadOnlyList<MacroDescriptor> StaticMacros => [];
+        protected bool HasDiscoveredDynamicMacros => _hasDiscoveredDynamicMacros;
+        public IReadOnlyList<MacroDescriptor> AvailableMacros => _availableMacros;
+
+        public async Task<IReadOnlyList<MacroDescriptor>> GetMacrosAsync(bool forceRefresh = false, CancellationToken token = default)
+        {
+            if (!SupportsMacros || !forceRefresh || DeviceState != DeviceState.Connected)
+            {
+                return AvailableMacros;
+            }
+
+            using (await _asyncLock.LockAsync())
+            {
+                if (DeviceState != DeviceState.Connected)
+                {
+                    return AvailableMacros;
+                }
+
+                var discoveredMacros = await DiscoverDynamicMacrosAsync(token);
+                UpdateMacroCache(discoveredMacros);
+            }
+
+            return AvailableMacros;
+        }
+
+        protected virtual Task<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
+            => Task.FromResult<IReadOnlyList<MacroDescriptor>>([]);
+
+        protected void UpdateMacroCache(IReadOnlyList<MacroDescriptor>? dynamicMacros)
+        {
+            if (!SupportsMacros)
+            {
+                _availableMacros = [];
+                _hasDiscoveredDynamicMacros = false;
+                RaisePropertyChanged(nameof(AvailableMacros));
+                return;
+            }
+
+            dynamicMacros ??= [];
+
+            _availableMacros = [.. StaticMacros, .. dynamicMacros];
+            _hasDiscoveredDynamicMacros = true;
+            RaisePropertyChanged(nameof(AvailableMacros));
+        }
 
         /// <summary>
         /// Check whether the output type specified in <paramref name="outputType"/> is supported

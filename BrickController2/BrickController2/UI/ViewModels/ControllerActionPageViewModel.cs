@@ -11,6 +11,7 @@ using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -109,6 +110,7 @@ namespace BrickController2.UI.ViewModels
             OpenSequenceEditorCommand = new SafeCommand(async () => await OpenSequenceEditorAsync());
             SelectMacroCommand = new SafeCommand(async () => await SelectMacroAsync(), () => HasChannelMacros);
             SelectMacroChoiceCommand = new SafeCommand(async () => await SelectMacroChoiceAsync(), () => SelectedMacro != null && SelectedMacro.Choices.Count > 0);
+            ReloadMacrosCommand = new SafeCommand(async () => await ReloadMacrosAsync(SelectedDevice!, DisappearingToken), () => SelectedDevice != null);
             SelectAxisTypeCommand = new SafeCommand(async () => await SelectAxisTypeAsync());
             SelectAxisCharacteristicCommand = new SafeCommand(async () => await SelectAxisCharacteristicAsync());
             OpenDeviceSettingsPageCommand = new SafeCommand(async () => await OpenDeviceSettingsAsync(SelectedDevice!), () => SelectedDevice != null);
@@ -210,6 +212,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand OpenSequenceEditorCommand { get; }
         public ICommand SelectMacroCommand { get; }
         public ICommand SelectMacroChoiceCommand { get; }
+        public ICommand ReloadMacrosCommand { get; }
         public ICommand SelectAxisTypeCommand { get; }
         public ICommand SelectAxisCharacteristicCommand { get; }
         public ICommand OpenDeviceSettingsPageCommand { get; }
@@ -479,6 +482,45 @@ namespace BrickController2.UI.ViewModels
                     SetSelectedChoice(macro.Choices[index]);
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
                 }
+            }
+        }
+
+        private async Task ReloadMacrosAsync(Device device, CancellationToken token)
+        {
+            var dialogResult = await _dialogService.ShowProgressDialogAsync(
+                false,
+                async (progressDialog, token) =>
+                {
+                    using (token.Register(() => { }))
+                    {
+                        await device.ConnectAsync(
+                            false,
+                            (_) => { },
+                            [],
+                            startOutputProcessing: false,
+                            false,
+                            token);
+
+                        if (device.DeviceState == DeviceState.Connected)
+                        {
+                            await device.GetMacrosAsync(forceRefresh: true, token);
+                        }
+                    }
+                },
+                Translate("ConnectingTo"),
+                device.Name,
+                Translate("Cancel"),
+                token);
+
+            await device.DisconnectAsync();
+
+            if (dialogResult.IsCancelled)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Warning"),
+                    Translate("FailedToConnect"),
+                    Translate("Ok"),
+                    token);
             }
         }
 

@@ -225,10 +225,12 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="2*"/>
                                         <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="auto"/>
                                     </Grid.ColumnDefinitions>
 
                                     <Label Grid.Column="0" Text="{extensions:Translate Macro}" VerticalOptions="Center"/>
                                     <Button Grid.Column="1" Text="{Binding SelectedMacroDisplayName}" Command="{Binding SelectMacroCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                                    <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" BackgroundColor="Gray" Icon="cached" Command="{Binding ReloadMacrosCommand}" ToolTipProperties.Text="{extensions:Translate ReloadMacros}" VerticalOptions="Center"/>
                                 </Grid>
                                 <Grid ColumnSpacing="6">
                                     <Grid.ColumnDefinitions>

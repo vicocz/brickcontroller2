@@ -1,7 +1,6 @@
 ﻿using BrickController2.DeviceManagement.IO;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement.FxBricks;
 
-internal class PfxBrickDevice : BluetoothDevice
+internal class PfxBrickDevice : BluetoothDeviceWithMacros
 {
     private const int PF_CHANNELS = 2;
     private const int LIGHT_CHANNELS = 8;
@@ -45,6 +44,10 @@ internal class PfxBrickDevice : BluetoothDevice
             nameKey: DecreaseVolumeMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot),
+        new MacroDescriptor(id: "EmergencyStop",
+            nameKey: "PfxEmergencyStopMacro",
+            scope: MacroScope.Channel,
+            kind: MacroKind.OneShot),
     ];
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
@@ -65,7 +68,7 @@ internal class PfxBrickDevice : BluetoothDevice
 
     public override int NumberOfChannels => 10;
 
-    public override bool SupportsMacros => true;
+    public override bool SupportsDynamicMacros => true;
     protected override IReadOnlyList<MacroDescriptor> StaticMacros => DefaultStaticMacros;
 
     protected override bool AutoConnectOnFirstConnect => false;
@@ -185,7 +188,7 @@ internal class PfxBrickDevice : BluetoothDevice
                 await ReadDeviceInfo(token);
             }
 
-            if (requestDeviceInformation || !HasDiscoveredDynamicMacros)
+            if (requestDeviceInformation /*|| !HasDiscoveredDynamicMacros*/)
             {
                 await GetMacrosAsync(forceRefresh: true, token);
             }
@@ -194,6 +197,9 @@ internal class PfxBrickDevice : BluetoothDevice
 
         return true;
     }
+
+    protected override ValueTask<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
+        => GetAvailableMacrosAsync(token);
 
     protected override async Task ProcessOutputsAsync(CancellationToken token)
     {
@@ -291,7 +297,7 @@ internal class PfxBrickDevice : BluetoothDevice
         await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
     }
 
-    protected override async Task<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
+    private async ValueTask<IReadOnlyList<MacroDescriptor>> GetAvailableMacrosAsync(CancellationToken token)
     {
         const byte MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
         const byte FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
@@ -325,17 +331,17 @@ internal class PfxBrickDevice : BluetoothDevice
         return
         [
             new MacroDescriptor(
-            id: PlaySoundMacroId,
-            nameKey: PlaySoundMacroNameKey,
-            scope: MacroScope.Device,
-            kind: MacroKind.Repeatable,
-            choices: audioFilesChoices),
+                id: PlaySoundMacroId,
+                nameKey: PlaySoundMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.Repeatable,
+                choices: audioFilesChoices),
             new MacroDescriptor(
-            id: StopSoundMacroId,
-            nameKey: StopSoundMacroNameKey,
-            scope: MacroScope.Device,
-            kind: MacroKind.OneShot,
-            choices: audioFilesChoices)
+                id: StopSoundMacroId,
+                nameKey: StopSoundMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.OneShot,
+                choices: audioFilesChoices)
         ];
     }
 

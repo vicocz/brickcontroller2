@@ -6,10 +6,12 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:creationManagement="clr-namespace:BrickController2.CreationManagement"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
     xmlns:gameController="clr-namespace:BrickController2.PlatformServices.InputDevice"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.ControllerActionPage"
+    x:DataType="viewmodels:ControllerActionPageViewModel"
     Title="{extensions:Translate ControllerAction}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">

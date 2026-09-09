@@ -44,10 +44,6 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
             nameKey: DecreaseVolumeMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot),
-        new MacroDescriptor(id: "EmergencyStop",
-            nameKey: "PfxEmergencyStopMacro",
-            scope: MacroScope.Channel,
-            kind: MacroKind.OneShot),
     ];
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
@@ -171,6 +167,8 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         {
             await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
         }
+        // ensure everything is stopped in the end
+        await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
     }
 
     protected override void BeforeDisconnectCleanup()
@@ -186,11 +184,6 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
             if (requestDeviceInformation)
             {
                 await ReadDeviceInfo(token);
-            }
-
-            if (requestDeviceInformation /*|| !HasDiscoveredDynamicMacros*/)
-            {
-                await GetMacrosAsync(forceRefresh: true, token);
             }
         }
         catch { }
@@ -241,9 +234,6 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
                     await Task.Delay(10, token).ConfigureAwait(false);
                 }
             }
-
-            // ensure everything is stopped in the end
-            await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
         }
         catch
         {

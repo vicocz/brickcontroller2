@@ -81,6 +81,7 @@ namespace BrickController2.DeviceManagement
 
         public virtual bool SupportsMacros => false;
         public virtual bool SupportsDynamicMacros => false;
+        public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
 
         /// <summary>
         /// Check whether the output type specified in <paramref name="outputType"/> is supported
@@ -104,7 +105,6 @@ namespace BrickController2.DeviceManagement
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }
 
-        public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
         public virtual ValueTask<IReadOnlyList<MacroDescriptor>> GetMacrosAsync(bool forceRefresh = false, CancellationToken token = default)
              => ValueTask.FromResult(AvailableMacros);
         public virtual Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)

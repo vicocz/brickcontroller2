@@ -218,7 +218,7 @@
                                     <MultiTrigger TargetType="VerticalStackLayout">
                                         <MultiTrigger.Conditions>
                                             <BindingCondition Binding="{Binding Action.ButtonType}" Value="{x:Static creationManagement:ControllerButtonType.Macro}"/>
-                                            <BindingCondition Binding="{Binding HasChannelMacros}" Value="True"/>
+                                            <BindingCondition Binding="{Binding HasMacros}" Value="True"/>
                                         </MultiTrigger.Conditions>
                                         <Setter Property="IsVisible" Value="True"/>
                                     </MultiTrigger>

@@ -1,9 +1,10 @@
-using System.Collections.ObjectModel;
 using BrickController2.BusinessLogic;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
+using FluentAssertions;
 using Moq;
+using System.Collections.ObjectModel;
 using Xunit;
 
 namespace BrickController2.Tests.BusinessLogic;
@@ -65,7 +66,7 @@ public class PlayLogicTests
 
         var result = _playLogic.ValidateCreation(creation);
 
-        Assert.Equal(CreationValidationResult.MissingControllerAction, result);
+        result.Should().Be(CreationValidationResult.MissingControllerAction);
     }
 
     [Fact]
@@ -77,7 +78,7 @@ public class PlayLogicTests
 
         var result = _playLogic.ValidateCreation(creation);
 
-        Assert.Equal(CreationValidationResult.MissingDevice, result);
+        result.Should().Be(CreationValidationResult.MissingDevice);
     }
 
     [Fact]
@@ -88,11 +89,12 @@ public class PlayLogicTests
             buttonType: ControllerButtonType.Sequence,
             sequenceName: "missing-sequence"));
 
-        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(Mock.Of<Device>());
+        var deviceMock = CreateDeviceMock();
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
 
         var result = _playLogic.ValidateCreation(creation);
 
-        Assert.Equal(CreationValidationResult.MissingSequence, result);
+        result.Should().Be(CreationValidationResult.MissingSequence);
     }
 
     [Fact]
@@ -103,11 +105,13 @@ public class PlayLogicTests
             buttonType: ControllerButtonType.Macro,
             macroId: "missing-macro"));
 
-        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(Mock.Of<Device>());
+        var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.AvailableMacros).Returns([]);
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
 
         var result = _playLogic.ValidateCreation(creation);
 
-        Assert.Equal(CreationValidationResult.MissingMacro, result);
+        result.Should().Be(CreationValidationResult.MissingMacro);
     }
 
     [Fact]
@@ -118,13 +122,134 @@ public class PlayLogicTests
             CreateControllerAction(deviceId: "device-1", buttonType: ControllerButtonType.Sequence, sequenceName: "seq-1"),
             CreateControllerAction(deviceId: "device-1", buttonType: ControllerButtonType.Macro, macroId: "macro-1"));
 
-        var macroDescriptor = new MacroDescriptor("macro-1", "name-key", MacroScope.Channel, MacroKind.OneShot);
-        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(Mock.Of<Device>(x => x.AvailableMacros == new[] { macroDescriptor }));
+        var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.AvailableMacros).Returns([new MacroDescriptor("macro-1", "name-key", MacroScope.Channel, MacroKind.OneShot)]);
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
 
         _creationManagerMock.SetupGet(cm => cm.Sequences).Returns([new() { Name = "seq-1" }]);
 
         var result = _playLogic.ValidateCreation(creation);
 
-        Assert.Equal(CreationValidationResult.Ok, result);
+        result.Should().Be(CreationValidationResult.Ok);
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsFalse_WhenDeviceDoesNotExist()
+    {
+        var controllerAction = CreateControllerAction(deviceId: "missing-device");
+
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("missing-device")).Returns((Device?)null);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsTrue_WhenButtonTypeIsNormal()
+    {
+        var controllerAction = CreateControllerAction(deviceId: "device-1", buttonType: ControllerButtonType.Normal);
+
+        var deviceMock = CreateDeviceMock();
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsFalse_WhenSequenceDoesNotExist()
+    {
+        var controllerAction = CreateControllerAction(
+            deviceId: "device-1",
+            buttonType: ControllerButtonType.Sequence,
+            sequenceName: "missing-sequence");
+
+        var deviceMock = CreateDeviceMock();
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsTrue_WhenSequenceExists()
+    {
+        var controllerAction = CreateControllerAction(
+            deviceId: "device-1",
+            buttonType: ControllerButtonType.Sequence,
+            sequenceName: "seq-1");
+
+        var deviceMock = CreateDeviceMock();
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        _creationManagerMock.SetupGet(cm => cm.Sequences).Returns([new() { Name = "seq-1" }]);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsFalse_WhenMacroDoesNotExist()
+    {
+        var controllerAction = CreateControllerAction(
+            deviceId: "device-1",
+            buttonType: ControllerButtonType.Macro,
+            macroId: "missing-macro");
+
+        var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.AvailableMacros).Returns([]);
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsFalse_WhenMacroExistsButScopeIsNotChannel()
+    {
+        var controllerAction = CreateControllerAction(
+            deviceId: "device-1",
+            buttonType: ControllerButtonType.Macro,
+            macroId: "macro-1");
+
+        var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.AvailableMacros).Returns([new MacroDescriptor("macro-1", "name-key", MacroScope.Device, MacroKind.OneShot)]);
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ValidateControllerAction_ReturnsTrue_WhenMacroExistsWithChannelScope()
+    {
+        var controllerAction = CreateControllerAction(
+            deviceId: "device-1",
+            buttonType: ControllerButtonType.Macro,
+            macroId: "macro-1");
+
+        var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.AvailableMacros).Returns([new MacroDescriptor("macro-1", "name-key", MacroScope.Channel, MacroKind.OneShot)]);
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        var result = _playLogic.ValidateControllerAction(controllerAction);
+
+        result.Should().BeTrue();
+    }
+
+    private static Mock<Device> CreateDeviceMock()
+    {
+        var deviceMock = new Mock<Device>(
+            "FakeDevice",                    // name
+            "00:00:00:00:00:00",             // address
+            Mock.Of<IDeviceRepository>());   // deviceRepository
+
+        return deviceMock;
     }
 }

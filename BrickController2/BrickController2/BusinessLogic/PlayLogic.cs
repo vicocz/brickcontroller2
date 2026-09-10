@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
@@ -151,21 +152,21 @@ namespace BrickController2.BusinessLogic
             return controllerAction.ButtonType == ControllerButtonType.Normal || isPressed;
         }
 
-        private static void InvokeMacro(ControllerAction controllerAction, Device device, MacroScope scope)
+        private static void InvokeMacro(ControllerAction controllerAction, Device device, CancellationToken token = default)
         {
-            var macro = device.AvailableMacros.FirstOrDefault(m => m.Id == controllerAction.MacroId && m.Scope == scope);
+            var macro = device.AvailableMacros.FirstOrDefault(m => m.Id == controllerAction.MacroId);
             if (macro == null)
             {
                 return;
             }
 
-            int? channel = scope == MacroScope.Channel ? controllerAction.Channel : null;
+            int? channel = macro.Scope == MacroScope.Channel ? controllerAction.Channel : null;
             var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoiceValue, channel);
             _ = System.Threading.Tasks.Task.Run(async () =>
             {
                 try
                 {
-                    await device.ExecuteMacroAsync(invocation, System.Threading.CancellationToken.None);
+                    await device.ExecuteMacroAsync(invocation, token);
                 }
                 catch
                 {
@@ -242,7 +243,7 @@ namespace BrickController2.BusinessLogic
                 case ControllerButtonType.Macro:
                     if (isPressed)
                     {
-                        InvokeMacro(controllerAction, device, MacroScope.Channel);
+                        InvokeMacro(controllerAction, device);
                     }
                     break;
             }

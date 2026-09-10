@@ -108,7 +108,7 @@ namespace BrickController2.UI.ViewModels
             SelectButtonTypeCommand = new SafeCommand(async () => await SelectButtonTypeAsync());
             SelectSequenceCommand = new SafeCommand(async () => await SelectSequenceAsync());
             OpenSequenceEditorCommand = new SafeCommand(async () => await OpenSequenceEditorAsync());
-            SelectMacroCommand = new SafeCommand(async () => await SelectMacroAsync(), () => HasChannelMacros);
+            SelectMacroCommand = new SafeCommand(async () => await SelectMacroAsync(), () => HasMacros);
             SelectMacroChoiceCommand = new SafeCommand(async () => await SelectMacroChoiceAsync(), () => SelectedMacro != null && SelectedMacro.Choices.Count > 0);
             ReloadMacrosCommand = new SafeCommand(async () => await ReloadMacrosAsync(SelectedDevice!, DisappearingToken), () => SelectedDevice != null);
             SelectAxisTypeCommand = new SafeCommand(async () => await SelectAxisTypeAsync());
@@ -122,7 +122,7 @@ namespace BrickController2.UI.ViewModels
         public System.Collections.Generic.IReadOnlyList<MacroDescriptor> AvailableMacros
             => _selectedDevice?.AvailableMacros.Where(m => m.Scope == MacroScope.Channel).ToList() ?? [];
 
-        public bool HasChannelMacros => _selectedDevice?.SupportsMacros == true;
+        public bool HasMacros => _selectedDevice?.SupportsMacros == true;
 
         public MacroDescriptor? SelectedMacro
             => AvailableMacros.FirstOrDefault(m => m.Id == Action.MacroId);
@@ -159,7 +159,7 @@ namespace BrickController2.UI.ViewModels
 
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(AvailableMacros));
-                RaisePropertyChanged(nameof(HasChannelMacros));
+                RaisePropertyChanged(nameof(HasMacros));
                 RaisePropertyChanged(nameof(SelectedMacro));
                 RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                 RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
@@ -364,7 +364,7 @@ namespace BrickController2.UI.ViewModels
         private async Task SelectButtonTypeAsync()
         {
             var buttonTypes = Enum.GetNames<ControllerButtonType>()
-                .Where(n => n != nameof(ControllerButtonType.Macro) || HasChannelMacros)
+                .Where(n => n != nameof(ControllerButtonType.Macro) || HasMacros)
                 .ToArray();
 
             var result = await _dialogService.ShowSelectionDialogAsync(
@@ -428,7 +428,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),
-                    Translate("NoMacros"),
+                    Translate("NoMacrosAvailable"),
                     Translate("Ok"),
                     DisappearingToken);
                 return;
@@ -489,22 +489,19 @@ namespace BrickController2.UI.ViewModels
         {
             var dialogResult = await _dialogService.ShowProgressDialogAsync(
                 false,
-                async (progressDialog, token) =>
+                async (progressDialog, ct) =>
                 {
-                    using (token.Register(() => { }))
-                    {
-                        await device.ConnectAsync(
-                            false,
-                            (_) => { },
-                            [],
-                            startOutputProcessing: false,
-                            false,
-                            token);
+                    await device.ConnectAsync(
+                        false,
+                        (_) => { },
+                        [],
+                        startOutputProcessing: false,
+                        requestDeviceInformation: false,
+                        ct);
 
-                        if (device.DeviceState == DeviceState.Connected)
-                        {
-                            await device.GetMacrosAsync(forceRefresh: true, token);
-                        }
+                    if (device.DeviceState == DeviceState.Connected)
+                    {
+                        await device.GetMacrosAsync(forceRefresh: true, ct);
                     }
                 },
                 Translate("ConnectingTo"),
@@ -512,15 +509,30 @@ namespace BrickController2.UI.ViewModels
                 Translate("Cancel"),
                 token);
 
-            await device.DisconnectAsync();
+            var connected = device.DeviceState == DeviceState.Connected;
 
-            if (dialogResult.IsCancelled)
+            try
             {
-                await _dialogService.ShowMessageBoxAsync(
-                    Translate("Warning"),
-                    Translate("FailedToConnect"),
-                    Translate("Ok"),
-                    token);
+                await device.DisconnectAsync();
+            }
+            finally
+            {
+                if (dialogResult.IsCancelled || !connected)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("FailedToConnect"),
+                        Translate("Ok"),
+                        token);
+                }
+                else
+                {
+                    RaisePropertyChanged(nameof(AvailableMacros));
+                    RaisePropertyChanged(nameof(HasMacros));
+                    RaisePropertyChanged(nameof(SelectedMacro));
+                    RaisePropertyChanged(nameof(SelectedMacroDisplayName));
+                    RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                }
             }
         }
 

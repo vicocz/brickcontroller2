@@ -89,14 +89,10 @@ namespace BrickController2.CreationManagement
                 {
                     foreach (var controllerAction in controllerEvent.ControllerActions)
                     {
-                        if (string.IsNullOrEmpty(controllerAction.MacroId))
-                        {
-                            continue;
-                        }
-
                         if (controllerAction.ButtonType == ControllerButtonType.Macro)
                         {
-                            macroReferences.Add((controllerAction.DeviceId, controllerAction.MacroId, DeviceManagement.Macros.MacroScope.Channel));
+                            var scope = controllerAction.Channel >= 0 ? DeviceManagement.Macros.MacroScope.Channel : DeviceManagement.Macros.MacroScope.Device;
+                            macroReferences.Add((controllerAction.DeviceId, controllerAction.MacroId, scope));
                         }
                     }
                 }

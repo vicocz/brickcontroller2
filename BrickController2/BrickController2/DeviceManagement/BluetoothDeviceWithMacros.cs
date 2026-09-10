@@ -1,6 +1,5 @@
 ﻿using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

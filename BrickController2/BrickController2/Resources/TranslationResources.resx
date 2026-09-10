@@ -819,4 +819,16 @@
   <data name="Repeatable" xml:space="preserve">
     <value>Repeatable</value>
   </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Update the list of macros</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Macro parameters</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>Missing macro</value>
+  </data>
 </root>

@@ -29,12 +29,11 @@ namespace BrickController2.Droid.PlatformServices.GameController
             InputDeviceId = GetControllerIdFromNumber(gamePad.ControllerNumber);
         }
 
-        internal bool OnButtonEvent(KeyEvent e, float buttonValue)
+        internal bool OnButtonEvent(KeyEvent e, bool isPressed)
         {
             // do simple event name mapping
             var eventName = e.KeyCode.ToString();
-            RaiseEvent(InputDeviceEventType.Button, eventName, buttonValue);
-            return true;
+            return RaiseButtonEventConditionally(eventName, isPressed);
         }
 
         internal Dictionary<(InputDeviceEventType, string), float> GetAxisEvents(MotionEvent e)
@@ -76,7 +75,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 axisValue = AdjustControllerValue(axisValue);
 
                 // skip axis if values has not changed (or change is less than 0.001)
-                if (!HasValueChanged(axisName, axisValue))
+                if (!HasAxisValueChanged(axisName, axisValue))
                 {
                     continue;
                 }

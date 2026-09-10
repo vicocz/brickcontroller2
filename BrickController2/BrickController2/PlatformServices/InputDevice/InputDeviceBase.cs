@@ -12,8 +12,8 @@ namespace BrickController2.PlatformServices.InputDevice;
 public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInputDeviceConnector
     where TInputDeviceDevice : class
 {
-    /// <summary>stored last value per axis to detect changes</summary>
-    private readonly Dictionary<string, float> _lastAxisValues = [];
+    /// <summary>stored last reported value per (event type, event code)</summary>
+    private readonly Dictionary<(InputDeviceEventType EventType, string EventCode), float> _lastValues = [];
 
     /// <summary>inputdevicemanager service that owns/manages the inputdevice</summary>
     private readonly IInputDeviceEventServiceInternal _inputDeviceManagerService;
@@ -52,7 +52,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     public virtual void Start()
     {
         // initialize
-        _lastAxisValues.Clear();
+        _lastValues.Clear();
     }
 
     /// <summary>
@@ -60,23 +60,28 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     /// </summary>
     public virtual void Stop()
     {
+        // report the default value for everything which has been left in a non default state 
+        ResetNonDefaultValues();
+
         // reset last values
-        _lastAxisValues.Clear();
+        _lastValues.Clear();
     }
 
-    protected bool ContainsAxisValue(string axisName) => _lastAxisValues.ContainsKey(axisName);
+    protected bool ContainsAxisValue(string axisName) => _lastValues.ContainsKey((InputDeviceEventType.Axis, axisName));
 
-    public bool HasValueChanged(string axisName, float value)
+    protected bool HasAxisValueChanged(string axisName, float value) => HasValueChanged(InputDeviceEventType.Axis, axisName, value);
+
+    public bool HasValueChanged(InputDeviceEventType eventType, string eventCode, float value)
     {
         // get last reported value or the default one
-        _lastAxisValues.TryGetValue(axisName, out float lastValue);
+        _lastValues.TryGetValue((eventType, eventCode), out float lastValue);
         // skip value if there is no change
         if (AreAlmostEqual(value, lastValue))
         {
             return false;
         }
         // persist
-        _lastAxisValues[axisName] = value;
+        _lastValues[(eventType, eventCode)] = value;
         return true;
     }
 
@@ -89,8 +94,40 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
         _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, events));
     }
 
-    protected void RaiseEvent(InputDeviceEventType eventType, string eventCode, float value)
+    protected bool RaiseAxisEventConditionally(string axisName, float value)
+        => RaiseEventConditionally(InputDeviceEventType.Axis, axisName, value);
+
+    protected bool RaiseButtonEventConditionally(string buttonName, bool isPressed)
     {
-        _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, eventType, eventCode, value));
+        var value = isPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+        return RaiseEventConditionally(InputDeviceEventType.Button, buttonName, value);
+    }
+
+    protected bool RaiseEventConditionally(InputDeviceEventType eventType, string eventCode, float value)
+    {
+        if (HasValueChanged(eventType, eventCode, value))
+        {
+            _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, eventType, eventCode, value));
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Raise an event with the default value for each (event type, event code) which is currently in a non default state
+    /// </summary>
+    private void ResetNonDefaultValues()
+    {
+        var resetEvents = _lastValues
+            .Where(pair => !AreAlmostEqual(pair.Value, GetDefaultValue(pair.Key.EventType)))
+            .ToDictionary(pair => pair.Key, pair => GetDefaultValue(pair.Key.EventType));
+
+        RaiseEvent(resetEvents);
+
+        static float GetDefaultValue(InputDeviceEventType eventType) => eventType switch
+        {
+            InputDeviceEventType.Button => BUTTON_RELEASED,
+            _ => AXIS_ZERO_VALUE
+        };
     }
 }

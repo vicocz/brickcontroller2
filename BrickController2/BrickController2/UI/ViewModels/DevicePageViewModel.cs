@@ -27,7 +27,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
-        private readonly ConcurrentDictionary<string, float> _lastAxisValues = [];
+        private readonly ConcurrentDictionary<(InputDeviceEventType EventType, string EventCode), float> _lastValues = [];
 
         private CancellationTokenSource? _connectionTokenSource;
         private Task? _connectionTask;
@@ -191,17 +191,17 @@ namespace BrickController2.UI.ViewModels
             await DisconnectAsync();
         }
 
-        bool IInputDeviceConnector.HasValueChanged(string axisName, float value)
+        bool IInputDeviceConnector.HasValueChanged(InputDeviceEventType eventType, string eventCode, float value)
         {
             // get last reported value or the default one
-            _lastAxisValues.TryGetValue(axisName, out float lastValue);
+            _lastValues.TryGetValue((eventType, eventCode), out float lastValue);
             // skip value if there is no change
             if (AreAlmostEqual(value, lastValue))
             {
                 return false;
             }
             // persist
-            _lastAxisValues[axisName] = value;
+            _lastValues[(eventType, eventCode)] = value;
             return true;
         }
 
@@ -240,7 +240,7 @@ namespace BrickController2.UI.ViewModels
 
         private void ResetInputEvents()
         {
-            _lastAxisValues.Clear();
+            _lastValues.Clear();
             InputEventList.Clear();
         }
 

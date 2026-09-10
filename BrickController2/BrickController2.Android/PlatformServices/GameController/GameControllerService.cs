@@ -78,14 +78,14 @@ namespace BrickController2.Droid.PlatformServices.GameController
             }
         }
 
-        internal bool OnGameControllerButtonEvent(KeyEvent e, float buttonValue)
+        internal bool OnGameControllerButtonEvent(KeyEvent e, bool isPressed)
         {
             if (!TryGetControllerByDeviceId(e.DeviceId, out var gamepadController)) // fetch matching GamepadController from table
             {
                 return false;
             }
 
-            return gamepadController.OnButtonEvent(e, buttonValue);
+            return gamepadController.OnButtonEvent(e, isPressed);
         }
 
         internal bool OnGameControllerAxisEvent(MotionEvent e)

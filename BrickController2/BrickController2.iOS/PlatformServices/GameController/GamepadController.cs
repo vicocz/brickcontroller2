@@ -151,12 +151,7 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
     {
         button.ValueChangedHandler = (btn, value, isPressed) =>
         {
-            value = isPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
-
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Button, name, value);
-            }
+            RaiseButtonEventConditionally(name, isPressed);
         };
     }
 
@@ -166,10 +161,7 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         {
             value = value < 0.1 ? 0.0F : value;
 
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Axis, name, value);
-            }
+            RaiseAxisEventConditionally(name, value);
         };
     }
 
@@ -191,10 +183,7 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
                 _ => AXIS_ZERO_VALUE
             };
 
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Axis, name, value);
-            }
+            RaiseAxisEventConditionally(name, value);
         };
     }
 
@@ -210,10 +199,7 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         {
             value = AdjustControllerValue(value);
 
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Axis, name, value);
-            }
+            RaiseAxisEventConditionally(name, value);
         };
     }
 

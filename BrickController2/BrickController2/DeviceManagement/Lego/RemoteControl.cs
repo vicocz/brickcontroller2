@@ -129,7 +129,7 @@ internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteCo
         }
 
         var events = buttonEvents
-            .Where(e => _inputDeviceConnector.HasValueChanged(e.eventName, e.value))
+            .Where(e => _inputDeviceConnector.HasValueChanged(InputDeviceEventType.Button, e.eventName, e.value))
             .ToDictionary(e => (InputDeviceEventType.Button, e.eventName), e => e.value);
 
         _inputDeviceConnector.RaiseEvent(events);

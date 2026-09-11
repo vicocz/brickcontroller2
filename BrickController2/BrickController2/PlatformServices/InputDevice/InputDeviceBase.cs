@@ -94,25 +94,6 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
         _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, events));
     }
 
-    protected bool RaiseAxisEventConditionally(string axisName, float value)
-        => RaiseEventConditionally(InputDeviceEventType.Axis, axisName, value);
-
-    protected bool RaiseButtonEventConditionally(string buttonName, bool isPressed)
-    {
-        var value = isPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
-        return RaiseEventConditionally(InputDeviceEventType.Button, buttonName, value);
-    }
-
-    protected bool RaiseEventConditionally(InputDeviceEventType eventType, string eventCode, float value)
-    {
-        if (HasValueChanged(eventType, eventCode, value))
-        {
-            _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, eventType, eventCode, value));
-            return true;
-        }
-        return false;
-    }
-
     /// <summary>
     /// Raise an event with the default value for each (event type, event code) which is currently in a non default state
     /// </summary>

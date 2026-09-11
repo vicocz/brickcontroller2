@@ -2,7 +2,7 @@
 
 namespace BrickController2.PlatformServices.InputDevice;
 
-internal interface IInputDeviceConnector
+public interface IInputDeviceConnector
 {
     internal bool HasValueChanged(InputDeviceEventType eventType, string eventCode, float value);
 

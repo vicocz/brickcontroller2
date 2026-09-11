@@ -6,5 +6,5 @@ public interface IInputDeviceConnector
 {
     internal bool HasValueChanged(InputDeviceEventType eventType, string eventCode, float value);
 
-    internal void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events);
+    internal void RaiseEvent(IReadOnlyDictionary<(InputDeviceEventType, string), float> events);
 }

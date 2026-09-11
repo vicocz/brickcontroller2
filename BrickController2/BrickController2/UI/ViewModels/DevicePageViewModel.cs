@@ -205,7 +205,7 @@ namespace BrickController2.UI.ViewModels
             return true;
         }
 
-        void IInputDeviceConnector.RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+        void IInputDeviceConnector.RaiseEvent(IReadOnlyDictionary<(InputDeviceEventType, string), float> events)
         {
             if (events.Count == 0)
             {

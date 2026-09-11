@@ -86,7 +86,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
         return true;
     }
 
-    public void RaiseEvent(IDictionary<(InputDeviceEventType, string), float> events)
+    public void RaiseEvent(IReadOnlyDictionary<(InputDeviceEventType, string), float> events)
     {
         if (!events.Any())
         {

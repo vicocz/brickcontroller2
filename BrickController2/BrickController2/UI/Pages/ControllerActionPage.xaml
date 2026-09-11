@@ -6,10 +6,12 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:creationManagement="clr-namespace:BrickController2.CreationManagement"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
     xmlns:gameController="clr-namespace:BrickController2.PlatformServices.InputDevice"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.ControllerActionPage"
+    x:DataType="viewmodels:ControllerActionPageViewModel"
     Title="{extensions:Translate ControllerAction}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -207,6 +209,39 @@
                                         <Button Grid.Column="0" Text="{Binding Action.SequenceName}" Command="{Binding SelectSequenceCommand}" Style="{StaticResource PickerButtonStyle}"/>
                                         <controls:FloatingActionButton Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" BackgroundColor="Gray" Icon="settings" Command="{Binding OpenSequenceEditorCommand}" ToolTipProperties.Text="{extensions:Translate OpenSequenceEditor}" VerticalOptions="Center"/>
                                     </Grid>
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <!-- Macro selector -->
+                            <VerticalStackLayout IsVisible="False">
+                                <VerticalStackLayout.Triggers>
+                                    <MultiTrigger TargetType="VerticalStackLayout">
+                                        <MultiTrigger.Conditions>
+                                            <BindingCondition Binding="{Binding Action.ButtonType}" Value="{x:Static creationManagement:ControllerButtonType.Macro}"/>
+                                            <BindingCondition Binding="{Binding HasMacros}" Value="True"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="IsVisible" Value="True"/>
+                                    </MultiTrigger>
+                                </VerticalStackLayout.Triggers>
+                                <Grid ColumnSpacing="6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Grid.Column="0" Text="{extensions:Translate Macro}" VerticalOptions="Center"/>
+                                    <Button Grid.Column="1" Text="{Binding SelectedMacroDisplayName}" Command="{Binding SelectMacroCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                                    <controls:FloatingActionButton Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" BackgroundColor="Gray" Icon="cached" Command="{Binding ReloadMacrosCommand}" ToolTipProperties.Text="{extensions:Translate ReloadMacros}" VerticalOptions="Center"/>
+                                </Grid>
+                                <Grid ColumnSpacing="6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Label Grid.Column="0" Text="{extensions:Translate MacroChoice}" VerticalOptions="Center"/>
+                                    <Button Grid.Column="1" Text="{Binding SelectedMacroChoiceDisplayName}" Command="{Binding SelectMacroChoiceCommand}" Style="{StaticResource PickerButtonStyle}"/>
                                 </Grid>
                             </VerticalStackLayout>
 

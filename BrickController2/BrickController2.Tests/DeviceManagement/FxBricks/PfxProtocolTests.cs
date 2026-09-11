@@ -1,4 +1,4 @@
-﻿using BrickController2.Protocols;
+﻿using BrickController2.DeviceManagement.FxBricks;
 using FluentAssertions;
 using Xunit;
 

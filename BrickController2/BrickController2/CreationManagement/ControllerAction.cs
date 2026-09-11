@@ -21,6 +21,8 @@ namespace BrickController2.CreationManagement
         private int _servoBaseAngle;
         private int _stepperAngle;
         private string _sequenceName = string.Empty;
+        private string _macroId = string.Empty;
+        private object? _macroChoiceValue;
 
         [PrimaryKey, AutoIncrement]
         [JsonIgnore]
@@ -116,6 +118,18 @@ namespace BrickController2.CreationManagement
         {
             get { return _sequenceName; }
             set { _sequenceName = value; RaisePropertyChanged(); }
+        }
+
+        public string MacroId
+        {
+            get { return _macroId; }
+            set { _macroId = value; RaisePropertyChanged(); }
+        }
+
+        public object? MacroChoiceValue
+        {
+            get { return _macroChoiceValue; }
+            set { _macroChoiceValue = value; RaisePropertyChanged(); }
         }
 
         public override string ToString()

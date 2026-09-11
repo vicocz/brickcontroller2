@@ -1,4 +1,5 @@
 ﻿using BrickController2.PlatformServices.InputDeviceService;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
@@ -13,7 +14,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     where TInputDeviceDevice : class
 {
     /// <summary>stored last reported value per (event type, event code)</summary>
-    private readonly Dictionary<(InputDeviceEventType EventType, string EventCode), float> _lastValues = [];
+    private readonly ConcurrentDictionary<(InputDeviceEventType EventType, string EventCode), float> _lastValues = new();
 
     /// <summary>inputdevicemanager service that owns/manages the inputdevice</summary>
     private readonly IInputDeviceEventServiceInternal _inputDeviceManagerService;
@@ -61,7 +62,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     public virtual void Stop()
     {
         // report the default value for everything which has been left in a non default state 
-        ResetNonDefaultValues();
+        RaiseEventsWithNonDefaultValues();
 
         // reset last values
         _lastValues.Clear();
@@ -94,10 +95,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
         _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, events));
     }
 
-    /// <summary>
-    /// Raise an event with the default value for each (event type, event code) which is currently in a non default state
-    /// </summary>
-    private void ResetNonDefaultValues()
+    private void RaiseEventsWithNonDefaultValues()
     {
         var resetEvents = _lastValues
             .Where(pair => !AreAlmostEqual(pair.Value, GetDefaultValue(pair.Key.EventType)))

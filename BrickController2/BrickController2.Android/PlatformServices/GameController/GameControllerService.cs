@@ -87,7 +87,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
             }
 
             var eventName = e.KeyCode.ToString();
-            return gamepadController.RaiseButtonEventConditionally(eventName, isPressed);
+            gamepadController.RaiseButtonEventConditionally(eventName, isPressed);
+            return true;
         }
 
         internal bool OnGameControllerAxisEvent(MotionEvent e)

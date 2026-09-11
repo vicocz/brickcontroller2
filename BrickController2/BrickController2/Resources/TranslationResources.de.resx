@@ -819,4 +819,10 @@
   <data name="Repeatable" xml:space="preserve">
     <value>Wiederholbar</value>
   </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Taste drücken auf dem Controller bewegen</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Joystick auf dem Controller bewegen</value>
+  </data>
 </root>

@@ -237,7 +237,7 @@ namespace BrickController2.UI.Controls
             }
         }
 
-        public async Task<GameControllerEventDialogResult> ShowGameControllerEventDialogAsync(string title, string message, string cancelButtonText, CancellationToken token)
+        public async Task<GameControllerEventDialogResult> ShowGameControllerEventDialogAsync(string title, string message, string cancelButtonText, CancellationToken token, Func<InputDeviceEventType, string, bool>? eventFilter = null)
         {
             GameControllerEventDialogTitle.Text = title ?? string.Empty;
             GameControllerEventDialogMessage.Text = message ?? string.Empty;
@@ -277,6 +277,11 @@ namespace BrickController2.UI.Controls
 
                 foreach (var controllerEvent in args.InputDeviceEvents)
                 {
+                    if (eventFilter is not null && !eventFilter(controllerEvent.Key.EventType, controllerEvent.Key.EventCode))
+                    {
+                        continue;
+                    }
+
                     if ((controllerEvent.Key.EventType == InputDeviceEventType.Axis && Math.Abs(controllerEvent.Value) > AXIS_PRESSED_THRESHOLD) ||
                         (controllerEvent.Key.EventType == InputDeviceEventType.Button && Math.Abs(controllerEvent.Value) < BUTTON_RELEASED_THRESHOLD))
                     {

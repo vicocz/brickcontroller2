@@ -45,14 +45,11 @@ namespace BrickController2.UI.Services.Dialog
             return _dialogServer?.ShowProgressDialogAsync(isDeterministic, action, title, message, cancelButtonText, token) ?? Task.FromResult(new ProgressDialogResult(false));
         }
 
-        public Task<GameControllerEventDialogResult> ShowGameControllerEventDialogAsync(string title, string message, string cancelButtonText, CancellationToken token)
+        public Task<GameControllerEventDialogResult> ShowGameControllerEventDialogAsync(string title, string message, string cancelButtonText, CancellationToken token, Func<InputDeviceEventType, string, bool>? eventFilter = null)
         {
-            if (_dialogServer is not null)
-            {
-                _dialogServer.InputDeviceEventService = _gameControllerService;
-            }
+            _dialogServer?.InputDeviceEventService = _gameControllerService;
 
-            return _dialogServer?.ShowGameControllerEventDialogAsync(title, message, cancelButtonText, token) ?? Task.FromResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
+            return _dialogServer?.ShowGameControllerEventDialogAsync(title, message, cancelButtonText, token, eventFilter) ?? Task.FromResult(new GameControllerEventDialogResult(false, InputDeviceEventType.Axis, string.Empty));
         }
 
         public void RegisterDialogServer(IDialogServer dialogServer)

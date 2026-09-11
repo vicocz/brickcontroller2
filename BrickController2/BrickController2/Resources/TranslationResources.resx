@@ -819,4 +819,10 @@
   <data name="Repeatable" xml:space="preserve">
     <value>Repeatable</value>
   </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Press a button on the game controller</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Move a joy on the game controller</value>
+  </data>
 </root>

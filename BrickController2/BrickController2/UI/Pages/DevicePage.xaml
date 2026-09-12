@@ -18,6 +18,7 @@
         <ResourceDictionary>
             <!-- Converters -->
             <converters:InverseBoolConverter x:Key="InverseBool"/>
+            <converters:IntEqualsZeroToBoolConverter x:Key="IntEqualsZeroToBool"/>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
             <converters:DeviceConnectedToBoolConverter x:Key="DeviceConnectedToBool"/>
             <converters:DeviceDisconnectedToBoolConverter x:Key="DeviceDisconnectedToBool"/>
@@ -174,8 +175,10 @@
 
                         <VerticalStackLayout IsVisible="{Binding ShowMacroView}">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
-                            <CollectionView ItemsSource="{Binding Macros}" SelectionMode="None">
-                                <CollectionView.ItemTemplate>
+                            <Label Text="{extensions:Translate NoMacrosAvailable}" Style="{StaticResource CollectionViewEmptyLabelStyle}"
+                                   IsVisible="{Binding Macros.Count, Converter={StaticResource IntEqualsZeroToBool}}" Margin="0,50,0,0"/>
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Macros}">
+                                <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="viewmodels:MacroItemViewModel">
                                         <VerticalStackLayout>
                                             <Grid Style="{StaticResource CollectionItemGridStyle}" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
@@ -183,25 +186,22 @@
                                                     <Label Text="{Binding DisplayName, Converter={StaticResource TextToCapitalInitial}}" TextColor="White" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"/>
                                                 </Border>
                                                 <Label Grid.Column="1" Text="{Binding DisplayName}" FontSize="Large" FontAttributes="Bold" Margin="10,0"/>
-                                                <HorizontalStackLayout Grid.Column="1" Grid.Row="1" Spacing="8" Margin="10,0">
-                                                    <Label Text="{extensions:Translate Scope}" FontSize="Micro"/>
-                                                    <Label Text="{Binding Scope}" FontSize="Micro" FontAttributes="Bold"/>
-                                                    <Label Text="{extensions:Translate Kind}" FontSize="Micro"/>
-                                                    <Label Text="{Binding Kind}" FontSize="Micro" FontAttributes="Bold"/>
-                                                    <Label Text="{extensions:Translate Choices}" FontSize="Micro" IsVisible="{Binding HasChoices}"/>
+                                                <FlexLayout Grid.Column="1" Grid.Row="1" Wrap="Wrap" Direction="Row" AlignItems="Center" JustifyContent="Start" Margin="10,0">
+                                                    <Label Text="{extensions:Translate Scope}" FontSize="Micro" Margin="0,0,4,0"/>
+                                                    <Label Text="{Binding Scope}" FontSize="Micro" FontAttributes="Bold" Margin="0,0,8,0"/>
+                                                    <Label Text="{extensions:Translate Kind}" FontSize="Micro" Margin="0,0,4,0"/>
+                                                    <Label Text="{Binding Kind}" FontSize="Micro" FontAttributes="Bold" Margin="0,0,8,0"/>
+                                                    <Label Text="{extensions:Translate Choices}" FontSize="Micro" IsVisible="{Binding HasChoices}" Margin="0,0,4,0"/>
                                                     <Label Text="{Binding ChoicesCount}" FontSize="Micro" FontAttributes="Bold" IsVisible="{Binding HasChoices}"/>
-                                                </HorizontalStackLayout>
+                                                </FlexLayout>
                                                 <controls:FloatingActionButton Grid.Column="2" Grid.RowSpan="2" Style="{StaticResource InlineActionButtonStyle}" Icon="play_arrow" ToolTipProperties.Text="{extensions:Translate ExecuteMacro}"
                                                     Command="{Binding ExecuteMacroCommand}" Margin="10,0,0,0"/>
                                             </Grid>
                                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,0,6,0"/>
                                         </VerticalStackLayout>
                                     </DataTemplate>
-                                </CollectionView.ItemTemplate>
-                                <CollectionView.EmptyView>
-                                    <Label Text="{extensions:Translate NoMacrosAvailable}" Style="{StaticResource CollectionViewEmptyLabelStyle}"/>
-                                </CollectionView.EmptyView>
-                            </CollectionView>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
                         </VerticalStackLayout>
                     </VerticalStackLayout>
                 </ScrollView>

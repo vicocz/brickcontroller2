@@ -243,8 +243,8 @@
                      Binding="{Binding Path=IsExpanded, Source={RelativeSource Self}}"
                      Value="True">
                     <Setter Property="Icon" Value="close" />
-                    <Setter Property="IconBackgroundColor" Value="{DynamicResource SecondaryColor}" />
-                    <Setter Property="IconColor" Value="{DynamicResource TertiaryTextColor}"/>
+                    <Setter Property="IconBackgroundColor" Value="{DynamicResource FloatingButtonExpandedColor}" />
+                    <Setter Property="IconColor" Value="{DynamicResource NavigationBarItemColor}"/>
                     <Setter Property="Tooltip" Value="{extensions:Translate Collapse}" />
                 </DataTrigger>
             </Style.Triggers>

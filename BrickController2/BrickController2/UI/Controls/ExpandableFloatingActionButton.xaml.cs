@@ -18,10 +18,7 @@ public partial class ExpandableFloatingActionButton : ContentView
     {
         InitializeComponent();
 
-        foreach (var view in SecondaryButtons)
-        {
-            SecondaryContainer.Children.Add(view);
-        }
+        SyncSecondaryContainer();
 
         SecondaryButtons.CollectionChanged += OnSecondaryButtonsChanged;
 
@@ -118,20 +115,16 @@ public partial class ExpandableFloatingActionButton : ContentView
 
     private void OnSecondaryButtonsChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.NewItems != null)
-        {
-            foreach (IView view in e.NewItems)
-            {
-                SecondaryContainer.Children.Add(view);
-            }
-        }
+        SyncSecondaryContainer();
+    }
 
-        if (e.OldItems != null)
+    private void SyncSecondaryContainer()
+    {
+        SecondaryContainer.Children.Clear();
+
+        foreach (var view in SecondaryButtons)
         {
-            foreach (IView view in e.OldItems)
-            {
-                SecondaryContainer.Children.Remove(view);
-            }
+            SecondaryContainer.Children.Add(view);
         }
     }
 

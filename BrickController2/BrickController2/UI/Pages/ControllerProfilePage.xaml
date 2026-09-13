@@ -123,7 +123,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:ExpandableFloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource ExpandableFloatingActionButtonStyle}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,60,10">
+                <controls:ExpandableFloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource ExpandableFloatingActionButtonStyle}" Margin="0,0,60,10">
                     <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}"/>
                     <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="gamepad" Command="{Binding AddControllerAxisEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerAxisEvent}"/>
                     <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="abc" Command="{Binding AddControllerButtonEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerButtonEvent}"/>

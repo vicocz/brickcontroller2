@@ -12,10 +12,16 @@ namespace BrickController2.UI.Controls;
 public partial class ExpandableFloatingActionButton : ContentView
 {
     private bool _isMenuOpen = false;
+    private int _animationToken;
 
     public ExpandableFloatingActionButton()
     {
         InitializeComponent();
+
+        foreach (var view in SecondaryButtons)
+        {
+            SecondaryContainer.Children.Add(view);
+        }
 
         SecondaryButtons.CollectionChanged += OnSecondaryButtonsChanged;
 
@@ -140,6 +146,8 @@ public partial class ExpandableFloatingActionButton : ContentView
 
     private async void AnimateMenu()
     {
+        var token = ++_animationToken;
+
         if (_isMenuOpen)
         {
             // Make elements physically present before animating
@@ -161,6 +169,13 @@ public partial class ExpandableFloatingActionButton : ContentView
                 SecondaryContainer.TranslateToAsync(20, 0, 500, Easing.CubicIn),
                 icon.RotateToAsync(0, 500, Easing.CubicIn)
             );
+
+            // If a newer toggle started while this closing animation was running, or the
+            // menu has since been reopened, don't clobber the now-current state.
+            if (token != _animationToken || _isMenuOpen)
+            {
+                return;
+            }
 
             // Hide elements and swap the icon back only after the animation finishes
             Overlay.IsVisible = false;

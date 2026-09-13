@@ -18,31 +18,95 @@ public partial class ExpandableFloatingActionButton : ContentView
         InitializeComponent();
 
         SecondaryButtons.CollectionChanged += OnSecondaryButtonsChanged;
+
+        ApplyState();
     }
 
     public ObservableCollection<IView> SecondaryButtons { get; } = [];
 
-    public static readonly BindableProperty FabIconProperty =
-        BindableProperty.Create(nameof(FabIcon), typeof(string), typeof(ExpandableFloatingActionButton), "+");
+    public static readonly BindableProperty IconProperty =
+        BindableProperty.Create(nameof(Icon), typeof(string), typeof(ExpandableFloatingActionButton), "menu", propertyChanged: OnAppearanceChanged);
 
-    public string FabIcon
+    public string Icon
     {
-        get => (string)GetValue(FabIconProperty);
-        set => SetValue(FabIconProperty, value);
+        get => (string)GetValue(IconProperty);
+        set => SetValue(IconProperty, value);
     }
 
-    public static readonly BindableProperty FabColorProperty =
-        BindableProperty.Create(nameof(FabColor), typeof(Color), typeof(ExpandableFloatingActionButton), Colors.Blue);
+    public static readonly BindableProperty IconColorProperty =
+        BindableProperty.Create(nameof(IconColor), typeof(Color), typeof(ExpandableFloatingActionButton), null, propertyChanged: OnAppearanceChanged);
 
-    public Color FabColor
+    public Color IconColor
     {
-        get => (Color)GetValue(FabColorProperty);
-        set => SetValue(FabColorProperty, value);
+        get => (Color)GetValue(IconColorProperty);
+        set => SetValue(IconColorProperty, value);
+    }
+
+    public static readonly BindableProperty TooltipProperty =
+        BindableProperty.Create(nameof(Tooltip), typeof(string), typeof(ExpandableFloatingActionButton), null, propertyChanged: OnAppearanceChanged);
+
+    public string? Tooltip
+    {
+        get => (string?)GetValue(TooltipProperty);
+        set => SetValue(TooltipProperty, value);
+    }
+
+    public static readonly BindableProperty IconBackgroundColorProperty =
+        BindableProperty.Create(nameof(IconBackgroundColor), typeof(Color), typeof(ExpandableFloatingActionButton), null, propertyChanged: OnAppearanceChanged);
+
+    public Color? IconBackgroundColor
+    {
+        get => (Color?)GetValue(IconBackgroundColorProperty);
+        set => SetValue(IconBackgroundColorProperty, value);
+    }
+
+    public static readonly BindableProperty IsExpandedProperty =
+        BindableProperty.Create(nameof(IsExpanded), typeof(bool), typeof(ExpandableFloatingActionButton), false, propertyChanged: OnAppearanceChanged);
+
+    public bool IsExpanded
+    {
+        get => (bool)GetValue(IsExpandedProperty);
+        private set => SetValue(IsExpandedProperty, value);
+    }
+
+    private static void OnAppearanceChanged(BindableObject bindable, object oldValue, object newValue)
+    {
+        if (bindable is ExpandableFloatingActionButton fab)
+        {
+            fab.ApplyState();
+        }
+    }
+
+    private void ApplyState()
+    {
+        imageSource.Glyph = Icon;
+        SetColor(imageSource, FontImageSource.ColorProperty, IconColor);
+        SetColor(icon, VisualElement.BackgroundColorProperty, IconBackgroundColor);
+        ToolTipProperties.SetText(icon, Tooltip ?? "");
+    }
+
+    private static void SetColor(BindableObject target, BindableProperty property, Color? color)
+    {
+        if (color is null)
+        {
+            // No override provided, fall back to whatever the applied style defines
+            target.ClearValue(property);
+        }
+        else
+        {
+            target.SetValue(property, color);
+        }
     }
 
     private void OnFabClicked(object sender, EventArgs e)
     {
         _isMenuOpen = !_isMenuOpen;
+
+        if (_isMenuOpen)
+        {
+            IsExpanded = true;
+        }
+
         AnimateMenu();
     }
 
@@ -83,23 +147,25 @@ public partial class ExpandableFloatingActionButton : ContentView
             SecondaryContainer.IsVisible = true;
 
             await Task.WhenAll(
-                SecondaryContainer.FadeToAsync(1, 250, Easing.CubicOut),
-                SecondaryContainer.TranslateToAsync(0, 0, 250, Easing.CubicOut),
-                Icon.RotateToAsync(45, 250, Easing.CubicOut)
+                SecondaryContainer.FadeToAsync(1, 500, Easing.CubicOut),
+                SecondaryContainer.TranslateToAsync(0, 0, 500, Easing.CubicOut),
+                icon.RotateToAsync(45, 500, Easing.CubicOut)
             );
         }
         else
         {
-            // Run closing animations
+            // Run closing animations first, keeping the icon glyph unchanged so the
+            // rotation doesn't visually snap partway through
             await Task.WhenAll(
-                SecondaryContainer.FadeToAsync(0, 250, Easing.CubicIn),
-                SecondaryContainer.TranslateToAsync(20, 0, 250, Easing.CubicIn),
-                Icon.RotateToAsync(0, 250, Easing.CubicIn)
+                SecondaryContainer.FadeToAsync(0, 500, Easing.CubicIn),
+                SecondaryContainer.TranslateToAsync(20, 0, 500, Easing.CubicIn),
+                icon.RotateToAsync(0, 500, Easing.CubicIn)
             );
 
-            // Hide elements entirely after animation finishes
+            // Hide elements and swap the icon back only after the animation finishes
             Overlay.IsVisible = false;
             SecondaryContainer.IsVisible = false;
+            IsExpanded = false;
         }
     }
 }

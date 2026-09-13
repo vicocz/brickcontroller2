@@ -19,18 +19,20 @@
 
                 <HorizontalStackLayout x:Name="SecondaryContainer" 
                                    Grid.Column="0" 
-                                   Spacing="15" 
+                                   Spacing="8" 
                                    Opacity="0" 
                                    TranslationX="20" 
-                                   Margin="0,0,15,0" 
+                                   Margin="0,0,8,0" 
                                    VerticalOptions="Center" 
                                    IsVisible="False" />
 
-                <controls:FloatingActionButton Grid.Column="1" x:Name="Icon"
-                        Style="{StaticResource FloatingActionButtonStyle}"                      
-                        Icon="menu"
-                        Clicked="OnFabClicked">
-                </controls:FloatingActionButton>
+                <ImageButton Grid.Column="1" x:Name="icon"  Clicked="OnFabClicked"
+                    Aspect="Center" CornerRadius="25" Padding="0"
+                    HeightRequest="50" WidthRequest="50">
+                    <ImageButton.Source>
+                        <FontImageSource x:Name="imageSource" FontFamily="Icons" />
+                    </ImageButton.Source>
+                </ImageButton>
             </Grid>
         </Grid>
     </ContentView.Content>

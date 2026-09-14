@@ -124,6 +124,10 @@ namespace BrickController2.UI.ViewModels
 
         public bool HasMacros => _selectedDevice?.SupportsMacros == true;
 
+        public bool SupportsChannelMacros => _selectedDevice?.SupportsMacros == true &&
+            (_selectedDevice?.SupportsDynamicMacros == true ||
+            _selectedDevice?.AvailableMacros.Any(m => m.Scope == MacroScope.Channel) == true);
+
         public MacroDescriptor? SelectedMacro
             => AvailableMacros.FirstOrDefault(m => m.Id == Action.MacroId);
 
@@ -155,6 +159,7 @@ namespace BrickController2.UI.ViewModels
                 _selectedDevice = value;
                 Action.DeviceId = value!.Id;
 
+                ValidateCurrentButtonType();
                 ValidateCurrentChannelSettings();
 
                 RaisePropertyChanged();
@@ -363,8 +368,9 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectButtonTypeAsync()
         {
+            var allowMacro = SupportsChannelMacros;
             var buttonTypes = Enum.GetNames<ControllerButtonType>()
-                .Where(n => n != nameof(ControllerButtonType.Macro) || HasMacros)
+                .Where(n => n != nameof(ControllerButtonType.Macro) || allowMacro)
                 .ToArray();
 
             var result = await _dialogService.ShowSelectionDialogAsync(
@@ -571,6 +577,14 @@ namespace BrickController2.UI.ViewModels
             if (result.IsOk)
             {
                 Action.AxisCharacteristic = (ControllerAxisCharacteristic)Enum.Parse(typeof(ControllerAxisCharacteristic), result.SelectedItem);
+            }
+        }
+
+        private void ValidateCurrentButtonType()
+        {
+            if (Action.ButtonType == ControllerButtonType.Macro && !SupportsChannelMacros)
+            {
+                Action.ButtonType = ControllerButtonType.Normal;
             }
         }
 

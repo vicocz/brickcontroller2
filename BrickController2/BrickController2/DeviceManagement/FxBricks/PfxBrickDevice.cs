@@ -2,6 +2,7 @@
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -23,6 +24,9 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
     private const string SetVolumeMacroNameKey = "PfxSetVolumeMacro";
     private const string IncreaseVolumeMacroNameKey = "PfxIncreaseVolumeMacro";
     private const string DecreaseVolumeMacroNameKey = "PfxDecreaseVolumeMacro";
+
+    private const byte MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
+    private const byte FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
 
     private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
@@ -54,6 +58,12 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
     private IGattCharacteristic? _notifyCharacteristic;
 
     private TaskCompletionSource<byte[]>? _fileDirTcs;
+
+    private readonly ConcurrentQueue<QueuedMacroCommand> _macroCommandQueue = new();
+
+    private readonly record struct QueuedMacroCommand(
+        Func<CancellationToken, Task<byte[]?>> Resolve,
+        TaskCompletionSource<bool> Completion);
 
     public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
@@ -99,29 +109,27 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         }
 
         if (invocation.DescriptorId == PlaySoundMacroId
-            && invocation.ChoiceValue is string fileName
-            && _macroFileIds.TryGetValue(fileName, out var fileId))
+            && invocation.ChoiceValue is string fileName)
         {
-            return WriteCommandAsync(PfxProtocol.PlaySoundFile(fileId), token);
+            return EnqueueSoundCommandAsync(fileName, id => PfxProtocol.PlaySoundFile(id), token);
         }
         else if (invocation.DescriptorId == StopSoundMacroId
-            && invocation.ChoiceValue is string stopFileName
-            && _macroFileIds.TryGetValue(stopFileName, out var stopFileId))
+            && invocation.ChoiceValue is string stopFileName)
         {
-            return WriteCommandAsync(PfxProtocol.StopSoundFile(stopFileId), token);
+            return EnqueueSoundCommandAsync(stopFileName, id => PfxProtocol.StopSoundFile(id), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
             && invocation.ChoiceValue is float volume)
         {
-            return WriteCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
+            return EnqueueCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
         }
         else if (invocation.DescriptorId == IncreaseVolumeMacroId)
         {
-            return WriteCommandAsync(PfxProtocol.IncreaseVolume(), token);
+            return EnqueueCommandAsync(PfxProtocol.IncreaseVolume(), token);
         }
         else if (invocation.DescriptorId == DecreaseVolumeMacroId)
         {
-            return WriteCommandAsync(PfxProtocol.DecreaseVolume(), token);
+            return EnqueueCommandAsync(PfxProtocol.DecreaseVolume(), token);
         }
 
         // unknown command
@@ -169,6 +177,12 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         }
         // ensure everything is stopped in the end
         await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
+
+        // fail any commands left queued when the loop stops (disconnect/cancel)
+        while (_macroCommandQueue.TryDequeue(out var queued))
+        {
+            queued.Completion.TrySetResult(false);
+        }
     }
 
     protected override void BeforeDisconnectCleanup()
@@ -226,6 +240,25 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
                         _lightOutputs.Commit();
                         await Task.Delay(5, token).ConfigureAwait(false);
                     }
+                    changed = true;
+                }
+                // macro commands - take the first available
+                if (_macroCommandQueue.TryDequeue(out var queued))
+                {
+                    if (queued.Completion.Task.IsCompleted)
+                    {
+                        continue; // already canceled by caller
+                    }
+
+                    var resolvedCommand = await queued.Resolve(token).ConfigureAwait(false);
+                    if (resolvedCommand is null)
+                    {
+                        queued.Completion.TrySetResult(false);
+                        continue; // resolution failed (e.g. unknown file), nothing to write
+                    }
+
+                    var macroResult = await WriteCommandAsync(resolvedCommand, token).ConfigureAwait(false);
+                    queued.Completion.TrySetResult(macroResult);
                     changed = true;
                 }
 
@@ -289,9 +322,6 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
 
     private async ValueTask<IReadOnlyList<MacroDescriptor>> GetAvailableMacrosAsync(CancellationToken token)
     {
-        const byte MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
-        const byte FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
-
         _macroFileIds.Clear();
 
         var countResponse = await RequestFileDirAsync(PfxProtocol.GetFileCount(), token);
@@ -333,6 +363,54 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
                 kind: MacroKind.OneShot,
                 choices: audioFilesChoices)
         ];
+    }
+
+    private Task<bool> EnqueueCommandAsync(byte[] command, CancellationToken token)
+        => EnqueueCommandAsync(_ => Task.FromResult<byte[]?>(command), token);
+
+    private Task<bool> EnqueueSoundCommandAsync(string fileName, Func<byte, byte[]> buildCommand, CancellationToken token)
+        => EnqueueCommandAsync(async t =>
+        {
+            if (!_macroFileIds.TryGetValue(fileName, out var fileId))
+            {
+                var resolvedFileId = await ResolveFileIdAsync(fileName, t).ConfigureAwait(false);
+                if (resolvedFileId is null)
+                {
+                    return null; // unknown file, nothing to write
+                }
+
+                fileId = resolvedFileId.Value;
+                _macroFileIds[fileName] = fileId;
+            }
+
+            return buildCommand(fileId);
+        }, token);
+
+    private Task<bool> EnqueueCommandAsync(Func<CancellationToken, Task<byte[]?>> resolve, CancellationToken token)
+    {
+        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        if (token.IsCancellationRequested)
+        {
+            tcs.TrySetCanceled(token);
+            return tcs.Task;
+        }
+
+        _macroCommandQueue.Enqueue(new QueuedMacroCommand(resolve, tcs));
+
+        if (token.CanBeCanceled)
+        {
+            var registration = token.Register(() => tcs.TrySetCanceled(token));
+            tcs.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
+        }
+
+        return tcs.Task;
+    }
+
+    private async Task<byte?> ResolveFileIdAsync(string fileName, CancellationToken token)
+    {
+        var response = await RequestFileDirAsync(PfxProtocol.GetNamedFileId(fileName), token);
+        return PfxProtocol.ParseNamedFileId(response);
     }
 
     private async Task<byte[]> RequestFileDirAsync(byte[] command, CancellationToken token, int timeoutMs = 2000)

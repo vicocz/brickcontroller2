@@ -147,6 +147,36 @@ internal static class PfxProtocol
         CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
 
     /// <summary>
+    /// Request the file id of the file with the given <paramref name="fileName"/>, without having to scan the whole directory.
+    /// </summary>
+    public static byte[] GetNamedFileId(string fileName)
+    {
+        var nameBytes = Encoding.UTF8.GetBytes(fileName);
+        return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+            CMD_FILE_DIR, PFX_DIR_REQ_GET_NAMED_FILE_ID,
+            .. nameBytes,
+            CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
+    }
+
+    /// <summary>
+    /// Parses a "Get Named File Id" response (request 0x0B) into the resolved file id.
+    /// </summary>
+    /// <remarks>
+    /// Mirrors the layout used by <see cref="ParseFileCount"/>: the file id is read from the
+    /// last 2 bytes (big-endian). A value of 0xFF (or greater) means the file name wasn't found.
+    /// </remarks>
+    public static byte? ParseNamedFileId(byte[] data)
+    {
+        if (data.Length < 4 || data[0] != RSP_FILE_DIR)
+        {
+            return null;
+        }
+
+        var fileId = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(data.Length - 2, 2));
+        return fileId >= 0xFF ? null : (byte)fileId;
+    }
+
+    /// <summary>
     /// Parses a "Get Directory Entry" response (request 0x02 / 0x03) into a <see cref="FileDirEntry"/>.
     /// </summary>
     /// <remarks>

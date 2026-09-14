@@ -237,15 +237,15 @@
             <Setter Property="Icon" Value="menu"/>
             <Setter Property="IconBackgroundColor" Value="{DynamicResource FloatingButtonColor}"/>
             <Setter Property="IconColor" Value="{DynamicResource NavigationBarItemColor}"/>
-            <Setter Property="Tooltip" Value="{extensions:Translate Expand}"/>
+            <Setter Property="TooltipKey" Value="Expand"/>
             <Style.Triggers>
                 <DataTrigger TargetType="controls:ExpandableFloatingActionButton"
                      Binding="{Binding Path=IsExpanded, Source={RelativeSource Self}}"
                      Value="True">
-                    <Setter Property="Icon" Value="close" />
+                    <Setter Property="Icon" Value="menu_open" />
                     <Setter Property="IconBackgroundColor" Value="{DynamicResource FloatingButtonExpandedColor}" />
                     <Setter Property="IconColor" Value="{DynamicResource NavigationBarItemColor}"/>
-                    <Setter Property="Tooltip" Value="{extensions:Translate Collapse}" />
+                    <Setter Property="TooltipKey" Value="Collapse" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>        

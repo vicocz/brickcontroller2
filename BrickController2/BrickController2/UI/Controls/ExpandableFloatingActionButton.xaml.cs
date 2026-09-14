@@ -1,4 +1,5 @@
-﻿using Microsoft.Maui;
+﻿using BrickController2.Helpers;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using System;
@@ -45,15 +46,6 @@ public partial class ExpandableFloatingActionButton : ContentView
         set => SetValue(IconColorProperty, value);
     }
 
-    public static readonly BindableProperty TooltipProperty =
-        BindableProperty.Create(nameof(Tooltip), typeof(string), typeof(ExpandableFloatingActionButton), null, propertyChanged: OnAppearanceChanged);
-
-    public string? Tooltip
-    {
-        get => (string?)GetValue(TooltipProperty);
-        set => SetValue(TooltipProperty, value);
-    }
-
     public static readonly BindableProperty IconBackgroundColorProperty =
         BindableProperty.Create(nameof(IconBackgroundColor), typeof(Color), typeof(ExpandableFloatingActionButton), null, propertyChanged: OnAppearanceChanged);
 
@@ -72,6 +64,20 @@ public partial class ExpandableFloatingActionButton : ContentView
         private set => SetValue(IsExpandedProperty, value);
     }
 
+    public static readonly BindableProperty TooltipKeyProperty =
+        BindableProperty.Create(nameof(TooltipKey), typeof(string), typeof(ExpandableFloatingActionButton), null, propertyChanged: OnAppearanceChanged);
+
+    /// <summary>
+    /// Translation resource key resolved at apply-time. Use this instead of <see cref="Tooltip"/>
+    /// when the value comes from a style in App.xaml, because markup extensions there are
+    /// evaluated once at startup and would not reflect the selected language.
+    /// </summary>
+    public string? TooltipKey
+    {
+        get => (string?)GetValue(TooltipKeyProperty);
+        set => SetValue(TooltipKeyProperty, value);
+    }
+
     private static void OnAppearanceChanged(BindableObject bindable, object oldValue, object newValue)
     {
         if (bindable is ExpandableFloatingActionButton fab)
@@ -85,7 +91,9 @@ public partial class ExpandableFloatingActionButton : ContentView
         ImageSource.Glyph = Icon;
         SetColor(ImageSource, FontImageSource.ColorProperty, IconColor);
         SetColor(Button, BackgroundColorProperty, IconBackgroundColor);
-        ToolTipProperties.SetText(Button, Tooltip ?? "");
+
+        var tooltip = string.IsNullOrEmpty(TooltipKey) ? "" : TranslationHelper.Translate(TooltipKey);
+        ToolTipProperties.SetText(Button, tooltip);
     }
 
     private static void SetColor(BindableObject target, BindableProperty property, Color? color)

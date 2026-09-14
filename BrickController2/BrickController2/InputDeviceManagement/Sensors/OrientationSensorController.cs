@@ -53,11 +53,11 @@ public class OrientationSensorController : InputDeviceBase<IOrientationSensor>
 
         _eventBuffer.Clear();
 
-        if (HasValueChanged(PitchName, pitch))
+        if (HasAxisValueChanged(PitchName, pitch))
             _eventBuffer[PitchKey] = pitch;
-        if (HasValueChanged(RollName, roll))
+        if (HasAxisValueChanged(RollName, roll))
             _eventBuffer[RollKey] = roll;
-        if (HasValueChanged(YawName, yaw))
+        if (HasAxisValueChanged(YawName, yaw))
             _eventBuffer[YawKey] = yaw;
 
         RaiseEvent(_eventBuffer);

@@ -34,6 +34,9 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
 
     public override void Stop()
     {
+        // reset Lego RemoteControl link first
+        InputDeviceDevice.DisconnectInputController();
+
         base.Stop();
         // trigger device disconnection, but do not wait here
         _ = InputDeviceDevice.DisconnectAsync().ContinueWith(t =>
@@ -43,8 +46,6 @@ internal class LegoRemoteController : InputDeviceBase<RemoteControl>
                 _logger.LogError(t.Exception, "Failed to disconnect Lego Remote Controller {inputDeviceId}", InputDeviceId);
             }
         }, TaskContinuationOptions.OnlyOnFaulted);
-        // reset Lego RemoteControl link
-        InputDeviceDevice.DisconnectInputController();
     }
 
     private async Task ConnectInputDeviceAsync(CancellationToken token = default)

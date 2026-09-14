@@ -29,13 +29,29 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         Name = GetDisplayName(controller, gameControllerType);
         InputDeviceNumber = (int)controller.PlayerIndex;
         InputDeviceId = GetControllerIdFromNumber(InputDeviceNumber);
-
-        SetupController(controller, gameControllerType);
     }
 
     public void Dispose()
     {
         InputDeviceDevice.Dispose();
+    }
+
+    public override void Start()
+    {
+        base.Start();
+
+        // initialize
+        var gameControllerType = GetGameControllerType(InputDeviceDevice);
+        SetupController(InputDeviceDevice, gameControllerType);
+    }
+
+    public override void Stop()
+    {
+        // detach native handlers first, so no callback can reach this connector once the reset events are published
+        var gameControllerType = GetGameControllerType(InputDeviceDevice);
+        TeardownController(InputDeviceDevice, gameControllerType);
+
+        base.Stop();
     }
 
     private void SetupController(GCController gameController, GameControllerType gameControllerType)
@@ -58,7 +74,27 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         }
     }
 
-    private GameControllerType GetGameControllerType(GCController controller)
+    private static void TeardownController(GCController gameController, GameControllerType gameControllerType)
+    {
+        switch (gameControllerType)
+        {
+            case GameControllerType.Micro:
+                TeardownMicroGamePad(gameController.MicroGamepad!);
+                break;
+
+            case GameControllerType.Standard:
+#pragma warning disable CA1422 // Validate platform compatibility
+                TeardownGamePad(gameController.Gamepad!);
+#pragma warning restore CA1422 // Validate platform compatibility
+                break;
+
+            case GameControllerType.Extended:
+                TeardownExtendedGamePad(gameController.ExtendedGamepad!);
+                break;
+        }
+    }
+
+    private static GameControllerType GetGameControllerType(GCController controller)
     {
         try
         {
@@ -100,6 +136,14 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         SetupDPadInput(gamePad.Dpad, "DPad");
     }
 
+    private static void TeardownMicroGamePad(GCMicroGamepad gamePad)
+    {
+        TeardownDigitalButtonInput(gamePad.ButtonA);
+        TeardownDigitalButtonInput(gamePad.ButtonX);
+
+        TeardownDPadInput(gamePad.Dpad);
+    }
+
     private void SetupGamePad(GCGamepad gamePad)
     {
 #pragma warning disable CA1422 // Validate platform compatibility
@@ -112,6 +156,21 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         SetupDigitalButtonInput(gamePad.RightShoulder, "RightShoulder");
 
         SetupDPadInput(gamePad.DPad, "DPad");
+#pragma warning restore CA1422 // Validate platform compatibility
+    }
+
+    private static void TeardownGamePad(GCGamepad gamePad)
+    {
+#pragma warning disable CA1422 // Validate platform compatibility
+        TeardownDigitalButtonInput(gamePad.ButtonA);
+        TeardownDigitalButtonInput(gamePad.ButtonB);
+        TeardownDigitalButtonInput(gamePad.ButtonX);
+        TeardownDigitalButtonInput(gamePad.ButtonY);
+
+        TeardownDigitalButtonInput(gamePad.LeftShoulder);
+        TeardownDigitalButtonInput(gamePad.RightShoulder);
+
+        TeardownDPadInput(gamePad.DPad);
 #pragma warning restore CA1422 // Validate platform compatibility
     }
 
@@ -137,6 +196,28 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         SetupJoyInput(gamePad.RightThumbstick, "RightThumbStick");
     }
 
+    private static void TeardownExtendedGamePad(GCExtendedGamepad gamePad)
+    {
+        TeardownDigitalButtonInput(gamePad.ButtonA);
+        TeardownDigitalButtonInput(gamePad.ButtonB);
+        TeardownDigitalButtonInput(gamePad.ButtonX);
+        TeardownDigitalButtonInput(gamePad.ButtonY);
+
+        TeardownDigitalButtonInput(gamePad.LeftShoulder);
+        TeardownDigitalButtonInput(gamePad.RightShoulder);
+
+        TeardownAnalogButtonInput(gamePad.LeftTrigger);
+        TeardownAnalogButtonInput(gamePad.RightTrigger);
+
+        TeardownDPadInput(gamePad.DPad);
+
+        TeardownDigitalOptionalButtonInput(gamePad.LeftThumbstickButton);
+        TeardownDigitalOptionalButtonInput(gamePad.RightThumbstickButton);
+
+        TeardownJoyInput(gamePad.LeftThumbstick);
+        TeardownJoyInput(gamePad.RightThumbstick);
+    }
+
     private void SetupDigitalOptionalButtonInput(GCControllerButtonInput? button, string name)
     {
         if (button is null)
@@ -147,17 +228,27 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         SetupDigitalButtonInput(button, name);
     }
 
+    private static void TeardownDigitalOptionalButtonInput(GCControllerButtonInput? button)
+    {
+        if (button is null)
+        {
+            return;
+        }
+
+        TeardownDigitalButtonInput(button);
+    }
+
     private void SetupDigitalButtonInput(GCControllerButtonInput button, string name)
     {
         button.ValueChangedHandler = (btn, value, isPressed) =>
         {
-            value = isPressed ? BUTTON_PRESSED : BUTTON_RELEASED;
-
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Button, name, value);
-            }
+            this.RaiseButtonEventConditionally(name, isPressed);
         };
+    }
+
+    private static void TeardownDigitalButtonInput(GCControllerButtonInput button)
+    {
+        button.ValueChangedHandler = null;
     }
 
     private void SetupAnalogButtonInput(GCControllerButtonInput button, string name)
@@ -166,17 +257,25 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         {
             value = value < 0.1 ? 0.0F : value;
 
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Axis, name, value);
-            }
+            this.RaiseAxisEventConditionally(name, value);
         };
+    }
+
+    private static void TeardownAnalogButtonInput(GCControllerButtonInput button)
+    {
+        button.ValueChangedHandler = null;
     }
 
     private void SetupDPadInput(GCControllerDirectionPad dPad, string name)
     {
         SetupDigitalAxisInput(dPad.XAxis, $"{name}_X");
         SetupDigitalAxisInput(dPad.YAxis, $"{name}_Y");
+    }
+
+    private static void TeardownDPadInput(GCControllerDirectionPad dPad)
+    {
+        TeardownDigitalAxisInput(dPad.XAxis);
+        TeardownDigitalAxisInput(dPad.YAxis);
     }
 
     private void SetupDigitalAxisInput(GCControllerAxisInput axis, string name)
@@ -191,11 +290,13 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
                 _ => AXIS_ZERO_VALUE
             };
 
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Axis, name, value);
-            }
+            this.RaiseAxisEventConditionally(name, value);
         };
+    }
+
+    private static void TeardownDigitalAxisInput(GCControllerAxisInput axis)
+    {
+        axis.ValueChangedHandler = null;
     }
 
     private void SetupJoyInput(GCControllerDirectionPad joy, string name)
@@ -204,17 +305,25 @@ internal class GamepadController : InputDeviceBase<GCController>, IDisposable
         SetupAnalogAxisInput(joy.YAxis, $"{name}_Y");
     }
 
+    private static void TeardownJoyInput(GCControllerDirectionPad joy)
+    {
+        TeardownAnalogAxisInput(joy.XAxis);
+        TeardownAnalogAxisInput(joy.YAxis);
+    }
+
     private void SetupAnalogAxisInput(GCControllerAxisInput axis, string name)
     {
         axis.ValueChangedHandler = (ax, value) =>
         {
             value = AdjustControllerValue(value);
 
-            if (HasValueChanged(name, value))
-            {
-                RaiseEvent(InputDeviceEventType.Axis, name, value);
-            }
+            this.RaiseAxisEventConditionally(name, value);
         };
+    }
+
+    private static void TeardownAnalogAxisInput(GCControllerAxisInput axis)
+    {
+        axis.ValueChangedHandler = null;
     }
 
     private static string GetDisplayName(GCController controller, GameControllerType gameControllerType)

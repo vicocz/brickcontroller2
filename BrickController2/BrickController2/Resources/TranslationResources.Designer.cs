@@ -115,6 +115,24 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add a new controller axis event.
+        /// </summary>
+        internal static string AddControllerAxisEvent {
+            get {
+                return ResourceManager.GetString("AddControllerAxisEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a new controller button event.
+        /// </summary>
+        internal static string AddControllerButtonEvent {
+            get {
+                return ResourceManager.GetString("AddControllerButtonEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add a new controller event.
         /// </summary>
         internal static string AddControllerEvent {
@@ -691,6 +709,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Collapse.
+        /// </summary>
+        internal static string Collapse {
+            get {
+                return ResourceManager.GetString("Collapse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Confirm.
         /// </summary>
         internal static string Confirm {
@@ -1047,6 +1074,15 @@ namespace BrickController2.Resources {
         internal static string Executing {
             get {
                 return ResourceManager.GetString("Executing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expand.
+        /// </summary>
+        internal static string Expand {
+            get {
+                return ResourceManager.GetString("Expand", resourceCulture);
             }
         }
         
@@ -1645,6 +1681,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Press a button on the game controller.
+        /// </summary>
+        internal static string PressButton {
+            get {
+                return ResourceManager.GetString("PressButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press a button or move a joy on the game controller.
         /// </summary>
         internal static string PressButtonOrMoveJoy {
@@ -1659,6 +1704,15 @@ namespace BrickController2.Resources {
         internal static string PressButtonsOrMoveJoys {
             get {
                 return ResourceManager.GetString("PressButtonsOrMoveJoys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move a joystick on the game controller.
+        /// </summary>
+        internal static string PressOrMoveJoy {
+            get {
+                return ResourceManager.GetString("PressOrMoveJoy", resourceCulture);
             }
         }
         

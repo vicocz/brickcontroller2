@@ -810,4 +810,22 @@
   <data name="Repeatable" xml:space="preserve">
     <value>Ismételhető</value>
   </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Nyomj meg egy gombot a játékvezérlőn</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Mozgasd a joystickot a játékvezérlőn</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Bontsa ki</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Csukja össze</value>
+  </data>
+  <data name="AddControllerAxisEvent" xml:space="preserve">
+    <value>Új vezérlőtengely esemény hozzáadása</value>
+  </data>
+  <data name="AddControllerButtonEvent" xml:space="preserve">
+    <value>Új kontrollergomb esemény hozzáadása</value>
+  </data>
 </root>

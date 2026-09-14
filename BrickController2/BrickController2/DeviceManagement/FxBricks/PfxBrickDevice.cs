@@ -189,6 +189,7 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
     {
         _writeCharacteristic = null;
         _notifyCharacteristic = null;
+        _macroFileIds.Clear();
     }
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)

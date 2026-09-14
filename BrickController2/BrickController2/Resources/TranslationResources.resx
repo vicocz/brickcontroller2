@@ -849,4 +849,10 @@
   <data name="MissingMacro" xml:space="preserve">
     <value>Missing macro</value>
   </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Select macro parameter</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Select macro</value>
+  </data>
 </root>

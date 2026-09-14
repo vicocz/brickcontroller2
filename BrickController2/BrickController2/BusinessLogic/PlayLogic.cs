@@ -172,7 +172,7 @@ namespace BrickController2.BusinessLogic
                 {
                     // fire-and-forget: swallow macro execution errors
                 }
-            });
+            }, token);
         }
 
         private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, Device device)

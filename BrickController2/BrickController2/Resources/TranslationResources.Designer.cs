@@ -1960,6 +1960,24 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select macro.
+        /// </summary>
+        internal static string SelectMacro {
+            get {
+                return ResourceManager.GetString("SelectMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select macro parameter.
+        /// </summary>
+        internal static string SelectMacroChoice {
+            get {
+                return ResourceManager.GetString("SelectMacroChoice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select a sequence.
         /// </summary>
         internal static string SelectSequence {

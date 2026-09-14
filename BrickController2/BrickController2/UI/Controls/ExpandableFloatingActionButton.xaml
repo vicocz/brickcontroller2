@@ -2,9 +2,13 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:BrickController2.UI.Controls"
-             x:Class="BrickController2.UI.Controls.ExpandableFloatingActionButton">
+             x:Class="BrickController2.UI.Controls.ExpandableFloatingActionButton"
+             x:Name="Root"
+             BackgroundColor="Transparent"
+             HorizontalOptions="End"
+             VerticalOptions="End">
     <ContentView.Content>
-        <Grid x:Name="RootGrid">
+        <Grid x:Name="RootGrid" BackgroundColor="Transparent">
 
             <BoxView x:Name="Overlay" BackgroundColor="Transparent" IsVisible="False">
                 <BoxView.GestureRecognizers>
@@ -12,25 +16,25 @@
                 </BoxView.GestureRecognizers>
             </BoxView>
 
-            <Grid VerticalOptions="End" 
-              HorizontalOptions="End" 
-              Margin="16,0,16,0" 
-              ColumnDefinitions="Auto, Auto">
+            <Grid VerticalOptions="End"
+                  HorizontalOptions="End"
+                  Margin="16,0,16,0"
+                  ColumnDefinitions="Auto, Auto">
 
-                <HorizontalStackLayout x:Name="SecondaryContainer" 
-                                   Grid.Column="0" 
-                                   Spacing="8" 
-                                   Opacity="0" 
-                                   TranslationX="20" 
-                                   Margin="0,0,8,0" 
-                                   VerticalOptions="Center" 
-                                   IsVisible="False" />
+                <HorizontalStackLayout x:Name="SecondaryContainer"
+                                       Grid.Column="0"
+                                       Spacing="8"
+                                       Opacity="0"
+                                       TranslationX="20"
+                                       Margin="0,0,8,0"
+                                       VerticalOptions="Center"
+                                       IsVisible="False" />
 
-                <ImageButton Grid.Column="1" x:Name="icon"  Clicked="OnFabClicked"
-                    Aspect="Center" CornerRadius="25" Padding="0"
-                    HeightRequest="50" WidthRequest="50">
+                <ImageButton Grid.Column="1" x:Name="Button" Clicked="OnFabClicked"
+                             Aspect="Center" CornerRadius="25" Padding="0"
+                             HeightRequest="50" WidthRequest="50">
                     <ImageButton.Source>
-                        <FontImageSource x:Name="imageSource" FontFamily="Icons" />
+                        <FontImageSource x:Name="ImageSource" FontFamily="Icons" />
                     </ImageButton.Source>
                 </ImageButton>
             </Grid>

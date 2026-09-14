@@ -82,10 +82,10 @@ public partial class ExpandableFloatingActionButton : ContentView
 
     private void ApplyState()
     {
-        imageSource.Glyph = Icon;
-        SetColor(imageSource, FontImageSource.ColorProperty, IconColor);
-        SetColor(icon, VisualElement.BackgroundColorProperty, IconBackgroundColor);
-        ToolTipProperties.SetText(icon, Tooltip ?? "");
+        ImageSource.Glyph = Icon;
+        SetColor(ImageSource, FontImageSource.ColorProperty, IconColor);
+        SetColor(Button, BackgroundColorProperty, IconBackgroundColor);
+        ToolTipProperties.SetText(Button, Tooltip ?? "");
     }
 
     private static void SetColor(BindableObject target, BindableProperty property, Color? color)
@@ -143,37 +143,39 @@ public partial class ExpandableFloatingActionButton : ContentView
 
         if (_isMenuOpen)
         {
-            // Make elements physically present before animating
+            // Grow to fill the parent so the dismiss overlay can cover the whole page
+            HorizontalOptions = LayoutOptions.Fill;
+            VerticalOptions = LayoutOptions.Fill;
+
             Overlay.IsVisible = true;
             SecondaryContainer.IsVisible = true;
 
             await Task.WhenAll(
                 SecondaryContainer.FadeToAsync(1, 500, Easing.CubicOut),
                 SecondaryContainer.TranslateToAsync(0, 0, 500, Easing.CubicOut),
-                icon.RotateToAsync(45, 500, Easing.CubicOut)
+                Button.RotateToAsync(45, 500, Easing.CubicOut)
             );
         }
         else
         {
-            // Run closing animations first, keeping the icon glyph unchanged so the
-            // rotation doesn't visually snap partway through
             await Task.WhenAll(
                 SecondaryContainer.FadeToAsync(0, 500, Easing.CubicIn),
                 SecondaryContainer.TranslateToAsync(20, 0, 500, Easing.CubicIn),
-                icon.RotateToAsync(0, 500, Easing.CubicIn)
+                Button.RotateToAsync(0, 500, Easing.CubicIn)
             );
 
-            // If a newer toggle started while this closing animation was running, or the
-            // menu has since been reopened, don't clobber the now-current state.
             if (token != _animationToken || _isMenuOpen)
             {
                 return;
             }
 
-            // Hide elements and swap the icon back only after the animation finishes
             Overlay.IsVisible = false;
             SecondaryContainer.IsVisible = false;
             IsExpanded = false;
+
+            // Shrink back to the button footprint so the list underneath stays interactive
+            HorizontalOptions = LayoutOptions.End;
+            VerticalOptions = LayoutOptions.End;
         }
     }
 }

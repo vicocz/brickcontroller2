@@ -837,4 +837,22 @@
   <data name="AddControllerButtonEvent" xml:space="preserve">
     <value>Add a new controller button event</value>
   </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Update the list of macros</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Macro parameters</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>Missing or wrong macro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Select macro parameter</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Select macro</value>
+  </data>
 </root>

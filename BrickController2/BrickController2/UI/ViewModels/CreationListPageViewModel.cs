@@ -282,6 +282,10 @@ namespace BrickController2.UI.ViewModels
                     case CreationValidationResult.MissingSequence:
                         warning = Translate("MissingSequence");
                         break;
+
+                    case CreationValidationResult.MissingMacro:
+                        warning = Translate("MissingMacro");
+                        break;
                 }
 
                 if (validationResult == CreationValidationResult.Ok)

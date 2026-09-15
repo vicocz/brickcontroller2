@@ -52,7 +52,7 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
-    private readonly Dictionary<string, byte> _macroFileIds = []; // MacroChoice<string>.Value (file id as string) -> PFx File ID
+    private readonly Dictionary<string, byte> _macroFileIds = [];
 
     private IGattCharacteristic? _writeCharacteristic;
     private IGattCharacteristic? _notifyCharacteristic;
@@ -244,13 +244,9 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
                     changed = true;
                 }
                 // macro commands - take the first available
-                if (_macroCommandQueue.TryDequeue(out var queued))
+                if (_macroCommandQueue.TryDequeue(out var queued) &&
+                    !queued.Completion.Task.IsCompleted)
                 {
-                    if (queued.Completion.Task.IsCompleted)
-                    {
-                        continue; // already canceled by caller
-                    }
-
                     var resolvedCommand = await queued.Resolve(token).ConfigureAwait(false);
                     if (resolvedCommand is null)
                     {
@@ -345,7 +341,6 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
             if (entry.Value.IsAudio)
             {
                 audioFilesChoices.Add(new MacroChoice<string>(entry.Value.FileName, entry.Value.FileName));
-                _macroFileIds[entry.Value.FileName] = (byte)entry.Value.FileId;
             }
         }
 

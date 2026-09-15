@@ -48,14 +48,16 @@ namespace BrickController2.BusinessLogic
             {
                 return CreationValidationResult.MissingDevice;
             }
-            else if (sequenceNames != null && sequenceNames.Any(sn => _creationManager.Sequences.FirstOrDefault(s => s.Name == sn) == null))
+            else if (sequenceNames.Any(sn => _creationManager.Sequences.FirstOrDefault(s => s.Name == sn) == null))
             {
                 return CreationValidationResult.MissingSequence;
             }
             else if (macroReferences.Any(mr =>
             {
                 var device = _deviceManager.GetDeviceById(mr.DeviceId);
-                return device == null || !device.AvailableMacros.Any(m => m.Id == mr.MacroId && m.Scope == mr.Scope);
+                return device == null         // device not found
+                    || !device.SupportsMacros // no macro support
+                    || !device.AvailableMacros.Any(m => m.Id == mr.MacroId && m.Scope == mr.Scope);
             }))
             {
                 return CreationValidationResult.MissingMacro;

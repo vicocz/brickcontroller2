@@ -106,7 +106,25 @@ public class PlayLogicTests
             macroId: "missing-macro"));
 
         var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.SupportsMacros).Returns(true);
         deviceMock.SetupGet(x => x.AvailableMacros).Returns([]);
+        _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
+
+        var result = _playLogic.ValidateCreation(creation);
+
+        result.Should().Be(CreationValidationResult.MissingMacro);
+    }
+
+    [Fact]
+    public void ValidateCreation_ReturnsMissingMacro_WhenDeviceDOesNotSupportMacros()
+    {
+        var creation = CreateCreation(CreateControllerAction(
+            deviceId: "device-1",
+            buttonType: ControllerButtonType.Macro,
+            macroId: "missing-macro"));
+
+        var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.SupportsMacros).Returns(false);
         _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
 
         var result = _playLogic.ValidateCreation(creation);
@@ -123,6 +141,7 @@ public class PlayLogicTests
             CreateControllerAction(deviceId: "device-1", buttonType: ControllerButtonType.Macro, macroId: "macro-1"));
 
         var deviceMock = CreateDeviceMock();
+        deviceMock.SetupGet(x => x.SupportsMacros).Returns(true);
         deviceMock.SetupGet(x => x.AvailableMacros).Returns([new MacroDescriptor("macro-1", "name-key", MacroScope.Channel, MacroKind.OneShot)]);
         _deviceManagerMock.Setup(dm => dm.GetDeviceById("device-1")).Returns(deviceMock.Object);
 

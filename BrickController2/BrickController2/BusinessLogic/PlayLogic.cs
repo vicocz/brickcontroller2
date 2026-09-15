@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
@@ -162,19 +163,21 @@ namespace BrickController2.BusinessLogic
                 return;
             }
 
-            int? channel = macro.Scope == MacroScope.Channel ? controllerAction.Channel : null;
-            var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoiceValue, channel);
-            _ = System.Threading.Tasks.Task.Run(async () =>
+            _ = ExecuteMacroSafelyAsync();
+
+            async ValueTask ExecuteMacroSafelyAsync()
             {
                 try
                 {
+                    int? channel = macro.Scope == MacroScope.Channel ? controllerAction.Channel : null;
+                    var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoiceValue, channel);
                     await device.ExecuteMacroAsync(invocation, token);
                 }
                 catch
                 {
                     // fire-and-forget: swallow macro execution errors
                 }
-            }, token);
+            }
         }
 
         private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, Device device)

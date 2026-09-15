@@ -1438,7 +1438,7 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Missing macro.
+        ///   Looks up a localized string similar to Missing or wrong macro.
         /// </summary>
         internal static string MissingMacro {
             get {

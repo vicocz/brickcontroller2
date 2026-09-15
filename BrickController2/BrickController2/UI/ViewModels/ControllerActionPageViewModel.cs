@@ -460,6 +460,7 @@ namespace BrickController2.UI.ViewModels
                     RaisePropertyChanged(nameof(SelectedMacro));
                     RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 }
             }
         }
@@ -493,13 +494,15 @@ namespace BrickController2.UI.ViewModels
 
         private async Task ReloadMacrosAsync(Device device, CancellationToken token)
         {
+            var connectionResult = DeviceConnectionResult.Ok;
+
             var dialogResult = await _dialogService.ShowProgressDialogAsync(
                 false,
                 async (progressDialog, ct) =>
                 {
-                    await device.ConnectAsync(
-                        false,
-                        (_) => { },
+                    connectionResult = await device.ConnectAsync(
+                        reconnect: false,
+                        onDeviceDisconnected: default!,
                         [],
                         startOutputProcessing: false,
                         requestDeviceInformation: false,
@@ -515,15 +518,13 @@ namespace BrickController2.UI.ViewModels
                 Translate("Cancel"),
                 token);
 
-            var connected = device.DeviceState == DeviceState.Connected;
-
             try
             {
                 await device.DisconnectAsync();
             }
             finally
             {
-                if (dialogResult.IsCancelled || !connected)
+                if (!dialogResult.IsCancelled && connectionResult == DeviceConnectionResult.Error)
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -531,13 +532,15 @@ namespace BrickController2.UI.ViewModels
                         Translate("Ok"),
                         token);
                 }
-                else
+                else if (device.DeviceState == DeviceState.Connected)
                 {
                     RaisePropertyChanged(nameof(AvailableMacros));
                     RaisePropertyChanged(nameof(HasMacros));
                     RaisePropertyChanged(nameof(SelectedMacro));
                     RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    SelectMacroCommand.RaiseCanExecuteChanged();
+                    SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 }
             }
         }

@@ -168,6 +168,8 @@ namespace BrickController2.UI.ViewModels
                 RaisePropertyChanged(nameof(SelectedMacro));
                 RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                 RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                SelectMacroCommand.RaiseCanExecuteChanged();
+                SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 NotifySBrickLightChanges();
             }
         }

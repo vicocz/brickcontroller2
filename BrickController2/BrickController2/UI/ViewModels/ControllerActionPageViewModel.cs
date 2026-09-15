@@ -520,6 +520,8 @@ namespace BrickController2.UI.ViewModels
                 Translate("Cancel"),
                 token);
 
+            var connected = device.DeviceState == DeviceState.Connected;
+
             try
             {
                 await device.DisconnectAsync();
@@ -534,7 +536,7 @@ namespace BrickController2.UI.ViewModels
                         Translate("Ok"),
                         token);
                 }
-                else if (device.DeviceState == DeviceState.Connected)
+                else if (connected)
                 {
                     RaisePropertyChanged(nameof(AvailableMacros));
                     RaisePropertyChanged(nameof(HasMacros));

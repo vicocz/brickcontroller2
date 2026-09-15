@@ -7,10 +7,10 @@ namespace BrickController2.DeviceManagement.Macros;
 public abstract record MacroChoice(string LabelKey)
 {
     /// <summary>
-    /// The choice value, boxed. Prefer the strongly-typed <see cref="MacroChoice{T}.Value"/> when the
-    /// concrete choice type is known at the call site.
+    /// The choice value, wrapped as a <see cref="MacroChoiceValue"/>. Prefer the strongly-typed
+    /// <see cref="MacroChoice{T}.TypedValue"/> when the concrete choice type is known at the call site.
     /// </summary>
-    public abstract object BoxedValue { get; }
+    public abstract MacroChoiceValue Value { get; }
 
     /// <summary>
     /// Creates a <see cref="MacroChoice{T}"/> for a struct value, using the value's <see cref="object.ToString"/>
@@ -23,7 +23,7 @@ public abstract record MacroChoice(string LabelKey)
 /// <summary>
 /// A strongly-typed macro choice.
 /// </summary>
-public sealed record MacroChoice<T>(string LabelKey, T Value) : MacroChoice(LabelKey)
+public sealed record MacroChoice<T>(string LabelKey, T TypedValue) : MacroChoice(LabelKey)
 {
-    public override object BoxedValue => Value!;
+    public override MacroChoiceValue Value => new(TypedValue);
 }

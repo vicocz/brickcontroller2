@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.InputDevice;
+﻿using BrickController2.DeviceManagement.Macros;
+using BrickController2.PlatformServices.InputDevice;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            object? macroChoiceValue);
+            MacroChoiceValue macroChoiceValue);
         Task DeleteControllerActionAsync(ControllerAction controllerAction);
         Task UpdateControllerActionAsync(
             ControllerAction controllerAction,
@@ -66,9 +67,9 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            object? macroChoiceValue);
+            MacroChoiceValue macroChoiceValue);
 
-        Task ImportSequenceAsync(string sequenceFilename);
+
         Task ImportSequenceAsync(Sequence sequence);
         Task ExportSequenceAsync(Sequence sequence, string sequenceFilename);
         Task<bool> IsSequenceNameAvailableAsync(string sequenceName);

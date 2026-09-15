@@ -109,17 +109,17 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         }
 
         if (invocation.DescriptorId == PlaySoundMacroId
-            && invocation.ChoiceValue is string fileName)
+            && invocation.ChoiceValue.TryGet<string>(out var fileName))
         {
             return EnqueueSoundCommandAsync(fileName, id => PfxProtocol.PlaySoundFile(id), token);
         }
         else if (invocation.DescriptorId == StopSoundMacroId
-            && invocation.ChoiceValue is string stopFileName)
+            && invocation.ChoiceValue.TryGet<string>(out var stopFileName))
         {
             return EnqueueSoundCommandAsync(stopFileName, id => PfxProtocol.StopSoundFile(id), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
-            && invocation.ChoiceValue is float volume)
+            && invocation.ChoiceValue.TryGet<float>(out var volume))
         {
             return EnqueueCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
         }

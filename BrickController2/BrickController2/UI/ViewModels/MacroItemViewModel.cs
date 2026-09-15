@@ -45,11 +45,11 @@ public class MacroItemViewModel
 
     private async Task ExecuteMacroAsync()
     {
-        object? choiceValue = null;
+        MacroChoiceValue choiceValue = default;
 
         if (_descriptor.Choices.Count == 1)
         {
-            choiceValue = _descriptor.Choices[0].BoxedValue;
+            choiceValue = _descriptor.Choices[0].Value;
         }
         else if (_descriptor.Choices.Count > 1)
         {
@@ -72,7 +72,7 @@ public class MacroItemViewModel
                 return;
             }
 
-            choiceValue = _descriptor.Choices[index].BoxedValue;
+            choiceValue = _descriptor.Choices[index].Value;
         }
 
         try

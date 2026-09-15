@@ -84,7 +84,7 @@ namespace BrickController2.UI.ViewModels
                 Action.StepperAngle = 90;
                 Action.SequenceName = string.Empty;
                 Action.MacroId = string.Empty;
-                Action.MacroChoiceValue = null;
+                Action.MacroChoiceValue = default;
             }
 
             // do validation of current channel settings
@@ -139,11 +139,11 @@ namespace BrickController2.UI.ViewModels
             get
             {
                 var macro = SelectedMacro;
-                if (macro is null || Action.MacroChoiceValue is null)
+                if (macro is null || !Action.MacroChoiceValue.HasValue)
                 {
                     return string.Empty;
                 }
-                var choice = macro.Choices.FirstOrDefault(c => Equals(c.BoxedValue, Action.MacroChoiceValue));
+                var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoiceValue);
                 return choice is null ? string.Empty : Translate(choice.LabelKey);
             }
         }
@@ -549,12 +549,7 @@ namespace BrickController2.UI.ViewModels
 
         private void SetSelectedChoice(MacroChoice? choice)
         {
-            Action.MacroChoiceValue = (choice?.BoxedValue) switch
-            {
-                int intValue => intValue,
-                string stringValue => stringValue,
-                _ => null,
-            };
+            Action.MacroChoiceValue = choice?.Value ?? default;
         }
 
         private async Task SelectAxisTypeAsync()

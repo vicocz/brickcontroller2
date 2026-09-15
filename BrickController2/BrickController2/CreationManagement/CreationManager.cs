@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.InputDevice;
+﻿using BrickController2.DeviceManagement.Macros;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.Helpers;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -255,7 +256,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            object? macroChoiceValue)
+            MacroChoiceValue macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {
@@ -333,7 +334,7 @@ namespace BrickController2.CreationManagement
             int stepperAngle,
             string sequenceName,
             string macroId,
-            object? macroChoiceValue)
+            MacroChoiceValue macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {

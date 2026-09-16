@@ -149,11 +149,17 @@ internal static class PfxProtocol
     /// <summary>
     /// Request the file id of the file with the given <paramref name="fileName"/>, without having to scan the whole directory.
     /// </summary>
+    /// <remarks>
+    /// Per the ICD: byte 2 of the command must contain the length of the filename, and the filename
+    /// bytes follow starting at byte 3. Omitting the length byte causes the device to misinterpret the
+    /// filename bytes (e.g. treating the first filename byte as the length), producing an incorrect or
+    /// garbage file id instead of PFX_ERR_FILE_NOT_FOUND.
+    /// </remarks>
     public static byte[] GetNamedFileId(string fileName)
     {
         var nameBytes = Encoding.UTF8.GetBytes(fileName);
         return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
-            CMD_FILE_DIR, PFX_DIR_REQ_GET_NAMED_FILE_ID,
+            CMD_FILE_DIR, PFX_DIR_REQ_GET_NAMED_FILE_ID, (byte)nameBytes.Length,
             .. nameBytes,
             CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
     }
@@ -162,18 +168,19 @@ internal static class PfxProtocol
     /// Parses a "Get Named File Id" response (request 0x0B) into the resolved file id.
     /// </summary>
     /// <remarks>
-    /// Mirrors the layout used by <see cref="ParseFileCount"/>: the file id is read from the
-    /// last 2 bytes (big-endian). A value of 0xFF (or greater) means the file name wasn't found.
+    /// Observed device response is 3 bytes: [0xC5, 0x0B (echoed request sub-code), FileId].
+    /// Unlike <see cref="ParseFileCount"/>, the file id here is a single byte, not a 2-byte
+    /// big-endian field. A value of 0xFF means the file name wasn't found.
     /// </remarks>
     public static byte? ParseNamedFileId(byte[] data)
     {
-        if (data.Length < 4 || data[0] != RSP_FILE_DIR)
+        if (data.Length < 3 || data[0] != RSP_FILE_DIR || data[1] != PFX_DIR_REQ_GET_NAMED_FILE_ID)
         {
             return null;
         }
 
-        var fileId = BinaryPrimitives.ReadUInt16BigEndian(data.AsSpan(data.Length - 2, 2));
-        return fileId >= 0xFF ? null : (byte)fileId;
+        var fileId = data[^1];
+        return fileId >= 0xFF ? null : fileId;
     }
 
     /// <summary>

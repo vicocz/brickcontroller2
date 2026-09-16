@@ -73,7 +73,7 @@ internal class MK3 : MKBaseByte, IDeviceType<MK3>
     /// </summary>
     /// <returns>A tuple containing the processed byte value and a boolean flag indicating the success or status of the
     /// operation.</returns>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not within the valid range of 0 through 4.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="channelNo"/> is not within the valid range of 0 through 3.</exception>
     protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
     {
         0 => SetOutput_AnalogChannel(value),

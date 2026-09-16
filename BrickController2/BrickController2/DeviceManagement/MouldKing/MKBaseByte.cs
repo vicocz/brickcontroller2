@@ -219,7 +219,7 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
         else
         {
             byte setValue_byte = 0x80;
-            return (setValue_byte, false);
+            return (setValue_byte, true);
         }
     }
 

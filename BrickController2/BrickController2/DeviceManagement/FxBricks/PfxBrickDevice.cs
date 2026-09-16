@@ -360,7 +360,7 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         var foundCount = 0;
         var audioFilesChoices = new List<MacroChoice<string>>();
 
-        for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount; i++)
+        for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount && !token.IsCancellationRequested; i++)
         {
             var entryResponse = await RequestFileDirAsync(PfxProtocol.GetDirEntryAtIndex(i), token);
             var entry = PfxProtocol.ParseFileDirEntry(entryResponse);

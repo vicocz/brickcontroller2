@@ -247,16 +247,10 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
                 if (_macroCommandQueue.TryDequeue(out var queued) &&
                     !queued.Completion.Task.IsCompleted)
                 {
-                    var resolvedCommand = await queued.Resolve(token).ConfigureAwait(false);
-                    if (resolvedCommand is null)
+                    if (await ProcessMacroCommandAsync(queued, token).ConfigureAwait(false))
                     {
-                        queued.Completion.TrySetResult(false);
-                        continue; // resolution failed (e.g. unknown file), nothing to write
+                        changed = true;
                     }
-
-                    var macroResult = await WriteCommandAsync(resolvedCommand, token).ConfigureAwait(false);
-                    queued.Completion.TrySetResult(macroResult);
-                    changed = true;
                 }
 
                 if (!changed)
@@ -267,6 +261,35 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         }
         catch
         {
+        }
+    }
+
+    private async Task<bool> ProcessMacroCommandAsync(QueuedMacroCommand queued, CancellationToken token)
+    {
+        try
+        {
+            var resolvedCommand = await queued.Resolve(token).ConfigureAwait(false);
+            if (resolvedCommand is null)
+            {
+                queued.Completion.TrySetResult(false);
+                return false; // resolution failed (e.g. unknown file), nothing to write
+            }
+
+            var macroResult = await WriteCommandAsync(resolvedCommand, token).ConfigureAwait(false);
+            queued.Completion.TrySetResult(macroResult);
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            // the loop's token was cancelled (e.g. disconnect) while resolving/writing this
+            // already-dequeued item; complete it here
+            queued.Completion.TrySetCanceled(token);
+            throw;
+        }
+        catch
+        {
+            queued.Completion.TrySetResult(false);
+            return false;
         }
     }
 

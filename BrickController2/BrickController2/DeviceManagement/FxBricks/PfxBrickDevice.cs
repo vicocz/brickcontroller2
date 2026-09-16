@@ -171,17 +171,26 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
 
     protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
     {
-        if (_notifyCharacteristic != null && _bleDevice != null)
+        try
         {
-            await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
-        }
-        // ensure everything is stopped in the end
-        await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
+            if (_notifyCharacteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
+            }
+            // ensure everything is stopped in the end
+            await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
 
-        // fail any commands left queued when the loop stops (disconnect/cancel)
-        while (_macroCommandQueue.TryDequeue(out var queued))
+        }
+        catch
         {
-            queued.Completion.TrySetResult(false);
+        }
+        finally
+        {
+            // fail any commands left queued when the loop stops (disconnect/cancel)
+            while (_macroCommandQueue.TryDequeue(out var queued))
+            {
+                queued.Completion.TrySetResult(false);
+            }
         }
     }
 
@@ -190,6 +199,7 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
         _writeCharacteristic = null;
         _notifyCharacteristic = null;
         _macroFileIds.Clear();
+        _macroCommandQueue.Clear();
     }
 
     protected override async Task<bool> AfterConnectSetupAsync(bool requestDeviceInformation, CancellationToken token)
@@ -216,6 +226,8 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
             // reset outputs
             _motorOutputs.Initialize();
             _lightOutputs.Initialize();
+            _macroFileIds.Clear();
+            _macroCommandQueue.Clear();
 
             while (!token.IsCancellationRequested)
             {
@@ -279,7 +291,7 @@ internal class PfxBrickDevice : BluetoothDeviceWithMacros
             queued.Completion.TrySetResult(macroResult);
             return true;
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             // the loop's token was cancelled (e.g. disconnect) while resolving/writing this
             // already-dequeued item; complete it here

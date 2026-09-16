@@ -67,6 +67,11 @@ namespace BrickController2.UI.Controls
             PfxBrickChannel6.Command = new SafeCommand(() => SelectedChannel = 7);
             PfxBrickChannel7.Command = new SafeCommand(() => SelectedChannel = 8);
             PfxBrickChannel8.Command = new SafeCommand(() => SelectedChannel = 9);
+            // MK3
+            MK3Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
+            MK3Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
+            MK3Channel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            MK3Channel3.Command = new SafeCommand(() => SelectedChannel = 3);
             // MK3_8
             MK3_8Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             MK3_8Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
@@ -194,6 +199,7 @@ namespace BrickController2.UI.Controls
             TechnicMoveChannelB.IsVisible = !isPlayVm;
             TechnicMoveChannelAB.IsVisible = isPlayVm;
             PfxBrickSection.IsVisible = deviceType == DeviceType.PfxBrick;
+            MK3Section.IsVisible = deviceType == DeviceType.MK3;
             MK3_8Section.IsVisible = deviceType == DeviceType.MK3_8;
             MK4Section.IsVisible = deviceType == DeviceType.MK4;
             MK5Section.IsVisible = deviceType == DeviceType.MK5;
@@ -269,6 +275,11 @@ namespace BrickController2.UI.Controls
             PfxBrickChannel6.SelectedChannel = selectedChannel;
             PfxBrickChannel7.SelectedChannel = selectedChannel;
             PfxBrickChannel8.SelectedChannel = selectedChannel;
+            // MK3
+            MK3Channel0.SelectedChannel = selectedChannel;
+            MK3Channel1.SelectedChannel = selectedChannel;
+            MK3Channel2.SelectedChannel = selectedChannel;
+            MK3Channel3.SelectedChannel = selectedChannel;
             // MK3_8
             MK3_8Channel0.SelectedChannel = selectedChannel;
             MK3_8Channel1.SelectedChannel = selectedChannel;

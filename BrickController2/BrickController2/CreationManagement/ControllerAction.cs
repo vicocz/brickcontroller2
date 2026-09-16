@@ -127,15 +127,15 @@ namespace BrickController2.CreationManagement
             set { _macroId = value; RaisePropertyChanged(); }
         }
 
-        [TextBlob(nameof(MacroChoiceValueBlob))]
-        public MacroChoiceValue MacroChoiceValue
+        [TextBlob(nameof(MacroChoiceBlob))]
+        public MacroChoiceValue MacroChoice
         {
             get { return _macroChoiceValue; }
             set { _macroChoiceValue = value; RaisePropertyChanged(); }
         }
 
         [JsonIgnore]
-        public string? MacroChoiceValueBlob { get; set; }
+        public string? MacroChoiceBlob { get; set; }
 
         public override string ToString()
         {

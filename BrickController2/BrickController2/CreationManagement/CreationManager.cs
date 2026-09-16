@@ -276,7 +276,7 @@ namespace BrickController2.CreationManagement
                     controllerAction.StepperAngle = stepperAngle;
                     controllerAction.SequenceName = sequenceName;
                     controllerAction.MacroId = macroId;
-                    controllerAction.MacroChoiceValue = macroChoiceValue;
+                    controllerAction.MacroChoice = macroChoiceValue;
                     await _creationRepository.UpdateControllerActionAsync(controllerAction);
                 }
                 else
@@ -298,7 +298,7 @@ namespace BrickController2.CreationManagement
                         StepperAngle = stepperAngle,
                         SequenceName = sequenceName,
                         MacroId = macroId,
-                        MacroChoiceValue = macroChoiceValue
+                        MacroChoice = macroChoiceValue
                     };
                     await _creationRepository.InsertControllerActionAsync(controllerEvent, controllerAction);
                 }
@@ -361,7 +361,7 @@ namespace BrickController2.CreationManagement
                 controllerAction.StepperAngle = stepperAngle;
                 controllerAction.SequenceName = sequenceName;
                 controllerAction.MacroId = macroId;
-                controllerAction.MacroChoiceValue = macroChoiceValue;
+                controllerAction.MacroChoice = macroChoiceValue;
                 await _creationRepository.UpdateControllerActionAsync(controllerAction);
             }
         }
@@ -476,7 +476,7 @@ namespace BrickController2.CreationManagement
                                         controllerAction.StepperAngle,
                                         sequenceName,
                                         controllerAction.MacroId,
-                                        controllerAction.MacroChoiceValue);
+                                        controllerAction.MacroChoice);
                                 }
                             }
                         }

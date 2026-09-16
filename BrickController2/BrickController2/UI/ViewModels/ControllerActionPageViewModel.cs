@@ -64,7 +64,7 @@ namespace BrickController2.UI.ViewModels
                 Action.StepperAngle = ControllerAction.StepperAngle;
                 Action.SequenceName = ControllerAction.SequenceName;
                 Action.MacroId = ControllerAction.MacroId;
-                Action.MacroChoiceValue = ControllerAction.MacroChoiceValue;
+                Action.MacroChoice = ControllerAction.MacroChoice;
             }
             else
             {
@@ -84,7 +84,7 @@ namespace BrickController2.UI.ViewModels
                 Action.StepperAngle = 90;
                 Action.SequenceName = string.Empty;
                 Action.MacroId = string.Empty;
-                Action.MacroChoiceValue = default;
+                Action.MacroChoice = default;
             }
 
             // do validation of current channel settings
@@ -139,11 +139,11 @@ namespace BrickController2.UI.ViewModels
             get
             {
                 var macro = SelectedMacro;
-                if (macro is null || !Action.MacroChoiceValue.HasValue)
+                if (macro is null || !Action.MacroChoice.HasValue)
                 {
                     return string.Empty;
                 }
-                var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoiceValue);
+                var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoice);
                 return choice is null ? string.Empty : Translate(choice.LabelKey);
             }
         }
@@ -281,7 +281,7 @@ namespace BrickController2.UI.ViewModels
                             Action.StepperAngle,
                             Action.SequenceName,
                             Action.MacroId,
-                            Action.MacroChoiceValue);
+                            Action.MacroChoice);
                     }
                     else
                     {
@@ -302,7 +302,7 @@ namespace BrickController2.UI.ViewModels
                             Action.StepperAngle,
                             Action.SequenceName,
                             Action.MacroId,
-                            Action.MacroChoiceValue);
+                            Action.MacroChoice);
                     }
                 },
                 Translate("Saving"),
@@ -551,7 +551,7 @@ namespace BrickController2.UI.ViewModels
 
         private void SetSelectedChoice(MacroChoice? choice)
         {
-            Action.MacroChoiceValue = choice?.Value ?? default;
+            Action.MacroChoice = choice?.Value ?? default;
         }
 
         private async Task SelectAxisTypeAsync()

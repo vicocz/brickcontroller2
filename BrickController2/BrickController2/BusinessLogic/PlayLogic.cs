@@ -170,7 +170,7 @@ namespace BrickController2.BusinessLogic
                 try
                 {
                     int? channel = macro.Scope == MacroScope.Channel ? controllerAction.Channel : null;
-                    var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoiceValue, channel);
+                    var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoice, channel);
                     await device.ExecuteMacroAsync(invocation, token);
                 }
                 catch

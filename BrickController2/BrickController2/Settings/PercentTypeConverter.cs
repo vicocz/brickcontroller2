@@ -20,15 +20,22 @@ internal class PercentTypeConverter : TypeConverter
         => value switch
         {
             Percent percent => percent,
+            // stored/serialized values are persisted as plain (culture-invariant) floats, see ConvertTo
+            string stringValue => new Percent(float.Parse(stringValue.TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture)),
             IConvertible convertible => new Percent(convertible.ToSingle(culture)),
             _ => base.ConvertFrom(context, culture, value)
         };
 
     public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
-        => destinationType == typeof(float) || base.CanConvertTo(context, destinationType);
+        => destinationType == typeof(float) || destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
 
     public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
-        => value is Percent percent && destinationType == typeof(float)
-            ? percent.Value
+        => value is Percent percent
+            ? destinationType == typeof(float)
+                ? percent.Value
+                : destinationType == typeof(string)
+                    // persist as a plain, culture-invariant float string, not Percent.ToString()'s "N%" display format
+                    ? percent.Value.ToString(CultureInfo.InvariantCulture)
+                    : base.ConvertTo(context, culture, value, destinationType)
             : base.ConvertTo(context, culture, value, destinationType);
 }

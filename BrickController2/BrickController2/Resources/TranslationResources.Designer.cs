@@ -1202,6 +1202,15 @@ namespace BrickController2.Resources {
                 return ResourceManager.GetString("FailedToImportSequence", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to reload macros..
+        /// </summary>
+        internal static string FailedToReloadMacros {
+            get {
+                return ResourceManager.GetString("FailedToReloadMacros", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to File already exits.
@@ -1821,6 +1830,15 @@ namespace BrickController2.Resources {
         internal static string Reseting {
             get {
                 return ResourceManager.GetString("Reseting", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Reloading macros.
+        /// </summary>
+        internal static string ReloadingMacros {
+            get {
+                return ResourceManager.GetString("ReloadingMacros", resourceCulture);
             }
         }
         

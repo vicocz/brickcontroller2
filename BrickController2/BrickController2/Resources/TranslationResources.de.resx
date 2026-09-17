@@ -369,6 +369,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Fehler beim Importieren der Sequenz.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Fehler beim Neuladen der Makros.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>Datei existiert bereits</value>
   </data>
@@ -494,6 +497,9 @@
   </data>
   <data name="Reseting" xml:space="preserve">
     <value>Zurücksetzen...</value>
+  </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Makros werden neu geladen</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Speichern...</value>

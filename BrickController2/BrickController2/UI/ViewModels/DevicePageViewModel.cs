@@ -511,7 +511,7 @@ namespace BrickController2.UI.ViewModels
                             await Device.GetMacrosAsync(forceRefresh: true, ct);
                         }
                     },
-                    Translate("ConnectingTo"),
+                    Translate("ReloadingMacros"),
                     Device.Name,
                     Translate("Cancel"),
                     token);
@@ -520,7 +520,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
-                        Translate("FailedToConnect"),
+                        Translate("FailedToReloadMacros"),
                         Translate("Ok"),
                         token);
                 }

@@ -369,6 +369,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Nem sikerült importálni a szekvenciát.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Nem sikerült újratölteni a makrókat.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>A file már létezik</value>
   </data>
@@ -494,6 +497,9 @@
   </data>
   <data name="Reseting" xml:space="preserve">
     <value>Átállítás...</value>
+  </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Makrók újratöltése</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Mentés...</value>

@@ -387,15 +387,6 @@ namespace BrickController2.UI.ViewModels
                             {
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
-                            // update macros
-                            if (IsMacroDevice)
-                            {
-                                Macros.Clear();
-                                foreach (var macro in Device.AvailableMacros)
-                                {
-                                    Macros.Add(new MacroItemViewModel(Device, macro, Macros.Count, TranslationService, _dialogService));
-                                }
-                            }
 
                             // update command enablement
                             UpdateCommandsAvailability();

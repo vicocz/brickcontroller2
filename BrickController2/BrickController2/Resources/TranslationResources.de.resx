@@ -666,6 +666,9 @@
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Grundwert Ausgabestufe</value>
   </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Standard-Lautstärke</value>
+  </data>
   <data name="On" xml:space="preserve">
     <value>An</value>
   </data>

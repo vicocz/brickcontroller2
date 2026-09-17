@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement.IO;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.Settings;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -24,6 +25,9 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
     private const string SetVolumeMacroNameKey = "PfxSetVolumeMacro";
     private const string IncreaseVolumeMacroNameKey = "PfxIncreaseVolumeMacro";
     private const string DecreaseVolumeMacroNameKey = "PfxDecreaseVolumeMacro";
+
+    private const string DefaultVolumeLevelName = "PfxBrickDefaultVolumeLevel";
+    private static readonly Percent DefaultVolumeLevelValue = 50f;
 
     private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
@@ -62,14 +66,18 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
         TaskCompletionSource<bool> Completion,
         CancellationToken CallerToken);
 
-    public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    public PfxBrickDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
+        // apply values (if any) or default
+        SetSettingValue(DefaultVolumeLevelName, settings, DefaultVolumeLevelValue);
     }
 
     public override DeviceType DeviceType => DeviceType.PfxBrick;
 
     public override int NumberOfChannels => 10;
+
+    public Percent DefaultVolumeLevel => GetSettingValue(DefaultVolumeLevelName, DefaultVolumeLevelValue);
 
     protected override IReadOnlyList<MacroDescriptor> StaticMacros => DefaultStaticMacros;
 
@@ -204,6 +212,8 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
             {
                 await ReadDeviceInfo(token);
             }
+
+            await WriteCommandAsync(PfxProtocol.SetVolume(DefaultVolumeLevel.Value), token).ConfigureAwait(false);
         }
         catch { }
 

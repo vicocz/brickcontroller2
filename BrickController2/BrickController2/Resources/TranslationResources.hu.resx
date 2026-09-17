@@ -666,6 +666,9 @@
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Alapértelmezett kimeneti szint</value>
   </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Alapértelmezett hangerő</value>
+  </data>
   <data name="On" xml:space="preserve">
     <value>On</value>
   </data>

@@ -464,6 +464,15 @@ namespace BrickController2.Resources {
                 return ResourceManager.GetString("BuWizz2DefaultOutputLevel", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Default volume level.
+        /// </summary>
+        internal static string PfxBrickDefaultVolumeLevel {
+            get {
+                return ResourceManager.GetString("PfxBrickDefaultVolumeLevel", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to BuWizz 2 output level.

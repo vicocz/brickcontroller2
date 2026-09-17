@@ -79,6 +79,7 @@ namespace BrickController2.DeviceManagement
 
         public virtual float AccelarationStep => 0.1F;
         public virtual bool SupportsMacros => false;
+        public virtual bool SupportsDynamicMacros => false;
         public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
 
         /// <summary>
@@ -103,6 +104,8 @@ namespace BrickController2.DeviceManagement
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }
 
+        public virtual ValueTask<IReadOnlyList<MacroDescriptor>> GetMacrosAsync(bool forceRefresh = false, CancellationToken token = default)
+             => ValueTask.FromResult(AvailableMacros);
         public virtual Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
             => throw new InvalidOperationException("Macros are not supported for this type of device.");
 

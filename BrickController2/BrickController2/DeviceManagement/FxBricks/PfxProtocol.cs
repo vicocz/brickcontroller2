@@ -2,7 +2,7 @@
 using System.Buffers.Binary;
 using System.Text;
 
-namespace BrickController2.Protocols;
+namespace BrickController2.DeviceManagement.FxBricks;
 
 internal static class PfxProtocol
 {
@@ -145,6 +145,36 @@ internal static class PfxProtocol
     public static byte[] GetDirEntryAtIndex(byte index) => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
         CMD_FILE_DIR, PFX_DIR_REQ_GET_DIR_ENTRY_IDX, index,
         CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
+
+    /// <summary>
+    /// Request the file id of the file with the given <paramref name="fileName"/>, without having to scan the whole directory.
+    /// </summary>
+    /// <remarks>
+    /// Per the ICD: byte 2 of the command must contain the length of the filename, and the filename
+    /// bytes follow starting at byte 3.
+    /// </remarks>
+    public static byte[] GetNamedFileId(string fileName)
+    {
+        var nameBytes = Encoding.UTF8.GetBytes(fileName);
+        return [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+            CMD_FILE_DIR, PFX_DIR_REQ_GET_NAMED_FILE_ID, (byte)nameBytes.Length,
+            .. nameBytes,
+            CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
+    }
+
+    /// <summary>
+    /// Parses a "Get Named File Id" response (request 0x0B) into the resolved file id.
+    /// </summary>
+    public static byte? ParseNamedFileId(byte[] data)
+    {
+        if (data.Length < 3 || data[0] != RSP_FILE_DIR || data[1] != PFX_DIR_REQ_GET_NAMED_FILE_ID)
+        {
+            return null;
+        }
+
+        var fileId = data[^1];
+        return fileId >= 0xFF ? null : fileId;
+    }
 
     /// <summary>
     /// Parses a "Get Directory Entry" response (request 0x02 / 0x03) into a <see cref="FileDirEntry"/>.

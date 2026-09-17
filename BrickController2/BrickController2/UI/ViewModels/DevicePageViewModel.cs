@@ -64,15 +64,17 @@ namespace BrickController2.UI.ViewModels
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
-            SwitchToChannelViewCommand = new SafeCommand(() => SwitchView(showChannels:true), () => CanSwitchToChannelView);
-            SwitchToSensorViewCommand = new SafeCommand(() => SwitchView(showInputs: true), () => CanSwitchToSensorView);
-            SwitchToMacroViewCommand = new SafeCommand(() => SwitchView(showMacros: true), () => CanSwitchToMacroView);
+            SwitchToChannelViewCommand = new SafeCommand(() => SwitchViewAsync(showChannels:true), () => CanSwitchToChannelView);
+            SwitchToSensorViewCommand = new SafeCommand(() => SwitchViewAsync(showInputs: true), () => CanSwitchToSensorView);
+            SwitchToMacroViewCommand = new SafeCommand(() => SwitchViewAsync(showMacros: true), () => CanSwitchToMacroView);
+            ReloadMacrosCommand = new SafeCommand(async () => await ReloadMacrosAsync(DisappearingToken));
         }
 
         public Device Device { get; }
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
-        public bool CanBePowerSource => Device.CanBePowerSource;
+        public bool ShowScanButton => Device.CanBePowerSource && ShowChannelView;
+        public bool ShowReloadMacrosButton => Device.SupportsDynamicMacros && ShowMacroView;
         public bool CanExecuteScan => Device.CanBePowerSource &&
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
@@ -98,6 +100,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand SwitchToChannelViewCommand { get; }
         public ICommand SwitchToSensorViewCommand { get; }
         public ICommand SwitchToMacroViewCommand { get; }
+        public ICommand ReloadMacrosCommand { get; }
 
         public int BuWizzOutputLevel { get; set; }
         public int BuWizz2OutputLevel { get; set; }
@@ -261,12 +264,19 @@ namespace BrickController2.UI.ViewModels
             await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
         }
 
-        private void SwitchView(bool showChannels = false, bool showInputs = false, bool showMacros = false)
+        private async Task SwitchViewAsync(bool showChannels = false, bool showInputs = false, bool showMacros = false)
         {
             ShowChannelView = showChannels;
             ShowSensorView = showInputs;
             ShowMacroView = showMacros;
 
+            if (showMacros && Device.SupportsDynamicMacros && Macros.Count == 0)
+            {
+                await ReloadMacrosAsync(DisappearingToken);
+            }
+
+            RaisePropertyChanged(nameof(ShowScanButton));
+            RaisePropertyChanged(nameof(ShowReloadMacrosButton));
             // trigger command availability
             SwitchToChannelViewCommand.RaiseCanExecuteChanged();
             SwitchToSensorViewCommand.RaiseCanExecuteChanged();
@@ -492,6 +502,42 @@ namespace BrickController2.UI.ViewModels
                     Translate("ErrorDuringScanning"),
                     Translate("Ok"),
                     CancellationToken.None);
+            }
+        }
+
+        private async Task ReloadMacrosAsync(CancellationToken token = default)
+        {
+            if (Device.SupportsDynamicMacros)
+            {
+                var dialogResult = await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, ct) =>
+                    {
+                        if (Device.DeviceState == DeviceState.Connected)
+                        {
+                            await Device.GetMacrosAsync(forceRefresh: true, ct);
+                        }
+                    },
+                    Translate("ConnectingTo"),
+                    Device.Name,
+                    Translate("Cancel"),
+                    token);
+
+                if (dialogResult.IsCancelled)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("FailedToConnect"),
+                        Translate("Ok"),
+                        token);
+                }
+            }
+
+            // update macros
+            Macros.Clear();
+            foreach (var macro in Device.AvailableMacros)
+            {
+                Macros.Add(new MacroItemViewModel(Device, macro, Macros.Count, TranslationService, _dialogService));
             }
         }
 

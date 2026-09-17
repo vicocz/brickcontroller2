@@ -36,7 +36,7 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
             nameKey: SetVolumeMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot,
-            choices: [.. DefaultVolumes.Select(x => MacroChoice.Create(x))]),
+            choices: [.. DefaultVolumes.Select(MacroChoice.Create)]),
         new MacroDescriptor(id: IncreaseVolumeMacroId,
             nameKey: IncreaseVolumeMacroNameKey,
             scope: MacroScope.Device,
@@ -49,8 +49,9 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
-    private readonly Dictionary<string, byte> _macroFileIds = [];
+    private readonly ConcurrentDictionary<string, byte> _macroFileIds = [];
     private readonly ConcurrentQueue<QueuedMacroCommand> _macroCommandQueue = new();
+    private readonly SemaphoreSlim _fileDirSemaphore = new(1, 1);
 
     private IGattCharacteristic? _writeCharacteristic;
     private IGattCharacteristic? _notifyCharacteristic;
@@ -58,7 +59,8 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
     private TaskCompletionSource<byte[]>? _fileDirTcs;
 
     private readonly record struct QueuedMacroCommand(Func<CancellationToken, Task<byte[]?>> Resolve,
-        TaskCompletionSource<bool> Completion);
+        TaskCompletionSource<bool> Completion,
+        CancellationToken CallerToken);
 
     public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
@@ -365,25 +367,47 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
 
     private async Task<bool> ProcessMacroCommandAsync(QueuedMacroCommand queued, CancellationToken token)
     {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, queued.CallerToken);
+        var linkedToken = linkedCts.Token;
+
         try
         {
-            var resolvedCommand = await queued.Resolve(token).ConfigureAwait(false);
+            if (linkedToken.IsCancellationRequested)
+            {
+                queued.Completion.TrySetCanceled(linkedToken);
+                return false;
+            }
+
+            var resolvedCommand = await queued.Resolve(linkedToken).ConfigureAwait(false);
             if (resolvedCommand is null)
             {
                 queued.Completion.TrySetResult(false);
                 return false; // resolution failed (e.g. unknown file), nothing to write
             }
 
-            var macroResult = await WriteCommandAsync(resolvedCommand, token).ConfigureAwait(false);
+            if (linkedToken.IsCancellationRequested)
+            {
+                // caller cancelled while we were resolving the file id; don't send the command
+                queued.Completion.TrySetCanceled(linkedToken);
+                return false;
+            }
+
+            var macroResult = await WriteCommandAsync(resolvedCommand, linkedToken).ConfigureAwait(false);
             queued.Completion.TrySetResult(macroResult);
             return true;
         }
-        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        catch (OperationCanceledException) when (linkedToken.IsCancellationRequested)
         {
-            // the loop's token was cancelled (e.g. disconnect) while resolving/writing this
-            // already-dequeued item; complete it here
-            queued.Completion.TrySetCanceled(token);
-            throw;
+            // either the loop's token was cancelled (e.g. disconnect) or the caller's token
+            // was cancelled while resolving/writing this already-dequeued item; complete it here
+            queued.Completion.TrySetCanceled(queued.CallerToken.IsCancellationRequested ? queued.CallerToken : token);
+
+            if (token.IsCancellationRequested)
+            {
+                throw;
+            }
+
+            return false;
         }
         catch
         {
@@ -423,7 +447,7 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
             return tcs.Task;
         }
 
-        _macroCommandQueue.Enqueue(new QueuedMacroCommand(resolve, tcs));
+        _macroCommandQueue.Enqueue(new QueuedMacroCommand(resolve, tcs, token));
 
         if (token.CanBeCanceled)
         {
@@ -442,13 +466,22 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
 
     private async Task<byte[]> RequestFileDirAsync(byte[] command, CancellationToken token, int timeoutMs = 2000)
     {
-        _fileDirTcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
-        await WriteCommandAsync(command, token);
+        await _fileDirSemaphore.WaitAsync(token);
+        try
+        {
+            _fileDirTcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            await WriteCommandAsync(command, token);
 
-        using var timeoutCts = new CancellationTokenSource(timeoutMs);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token);
-        using var reg = linkedCts.Token.Register(() => _fileDirTcs.TrySetCanceled(linkedCts.Token));
+            using var timeoutCts = new CancellationTokenSource(timeoutMs);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token);
+            using var reg = linkedCts.Token.Register(() => _fileDirTcs.TrySetCanceled(linkedCts.Token));
 
-        return await _fileDirTcs.Task;
+            return await _fileDirTcs.Task;
+        }
+        finally
+        {
+            _fileDirTcs = null; // Clean up
+            _fileDirSemaphore.Release();
+        }
     }
 }

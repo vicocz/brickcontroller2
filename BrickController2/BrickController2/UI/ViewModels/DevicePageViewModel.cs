@@ -33,6 +33,7 @@ namespace BrickController2.UI.ViewModels
         private Task? _connectionTask;
         private bool _reconnect = false;
         private bool _isDisappearing = false;
+        private bool _macrosLoaded;
 
         public DevicePageViewModel(
             INavigationService navigationService,
@@ -270,8 +271,9 @@ namespace BrickController2.UI.ViewModels
             ShowSensorView = showInputs;
             ShowMacroView = showMacros;
 
-            if (showMacros && Device.SupportsDynamicMacros && Macros.Count == 0)
+            if (showMacros && Device.SupportsDynamicMacros && !_macrosLoaded)
             {
+                _macrosLoaded = true;
                 await ReloadMacrosAsync(DisappearingToken);
             }
 

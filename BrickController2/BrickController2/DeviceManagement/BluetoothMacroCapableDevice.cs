@@ -55,9 +55,14 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
                 UpdateMacroCache(discoveredMacros);
             }
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
-            // return cached results if the operation was canceled
+            // caller-requested cancellation (e.g. navigating away/dialog cancel); return cached results
+        }
+        catch (OperationCanceledException ex)
+        {
+            // this is an internal timeout/cancellation inside DiscoverDynamicMacrosAsync;
+            throw new MacroDiscoveryException("Dynamic macro discovery timed out.", ex);
         }
 
         return AvailableMacros;

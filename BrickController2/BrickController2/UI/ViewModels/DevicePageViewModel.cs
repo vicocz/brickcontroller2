@@ -10,6 +10,7 @@ using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.InputDevice;
 using BrickController2.UI.Commands;
@@ -110,7 +111,7 @@ namespace BrickController2.UI.ViewModels
 
         public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
 
-        public ObservableCollection<MacroItemViewModel> Macros { get; } = [];
+        public IReadOnlyList<MacroItemViewModel> Macros { get; private set; } = [];
 
         public bool IsChannelDevice => Device.HasOutputChannel;
         public bool IsInputDevice => InputDevice is not null;
@@ -502,13 +503,22 @@ namespace BrickController2.UI.ViewModels
         {
             if (Device.SupportsDynamicMacros)
             {
+                var reloadFailed = false;
+
                 var dialogResult = await _dialogService.ShowProgressDialogAsync(
                     false,
                     async (progressDialog, ct) =>
                     {
                         if (Device.DeviceState == DeviceState.Connected)
                         {
-                            await Device.GetMacrosAsync(forceRefresh: true, ct);
+                            try
+                            {
+                                await Device.GetMacrosAsync(forceRefresh: true, ct);
+                            }
+                            catch (MacroDiscoveryException)
+                            {
+                                reloadFailed = true;
+                            }
                         }
                     },
                     Translate("ReloadingMacros"),
@@ -516,7 +526,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     token);
 
-                if (dialogResult.IsCancelled)
+                if (dialogResult.IsCancelled || reloadFailed)
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),
@@ -527,11 +537,9 @@ namespace BrickController2.UI.ViewModels
             }
 
             // update macros
-            Macros.Clear();
-            foreach (var macro in Device.AvailableMacros)
-            {
-                Macros.Add(new MacroItemViewModel(Device, macro, Macros.Count, TranslationService, _dialogService));
-            }
+            Macros = [.. Device.AvailableMacros.Select((macro, idx)
+                => new MacroItemViewModel(Device, macro, idx, TranslationService, _dialogService))];
+            RaisePropertyChanged(nameof(Macros));
         }
 
         private void OnDeviceDisconnected(Device device)

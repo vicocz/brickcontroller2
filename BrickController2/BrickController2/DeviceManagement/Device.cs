@@ -78,7 +78,6 @@ namespace BrickController2.DeviceManagement
         public virtual int DefaultOutputLevel => 1;
 
         public virtual float AccelarationStep => 0.1F;
-
         public virtual bool SupportsMacros => false;
         public virtual bool SupportsDynamicMacros => false;
         public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];

@@ -64,7 +64,7 @@ internal abstract class BluetoothMacroBasedDevice : BluetoothDevice
                 UpdateMacroCache(discoveredMacros);
             }
         }
-        catch (OperationCanceledException ex) when (ex.CancellationToken == token)
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
             // caller-requested cancellation (e.g. navigating away/dialog cancel); return cached results
         }

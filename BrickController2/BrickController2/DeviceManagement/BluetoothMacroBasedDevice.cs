@@ -12,7 +12,7 @@ namespace BrickController2.DeviceManagement;
 /// <summary>
 /// Base class for Bluetooth devices that support dynamic macros
 /// </summary>
-internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
+internal abstract class BluetoothMacroBasedDevice : BluetoothDevice
 {
     protected readonly AsyncLock _macroLock = new();
     private IReadOnlyList<MacroDescriptor> _availableMacros;
@@ -21,9 +21,18 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
 
     private readonly record struct QueuedMacroCommand(Func<CancellationToken, Task<byte[]?>> Resolve,
         TaskCompletionSource<bool> Completion,
-        CancellationToken CallerToken);
+        CancellationToken CallerToken)
+    {
+        public bool TrySetCanceled(CancellationToken token)
+        {
+            var actualCancelToken = CallerToken.IsCancellationRequested ? CallerToken : token;
+            return Completion.TrySetCanceled(actualCancelToken);
+        }
 
-    public BluetoothMacroCapableDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+        public bool TrySetResult(bool result) => Completion.TrySetResult(result);
+    }
+
+    public BluetoothMacroBasedDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
         _availableMacros = StaticMacros;
@@ -55,7 +64,7 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
                 UpdateMacroCache(discoveredMacros);
             }
         }
-        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        catch (OperationCanceledException ex) when (ex.CancellationToken == token)
         {
             // caller-requested cancellation (e.g. navigating away/dialog cancel); return cached results
         }
@@ -128,8 +137,16 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
 
         if (token.CanBeCanceled)
         {
-            var registration = token.Register(() => tcs.TrySetCanceled(token));
-            tcs.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
+            var registration = token.Register(static state =>
+            {
+                var (t, ct) = ((TaskCompletionSource<bool>, CancellationToken))state!;
+                t.TrySetCanceled(ct);
+            }, (tcs, token));
+            tcs.Task.ContinueWith(
+                _ => registration.Dispose(),
+                CancellationToken.None,
+                TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
         }
 
         return tcs.Task;
@@ -144,33 +161,33 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
         {
             if (linkedToken.IsCancellationRequested)
             {
-                queued.Completion.TrySetCanceled(linkedToken);
+                queued.TrySetCanceled(token);
                 return false;
             }
 
             var resolvedCommand = await queued.Resolve(linkedToken).ConfigureAwait(false);
             if (resolvedCommand is null)
             {
-                queued.Completion.TrySetResult(false);
+                queued.TrySetResult(false);
                 return false; // resolution failed (e.g. unknown file), nothing to write
             }
 
             if (linkedToken.IsCancellationRequested)
             {
                 // caller cancelled while we were resolving the file id; don't send the command
-                queued.Completion.TrySetCanceled(linkedToken);
+                queued.TrySetCanceled(token);
                 return false;
             }
 
             var macroResult = await WriteMacroCommandAsync(resolvedCommand, linkedToken).ConfigureAwait(false);
-            queued.Completion.TrySetResult(macroResult);
+            queued.TrySetResult(macroResult);
             return true;
         }
         catch (OperationCanceledException) when (linkedToken.IsCancellationRequested)
         {
             // either the loop's token was cancelled (e.g. disconnect) or the caller's token
             // was cancelled while resolving/writing this already-dequeued item; complete it here
-            queued.Completion.TrySetCanceled(queued.CallerToken.IsCancellationRequested ? queued.CallerToken : token);
+            queued.TrySetCanceled(token);
 
             if (token.IsCancellationRequested)
             {
@@ -181,7 +198,7 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
         }
         catch
         {
-            queued.Completion.TrySetResult(false);
+            queued.TrySetResult(false);
             return false;
         }
     }
@@ -190,7 +207,7 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
     {
         while (_macroCommandQueue.TryDequeue(out var queued))
         {
-            queued.Completion.TrySetResult(false);
+            queued.Completion.TrySetCanceled();
         }
     }
 }

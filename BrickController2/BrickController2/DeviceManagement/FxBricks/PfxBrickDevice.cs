@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement.FxBricks;
 
-internal class PfxBrickDevice : BluetoothMacroCapableDevice
+internal class PfxBrickDevice : BluetoothMacroBasedDevice
 {
     private const int PF_CHANNELS = 2;
     private const int LIGHT_CHANNELS = 8;

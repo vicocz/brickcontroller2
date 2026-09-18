@@ -54,17 +54,12 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
     private readonly ConcurrentDictionary<string, byte> _macroFileIds = [];
-    private readonly ConcurrentQueue<QueuedMacroCommand> _macroCommandQueue = new();
     private readonly SemaphoreSlim _fileDirSemaphore = new(1, 1);
 
     private IGattCharacteristic? _writeCharacteristic;
     private IGattCharacteristic? _notifyCharacteristic;
 
     private TaskCompletionSource<byte[]>? _fileDirTcs;
-
-    private readonly record struct QueuedMacroCommand(Func<CancellationToken, Task<byte[]?>> Resolve,
-        TaskCompletionSource<bool> Completion,
-        CancellationToken CallerToken);
 
     public PfxBrickDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
@@ -125,15 +120,15 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
         else if (invocation.DescriptorId == SetVolumeMacroId
             && invocation.ChoiceValue.TryGet<float>(out var volume))
         {
-            return EnqueueCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
         }
         else if (invocation.DescriptorId == IncreaseVolumeMacroId)
         {
-            return EnqueueCommandAsync(PfxProtocol.IncreaseVolume(), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.IncreaseVolume(), token);
         }
         else if (invocation.DescriptorId == DecreaseVolumeMacroId)
         {
-            return EnqueueCommandAsync(PfxProtocol.DecreaseVolume(), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.DecreaseVolume(), token);
         }
 
         // unknown command
@@ -190,10 +185,7 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
         finally
         {
             // fail any commands left queued when the loop stops (disconnect/cancel)
-            while (_macroCommandQueue.TryDequeue(out var queued))
-            {
-                queued.Completion.TrySetResult(false);
-            }
+            await base.BeforeDisconnectAsync(token);
         }
     }
 
@@ -256,13 +248,9 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
                     changed = true;
                 }
                 // macro commands - take the first available
-                if (_macroCommandQueue.TryDequeue(out var queued) &&
-                    !queued.Completion.Task.IsCompleted)
+                if (await ProcessMacroCommandQueueAsync(token).ConfigureAwait(false))
                 {
-                    if (await ProcessMacroCommandAsync(queued, token).ConfigureAwait(false))
-                    {
-                        changed = true;
-                    }
+                    changed = true;
                 }
 
                 if (!changed)
@@ -281,6 +269,9 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
 
     protected override ValueTask<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
         => GetAvailableMacrosAsync(token);
+
+    protected override Task<bool> WriteMacroCommandAsync(byte[] command, CancellationToken token)
+    => WriteCommandAsync(command, token);
 
     private async Task<bool> SendOutputValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
     {
@@ -375,62 +366,8 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
         ];
     }
 
-    private async Task<bool> ProcessMacroCommandAsync(QueuedMacroCommand queued, CancellationToken token)
-    {
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, queued.CallerToken);
-        var linkedToken = linkedCts.Token;
-
-        try
-        {
-            if (linkedToken.IsCancellationRequested)
-            {
-                queued.Completion.TrySetCanceled(linkedToken);
-                return false;
-            }
-
-            var resolvedCommand = await queued.Resolve(linkedToken).ConfigureAwait(false);
-            if (resolvedCommand is null)
-            {
-                queued.Completion.TrySetResult(false);
-                return false; // resolution failed (e.g. unknown file), nothing to write
-            }
-
-            if (linkedToken.IsCancellationRequested)
-            {
-                // caller cancelled while we were resolving the file id; don't send the command
-                queued.Completion.TrySetCanceled(linkedToken);
-                return false;
-            }
-
-            var macroResult = await WriteCommandAsync(resolvedCommand, linkedToken).ConfigureAwait(false);
-            queued.Completion.TrySetResult(macroResult);
-            return true;
-        }
-        catch (OperationCanceledException) when (linkedToken.IsCancellationRequested)
-        {
-            // either the loop's token was cancelled (e.g. disconnect) or the caller's token
-            // was cancelled while resolving/writing this already-dequeued item; complete it here
-            queued.Completion.TrySetCanceled(queued.CallerToken.IsCancellationRequested ? queued.CallerToken : token);
-
-            if (token.IsCancellationRequested)
-            {
-                throw;
-            }
-
-            return false;
-        }
-        catch
-        {
-            queued.Completion.TrySetResult(false);
-            return false;
-        }
-    }
-
-    private Task<bool> EnqueueCommandAsync(byte[] command, CancellationToken token)
-        => EnqueueCommandAsync(_ => Task.FromResult<byte[]?>(command), token);
-
     private Task<bool> EnqueueSoundCommandAsync(string fileName, Func<byte, byte[]> buildCommand, CancellationToken token)
-        => EnqueueCommandAsync(async t =>
+        => EnqueueMacroCommandAsync(async t =>
         {
             if (!_macroFileIds.TryGetValue(fileName, out var fileId))
             {
@@ -446,27 +383,6 @@ internal class PfxBrickDevice : BluetoothMacroCapableDevice
 
             return buildCommand(fileId);
         }, token);
-
-    private Task<bool> EnqueueCommandAsync(Func<CancellationToken, Task<byte[]?>> resolve, CancellationToken token)
-    {
-        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-
-        if (token.IsCancellationRequested)
-        {
-            tcs.TrySetCanceled(token);
-            return tcs.Task;
-        }
-
-        _macroCommandQueue.Enqueue(new QueuedMacroCommand(resolve, tcs, token));
-
-        if (token.CanBeCanceled)
-        {
-            var registration = token.Register(() => tcs.TrySetCanceled(token));
-            tcs.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
-        }
-
-        return tcs.Task;
-    }
 
     private async Task<byte?> ResolveFileIdAsync(string fileName, CancellationToken token)
     {

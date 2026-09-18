@@ -2,6 +2,7 @@
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,12 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
 {
     protected readonly AsyncLock _macroLock = new();
     private IReadOnlyList<MacroDescriptor> _availableMacros;
+
+    private readonly ConcurrentQueue<QueuedMacroCommand> _macroCommandQueue = new();
+
+    private readonly record struct QueuedMacroCommand(Func<CancellationToken, Task<byte[]?>> Resolve,
+        TaskCompletionSource<bool> Completion,
+        CancellationToken CallerToken);
 
     public BluetoothMacroCapableDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
@@ -56,6 +63,19 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
         return AvailableMacros;
     }
 
+    protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
+    {
+        try
+        {
+            await base.BeforeDisconnectAsync(token);
+        }
+        finally
+        {
+            // fail any commands left queued when the loop stops (disconnect/cancel)
+            DrainMacroCommandQueue();
+        }
+    }
+
     protected abstract ValueTask<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token);
 
     protected void UpdateMacroCache(IReadOnlyList<MacroDescriptor>? dynamicMacros)
@@ -64,5 +84,108 @@ internal abstract class BluetoothMacroCapableDevice : BluetoothDevice
 
         _availableMacros = [.. StaticMacros, .. dynamicMacros];
         RaisePropertyChanged(nameof(AvailableMacros));
+    }
+
+    /// <summary>
+    /// Writes a resolved macro command to the device.
+    /// </summary>
+    protected abstract Task<bool> WriteMacroCommandAsync(byte[] command, CancellationToken token);
+
+    /// <summary>
+    /// Dequeues and processes a single queued macro command (if any).
+    /// Intended to be called once per iteration of a subclass's output-processing loop.
+    /// </summary>
+    protected async Task<bool> ProcessMacroCommandQueueAsync(CancellationToken token)
+    {
+        if (_macroCommandQueue.TryDequeue(out var queued) &&
+            !queued.Completion.Task.IsCompleted)
+        {
+            return await ProcessMacroCommandAsync(queued, token).ConfigureAwait(false);
+        }
+
+        return false;
+    }
+
+    protected Task<bool> EnqueueMacroCommandAsync(byte[] command, CancellationToken token)
+        => EnqueueMacroCommandAsync(_ => Task.FromResult<byte[]?>(command), token);
+
+    protected Task<bool> EnqueueMacroCommandAsync(Func<CancellationToken, Task<byte[]?>> resolve, CancellationToken token)
+    {
+        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        if (token.IsCancellationRequested)
+        {
+            tcs.TrySetCanceled(token);
+            return tcs.Task;
+        }
+
+        _macroCommandQueue.Enqueue(new QueuedMacroCommand(resolve, tcs, token));
+
+        if (token.CanBeCanceled)
+        {
+            var registration = token.Register(() => tcs.TrySetCanceled(token));
+            tcs.Task.ContinueWith(_ => registration.Dispose(), TaskScheduler.Default);
+        }
+
+        return tcs.Task;
+    }
+
+    private async Task<bool> ProcessMacroCommandAsync(QueuedMacroCommand queued, CancellationToken token)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, queued.CallerToken);
+        var linkedToken = linkedCts.Token;
+
+        try
+        {
+            if (linkedToken.IsCancellationRequested)
+            {
+                queued.Completion.TrySetCanceled(linkedToken);
+                return false;
+            }
+
+            var resolvedCommand = await queued.Resolve(linkedToken).ConfigureAwait(false);
+            if (resolvedCommand is null)
+            {
+                queued.Completion.TrySetResult(false);
+                return false; // resolution failed (e.g. unknown file), nothing to write
+            }
+
+            if (linkedToken.IsCancellationRequested)
+            {
+                // caller cancelled while we were resolving the file id; don't send the command
+                queued.Completion.TrySetCanceled(linkedToken);
+                return false;
+            }
+
+            var macroResult = await WriteMacroCommandAsync(resolvedCommand, linkedToken).ConfigureAwait(false);
+            queued.Completion.TrySetResult(macroResult);
+            return true;
+        }
+        catch (OperationCanceledException) when (linkedToken.IsCancellationRequested)
+        {
+            // either the loop's token was cancelled (e.g. disconnect) or the caller's token
+            // was cancelled while resolving/writing this already-dequeued item; complete it here
+            queued.Completion.TrySetCanceled(queued.CallerToken.IsCancellationRequested ? queued.CallerToken : token);
+
+            if (token.IsCancellationRequested)
+            {
+                throw;
+            }
+
+            return false;
+        }
+        catch
+        {
+            queued.Completion.TrySetResult(false);
+            return false;
+        }
+    }
+
+    private void DrainMacroCommandQueue()
+    {
+        while (_macroCommandQueue.TryDequeue(out var queued))
+        {
+            queued.Completion.TrySetResult(false);
+        }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.InputDevice;
 using BrickController2.UI.Commands;
@@ -33,6 +34,7 @@ namespace BrickController2.UI.ViewModels
         private Task? _connectionTask;
         private bool _reconnect = false;
         private bool _isDisappearing = false;
+        private bool _macrosLoaded;
 
         public DevicePageViewModel(
             INavigationService navigationService,
@@ -64,15 +66,17 @@ namespace BrickController2.UI.ViewModels
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
-            SwitchToChannelViewCommand = new SafeCommand(() => SwitchView(showChannels:true), () => CanSwitchToChannelView);
-            SwitchToSensorViewCommand = new SafeCommand(() => SwitchView(showInputs: true), () => CanSwitchToSensorView);
-            SwitchToMacroViewCommand = new SafeCommand(() => SwitchView(showMacros: true), () => CanSwitchToMacroView);
+            SwitchToChannelViewCommand = new SafeCommand(() => SwitchViewAsync(showChannels:true), () => CanSwitchToChannelView);
+            SwitchToSensorViewCommand = new SafeCommand(() => SwitchViewAsync(showInputs: true), () => CanSwitchToSensorView);
+            SwitchToMacroViewCommand = new SafeCommand(() => SwitchViewAsync(showMacros: true), () => CanSwitchToMacroView);
+            ReloadMacrosCommand = new SafeCommand(async () => await ReloadMacrosAsync(DisappearingToken));
         }
 
         public Device Device { get; }
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
-        public bool CanBePowerSource => Device.CanBePowerSource;
+        public bool ShowScanButton => Device.CanBePowerSource && ShowChannelView;
+        public bool ShowReloadMacrosButton => Device.SupportsDynamicMacros && ShowMacroView;
         public bool CanExecuteScan => Device.CanBePowerSource &&
             Device.DeviceState == DeviceState.Connected &&
             !_deviceManager.IsScanning;
@@ -98,6 +102,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand SwitchToChannelViewCommand { get; }
         public ICommand SwitchToSensorViewCommand { get; }
         public ICommand SwitchToMacroViewCommand { get; }
+        public ICommand ReloadMacrosCommand { get; }
 
         public int BuWizzOutputLevel { get; set; }
         public int BuWizz2OutputLevel { get; set; }
@@ -106,7 +111,7 @@ namespace BrickController2.UI.ViewModels
 
         public ObservableCollection<InputDeviceEventViewModel> InputEventList { get; } = [];
 
-        public ObservableCollection<MacroItemViewModel> Macros { get; } = [];
+        public IReadOnlyList<MacroItemViewModel> Macros { get; private set; } = [];
 
         public bool IsChannelDevice => Device.HasOutputChannel;
         public bool IsInputDevice => InputDevice is not null;
@@ -261,12 +266,20 @@ namespace BrickController2.UI.ViewModels
             await NavigationService.NavigateToAsync<DeviceSettingsPageViewModel>(new(Device));
         }
 
-        private void SwitchView(bool showChannels = false, bool showInputs = false, bool showMacros = false)
+        private async Task SwitchViewAsync(bool showChannels = false, bool showInputs = false, bool showMacros = false)
         {
             ShowChannelView = showChannels;
             ShowSensorView = showInputs;
             ShowMacroView = showMacros;
 
+            if (showMacros && Device.SupportsDynamicMacros && !_macrosLoaded)
+            {
+                _macrosLoaded = true;
+                await ReloadMacrosAsync(DisappearingToken);
+            }
+
+            RaisePropertyChanged(nameof(ShowScanButton));
+            RaisePropertyChanged(nameof(ShowReloadMacrosButton));
             // trigger command availability
             SwitchToChannelViewCommand.RaiseCanExecuteChanged();
             SwitchToSensorViewCommand.RaiseCanExecuteChanged();
@@ -377,15 +390,6 @@ namespace BrickController2.UI.ViewModels
                             {
                                 SetBuWizzOutputLevel(BuWizz2OutputLevel);
                             }
-                            // update macros
-                            if (IsMacroDevice)
-                            {
-                                Macros.Clear();
-                                foreach (var macro in Device.AvailableMacros)
-                                {
-                                    Macros.Add(new MacroItemViewModel(Device, macro, Macros.Count, TranslationService, _dialogService));
-                                }
-                            }
 
                             // update command enablement
                             UpdateCommandsAvailability();
@@ -493,6 +497,49 @@ namespace BrickController2.UI.ViewModels
                     Translate("Ok"),
                     CancellationToken.None);
             }
+        }
+
+        private async Task ReloadMacrosAsync(CancellationToken token = default)
+        {
+            if (Device.SupportsDynamicMacros)
+            {
+                var reloadFailed = false;
+
+                var dialogResult = await _dialogService.ShowProgressDialogAsync(
+                    false,
+                    async (progressDialog, ct) =>
+                    {
+                        if (Device.DeviceState == DeviceState.Connected)
+                        {
+                            try
+                            {
+                                await Device.GetMacrosAsync(forceRefresh: true, ct);
+                            }
+                            catch (MacroDiscoveryException)
+                            {
+                                reloadFailed = true;
+                            }
+                        }
+                    },
+                    Translate("ReloadingMacros"),
+                    Device.Name,
+                    Translate("Cancel"),
+                    token);
+
+                if (reloadFailed)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("FailedToReloadMacros"),
+                        Translate("Ok"),
+                        token);
+                }
+            }
+
+            // update macros
+            Macros = [.. Device.AvailableMacros.Select((macro, idx)
+                => new MacroItemViewModel(Device, macro, idx, TranslationService, _dialogService))];
+            RaisePropertyChanged(nameof(Macros));
         }
 
         private void OnDeviceDisconnected(Device device)

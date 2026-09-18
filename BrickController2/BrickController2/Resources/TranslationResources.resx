@@ -369,6 +369,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Failed to import the sequence.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Failed to reload macros.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>File already exits</value>
   </data>
@@ -494,6 +497,9 @@
   </data>
   <data name="Reseting" xml:space="preserve">
     <value>Reseting...</value>
+  </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Reloading macros</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Saving...</value>
@@ -666,6 +672,9 @@
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
   </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Default volume level</value>
+  </data>
   <data name="On" xml:space="preserve">
     <value>On</value>
   </data>
@@ -836,5 +845,8 @@
   </data>
   <data name="AddControllerButtonEvent" xml:space="preserve">
     <value>Add a new controller button event</value>
+  </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Reload macros</value>
   </data>
 </root>

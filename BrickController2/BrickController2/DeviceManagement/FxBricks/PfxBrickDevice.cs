@@ -1,8 +1,9 @@
 ﻿using BrickController2.DeviceManagement.IO;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
-using BrickController2.Protocols;
+using BrickController2.Settings;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement.FxBricks;
 
-internal class PfxBrickDevice : BluetoothDevice
+internal class PfxBrickDevice : BluetoothMacroBasedDevice
 {
     private const int PF_CHANNELS = 2;
     private const int LIGHT_CHANNELS = 8;
@@ -25,18 +26,21 @@ internal class PfxBrickDevice : BluetoothDevice
     private const string IncreaseVolumeMacroNameKey = "PfxIncreaseVolumeMacro";
     private const string DecreaseVolumeMacroNameKey = "PfxDecreaseVolumeMacro";
 
+    private const string DefaultVolumeLevelName = "PfxBrickDefaultVolumeLevel";
+    private static readonly Percent DefaultVolumeLevelValue = 50f;
+
     private static readonly Guid SERVICE_UUID = new("49535343-fe7d-4ae5-8fa9-9fafd205e455");
     private static readonly Guid CHARACTERISTIC_UUID_WRITE = new("49535343-8841-43f4-a8d4-ecbe34729bb3");
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
     private static readonly IReadOnlyCollection<float> DefaultVolumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-    private static readonly IReadOnlyCollection<MacroDescriptor> StaticMacros =
+    private static readonly IReadOnlyList<MacroDescriptor> DefaultStaticMacros =
     [
         new MacroDescriptor(id: SetVolumeMacroId,
             nameKey: SetVolumeMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot,
-            choices: [.. DefaultVolumes.Select(x => MacroChoice.Create(x))]),
+            choices: [.. DefaultVolumes.Select(MacroChoice.Create)]),
         new MacroDescriptor(id: IncreaseVolumeMacroId,
             nameKey: IncreaseVolumeMacroNameKey,
             scope: MacroScope.Device,
@@ -49,26 +53,28 @@ internal class PfxBrickDevice : BluetoothDevice
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
     private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
-    private readonly List<MacroDescriptor> _macros = [];
-    private readonly Dictionary<string, byte> _macroFileIds = []; // MacroChoice<string>.Value (file id as string) -> PFx File ID
+    private readonly ConcurrentDictionary<string, byte> _macroFileIds = [];
+    private readonly SemaphoreSlim _fileDirSemaphore = new(1, 1);
 
     private IGattCharacteristic? _writeCharacteristic;
     private IGattCharacteristic? _notifyCharacteristic;
 
     private TaskCompletionSource<byte[]>? _fileDirTcs;
 
-    public PfxBrickDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    public PfxBrickDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
+        // apply values (if any) or default
+        SetSettingValue(DefaultVolumeLevelName, settings, DefaultVolumeLevelValue);
     }
 
     public override DeviceType DeviceType => DeviceType.PfxBrick;
 
     public override int NumberOfChannels => 10;
 
-    public override bool SupportsMacros => true;
+    public Percent DefaultVolumeLevel => GetSettingValue(DefaultVolumeLevelName, DefaultVolumeLevelValue);
 
-    public override IReadOnlyList<MacroDescriptor> AvailableMacros => _macros;
+    protected override IReadOnlyList<MacroDescriptor> StaticMacros => DefaultStaticMacros;
 
     protected override bool AutoConnectOnFirstConnect => false;
 
@@ -96,30 +102,33 @@ internal class PfxBrickDevice : BluetoothDevice
     {
         token.ThrowIfCancellationRequested();
 
-        if (invocation.DescriptorId == PlaySoundMacroId
-            && invocation.ChoiceValue is string fileName
-            && _macroFileIds.TryGetValue(fileName, out var fileId))
+        if (DeviceState != DeviceState.Connected || _writeCharacteristic is null || _bleDevice is null)
         {
-            return WriteCommandAsync(PfxProtocol.PlaySoundFile(fileId), token);
+            return Task.FromResult(false);
+        }
+
+        if (invocation.DescriptorId == PlaySoundMacroId
+            && invocation.ChoiceValue.TryGet<string>(out var fileName))
+        {
+            return EnqueueSoundCommandAsync(fileName, id => PfxProtocol.PlaySoundFile(id), token);
         }
         else if (invocation.DescriptorId == StopSoundMacroId
-            && invocation.ChoiceValue is string stopFileName
-            && _macroFileIds.TryGetValue(stopFileName, out var stopFileId))
+            && invocation.ChoiceValue.TryGet<string>(out var stopFileName))
         {
-            return WriteCommandAsync(PfxProtocol.StopSoundFile(stopFileId), token);
+            return EnqueueSoundCommandAsync(stopFileName, id => PfxProtocol.StopSoundFile(id), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
-            && invocation.ChoiceValue is float volume)
+            && invocation.ChoiceValue.TryGet<float>(out var volume))
         {
-            return WriteCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.SetVolume((byte)volume), token);
         }
         else if (invocation.DescriptorId == IncreaseVolumeMacroId)
         {
-            return WriteCommandAsync(PfxProtocol.IncreaseVolume(), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.IncreaseVolume(), token);
         }
         else if (invocation.DescriptorId == DecreaseVolumeMacroId)
         {
-            return WriteCommandAsync(PfxProtocol.DecreaseVolume(), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.DecreaseVolume(), token);
         }
 
         // unknown command
@@ -161,9 +170,22 @@ internal class PfxBrickDevice : BluetoothDevice
 
     protected override async ValueTask BeforeDisconnectAsync(CancellationToken token)
     {
-        if (_notifyCharacteristic != null && _bleDevice != null)
+        try
         {
-            await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
+            if (_notifyCharacteristic != null && _bleDevice != null)
+            {
+                await _bleDevice.DisableNotificationAsync(_notifyCharacteristic, token);
+            }
+            // ensure everything is stopped in the end
+            await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
+        }
+        catch
+        {
+        }
+        finally
+        {
+            // fail any commands left queued when the loop stops (disconnect/cancel)
+            await base.BeforeDisconnectAsync(token);
         }
     }
 
@@ -181,8 +203,9 @@ internal class PfxBrickDevice : BluetoothDevice
             if (requestDeviceInformation)
             {
                 await ReadDeviceInfo(token);
-                await GetAvailableMacros(token);
             }
+
+            await WriteCommandAsync(PfxProtocol.SetVolume(DefaultVolumeLevel.Value), token).ConfigureAwait(false);
         }
         catch { }
 
@@ -196,6 +219,7 @@ internal class PfxBrickDevice : BluetoothDevice
             // reset outputs
             _motorOutputs.Initialize();
             _lightOutputs.Initialize();
+            _macroFileIds.Clear();
 
             while (!token.IsCancellationRequested)
             {
@@ -223,6 +247,11 @@ internal class PfxBrickDevice : BluetoothDevice
                     }
                     changed = true;
                 }
+                // macro commands - take the first available
+                if (await ProcessMacroCommandQueueAsync(token).ConfigureAwait(false))
+                {
+                    changed = true;
+                }
 
                 if (!changed)
                 {
@@ -237,6 +266,12 @@ internal class PfxBrickDevice : BluetoothDevice
         {
         }
     }
+
+    protected override ValueTask<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
+        => GetAvailableMacrosAsync(token);
+
+    protected override Task<bool> WriteMacroCommandAsync(byte[] command, CancellationToken token)
+    => WriteCommandAsync(command, token);
 
     private async Task<bool> SendOutputValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
     {
@@ -285,14 +320,10 @@ internal class PfxBrickDevice : BluetoothDevice
         await _bleDevice!.WriteAsync(_writeCharacteristic!, PfxProtocol.GetStatus(), token);
     }
 
-    private async Task GetAvailableMacros(CancellationToken token)
+    private async ValueTask<IReadOnlyList<MacroDescriptor>> GetAvailableMacrosAsync(CancellationToken token)
     {
         const byte MaxDirectorySlots = 64; // reference implementation caps the directory scan at 64 slots
         const byte FirstDirectoryIndex = 1; // directory index 0 is never a valid file slot
-
-        _macros.Clear();
-        _macros.AddRange(StaticMacros);
-        _macroFileIds.Clear();
 
         var countResponse = await RequestFileDirAsync(PfxProtocol.GetFileCount(), token);
         var filesCount = PfxProtocol.ParseFileCount(countResponse) ?? 0;
@@ -300,7 +331,7 @@ internal class PfxBrickDevice : BluetoothDevice
         var foundCount = 0;
         var audioFilesChoices = new List<MacroChoice<string>>();
 
-        for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount; i++)
+        for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount && !token.IsCancellationRequested; i++)
         {
             var entryResponse = await RequestFileDirAsync(PfxProtocol.GetDirEntryAtIndex(i), token);
             var entry = PfxProtocol.ParseFileDirEntry(entryResponse);
@@ -318,30 +349,65 @@ internal class PfxBrickDevice : BluetoothDevice
             }
         }
 
-        _macros.Add(new MacroDescriptor(
-            id: PlaySoundMacroId,
-            nameKey: PlaySoundMacroNameKey,
-            scope: MacroScope.Device,
-            kind: MacroKind.Repeatable,
-            choices: audioFilesChoices));
+        return
+        [
+            new MacroDescriptor(
+                id: PlaySoundMacroId,
+                nameKey: PlaySoundMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.Repeatable,
+                choices: audioFilesChoices),
+            new MacroDescriptor(
+                id: StopSoundMacroId,
+                nameKey: StopSoundMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.OneShot,
+                choices: audioFilesChoices)
+        ];
+    }
 
-        _macros.Add(new MacroDescriptor(
-            id: StopSoundMacroId,
-            nameKey: StopSoundMacroNameKey,
-            scope: MacroScope.Device,
-            kind: MacroKind.OneShot,
-            choices: audioFilesChoices));
+    private Task<bool> EnqueueSoundCommandAsync(string fileName, Func<byte, byte[]> buildCommand, CancellationToken token)
+        => EnqueueMacroCommandAsync(async t =>
+        {
+            if (!_macroFileIds.TryGetValue(fileName, out var fileId))
+            {
+                var resolvedFileId = await ResolveFileIdAsync(fileName, t).ConfigureAwait(false);
+                if (resolvedFileId is null)
+                {
+                    return null; // unknown file, nothing to write
+                }
+
+                fileId = resolvedFileId.Value;
+                _macroFileIds[fileName] = fileId;
+            }
+
+            return buildCommand(fileId);
+        }, token);
+
+    private async Task<byte?> ResolveFileIdAsync(string fileName, CancellationToken token)
+    {
+        var response = await RequestFileDirAsync(PfxProtocol.GetNamedFileId(fileName), token);
+        return PfxProtocol.ParseNamedFileId(response);
     }
 
     private async Task<byte[]> RequestFileDirAsync(byte[] command, CancellationToken token, int timeoutMs = 2000)
     {
-        _fileDirTcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
-        await WriteCommandAsync(command, token);
+        await _fileDirSemaphore.WaitAsync(token);
+        try
+        {
+            _fileDirTcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
+            await WriteCommandAsync(command, token);
 
-        using var timeoutCts = new CancellationTokenSource(timeoutMs);
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token);
-        using var reg = linkedCts.Token.Register(() => _fileDirTcs.TrySetCanceled(linkedCts.Token));
+            using var timeoutCts = new CancellationTokenSource(timeoutMs);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutCts.Token);
+            using var reg = linkedCts.Token.Register(() => _fileDirTcs.TrySetCanceled(linkedCts.Token));
 
-        return await _fileDirTcs.Task;
+            return await _fileDirTcs.Task;
+        }
+        finally
+        {
+            _fileDirTcs = null; // Clean up
+            _fileDirSemaphore.Release();
+        }
     }
 }

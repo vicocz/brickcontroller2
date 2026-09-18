@@ -1,8 +1,8 @@
-﻿using BrickController2.Protocols;
+﻿using BrickController2.DeviceManagement.FxBricks;
 using FluentAssertions;
 using Xunit;
 
-namespace BrickController2.Tests.Protocols;
+namespace BrickController2.Tests.DeviceManagement.FxBricks;
 
 public class PfxProtocolTests
 {
@@ -97,6 +97,36 @@ public class PfxProtocolTests
         var result = PfxProtocol.GetDirEntryAtIndex(index);
 
         result.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [InlineData("", new byte[] { 0x5B, 0x5B, 0x5B, 0x45, 0x0B, 0x00, 0x5D, 0x5D, 0x5D })]
+    [InlineData("a", new byte[] { 0x5B, 0x5B, 0x5B, 0x45, 0x0B, 0x01, 0x61, 0x5D, 0x5D, 0x5D })]
+    [InlineData("Sound.wav", new byte[] { 0x5B, 0x5B, 0x5B, 0x45, 0x0B, 0x09, 0x53, 0x6F, 0x75, 0x6E, 0x64, 0x2E, 0x77, 0x61, 0x76, 0x5D, 0x5D, 0x5D })]
+    public void GetNamedFileId_ShouldReturnExpectedByteArray(string fileName, byte[] expected)
+    {
+        var result = PfxProtocol.GetNamedFileId(fileName);
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [Theory]
+    [InlineData(new byte[] { 0xC5, 0x0B, 0x05 }, (byte)5)]   // 3-byte observed layout: [RSP_FILE_DIR, echoed sub-code, FileId]
+    [InlineData(new byte[] { 0xC5, 0x0B, 0xF5 }, (byte)245)]
+    [InlineData(new byte[] { 0xC5, 0x0B, 0x00 }, (byte)0)]
+    public void ParseNamedFileId_WithValidResponse_ShouldReturnExpectedFileId(byte[] data, byte expected)
+    {
+        var result = PfxProtocol.ParseNamedFileId(data);
+        result.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(new byte[] { 0xC5, 0x0B, 0xFF })]        // 0xFF = file name not found
+    [InlineData(new byte[] { 0xC5, 0x0B })]              // too short
+    [InlineData(new byte[] { 0x00, 0x0B, 0x05 })]        // wrong response header
+    public void ParseNamedFileId_WithInvalidResponse_ShouldReturnNull(byte[] data)
+    {
+        var result = PfxProtocol.ParseNamedFileId(data);
+        result.Should().BeNull();
     }
 
     [Theory]

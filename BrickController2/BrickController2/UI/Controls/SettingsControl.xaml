@@ -29,6 +29,12 @@
                 <Setter Property="Maximum" Value="255"/>
                 <Setter Property="Step" Value="1"/>
             </Style>
+            <Style x:Key="percentSlider" TargetType="controls:ExtendedSlider">
+                <Setter Property="MinimumTrackColor" Value="{DynamicResource PositiveColor}"/>
+                <Setter Property="Minimum" Value="0"/>
+                <Setter Property="Maximum" Value="100"/>
+                <Setter Property="Step" Value="1"/>
+            </Style>
             <t:DataTemplatesSelector x:Key="TemplatesSelector">
                 <t:DataTemplatesSelector.BoolDataTemplate>
                     <DataTemplate>
@@ -88,6 +94,18 @@
                         </Grid>
                     </DataTemplate>
                 </t:DataTemplatesSelector.DoubleDataTemplate>
+
+                <t:DataTemplatesSelector.PercentDataTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="1*,2*,Auto" RowDefinitions="Auto">
+
+                            <Label Grid.Column="0" Text="{Binding DisplayName}" Style="{StaticResource Key=settingLabel}" Margin="10,0,0,0"/>
+                            <controls:ExtendedSlider Grid.Column="1" Minimum="{Binding Min}" Maximum="{Binding Max}" Value="{Binding Value}" Style="{StaticResource Key=percentSlider}" HorizontalOptions="FillAndExpand" />
+                            <Label Grid.Column="2" Text="{Binding Value, StringFormat='{0:0}%'}" WidthRequest="64" Style="{StaticResource Key=settingLabel}"
+                                   HorizontalOptions="End" HorizontalTextAlignment="End" Margin="0,0,20,0"/>
+                        </Grid>
+                    </DataTemplate>
+                </t:DataTemplatesSelector.PercentDataTemplate>
 
                 <t:DataTemplatesSelector.RgbColorDataTemplate>
                     <DataTemplate>

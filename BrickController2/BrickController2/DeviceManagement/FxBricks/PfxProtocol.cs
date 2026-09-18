@@ -151,9 +151,7 @@ internal static class PfxProtocol
     /// </summary>
     /// <remarks>
     /// Per the ICD: byte 2 of the command must contain the length of the filename, and the filename
-    /// bytes follow starting at byte 3. Omitting the length byte causes the device to misinterpret the
-    /// filename bytes (e.g. treating the first filename byte as the length), producing an incorrect or
-    /// garbage file id instead of PFX_ERR_FILE_NOT_FOUND.
+    /// bytes follow starting at byte 3.
     /// </remarks>
     public static byte[] GetNamedFileId(string fileName)
     {
@@ -167,11 +165,6 @@ internal static class PfxProtocol
     /// <summary>
     /// Parses a "Get Named File Id" response (request 0x0B) into the resolved file id.
     /// </summary>
-    /// <remarks>
-    /// Observed device response is 3 bytes: [0xC5, 0x0B (echoed request sub-code), FileId].
-    /// Unlike <see cref="ParseFileCount"/>, the file id here is a single byte, not a 2-byte
-    /// big-endian field. A value of 0xFF means the file name wasn't found.
-    /// </remarks>
     public static byte? ParseNamedFileId(byte[] data)
     {
         if (data.Length < 3 || data[0] != RSP_FILE_DIR || data[1] != PFX_DIR_REQ_GET_NAMED_FILE_ID)

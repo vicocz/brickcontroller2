@@ -177,7 +177,7 @@
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <Label Text="{extensions:Translate NoMacrosAvailable}" Style="{StaticResource CollectionViewEmptyLabelStyle}"
                                    IsVisible="{Binding Macros.Count, Converter={StaticResource IntEqualsZeroToBool}}" Margin="0,50,0,0"/>
-                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Macros}">
+                            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Macros}" Margin="0,0,0,50" >
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate x:DataType="viewmodels:MacroItemViewModel">
                                         <VerticalStackLayout>
@@ -206,7 +206,8 @@
                     </VerticalStackLayout>
                 </ScrollView>
 
-                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" ImageColor="White" Command="{Binding ScanCommand}" ToolTipProperties.Text="{extensions:Translate ScanForDevices}" IsVisible="{Binding CanBePowerSource}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="search" Command="{Binding ScanCommand}" ToolTipProperties.Text="{extensions:Translate ScanForDevices}" IsVisible="{Binding ShowScanButton}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="cached" Command="{Binding ReloadMacrosCommand}" ToolTipProperties.Text="{extensions:Translate ReloadMacros}" IsVisible="{Binding ShowReloadMacrosButton}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
             </Grid>
 
             <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>

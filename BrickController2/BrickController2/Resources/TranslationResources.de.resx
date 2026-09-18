@@ -369,6 +369,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Fehler beim Importieren der Sequenz.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Fehler beim Neuladen der Makros.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>Datei existiert bereits</value>
   </data>
@@ -494,6 +497,9 @@
   </data>
   <data name="Reseting" xml:space="preserve">
     <value>Zurücksetzen...</value>
+  </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Makros werden neu geladen</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Speichern...</value>
@@ -665,6 +671,9 @@
   </data>
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Grundwert Ausgabestufe</value>
+  </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Standard-Lautstärke</value>
   </data>
   <data name="On" xml:space="preserve">
     <value>An</value>
@@ -838,7 +847,7 @@
     <value>neues Controller-Tastenereignis erstellen</value>
   </data>
   <data name="ReloadMacros" xml:space="preserve">
-    <value>Aktualisiere die Liste der Makros</value>
+    <value>Makros neu laden</value>
   </data>
   <data name="MacroChoice" xml:space="preserve">
     <value>Makroparameter</value>

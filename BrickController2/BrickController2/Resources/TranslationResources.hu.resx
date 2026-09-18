@@ -499,7 +499,7 @@
     <value>Átállítás...</value>
   </data>
   <data name="ReloadingMacros" xml:space="preserve">
-    <value>Makrók újratöltése</value>
+    <value>Makrók újratöltése folyamatban</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Mentés...</value>
@@ -836,5 +836,8 @@
   </data>
   <data name="AddControllerButtonEvent" xml:space="preserve">
     <value>Új kontrollergomb esemény hozzáadása</value>
+  </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Makrók újratöltése</value>
   </data>
 </root>

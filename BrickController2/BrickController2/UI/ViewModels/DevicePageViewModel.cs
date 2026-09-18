@@ -526,7 +526,7 @@ namespace BrickController2.UI.ViewModels
                     Translate("Cancel"),
                     token);
 
-                if (dialogResult.IsCancelled || reloadFailed)
+                if (reloadFailed)
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),

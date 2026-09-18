@@ -846,4 +846,7 @@
   <data name="AddControllerButtonEvent" xml:space="preserve">
     <value>Add a new controller button event</value>
   </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Reload macros</value>
+  </data>
 </root>

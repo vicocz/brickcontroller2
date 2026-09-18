@@ -846,4 +846,7 @@
   <data name="AddControllerButtonEvent" xml:space="preserve">
     <value>neues Controller-Tastenereignis erstellen</value>
   </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Makros neu laden</value>
+  </data>
 </root>

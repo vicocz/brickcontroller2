@@ -838,6 +838,21 @@
     <value>Új kontrollergomb esemény hozzáadása</value>
   </data>
   <data name="ReloadMacros" xml:space="preserve">
-    <value>Makrók újratöltése</value>
+    <value>Makrók listájának frissítése</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Makró paraméterek</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Makró</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>Hiányzó vagy hibás makró</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Válassza ki a makróparamétert</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Válassza ki a makrót</value>
   </data>
 </root>

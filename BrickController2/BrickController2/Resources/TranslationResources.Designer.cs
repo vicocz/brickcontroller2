@@ -1393,11 +1393,29 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Macro.
+        /// </summary>
+        internal static string Macro {
+            get {
+                return ResourceManager.GetString("Macro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Set output level.
         /// </summary>
         internal static string Macro_SetOutputLevel {
             get {
                 return ResourceManager.GetString("Macro_SetOutputLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Macro parameters.
+        /// </summary>
+        internal static string MacroChoice {
+            get {
+                return ResourceManager.GetString("MacroChoice", resourceCulture);
             }
         }
         
@@ -1425,6 +1443,15 @@ namespace BrickController2.Resources {
         internal static string MissingDevices {
             get {
                 return ResourceManager.GetString("MissingDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing or wrong macro.
+        /// </summary>
+        internal static string MissingMacro {
+            get {
+                return ResourceManager.GetString("MissingMacro", resourceCulture);
             }
         }
         
@@ -1956,6 +1983,24 @@ namespace BrickController2.Resources {
         internal static string SelectDeviceBeforeSaving {
             get {
                 return ResourceManager.GetString("SelectDeviceBeforeSaving", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select macro.
+        /// </summary>
+        internal static string SelectMacro {
+            get {
+                return ResourceManager.GetString("SelectMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select macro parameter.
+        /// </summary>
+        internal static string SelectMacroChoice {
+            get {
+                return ResourceManager.GetString("SelectMacroChoice", resourceCulture);
             }
         }
         

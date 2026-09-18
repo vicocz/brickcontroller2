@@ -1,4 +1,5 @@
-﻿using BrickController2.Helpers;
+﻿using BrickController2.DeviceManagement.Macros;
+using BrickController2.Helpers;
 using Newtonsoft.Json;
 using SQLite;
 using SQLiteNetExtensions.Attributes;
@@ -21,6 +22,8 @@ namespace BrickController2.CreationManagement
         private int _servoBaseAngle;
         private int _stepperAngle;
         private string _sequenceName = string.Empty;
+        private string _macroId = string.Empty;
+        private MacroChoiceValue _macroChoiceValue;
 
         [PrimaryKey, AutoIncrement]
         [JsonIgnore]
@@ -117,6 +120,22 @@ namespace BrickController2.CreationManagement
             get { return _sequenceName; }
             set { _sequenceName = value; RaisePropertyChanged(); }
         }
+
+        public string MacroId
+        {
+            get { return _macroId; }
+            set { _macroId = value; RaisePropertyChanged(); }
+        }
+
+        [TextBlob(nameof(MacroChoiceBlob))]
+        public MacroChoiceValue MacroChoice
+        {
+            get { return _macroChoiceValue; }
+            set { _macroChoiceValue = value; RaisePropertyChanged(); }
+        }
+
+        [JsonIgnore]
+        public string? MacroChoiceBlob { get; set; }
 
         public override string ToString()
         {

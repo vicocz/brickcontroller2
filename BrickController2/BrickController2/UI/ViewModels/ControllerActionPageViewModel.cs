@@ -1,5 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.DeviceManagement.Vengit;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -10,6 +11,7 @@ using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -61,6 +63,8 @@ namespace BrickController2.UI.ViewModels
                 Action.ServoBaseAngle = ControllerAction.ServoBaseAngle;
                 Action.StepperAngle = ControllerAction.StepperAngle;
                 Action.SequenceName = ControllerAction.SequenceName;
+                Action.MacroId = ControllerAction.MacroId;
+                Action.MacroChoice = ControllerAction.MacroChoice;
             }
             else
             {
@@ -79,6 +83,8 @@ namespace BrickController2.UI.ViewModels
                 Action.ServoBaseAngle = 0;
                 Action.StepperAngle = 90;
                 Action.SequenceName = string.Empty;
+                Action.MacroId = string.Empty;
+                Action.MacroChoice = default;
             }
 
             // do validation of current channel settings
@@ -102,6 +108,9 @@ namespace BrickController2.UI.ViewModels
             SelectButtonTypeCommand = new SafeCommand(async () => await SelectButtonTypeAsync());
             SelectSequenceCommand = new SafeCommand(async () => await SelectSequenceAsync());
             OpenSequenceEditorCommand = new SafeCommand(async () => await OpenSequenceEditorAsync());
+            SelectMacroCommand = new SafeCommand(async () => await SelectMacroAsync(), () => HasMacros);
+            SelectMacroChoiceCommand = new SafeCommand(async () => await SelectMacroChoiceAsync(), () => SelectedMacro != null && SelectedMacro.Choices.Count > 0);
+            ReloadMacrosCommand = new SafeCommand(async () => await ReloadMacrosAsync(SelectedDevice!, DisappearingToken), () => SelectedDevice != null);
             SelectAxisTypeCommand = new SafeCommand(async () => await SelectAxisTypeAsync());
             SelectAxisCharacteristicCommand = new SafeCommand(async () => await SelectAxisCharacteristicAsync());
             OpenDeviceSettingsPageCommand = new SafeCommand(async () => await OpenDeviceSettingsAsync(SelectedDevice!), () => SelectedDevice != null);
@@ -109,6 +118,35 @@ namespace BrickController2.UI.ViewModels
 
         public ObservableCollection<Device> Devices => _deviceManager.Devices;
         public ObservableCollection<string> Sequences => new ObservableCollection<string>(_creationManager.Sequences.Select(s => s.Name).ToArray());
+
+        public System.Collections.Generic.IReadOnlyList<MacroDescriptor> AvailableMacros
+            => _selectedDevice?.AvailableMacros.Where(m => m.Scope == MacroScope.Channel).ToList() ?? [];
+
+        public bool HasMacros => _selectedDevice?.SupportsMacros == true;
+
+        public bool SupportsChannelMacros => _selectedDevice?.SupportsMacros == true &&
+            (_selectedDevice?.SupportsDynamicMacros == true ||
+            _selectedDevice?.AvailableMacros.Any(m => m.Scope == MacroScope.Channel) == true);
+
+        public MacroDescriptor? SelectedMacro
+            => AvailableMacros.FirstOrDefault(m => m.Id == Action.MacroId);
+
+        public string SelectedMacroDisplayName
+            => SelectedMacro is null ? string.Empty : Translate(SelectedMacro.NameKey);
+
+        public string SelectedMacroChoiceDisplayName
+        {
+            get
+            {
+                var macro = SelectedMacro;
+                if (macro is null || !Action.MacroChoice.HasValue)
+                {
+                    return string.Empty;
+                }
+                var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoice);
+                return choice is null ? string.Empty : Translate(choice.LabelKey);
+            }
+        }
 
         public ControllerEvent? ControllerEvent { get; }
         public ControllerAction? ControllerAction { get; }
@@ -121,9 +159,17 @@ namespace BrickController2.UI.ViewModels
                 _selectedDevice = value;
                 Action.DeviceId = value!.Id;
 
+                ValidateCurrentButtonType();
                 ValidateCurrentChannelSettings();
 
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(AvailableMacros));
+                RaisePropertyChanged(nameof(HasMacros));
+                RaisePropertyChanged(nameof(SelectedMacro));
+                RaisePropertyChanged(nameof(SelectedMacroDisplayName));
+                RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                SelectMacroCommand.RaiseCanExecuteChanged();
+                SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 NotifySBrickLightChanges();
             }
         }
@@ -171,6 +217,9 @@ namespace BrickController2.UI.ViewModels
         public ICommand SelectButtonTypeCommand { get; }
         public ICommand SelectSequenceCommand { get; }
         public ICommand OpenSequenceEditorCommand { get; }
+        public ICommand SelectMacroCommand { get; }
+        public ICommand SelectMacroChoiceCommand { get; }
+        public ICommand ReloadMacrosCommand { get; }
         public ICommand SelectAxisTypeCommand { get; }
         public ICommand SelectAxisCharacteristicCommand { get; }
         public ICommand OpenDeviceSettingsPageCommand { get; }
@@ -230,7 +279,9 @@ namespace BrickController2.UI.ViewModels
                             Action.MaxServoAngle,
                             Action.ServoBaseAngle,
                             Action.StepperAngle,
-                            Action.SequenceName);
+                            Action.SequenceName,
+                            Action.MacroId,
+                            Action.MacroChoice);
                     }
                     else
                     {
@@ -249,7 +300,9 @@ namespace BrickController2.UI.ViewModels
                             Action.MaxServoAngle,
                             Action.ServoBaseAngle,
                             Action.StepperAngle,
-                            Action.SequenceName);
+                            Action.SequenceName,
+                            Action.MacroId,
+                            Action.MacroChoice);
                     }
                 },
                 Translate("Saving"),
@@ -317,8 +370,13 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectButtonTypeAsync()
         {
+            var allowMacro = SupportsChannelMacros;
+            var buttonTypes = Enum.GetNames<ControllerButtonType>()
+                .Where(n => n != nameof(ControllerButtonType.Macro) || allowMacro)
+                .ToArray();
+
             var result = await _dialogService.ShowSelectionDialogAsync(
-                Enum.GetNames(typeof(ControllerButtonType)),
+                buttonTypes,
                 Translate("ButtonType"),
                 Translate("Cancel"),
                 DisappearingToken);
@@ -372,6 +430,130 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private async Task SelectMacroAsync()
+        {
+            if (SelectedDevice is null || AvailableMacros.Count == 0)
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Warning"),
+                    Translate("NoMacrosAvailable"),
+                    Translate("Ok"),
+                    DisappearingToken);
+                return;
+            }
+
+            var macros = AvailableMacros;
+            var labels = macros.Select(m => Translate(m.NameKey)).ToArray();
+
+            var result = await _dialogService.ShowSelectionDialogAsync(
+                labels,
+                Translate("SelectMacro"),
+                Translate("Cancel"),
+                DisappearingToken);
+
+            if (result.IsOk)
+            {
+                var index = Array.IndexOf(labels, result.SelectedItem);
+                if (index >= 0)
+                {
+                    var macro = macros[index];
+                    Action.MacroId = macro.Id;
+                    SetSelectedChoice(macro.Choices.Count > 0 ? macro.Choices[0] : null);
+                    RaisePropertyChanged(nameof(SelectedMacro));
+                    RaisePropertyChanged(nameof(SelectedMacroDisplayName));
+                    RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    SelectMacroChoiceCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        private async Task SelectMacroChoiceAsync()
+        {
+            var macro = SelectedMacro;
+            if (macro is null || macro.Choices.Count == 0)
+            {
+                return;
+            }
+
+            var labels = macro.Choices.Select(c => Translate(c.LabelKey)).ToArray();
+
+            var result = await _dialogService.ShowSelectionDialogAsync(
+                labels,
+                Translate("SelectMacroChoice"),
+                Translate("Cancel"),
+                DisappearingToken);
+
+            if (result.IsOk)
+            {
+                var index = Array.IndexOf(labels, result.SelectedItem);
+                if (index >= 0)
+                {
+                    SetSelectedChoice(macro.Choices[index]);
+                    RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                }
+            }
+        }
+
+        private async Task ReloadMacrosAsync(Device device, CancellationToken token)
+        {
+            var connectionResult = DeviceConnectionResult.Ok;
+
+            var dialogResult = await _dialogService.ShowProgressDialogAsync(
+                false,
+                async (progressDialog, ct) =>
+                {
+                    connectionResult = await device.ConnectAsync(
+                        reconnect: false,
+                        onDeviceDisconnected: default!,
+                        [],
+                        startOutputProcessing: false,
+                        requestDeviceInformation: false,
+                        ct);
+
+                    if (device.DeviceState == DeviceState.Connected)
+                    {
+                        await device.GetMacrosAsync(forceRefresh: true, ct);
+                    }
+                },
+                Translate("ConnectingTo"),
+                device.Name,
+                Translate("Cancel"),
+                token);
+
+            var connected = device.DeviceState == DeviceState.Connected;
+
+            try
+            {
+                await device.DisconnectAsync();
+            }
+            finally
+            {
+                if (!dialogResult.IsCancelled && connectionResult == DeviceConnectionResult.Error)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("FailedToConnect"),
+                        Translate("Ok"),
+                        token);
+                }
+                else if (connected)
+                {
+                    RaisePropertyChanged(nameof(AvailableMacros));
+                    RaisePropertyChanged(nameof(HasMacros));
+                    RaisePropertyChanged(nameof(SelectedMacro));
+                    RaisePropertyChanged(nameof(SelectedMacroDisplayName));
+                    RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    SelectMacroCommand.RaiseCanExecuteChanged();
+                    SelectMacroChoiceCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        private void SetSelectedChoice(MacroChoice? choice)
+        {
+            Action.MacroChoice = choice?.Value ?? default;
+        }
+
         private async Task SelectAxisTypeAsync()
         {
             var result = await _dialogService.ShowSelectionDialogAsync(
@@ -397,6 +579,14 @@ namespace BrickController2.UI.ViewModels
             if (result.IsOk)
             {
                 Action.AxisCharacteristic = (ControllerAxisCharacteristic)Enum.Parse(typeof(ControllerAxisCharacteristic), result.SelectedItem);
+            }
+        }
+
+        private void ValidateCurrentButtonType()
+        {
+            if (Action.ButtonType == ControllerButtonType.Macro && !SupportsChannelMacros)
+            {
+                Action.ButtonType = ControllerButtonType.Normal;
             }
         }
 

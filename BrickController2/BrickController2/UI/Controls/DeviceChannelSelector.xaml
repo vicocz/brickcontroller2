@@ -331,6 +331,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
@@ -339,32 +340,28 @@
                 </Grid>
 
                 <Grid Grid.Column="1" Grid.Row="0">
-                    <HorizontalStackLayout HorizontalOptions="End">
-                        <controls:ColorImage Icon="rotate_left" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
-                        <controls:ColorImage Icon="rotate_right" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
-                    </HorizontalStackLayout>
+                    <controls:ColorImage Icon="rotate_left" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+                </Grid>
+                <Grid Grid.Column="2" Grid.Row="0">
+                    <controls:ColorImage Icon="rotate_right" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
                 </Grid>
                 <Grid Grid.Column="1" Grid.Row="1">
-                    <HorizontalStackLayout HorizontalOptions="End">
-                        <controls:ColorImage Icon="arrow_upward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
-                        <controls:ColorImage Icon="arrow_downward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
-                    </HorizontalStackLayout>
+                    <controls:ColorImage Icon="arrow_upward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+                </Grid>
+                <Grid Grid.Column="2" Grid.Row="1">
+                    <controls:ColorImage Icon="arrow_downward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
                 </Grid>
                 <Grid Grid.Column="1" Grid.Row="2">
-                    <HorizontalStackLayout HorizontalOptions="End">
-                        <controls:ColorImage Icon="rocket" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
-                    </HorizontalStackLayout>
+                     <controls:ColorImage Icon="rocket" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
                 </Grid>
                 <Grid Grid.Column="1" Grid.Row="3">
-                    <HorizontalStackLayout HorizontalOptions="End">
-                        <controls:ColorImage Icon="directions" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
-                    </HorizontalStackLayout>
+                    <controls:ColorImage Icon="directions" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
                 </Grid>
 
-                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="0" x:Name="MK3Channel0" DeviceType="MK3" Channel="0" HorizontalOptions="Start" VerticalOptions="Center" />
-                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="MK3Channel1" DeviceType="MK3" Channel="1" HorizontalOptions="Start" VerticalOptions="Center" />
-                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="2" x:Name="MK3Channel2" DeviceType="MK3" Channel="2" HorizontalOptions="Start" VerticalOptions="Center" />
-                <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="3" x:Name="MK3Channel3" DeviceType="MK3" Channel="3" HorizontalOptions="Start" VerticalOptions="Center" />
+                <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="0" x:Name="MK3Channel0" DeviceType="MK3" Channel="0" HorizontalOptions="Start" VerticalOptions="Center" />
+                <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="1" x:Name="MK3Channel1" DeviceType="MK3" Channel="1" HorizontalOptions="Start" VerticalOptions="Center" />
+                <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="2" x:Name="MK3Channel2" DeviceType="MK3" Channel="2" HorizontalOptions="Start" VerticalOptions="Center" />
+                <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="3" x:Name="MK3Channel3" DeviceType="MK3" Channel="3" HorizontalOptions="Start" VerticalOptions="Center" />
             </Grid>
 
             <!-- MK4 -->

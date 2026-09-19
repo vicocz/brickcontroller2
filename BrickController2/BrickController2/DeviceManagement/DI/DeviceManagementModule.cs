@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using BrickController2.DeviceManagement.FxBricks;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.UI.Images;
@@ -11,13 +12,11 @@ namespace BrickController2.DeviceManagement.DI
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<BluetoothDeviceManager>().As<IBluetoothDeviceManager>().SingleInstance();
-            builder.RegisterType<InfraredDeviceManager>().As<IInfraredDeviceManager>().SingleInstance();
 
             builder.RegisterType<DeviceRepository>().As<IDeviceRepository>().SingleInstance();
             builder.RegisterType<DeviceManager>().As<IDeviceManager>().SingleInstance();
             builder.RegisterType<ManualDeviceManager>().As<IManualDeviceManager>().SingleInstance();
 
-            builder.RegisterType<InfraredDevice>().Keyed<Device>(DeviceType.Infrared);
             builder.RegisterType<CircuitCubeDevice>().Keyed<Device>(DeviceType.CircuitCubes);
             builder.RegisterType<PfxBrickDevice>().Keyed<Device>(DeviceType.PfxBrick);
 

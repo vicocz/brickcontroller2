@@ -7,10 +7,10 @@
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
-    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.ControllerProfilePage"
+    x:DataType="viewmodels:ControllerProfilePageViewModel"
     x:Name="Page"
-    x:DataType="viewModels:ControllerProfilePageViewModel"
     Title="{extensions:Translate ControllerProfile}"
     ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -51,7 +51,7 @@
                     
                     <!-- Controller event -->
                     <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate x:DataType="viewModels:ControllerEventViewModel">
+                        <DataTemplate x:DataType="viewmodels:ControllerEventViewModel">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
@@ -81,7 +81,7 @@
 
                     <!-- Controller actions -->
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:ControllerActionViewModel">
+                        <DataTemplate x:DataType="viewmodels:ControllerActionViewModel">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
@@ -123,7 +123,11 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}" HorizontalOptions="End" VerticalOptions="End" Margin="0,0,100,10"/>
+                <controls:ExpandableFloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource ExpandableFloatingActionButtonStyle}" Margin="0,0,60,10">
+                    <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="playlist_add" Command="{Binding AddControllerEventForSpecificControllerIdCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEventForSpecificControllerId}"/>
+                    <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="gamepad" Command="{Binding AddControllerAxisEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerAxisEvent}"/>
+                    <controls:FloatingActionButton Style="{StaticResource FloatingActionButtonStyle}" Icon="hdr_auto" Command="{Binding AddControllerButtonEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerButtonEvent}"/>
+                </controls:ExpandableFloatingActionButton>
                 <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerEventCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerEvent}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>

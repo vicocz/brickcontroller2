@@ -33,9 +33,12 @@ internal class MK3_8 : MKBaseNibble, IDeviceType<MK3_8>
     /// </summary>
     protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
-    public MK3_8(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService)
-      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, 0, Telegram_Connect, Telegram_Base)
+    public MK3_8(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
+      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 0, Telegram_Connect, Telegram_Base)
     {
+        // This is an exception - the second byte of the AppIdentifier is used as setvalue for channel 5
+        _telegram_Connect[2] = 0x00;
+        _telegram_Base[2] = 0x00;
     }
 
     public override DeviceType DeviceType => Type;

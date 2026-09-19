@@ -15,12 +15,19 @@ namespace BrickController2.DeviceManagement.Lego;
 /// <summary>
 /// Represents a LEGO® Powered Up 88010 Remote Control
 /// </summary>
-internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteControl>
+internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteControl>, IDynamicInputDevice
 {
     private const string ENABLED_SETTING_NAME = "RemoteControlEnabled";
     private const bool DEFAULT_ENABLED = false;
 
-    private InputDeviceBase<RemoteControl>? _inputController;
+    private static readonly IReadOnlyCollection<string> AllButtons =
+    [
+        "A", "B", "Home",
+        "A.Minus", "A.Plus",
+        "B.Minus", "B.Plus"
+    ];
+
+    private IInputDeviceConnector? _inputDeviceConnector;
 
     public RemoteControl(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
     : base(name, address, deviceRepository, bleService)
@@ -39,26 +46,17 @@ internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteCo
 
     public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
 
-    internal void ConnectInputController<TController>(TController inputController) where TController : InputDeviceBase<RemoteControl>
+    public void ConnectInputController(IInputDeviceConnector inputController)
     {
-        _inputController = inputController;
+        _inputDeviceConnector = inputController;
     }
 
-    internal void DisconnectInputController()
+    public void DisconnectInputController()
     {
-        _inputController = default;
+        _inputDeviceConnector = default;
     }
 
-    internal void ResetEvents() => RaiseButtonEvents(
-    [
-        ("A", BUTTON_RELEASED),
-        ("B", BUTTON_RELEASED),
-        ("Home", BUTTON_RELEASED),
-        ("A.Minus", BUTTON_RELEASED),
-        ("A.Plus", BUTTON_RELEASED),
-        ("B.Minus", BUTTON_RELEASED),
-        ("B.Plus", BUTTON_RELEASED)
-    ]);
+    internal void ResetEvents() => RaiseButtonEvents(BUTTON_RELEASED);
 
     protected override Task ProcessOutputsAsync(CancellationToken token) => Task.CompletedTask;
 
@@ -90,7 +88,7 @@ internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteCo
                 if (data.Length == 5 && data[3] == 0x02)
                 {
                     // HW button state
-                    RaiseButtonEvents([("Home", GetButtonValue(data[4]))]);
+                    _inputDeviceConnector.RaiseButtonEventConditionally("Home", IsButtonPressed(data[4]));
                     return true;
                 }
                 break;
@@ -114,26 +112,25 @@ internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteCo
     }
 
     private void OnButtonEvents(string plus, string stop, string minus, ReadOnlySpan<byte> flags)
-        => RaiseButtonEvents(
-            [
-                (plus, GetButtonValue(flags[0])),
-                (stop, GetButtonValue(flags[1])),
-                (minus, GetButtonValue(flags[2]))
-            ]);
-
-    private void RaiseButtonEvents((string eventName, float value)[] buttonEvents)
     {
-        if (_inputController is null)
+        _inputDeviceConnector.RaiseButtonEventConditionally(plus, IsButtonPressed(flags[0]));
+        _inputDeviceConnector.RaiseButtonEventConditionally(stop, IsButtonPressed(flags[1]));
+        _inputDeviceConnector.RaiseButtonEventConditionally(minus, IsButtonPressed(flags[2]));
+    }
+
+    private void RaiseButtonEvents(float value)
+    {
+        if (_inputDeviceConnector is null)
         {
             return;
         }
 
-        var events = buttonEvents
-            .Where(e => _inputController.HasValueChanged(e.eventName, e.value))
-            .ToDictionary(e => (InputDeviceEventType.Button, e.eventName), e => e.value);
+        var events = AllButtons
+            .Where(e => _inputDeviceConnector.HasValueChanged(InputDeviceEventType.Button, e, value))
+            .ToDictionary(e => (InputDeviceEventType.Button, e), e => value);
 
-        _inputController.RaiseEvent(events);
+        _inputDeviceConnector.RaiseEvent(events);
     }
 
-    private static float GetButtonValue(byte flag) => flag != 0 ? BUTTON_PRESSED : BUTTON_RELEASED;
+    private static bool IsButtonPressed(byte flag) => flag != 0;
 }

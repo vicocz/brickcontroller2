@@ -1,0 +1,67 @@
+using Autofac;
+using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.PowerBox;
+using BrickController2.PlatformServices.BluetoothLE;
+using BrickController2.UI.Images;
+using FluentAssertions;
+using Moq;
+using Xunit;
+using PowerBoxVendor = BrickController2.DeviceManagement.PowerBox.PowerBox;
+
+namespace BrickController2.Tests.DeviceManagement.DI;
+
+public class PowerBoxVendorTests : VendorTestsBase
+{
+    private readonly DeviceFactory _deviceFactory;
+
+    public PowerBoxVendorTests()
+    {
+        // Act
+        var container = InitializeContainer().Build();
+
+        _deviceFactory = container.Resolve<DeviceFactory>();
+    }
+
+    protected override ContainerBuilder InitializeContainer()
+    {
+        var builder = base.InitializeContainer();
+
+        // Arrange
+        builder.RegisterInstance(Mock.Of<IBluetoothLEService>());
+        builder.RegisterInstance(Mock.Of<IPowerBoxPlatformService>());
+        builder.RegisterInstance(Mock.Of<IDeviceImageRegistry>()); // needed because RegisterDevice<PowerFunctionsDevice>().WithImages("powerfunctions_image.png", "powerfunctions_image_small.png")
+
+        // execute registration of vendor PowerBox
+        builder.RegisterModule<PowerBoxVendor>();
+
+        return builder;
+    }
+
+    [Theory]
+    [InlineData("Device")]
+    public void RegisterDevice_PowerBox_MBattery_ReturnedDevice(string address)
+    {
+        DeviceType deviceType = DeviceType.PowerBoxMBattery;
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        var device = _deviceFactory(deviceType, name, address, deviceData, []);
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<PowerBoxMBattery>();
+    }
+
+    [Theory]
+    [InlineData("Device")]
+    public void RegisterDevice_PowerBox_ASeries_ReturnedDevice(string address)
+    {
+        DeviceType deviceType = DeviceType.PowerBoxASeries;
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        var device = _deviceFactory(deviceType, name, address, deviceData, []);
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<PowerBoxASeries>();
+    }
+}

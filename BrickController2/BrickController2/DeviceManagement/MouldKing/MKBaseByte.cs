@@ -1,5 +1,5 @@
-﻿using System;
-using BrickController2.PlatformServices.BluetoothLE;
+﻿using BrickController2.PlatformServices.BluetoothLE;
+using System;
 
 namespace BrickController2.DeviceManagement.MouldKing;
 
@@ -30,13 +30,24 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     protected readonly int _channelStartOffset;
 
 
-    protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base, IMKPlatformService mkPlatformService)
+    protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _channelStartOffset = channelStartOffset;
         _telegram_Connect = telegram_Connect;
         _telegram_Base = telegram_Base;
         _mkPlatformService = mkPlatformService;
+
+        // bytes[1] and [2] of both telegrams can be set to a unique appId
+        ReadOnlySpan<byte> appId = mkDeviceManager.GetAppId().Span[..2];
+        _telegram_Connect[1] = appId[0];
+        _telegram_Connect[2] = appId[1];
+
+        _telegram_Base[1] = appId[0];
+        _telegram_Base[2] = appId[1];
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>
@@ -93,16 +104,7 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     /// <summary>
     /// This method sets the device to initial state before advertising starts
     /// </summary>
-    protected override void InitDevice()
-    {
-        // set all channels to zero
-        for (int index = 0; index < BaseTelegram_ChannelBytesCount; index++)
-        {
-            _telegram_Base[BaseTelegram_ChannelStartOffset + index] = 0x80;
-        }
-
-        ResetAllChannelsToZero();
-    }
+    protected override void InitDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Disconnects the device and resets the state of all communication channels.
@@ -121,7 +123,7 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     /// <param name="payload">When this method returns, contains the RF payload as a byte array if the operation succeeds; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns><see langword="true"/> if the RF payload was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
     {
         if (getConnectTelegram)
         {
@@ -133,11 +135,14 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
         }
     }
 
+    /// <summary>
+    /// Resets the value and the output state of all channels to zero.
+    /// </summary>
     private void ResetAllChannelsToZero()
     {
         for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
         {
-            // call SetChannelState() to set global channel state to zero
+            _telegram_Base[BaseTelegram_ChannelStartOffset + channelNo] = 0x80;
             _bluetoothAdvertisingDeviceHandler.SetChannelState(channelNo, true);
         }
     }

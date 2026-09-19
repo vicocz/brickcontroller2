@@ -7,7 +7,6 @@ namespace BrickController2.PlatformServices.BluetoothLE
 {
     public interface IBluetoothLEDevice
     {
-        string Address { get; }
         BluetoothLEDeviceState State { get; }
 
         Task<IEnumerable<IGattService>?> ConnectAndDiscoverServicesAsync(

@@ -15,6 +15,7 @@ using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.Services.Theme;
 using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
+using BrickController2.UI.Services.AppIdentifier;
 
 namespace BrickController2.UI.DI
 {
@@ -31,6 +32,7 @@ namespace BrickController2.UI.DI
             builder.RegisterType<PreferencesService>().AsSelf().As<IPreferencesService>().SingleInstance();
             builder.RegisterType<ThemeService>().AsSelf().As<IThemeService>().SingleInstance();
             builder.RegisterType<LocalizationService>().AsSelf().As<ILocalizationService>().SingleInstance();
+            builder.RegisterType<AppIdentifierService>().AsSelf().As<IAppIdentifierService>().SingleInstance();
 
             // Register Dialogs
             builder.RegisterType<DialogService>().As<IDialogService>().As<IDialogServerHost>().SingleInstance();

@@ -1,4 +1,6 @@
-﻿using BrickController2.UI.Commands;
+﻿using BrickController2.InputDeviceManagement.Sensors;
+using BrickController2.PlatformServices.InputDeviceService;
+using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.Navigation;
@@ -17,6 +19,7 @@ namespace BrickController2.UI.ViewModels
 
         private readonly IThemeService _themeService;
         private readonly ILocalizationService _localizationService;
+        private readonly IInputDeviceService<OrientationSensorController> _orientationSensorService;
         private readonly CreationListPageViewModel _parentViewModel;
         private readonly IDialogService _dialogService;
 
@@ -26,12 +29,14 @@ namespace BrickController2.UI.ViewModels
             IDialogService dialogService,
             IThemeService themeService,
             ILocalizationService localizationService,
+            IInputDeviceService<OrientationSensorController> orientationSensorService,
             NavigationParameters parameters) : 
             base(navigationService, translationService)
         {
             _themeService = themeService;
             _dialogService = dialogService;
             _localizationService = localizationService;
+            _orientationSensorService = orientationSensorService;
             _parentViewModel = parameters.Get<CreationListPageViewModel>("parent");
             SelectThemeCommand = new SafeCommand(SelectThemeAsync);
             SelectLanguageCommand = new SafeCommand(SelectAppLanguageAsync);
@@ -65,6 +70,21 @@ namespace BrickController2.UI.ViewModels
 
         public ICommand SelectThemeCommand { get; }
         public ICommand SelectLanguageCommand { get; }
+
+        public bool IsOrientationSensorSupported => _orientationSensorService.IsSupported;
+
+        public bool IsOrientationSensorEnabled
+        {
+            get => _orientationSensorService.IsEnabled;
+            set
+            {
+                if (IsOrientationSensorEnabled != value)
+                {
+                    _orientationSensorService.IsEnabled = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
         private async Task SelectThemeAsync()
         {

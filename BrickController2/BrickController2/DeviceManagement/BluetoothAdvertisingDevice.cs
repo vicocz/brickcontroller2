@@ -9,7 +9,7 @@ namespace BrickController2.DeviceManagement
     /// <summary>
     /// Baseclass of Bluetooth LE Advertising devices
     /// </summary>
-    internal abstract class BluetoothAdvertisingDevice : Device
+    internal abstract class BluetoothAdvertisingDevice : Device, IBluetoothDevice
     {
         /// <summary>
         /// BluetoothAdvertisingDeviceHandler
@@ -73,8 +73,12 @@ namespace BrickController2.DeviceManagement
                     if (startOutputProcessing)
                     {
                         InitDevice();
-                        
-                        await _bluetoothAdvertisingDeviceHandler.StartOutputTaskAsync(this);
+
+                        if (!await _bluetoothAdvertisingDeviceHandler.StartOutputTaskAsync(this))
+                        {
+                            await DisconnectInternalAsync();
+                            return DeviceConnectionResult.Error;
+                        }
                     }
 
                     token.ThrowIfCancellationRequested();
@@ -84,13 +88,13 @@ namespace BrickController2.DeviceManagement
                 }
                 catch (OperationCanceledException)
                 {
-                    await DisconnectAsync();
+                    await DisconnectInternalAsync();
 
                     return DeviceConnectionResult.Canceled;
                 }
                 catch
                 {
-                    await DisconnectAsync();
+                    await DisconnectInternalAsync();
 
                     return DeviceConnectionResult.Error;
                 }
@@ -104,18 +108,25 @@ namespace BrickController2.DeviceManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                if (DeviceState == DeviceState.Disconnected)
-                {
-                    return;
-                }
-
-                DeviceState = DeviceState.Disconnecting;
-
-                await _bluetoothAdvertisingDeviceHandler.StopOutputTaskAsync(this);
-                await _bluetoothAdvertisingDeviceHandler.TryDisconnectAsync(this);
-
-                DeviceState = DeviceState.Disconnected;
+                await DisconnectInternalAsync();
             }
+        }
+
+        private async Task DisconnectInternalAsync()
+        {
+            if (DeviceState == DeviceState.Disconnected)
+            {
+                return;
+            }
+
+            DeviceState = DeviceState.Disconnecting;
+
+            DisconnectDevice();
+
+            await _bluetoothAdvertisingDeviceHandler.StopOutputTaskAsync(this);
+            await _bluetoothAdvertisingDeviceHandler.TryDisconnectAsync(this);
+
+            DeviceState = DeviceState.Disconnected;
         }
 
         /// <summary>
@@ -124,7 +135,7 @@ namespace BrickController2.DeviceManagement
         protected abstract void InitDevice();
 
         /// <summary>
-        /// set device to discennected state
+        /// set device to disconnected state
         /// </summary>
         protected abstract void DisconnectDevice();
 

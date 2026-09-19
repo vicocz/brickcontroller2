@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BrickController2.DeviceManagement
 {
-    internal abstract class BluetoothDevice : Device
+    internal abstract class BluetoothDevice : Device, IBluetoothDevice
     {
         protected readonly IBluetoothLEService _bleService;
 

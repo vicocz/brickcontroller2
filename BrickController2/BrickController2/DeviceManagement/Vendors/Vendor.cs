@@ -12,6 +12,8 @@ public abstract class Vendor<TVendor> : Module, IVendorModule
 {
     public abstract string VendorName { get; }
 
+    public virtual bool IsAvailable => true;
+
     protected abstract void Register(VendorBuilder<TVendor> builder);
 
     protected sealed override void Load(ContainerBuilder builder)

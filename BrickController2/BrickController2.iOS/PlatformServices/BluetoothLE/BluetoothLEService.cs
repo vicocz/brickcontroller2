@@ -165,7 +165,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
                 for (nuint i = 0; i < arrayObject.Count; i++)
                 {
                     var cbuuid = arrayObject.GetItem<CBUUID>(i);
-                    if (cbuuid.Data.Length == 16)
+                    if (cbuuid?.Data?.Length == 16)
                     {
                         // Service UUID's are read backwards (little endian) according to specs
                         var serviceUUid = cbuuid.Data.ToArray();

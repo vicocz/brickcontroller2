@@ -19,6 +19,7 @@ namespace BrickController2.DeviceManagement
 
         public DeviceType DeviceType => TDevice.Type;
 
+        public bool IsAvailable => Vendor.IsAvailable;
         public TVendor Vendor { get; }
         public string Name { get; }
         public string Address { get; }

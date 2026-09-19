@@ -5,6 +5,7 @@ namespace BrickController2.DeviceManagement
 {
     public interface IDeviceFactoryData
     {
+        bool IsAvailable { get; }
         DeviceType DeviceType { get; }
         string Name { get; }
         string Address { get; }

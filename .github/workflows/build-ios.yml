@@ -1,0 +1,60 @@
+name: Validation build BrickController iOS 
+
+on:
+  pull_request:
+    branches:    
+      - default
+      - 'release/**'
+    paths:
+      - '.github/**/*ios.yml'
+      - '*.props'
+      - '*.slnx'
+      - 'BrickController2/BrickController2/**'
+      - 'BrickController2/BrickController2.iOS/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_FOLDER: "BrickController2/BrickController2.iOS"
+  TARGET_RUNTIME: 'ios-arm64'
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    name: BrickController iOS Build
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Setup MAUI
+      id: setup-maui
+      uses: ./.github/actions/setup-maui
+      with:
+        platform: ios
+
+    - name: Setup Xcode
+      uses: ./.github/actions/setup-xcode
+      with:
+        version: ${{ vars.XCODE_VERSION }}
+
+    - name: Restore Dependencies
+      run: dotnet restore ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
+
+    - name: Build MAUI iOS
+      run: >-
+        dotnet publish ${{ env.PROJECT_FOLDER }}/BrickController2.iOS.csproj
+        --no-restore
+        -c Release
+        -f ${{ steps.setup-maui.outputs.target-framework }}
+        -r ${{ env.TARGET_RUNTIME }}
+        -p:ApplicationVersion="${{ github.run_number }}"
+        -p:ArchiveOnBuild=false
+        -p:EnableCodeSigning=false
+
+    - name: Upload IOS Artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: brickcontroller-ios-ci-build
+        path: ${{ env.PROJECT_FOLDER }}/bin/Release/${{ steps.setup-maui.outputs.target-framework }}/${{ env.TARGET_RUNTIME }}/publish/BrickController2.iOS.ipa
+        retention-days: 5

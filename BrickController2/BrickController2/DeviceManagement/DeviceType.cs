@@ -24,5 +24,9 @@
         MK3_8,
         RemoteControl,
         SBrickLight,
+        JieStarSCM4,
+        JieStarSCM8,
+        PowerBoxMBattery,
+        PowerBoxASeries
     }
 }

@@ -87,6 +87,10 @@ public abstract class SettingsPageViewModelBase : PageViewModelBase
         {
             return new DoubleSettingViewModel(setting, this, TranslationService);
         }
+        if (setting.IsPercentType)
+        {
+            return new PercentSettingViewModel(setting, this, TranslationService);
+        }
         if (setting.Type == typeof(RgbColor))
         {
             return new RgbColorSettingViewModel(setting, this, TranslationService);

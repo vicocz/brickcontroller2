@@ -224,14 +224,14 @@ namespace BrickController2.DeviceManagement
             }
         }
 
-        public async Task StartOutputTaskAsync(BluetoothAdvertisingDevice requestingDevice)
+        public async Task<bool> StartOutputTaskAsync(BluetoothAdvertisingDevice requestingDevice)
         {
             using (await _asyncLock.LockAsync())
             {
                 if (!_connectedDeviceList.Contains(requestingDevice) || // requestingDevice is not connected
                   _advertisingDeviceList.Contains(requestingDevice))    // requestingDevice is added to _advertisingDeviceList already
                 {
-                    return; // nothing to do
+                    return true; // nothing to do
                 }
 
                 // add requestingDevice to _advertisingDeviceList
@@ -240,8 +240,22 @@ namespace BrickController2.DeviceManagement
                 // on first device added
                 if (_advertisingDeviceList.Count == 1)
                 {
-                    StartOutputTaskInternal();
+                    try
+                    {
+                        if (!await StartOutputTaskInternalAsync())
+                        {
+                            _advertisingDeviceList.Remove(requestingDevice);
+                            return false;
+                        }
+                    }
+                    catch
+                    {
+                        _advertisingDeviceList.Remove(requestingDevice);
+                        throw;
+                    }
                 }
+
+                return true;
             }
         }
 
@@ -273,10 +287,11 @@ namespace BrickController2.DeviceManagement
         /// <summary>
         /// start output loop
         /// </summary>
-        private void StartOutputTaskInternal()
+        private Task<bool> StartOutputTaskInternalAsync()
         {
             _outputTaskTokenSource = new CancellationTokenSource();
             CancellationToken token = _outputTaskTokenSource.Token;
+            var startupCompletionSource = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             _outputTask = Task.Run(async () =>
             {
@@ -288,14 +303,27 @@ namespace BrickController2.DeviceManagement
                         await _bleAdvertiserDevice.StartAdvertiseAsync(AdvertisingInterval, TxPowerLevel, _manufacturerId, currentData);
 
                         _waitForNewData = new(false);
+                        startupCompletionSource.TrySetResult(true);
 
                         await ProcessOutputsAsync(token);
+                    }
+                    else
+                    {
+                        startupCompletionSource.TrySetResult(false);
                     }
                 }
                 catch (TaskCanceledException) // catch this valid exception thrown on cancellation
                 {
+                    startupCompletionSource.TrySetCanceled(token);
+                }
+                catch (Exception ex)
+                {
+                    startupCompletionSource.TrySetException(ex);
+                    throw;
                 }
             });
+
+            return startupCompletionSource.Task;
         }
 
         /// <summary>
@@ -355,7 +383,7 @@ namespace BrickController2.DeviceManagement
 
                 // if all channels are zero and _reconnectTimeSpan has elapsed
                 // then the connect telegram should be sent
-                inConnectMode = _allChannelsSetState == 0 && 
+                inConnectMode = _allChannelsSetState == 0 &&
                     _allZeroStopwatch.Elapsed > _reconnectTimeSpan;
 
                 // if connectMode is requested and if previous was not a connect telegram

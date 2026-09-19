@@ -57,6 +57,9 @@ namespace BrickController2.DeviceManagement
         public override int NumberOfChannels => 4;
         public override int NumberOfOutputLevels => 4;
         public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);
+
+        public override float AccelarationStep => 1.0f / 7.0f;
+
         protected override bool AutoConnectOnFirstConnect => false;
 
         public override string BatteryVoltageSign => "V";

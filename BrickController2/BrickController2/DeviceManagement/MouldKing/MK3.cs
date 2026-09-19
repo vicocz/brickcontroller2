@@ -95,28 +95,14 @@ internal class MK3 : MKBaseByte, IDeviceType<MK3>
 
     private (byte setValue_Byte, bool zeroSet) SetOutput_Function1Channel(float value)
     {
-        if (value == 0)
-        {
-            _function1Enabled = false;
-        }
-        else
-        {
-            _function1Enabled = true;
-        }
+        _function1Enabled = value != 0;
 
         return SetOutput_Channel_3_4(value);
     }
 
     private (byte setValue_Byte, bool zeroSet) SetOutput_Function2Channel(float value)
     {
-        if (value == 0)
-        {
-            _function2Enabled = false;
-        }
-        else
-        {
-            _function2Enabled = true;
-        }
+        _function2Enabled = value != 0;
 
         return SetOutput_Channel_3_4(value);
     }

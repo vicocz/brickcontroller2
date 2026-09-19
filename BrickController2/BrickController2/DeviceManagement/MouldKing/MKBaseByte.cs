@@ -35,12 +35,12 @@ internal abstract class MKBaseByte : BluetoothAdvertisingDevice
     protected readonly int _channelStartOffset;
 
 
-    protected MKBaseByte(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int channelStartOffset, byte[] telegram_Connect, byte[] telegram_Base)
-        : base(name, address, deviceData, deviceRepository, bleService)
+    protected MKBaseByte(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int channelStartOffset, ReadOnlySpan<byte> telegram_Connect, ReadOnlySpan<byte> telegram_Base)
+        : base(name, address, deviceRepository, bleService)
     {
         _channelStartOffset = channelStartOffset;
-        _telegram_Connect = telegram_Connect;
-        _telegram_Base = telegram_Base;
+        _telegram_Connect = telegram_Connect.ToArray();
+        _telegram_Base = telegram_Base.ToArray();
         _mkPlatformService = mkPlatformService;
 
         // bytes[1] and [2] of both telegrams can be set to a unique appId

@@ -7,12 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.TechnicHubChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid ColumnDefinitions="*,Auto,*">
 
             <StackLayout Grid.Column="0" Orientation="Vertical" VerticalOptions="End">
                 <controls:ChannelSelectorRadioButton x:Name="TechnicHubChannel0" Channel="0" HorizontalOptions="End"/>

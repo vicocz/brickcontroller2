@@ -7,12 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.MK_DIYChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid ColumnDefinitions="*,Auto,*">
 
             <Grid Grid.Column="0">
                 <controls:ChannelSelectorRadioButton x:Name="MK_DIYChannel3" Channel="3" HorizontalOptions="End" VerticalOptions="Start"/>

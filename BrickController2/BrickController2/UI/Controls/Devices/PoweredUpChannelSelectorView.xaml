@@ -7,12 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.PoweredUpChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid ColumnDefinitions="*,Auto">
 
             <Grid Grid.Column="0">
                 <controls:ChannelSelectorRadioButton x:Name="PoweredUpChannel0" Channel="0" HorizontalOptions="End" VerticalOptions="Start"/>
@@ -20,8 +15,6 @@
             </Grid>
 
             <Image Grid.Column="1" Source="{extensions:ImageResource Source=poweredup_image.png}" WidthRequest="150" HeightRequest="120"/>
-
-            <Grid Grid.Column="2"/>
         </Grid>
     </ContentView.Content>
 

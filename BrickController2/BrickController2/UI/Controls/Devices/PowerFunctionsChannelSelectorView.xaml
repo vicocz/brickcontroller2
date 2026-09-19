@@ -7,22 +7,11 @@
     x:Class="BrickController2.UI.Controls.Devices.PowerFunctionsChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid ColumnDefinitions="*,Auto,*">
 
-            <Grid Grid.Column="0">
-                <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel0" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
-            </Grid>
-
+            <controls:ChannelSelectorRadioButton Grid.Column="0" x:Name="PowerFunctionsChannel0" Channel="0" HorizontalOptions="End" VerticalOptions="End"/>
             <Image Grid.Column="1" Source="{extensions:ImageResource Source=powerfunctions_image.png}" WidthRequest="150" HeightRequest="150"/>
-
-            <Grid Grid.Column="2">
-                <controls:ChannelSelectorRadioButton x:Name="PowerFunctionsChannel1" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
-            </Grid>
+            <controls:ChannelSelectorRadioButton Grid.Column="2" x:Name="PowerFunctionsChannel1" Channel="1" HorizontalOptions="Start" VerticalOptions="End"/>
         </Grid>
     </ContentView.Content>
 

@@ -7,12 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.BuWizz3ChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid ColumnDefinitions="*,Auto,*">
 
             <Grid Grid.Column="0">
                 <controls:ChannelSelectorRadioButton x:Name="BuWizz3Channel0" Channel="0" HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,20,0"/>

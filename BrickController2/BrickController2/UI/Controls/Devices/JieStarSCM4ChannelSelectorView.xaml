@@ -7,17 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.JieStarSCM4ChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="90"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid RowDefinitions="20,90,*" ColumnDefinitions="*,Auto,*">
 
             <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="2" x:Name="JieStarSCM4Channel0" Channel="0" HorizontalOptions="Start" VerticalOptions="Start"/>
             <controls:ChannelSelectorRadioButton Grid.Column="2" Grid.Row="1" x:Name="JieStarSCM4Channel1" Channel="1" HorizontalOptions="Start" VerticalOptions="Start"/>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<devices:DeviceChannelSelectorViewBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls" xmlns:devices="clr-namespace:BrickController2.UI.Controls.Devices"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    x:Class="BrickController2.UI.Controls.Devices.MK3ChannelSelectorView">
+
+    <ContentView.Content>
+        <Grid RowDefinitions="*,Auto,Auto,*" ColumnDefinitions="*,Auto,Auto,*">
+
+            <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="4"
+                   Source="{extensions:ImageResource Source=mk3_image.png}" HeightRequest="100" VerticalOptions="Center" HorizontalOptions="End" Margin="0,0,30,0"/>
+
+            <controls:ColorImage Grid.Column="1" Grid.Row="0" Icon="rotate_left" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="2" Grid.Row="0" Icon="rotate_right" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="1" Grid.Row="1" Icon="arrow_upward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="2" Grid.Row="1" Icon="arrow_downward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="1" Grid.Row="2" Icon="rocket" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="1" Grid.Row="3" Icon="directions" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="0" x:Name="MK3Channel0" Channel="0" HorizontalOptions="Start" VerticalOptions="Center" />
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="1" x:Name="MK3Channel1" Channel="1" HorizontalOptions="Start" VerticalOptions="Center" />
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="2" x:Name="MK3Channel2" Channel="2" HorizontalOptions="Start" VerticalOptions="Center" />
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="3" x:Name="MK3Channel3" Channel="3" HorizontalOptions="Start" VerticalOptions="Center" />
+        </Grid>
+    </ContentView.Content>
+
+</devices:DeviceChannelSelectorViewBase>

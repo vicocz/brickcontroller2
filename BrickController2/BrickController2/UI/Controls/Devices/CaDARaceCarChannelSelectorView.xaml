@@ -7,16 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.CaDARaceCarChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
 
             <Image Grid.Row="0" Grid.Column="0" Source="{extensions:ImageResource Source=rc_up_down_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
             <controls:ChannelSelectorRadioButton Grid.Row="0" Grid.Column="1" x:Name="CaDARaceCarChannel0" Channel="0" VerticalOptions="Center"/>

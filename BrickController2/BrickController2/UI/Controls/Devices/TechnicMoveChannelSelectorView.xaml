@@ -7,17 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.TechnicMoveChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto,*">
 
             <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="0" x:Name="TechnicMoveChannelA" Channel="0" HorizontalOptions="Center" VerticalOptions="Center"/>
             <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="TechnicMoveChannelB" Channel="1" HorizontalOptions="End" VerticalOptions="End"/>

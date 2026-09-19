@@ -7,12 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.SBrickChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid ColumnDefinitions="*,Auto,*">
 
             <Grid Grid.Column="0">
                 <controls:ChannelSelectorRadioButton x:Name="SBrickChannel0" Channel="0" HorizontalOptions="End" VerticalOptions="Start"/>

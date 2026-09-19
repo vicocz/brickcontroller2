@@ -7,16 +7,7 @@
     x:Class="BrickController2.UI.Controls.Devices.CircuitCubesChannelSelectorView">
 
     <ContentView.Content>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,Auto,*">
 
             <controls:ChannelSelectorRadioButton Grid.Column="0" Grid.Row="1" x:Name="CircuitCubesA" Channel="0" HorizontalOptions="End" VerticalOptions="Center"/>
             <controls:ChannelSelectorRadioButton Grid.Column="1" Grid.Row="1" x:Name="CircuitCubesB" Channel="1" HorizontalOptions="Center" VerticalOptions="Center"/>

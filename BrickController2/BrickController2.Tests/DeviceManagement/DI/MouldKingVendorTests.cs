@@ -39,6 +39,22 @@ public class MouldKingVendorTests : VendorTestsBase
     [Theory]
     [InlineData("Device")]        // The address is not relevant for this device
     [InlineData("IllegalDevice")] // The address is not relevant for this device
+    public void RegisterDevice_MK3_ReturnedDevice(string address)
+    {
+        DeviceType deviceType = DeviceType.MK3;
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        var device = _deviceFactory(deviceType, name, address, deviceData, []);
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<MK3>();
+    }
+
+
+    [Theory]
+    [InlineData("Device")]        // The address is not relevant for this device
+    [InlineData("IllegalDevice")] // The address is not relevant for this device
     public void RegisterDevice_MK3_8_ReturnedDevice(string address)
     {
         DeviceType deviceType = DeviceType.MK3_8;

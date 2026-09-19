@@ -35,15 +35,7 @@
                 <Image Source="{extensions:ImageResource Source=sbricklight_image.png}" WidthRequest="145" HeightRequest="100"
                        Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" HorizontalOptions="Center" />
             </Grid>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="3*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+            <Grid ColumnDefinitions="2*,3*" RowDefinitions="Auto,Auto">
 
                 <Label Grid.Column="0" Text="{extensions:Translate SBrickUseRgbPortMode}" Style="{StaticResource Key=settingLabel}"/>
                 <HorizontalStackLayout Grid.Column="1" Spacing="20">

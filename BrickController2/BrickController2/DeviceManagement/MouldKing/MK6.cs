@@ -64,13 +64,8 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
 
     protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
     {
-        0 => SetOutput_AnalogChannel(value),
-        1 => SetOutput_AnalogChannel(value),
-        2 => SetOutput_AnalogChannel(value),
-        3 => SetOutput_AnalogChannel(value),
-        4 => SetOutput_AnalogChannel(value),
-        5 => SetOutput_AnalogChannel(value),
-        _ => throw new ArgumentException($"Illegal Argument \"{channelNo}\"", nameof(channelNo))
+        >= 0 and <= 5 => SetOutput_AnalogChannel(value),
+        _ => throw new ArgumentOutOfRangeException(nameof(channelNo), channelNo, "Channel number must be between 0 and 5.")
     };
 
     /// <summary>

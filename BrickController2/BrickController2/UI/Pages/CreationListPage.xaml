@@ -44,19 +44,22 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.ShareCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
-                                        <controls:SwipeIcon Text="{extensions:Translate Play}" Icon="play_arrow" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.PlayCreationCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding ShareCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Play}" Icon="play_arrow" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding PlayCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="0,0">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.CreationTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding CreationTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>

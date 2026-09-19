@@ -39,19 +39,20 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteSequenceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteSequenceCommand, Source={RelativeSource AncestorType={x:Type viewModels:SequenceListPageViewModel}}, x:DataType=viewModels:SequenceListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
                                         <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding BindingContext.ShareSequenceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                                            Command="{Binding ShareSequenceCommand, Source={RelativeSource AncestorType={x:Type viewModels:SequenceListPageViewModel}}, x:DataType=viewModels:SequenceListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.SequenceTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding SequenceTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:SequenceListPageViewModel}}, x:DataType=viewModels:SequenceListPageViewModel}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>

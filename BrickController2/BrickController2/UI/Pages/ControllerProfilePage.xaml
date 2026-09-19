@@ -53,12 +53,14 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerEventCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerEvent}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteControllerEventCommand, Source={RelativeSource AncestorType={x:Type viewmodels:ControllerProfilePageViewModel}}, x:DataType=viewmodels:ControllerProfilePageViewModel}" CommandParameter="{Binding ControllerEvent}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate Add}" Icon="add" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.AddAnotherActionCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerEvent}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Add}" Icon="add" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding AddAnotherActionCommand, Source={RelativeSource AncestorType={x:Type viewmodels:ControllerProfilePageViewModel}}, x:DataType=viewmodels:ControllerProfilePageViewModel}" CommandParameter="{Binding ControllerEvent}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <Grid Style="{StaticResource CollectionViewHeaderGridStyle}">
@@ -83,18 +85,20 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerActionCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteControllerActionCommand, Source={RelativeSource AncestorType={x:Type viewmodels:ControllerProfilePageViewModel}}, x:DataType=viewmodels:ControllerProfilePageViewModel}" CommandParameter="{Binding ControllerAction}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate ChannelSetup}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" Command="{Binding BindingContext.OpenControllerActionSetupCommand, Source={x:Reference Page}}" CommandParameter="{Binding ControllerAction}"
+                                        <controls:SwipeIcon Text="{extensions:Translate ChannelSetup}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            Command="{Binding OpenControllerActionSetupCommand, Source={RelativeSource AncestorType={x:Type viewmodels:ControllerProfilePageViewModel}}, x:DataType=viewmodels:ControllerProfilePageViewModel}" CommandParameter="{Binding ControllerAction}"
                                                             IsVisible="{Binding IsChannelSetupSupported}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <Grid Style="{StaticResource CollectionItemGridStyle}">
                                     <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding BindingContext.ControllerActionTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <TapGestureRecognizer Command="{Binding ControllerActionTappedCommand, Source={RelativeSource AncestorType={x:Type viewmodels:ControllerProfilePageViewModel}}, x:DataType=viewmodels:ControllerProfilePageViewModel}" CommandParameter="{Binding .}"/>
                                     </Grid.GestureRecognizers>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>

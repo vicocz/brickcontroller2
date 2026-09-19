@@ -47,21 +47,22 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteControllerProfileCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteControllerProfileCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationPageViewModel}}, x:DataType=viewModels:CreationPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate Play}" Icon="play_arrow" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" IsVisible="{Binding BindingContext.HasMultipleControllerProfiles, Source={x:Reference Page}}"
-                                                            Command="{Binding BindingContext.PlayControllerProfileCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Play}" Icon="play_arrow" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}" IsVisible="{Binding HasMultipleControllerProfiles, Source={RelativeSource AncestorType={x:Type viewModels:CreationPageViewModel}}, x:DataType=viewModels:CreationPageViewModel}"
+                                                            Command="{Binding PlayControllerProfileCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationPageViewModel}}, x:DataType=viewModels:CreationPageViewModel}" CommandParameter="{Binding .}"/>
                                         <controls:SwipeIcon Text="{extensions:Translate Copy}" Icon="copy" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding BindingContext.CopyControllerProfileCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                                            Command="{Binding CopyControllerProfileCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationPageViewModel}}, x:DataType=viewModels:CreationPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.ControllerProfileTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding ControllerProfileTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationPageViewModel}}, x:DataType=viewModels:CreationPageViewModel}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
                                         <Label Text="{Binding Name}" FontSize="Large" FontAttributes="Bold"/>
                                     </Grid>

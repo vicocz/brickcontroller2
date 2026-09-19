@@ -31,24 +31,25 @@
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteDeviceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteDeviceCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
                                         <controls:SwipeIcon Text="{extensions:Translate Settings}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
                                                             IsVisible="{Binding HasSettings}"
-                                                            Command="{Binding BindingContext.DeviceSettingsCommand, Source={x:Reference Page}}"
+                                                            Command="{Binding DeviceSettingsCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"
                                                             CommandParameter="{Binding .}"/>
                                         <controls:SwipeIcon Text="{extensions:Translate Rename}" Icon="edit" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding BindingContext.RenameDeviceCommand, Source={x:Reference Page}}"
+                                                            Command="{Binding RenameDeviceCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"
                                                             CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.DeviceTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding DeviceTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>

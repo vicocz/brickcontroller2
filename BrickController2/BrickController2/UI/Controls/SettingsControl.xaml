@@ -152,7 +152,7 @@
                             <SwipeItems Mode="Reveal">
                                 <controls:SwipeIcon Text="{extensions:Translate Reset}" Icon="settings_backup_restore" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
                                                     IsVisible="{Binding HasNonDefaultValue}"
-                                                    Command="{Binding BindingContext.ResetGroupToDefaultCommand, Source={x:Reference Control}}" CommandParameter="{Binding .}"/>
+                                                    Command="{Binding ResetGroupToDefaultCommand}" CommandParameter="{Binding .}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
                         <Label Text="{Binding GroupName}" BackgroundColor="{DynamicResource CollectionViewHeaderBackgroundColor}" TextColor="{DynamicResource PrimaryTextColor}"

@@ -1,8 +1,11 @@
-﻿using BrickController2.UI.Services.Translation;
+﻿using BrickController2.UI.Commands;
+using BrickController2.UI.Extensions;
+using BrickController2.UI.Services.Translation;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels.Settings;
 
@@ -28,7 +31,10 @@ public class SettingGroupViewModel : ObservableCollection<SettingViewModelBase>
         {
             setting.PropertyChanged += Setting_PropertyChanged;
         }
+        ResetGroupToDefaultCommand = new SafeCommand(this.ResetToDefaults, () => HasNonDefaultValue);
     }
+
+    public ICommand ResetGroupToDefaultCommand { get; }
 
     public bool HasChanged
     {
@@ -52,6 +58,8 @@ public class SettingGroupViewModel : ObservableCollection<SettingViewModelBase>
             {
                 _nonDefaultValue = value;
                 OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasNonDefaultValue)));
+
+                ResetGroupToDefaultCommand.RaiseCanExecuteChanged();
             }
         }
     }

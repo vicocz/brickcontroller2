@@ -26,18 +26,21 @@ public class CustomSwipeViewHandler : SwipeViewHandler
 
     private void SwipeControl_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        // open context menu instead of swipte items
-        if (VirtualView.LeftItems.Count == 0 && VirtualView.RightItems.Count == 0)
+        // open context menu instead of swipe items
+        var enabledItems = VirtualView.LeftItems
+            .Concat(VirtualView.RightItems)
+            .Cast<SwipeIcon>()
+            .Where(x => x.IsEnabled && x.IsVisible)
+            .ToArray();
+
+        if (enabledItems.Length == 0)
         {
             return;
         }
 
         var contextMenu = new MenuFlyout();
 
-        foreach (var item in VirtualView.LeftItems
-            .Concat(VirtualView.RightItems)
-            .Cast<SwipeIcon>()
-            .Where(x => x.IsEnabled && x.IsVisible))
+        foreach (var item in enabledItems)
         {
             contextMenu.Items.Add(new MenuFlyoutItem
             {
@@ -55,8 +58,8 @@ public class CustomSwipeViewHandler : SwipeViewHandler
         var iconSource = item.IconImageSource.ToIconSource(MauiContext!);
         if (iconSource is FontIconSource fontIconSource)
         {
-            // hardcode now to override SwipeItem's Icon color which is typically white
-            fontIconSource.Foreground = Colors.Black.ToPlatform();
+            // reset now to override SwipeItem's Icon color which is typically white
+            fontIconSource.Foreground = default;
         }
         return iconSource?.CreateIconElement();
     }

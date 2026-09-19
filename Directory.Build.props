@@ -7,7 +7,6 @@
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <Nullable>enable</Nullable>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(RootNamespace)' == ''">
@@ -20,7 +19,18 @@
   </PropertyGroup>
   <!--App information-->
   <PropertyGroup>
-    <ApplicationDisplayVersion>3.4</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>2026.2</ApplicationDisplayVersion>
     <ApplicationVersion>50</ApplicationVersion>
   </PropertyGroup>
+  <!--Language information-->
+  <PropertyGroup>
+    <NeutralLanguage>en</NeutralLanguage>
+    <DefaultLanguage>en</DefaultLanguage>
+    <SatelliteResourceLanguages>de;hu</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <SupportedCultures Include="en" />
+    <SupportedCultures Include="de" />
+    <SupportedCultures Include="hu" />
+  </ItemGroup>
 </Project>

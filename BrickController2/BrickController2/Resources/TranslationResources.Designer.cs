@@ -115,6 +115,24 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add a new controller axis event.
+        /// </summary>
+        internal static string AddControllerAxisEvent {
+            get {
+                return ResourceManager.GetString("AddControllerAxisEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add a new controller button event.
+        /// </summary>
+        internal static string AddControllerButtonEvent {
+            get {
+                return ResourceManager.GetString("AddControllerButtonEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add a new controller event.
         /// </summary>
         internal static string AddControllerEvent {
@@ -673,11 +691,29 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Choices:.
+        /// </summary>
+        internal static string Choices {
+            get {
+                return ResourceManager.GetString("Choices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Choose a JSON file to import.
         /// </summary>
         internal static string ChooseJsonFileToImport {
             get {
                 return ResourceManager.GetString("ChooseJsonFileToImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Collapse.
+        /// </summary>
+        internal static string Collapse {
+            get {
+                return ResourceManager.GetString("Collapse", resourceCulture);
             }
         }
         
@@ -1015,6 +1051,42 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Run Macro.
+        /// </summary>
+        internal static string ExecuteMacro {
+            get {
+                return ResourceManager.GetString("ExecuteMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Execution of the macro has failed:.
+        /// </summary>
+        internal static string ExecuteMacroFailed {
+            get {
+                return ResourceManager.GetString("ExecuteMacroFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Executing....
+        /// </summary>
+        internal static string Executing {
+            get {
+                return ResourceManager.GetString("Executing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expand.
+        /// </summary>
+        internal static string Expand {
+            get {
+                return ResourceManager.GetString("Expand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Export the controller profile.
         /// </summary>
         internal static string ExportControllerProfile {
@@ -1119,6 +1191,15 @@ namespace BrickController2.Resources {
         internal static string FailedToImportSequence {
             get {
                 return ResourceManager.GetString("FailedToImportSequence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to reload macros..
+        /// </summary>
+        internal static string FailedToReloadMacros {
+            get {
+                return ResourceManager.GetString("FailedToReloadMacros", resourceCulture);
             }
         }
         
@@ -1258,6 +1339,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Kind:.
+        /// </summary>
+        internal static string Kind {
+            get {
+                return ResourceManager.GetString("Kind", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Language.
         /// </summary>
         internal static string Language {
@@ -1299,6 +1389,15 @@ namespace BrickController2.Resources {
         internal static string Loop {
             get {
                 return ResourceManager.GetString("Loop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set output level.
+        /// </summary>
+        internal static string Macro_SetOutputLevel {
+            get {
+                return ResourceManager.GetString("Macro_SetOutputLevel", resourceCulture);
             }
         }
         
@@ -1366,6 +1465,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No macros available for this device..
+        /// </summary>
+        internal static string NoMacrosAvailable {
+            get {
+                return ResourceManager.GetString("NoMacrosAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No controller profiles to import..
         /// </summary>
         internal static string NoProfilesToImport {
@@ -1420,6 +1528,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Immediate.
+        /// </summary>
+        internal static string OneShot {
+            get {
+                return ResourceManager.GetString("OneShot", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Manually add devices.
         /// </summary>
         internal static string OpenAddDevicesManually {
@@ -1452,6 +1569,15 @@ namespace BrickController2.Resources {
         internal static string OpenSequenceEditor {
             get {
                 return ResourceManager.GetString("OpenSequenceEditor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tilt Steering.
+        /// </summary>
+        internal static string OrientationSensor {
+            get {
+                return ResourceManager.GetString("OrientationSensor", resourceCulture);
             }
         }
         
@@ -1501,6 +1627,60 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default volume level.
+        /// </summary>
+        internal static string PfxBrickDefaultVolumeLevel {
+            get {
+                return ResourceManager.GetString("PfxBrickDefaultVolumeLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decrease volume.
+        /// </summary>
+        internal static string PfxDecreaseVolumeMacro {
+            get {
+                return ResourceManager.GetString("PfxDecreaseVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Increase volume.
+        /// </summary>
+        internal static string PfxIncreaseVolumeMacro {
+            get {
+                return ResourceManager.GetString("PfxIncreaseVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Play audio.
+        /// </summary>
+        internal static string PfxPlaySoundMacro {
+            get {
+                return ResourceManager.GetString("PfxPlaySoundMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Set volume.
+        /// </summary>
+        internal static string PfxSetVolumeMacro {
+            get {
+                return ResourceManager.GetString("PfxSetVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop audio.
+        /// </summary>
+        internal static string PfxStopSoundMacro {
+            get {
+                return ResourceManager.GetString("PfxStopSoundMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Play.
         /// </summary>
         internal static string Play {
@@ -1519,6 +1699,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Press a button on the game controller.
+        /// </summary>
+        internal static string PressButton {
+            get {
+                return ResourceManager.GetString("PressButton", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Press a button or move a joy on the game controller.
         /// </summary>
         internal static string PressButtonOrMoveJoy {
@@ -1533,6 +1722,15 @@ namespace BrickController2.Resources {
         internal static string PressButtonsOrMoveJoys {
             get {
                 return ResourceManager.GetString("PressButtonsOrMoveJoys", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Move a joystick on the game controller.
+        /// </summary>
+        internal static string PressOrMoveJoy {
+            get {
+                return ResourceManager.GetString("PressOrMoveJoy", resourceCulture);
             }
         }
         
@@ -1582,6 +1780,24 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reloading macros.
+        /// </summary>
+        internal static string ReloadingMacros {
+            get {
+                return ResourceManager.GetString("ReloadingMacros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reload macros.
+        /// </summary>
+        internal static string ReloadMacros {
+            get {
+                return ResourceManager.GetString("ReloadMacros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enable remote control.
         /// </summary>
         internal static string RemoteControlEnabled {
@@ -1605,6 +1821,15 @@ namespace BrickController2.Resources {
         internal static string Renaming {
             get {
                 return ResourceManager.GetString("Renaming", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repeatable.
+        /// </summary>
+        internal static string Repeatable {
+            get {
+                return ResourceManager.GetString("Repeatable", resourceCulture);
             }
         }
         
@@ -1695,6 +1920,15 @@ namespace BrickController2.Resources {
         internal static string ScanQr {
             get {
                 return ResourceManager.GetString("ScanQr", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scope:.
+        /// </summary>
+        internal static string Scope {
+            get {
+                return ResourceManager.GetString("Scope", resourceCulture);
             }
         }
         
@@ -1848,6 +2082,33 @@ namespace BrickController2.Resources {
         internal static string ShortChannel {
             get {
                 return ResourceManager.GetString("ShortChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to Channels.
+        /// </summary>
+        internal static string ShowChannels {
+            get {
+                return ResourceManager.GetString("ShowChannels", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to Macros.
+        /// </summary>
+        internal static string ShowMacros {
+            get {
+                return ResourceManager.GetString("ShowMacros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Go to Sensors.
+        /// </summary>
+        internal static string ShowSensors {
+            get {
+                return ResourceManager.GetString("ShowSensors", resourceCulture);
             }
         }
         

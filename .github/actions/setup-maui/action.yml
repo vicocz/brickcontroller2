@@ -1,0 +1,64 @@
+name: Setup MAUI
+description: Installs the .NET SDK pinned in global.json, optionally installs the MAUI workload for a platform, and exposes the full target framework moniker (e.g. net10.0-android) as an output.
+inputs:
+  platform:
+    description: MAUI platform suffix appended to the TFM base, e.g. android, ios, maccatalyst, windows10.0.19041.0
+    required: false
+    default: ""
+  install-workload:
+    description: Whether to run dotnet workload install maui-<platform>. Set to false to skip (e.g. for windows).
+    required: false
+    default: "true"
+  workload-id:
+    description: Override the workload id passed to dotnet workload install (defaults to maui-<platform>).
+    required: false
+    default: ""
+outputs:
+  target-framework:
+    description: The full target framework moniker, e.g. net10.0-android
+    value: ${{ steps.tfm.outputs.target-framework }}
+  tfm-base:
+    description: The target framework base moniker without platform suffix, e.g. net10.0
+    value: ${{ steps.tfm.outputs.base }}
+  app-version:
+    description: The ApplicationDisplayVersion read from Directory.Build.props
+    value: ${{ steps.app-version.outputs.version }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: global.json
+    - id: tfm
+      shell: bash
+      run: |
+        DOTNET_VERSION=$(dotnet --version | cut -d. -f1,2)
+        BASE="net$DOTNET_VERSION"
+        PLATFORM="${{ inputs.platform }}"
+        echo "base=$BASE" >> "$GITHUB_OUTPUT"
+        if [ -n "$PLATFORM" ]; then
+          echo "target-framework=$BASE-$PLATFORM" >> "$GITHUB_OUTPUT"
+        else
+          echo "target-framework=$BASE" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Install MAUI Workload
+      if: inputs.install-workload == 'true'
+      shell: bash
+      run: |
+        WORKLOAD_ID="${{ inputs.workload-id }}"
+        if [ -z "$WORKLOAD_ID" ]; then
+          if [ -z "${{ inputs.platform }}" ]; then
+            echo "No platform or workload-id provided; skipping MAUI workload installation." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          WORKLOAD_ID="maui-${{ inputs.platform }}"
+        fi
+        dotnet workload install "$WORKLOAD_ID"
+
+    - id: app-version
+      name: Get App Version from Build Properties
+      shell: bash
+      run: |
+        VERSION=$(sed -n 's|.*<ApplicationDisplayVersion>\(.*\)</ApplicationDisplayVersion>.*|\1|p' Directory.Build.props)
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Found app version: $VERSION" >> "$GITHUB_STEP_SUMMARY"

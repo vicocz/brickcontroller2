@@ -10,7 +10,7 @@ using BrickController2.CreationManagement.Sharing;
 using BrickController2.DeviceManagement;
 using BrickController2.Extensions;
 using BrickController2.Helpers;
-using BrickController2.PlatformServices.InputDeviceService;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.SharedFileStorage;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -55,6 +55,8 @@ namespace BrickController2.UI.ViewModels
             CopyControllerProfileCommand = new SafeCommand(CopyControllerProfileAsync);
             RenameProfileCommand = new SafeCommand(async () => await RenameControllerProfileAsync());
             AddControllerEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false));
+            AddControllerAxisEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false, InputDeviceEventType.Axis));
+            AddControllerButtonEventCommand = new SafeCommand(async () => await AddControllerEventAsync(false, InputDeviceEventType.Button));
             AddControllerEventForSpecificControllerIdCommand = new SafeCommand(async () => await AddControllerEventAsync(true));
             PlayCommand = new SafeCommand(async () => await PlayAsync());
             ControllerActionTappedCommand = new SafeCommand<ControllerActionViewModel>(ShowActionAsync);
@@ -87,6 +89,8 @@ namespace BrickController2.UI.ViewModels
         public ICommand CopyControllerProfileCommand { get; }
         public ICommand RenameProfileCommand { get; }
         public ICommand AddControllerEventCommand { get; }
+        public ICommand AddControllerAxisEventCommand { get; }
+        public ICommand AddControllerButtonEventCommand { get; }
         public ICommand AddControllerEventForSpecificControllerIdCommand { get; }
         public ICommand PlayCommand { get; }
         public ICommand ControllerActionTappedCommand { get; }
@@ -205,7 +209,7 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private async Task AddControllerEventAsync(bool addControllerId)
+        private async Task AddControllerEventAsync(bool addControllerId, InputDeviceEventType? requiredEventType = null)
         {
             try
             {
@@ -219,11 +223,18 @@ namespace BrickController2.UI.ViewModels
                     return;
                 }
 
+                var message = requiredEventType switch
+                {
+                    InputDeviceEventType.Button => Translate("PressButton"),
+                    InputDeviceEventType.Axis => Translate("PressOrMoveJoy"),
+                    _ => Translate("PressButtonOrMoveJoy")
+                };
                 var result = await _dialogService.ShowGameControllerEventDialogAsync(
                     Translate("Controller"),
-                    Translate("PressButtonOrMoveJoy"),
+                    message,
                     Translate("Cancel"),
-                    DisappearingToken);
+                    DisappearingToken,
+                    (eventType, eventCode) => requiredEventType is null || eventType == requiredEventType);
                 if (result.IsOk)
                 {
                     ControllerEvent? controllerEvent = null;
@@ -404,55 +415,56 @@ namespace BrickController2.UI.ViewModels
                 device.IsOutputTypeSupported(controllerAction.Channel, controllerAction.ChannelOutputType);
         }
 
-        public class ControllerActionViewModel
+    }
+
+    public class ControllerActionViewModel
+    {
+        private readonly Device? _device;
+
+        public ControllerActionViewModel(
+            ControllerAction controllerAction,
+            IDeviceManager deviceManager,
+            IPlayLogic playLogic,
+            ITranslationService translationService)
         {
-            private readonly Device? _device;
+            ControllerAction = controllerAction;
+            _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
 
-            public ControllerActionViewModel(
-                ControllerAction controllerAction,
-                IDeviceManager deviceManager,
-                IPlayLogic playLogic,
-                ITranslationService translationService)
-            {
-                ControllerAction = controllerAction;
-                _device = deviceManager.GetDeviceById(controllerAction.DeviceId);
-
-                ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
-                DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
-                // primary take type from existing device or try to parse DeviceId
-                DeviceType = _device != null ? _device.DeviceType :
-                    (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
-                Channel = controllerAction.Channel;
-                InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
-            }
-
-            public ControllerAction ControllerAction { get; }
-            public bool ControllerActionValid { get; }
-            public string DeviceName { get; }
-            public DeviceType DeviceType { get; }
-            public int Channel { get; }
-            public string InvertName { get; }
-
-            public bool IsChannelSetupSupported =>
-                _device is not null &&
-                ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
-                _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
+            ControllerActionValid = playLogic.ValidateControllerAction(controllerAction);
+            DeviceName = _device != null ? _device.Name : translationService.Translate("Missing");
+            // primary take type from existing device or try to parse DeviceId
+            DeviceType = _device != null ? _device.DeviceType :
+                (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
+            Channel = controllerAction.Channel;
+            InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
         }
 
-        public class ControllerEventViewModel : List<ControllerActionViewModel>
+        public ControllerAction ControllerAction { get; }
+        public bool ControllerActionValid { get; }
+        public string DeviceName { get; }
+        public DeviceType DeviceType { get; }
+        public int Channel { get; }
+        public string InvertName { get; }
+
+        public bool IsChannelSetupSupported =>
+            _device is not null &&
+            ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
+            _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
+    }
+
+    public class ControllerEventViewModel : List<ControllerActionViewModel>
+    {
+        public ControllerEventViewModel(
+            ControllerEvent controllerEvent,
+            IDeviceManager deviceManager,
+            IPlayLogic playLogic,
+            ITranslationService translationService)
         {
-            public ControllerEventViewModel(
-                ControllerEvent controllerEvent,
-                IDeviceManager deviceManager,
-                IPlayLogic playLogic,
-                ITranslationService translationService)
-            {
-                ControllerEvent = controllerEvent;
+            ControllerEvent = controllerEvent;
 
-                AddRange(controllerEvent.ControllerActions.Select(ca => new ControllerActionViewModel(ca, deviceManager, playLogic, translationService)));
-            }
-
-            public ControllerEvent ControllerEvent { get; }
+            AddRange(controllerEvent.ControllerActions.Select(ca => new ControllerActionViewModel(ca, deviceManager, playLogic, translationService)));
         }
+
+        public ControllerEvent ControllerEvent { get; }
     }
 }

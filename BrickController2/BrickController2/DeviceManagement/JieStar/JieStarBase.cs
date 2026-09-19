@@ -39,7 +39,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, JieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
+    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
         : base(name, address, deviceData, deviceRepository, bleService)
     {
         _telegram_Connect = telegram_Connect;
@@ -55,6 +55,10 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
 
         _telegram_Base[1] = appId[0];
         _telegram_Base[2] = appId[1];
+
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>
@@ -208,32 +212,14 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// This method sets the device to initial state before advertising starts
     /// All channels are initialized with zeroValue.
     /// </summary>
-    protected override void InitDevice()
-    {
-        const float zeroValue = 0.0f;
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            _storedValues[channelNo] = zeroValue;   // restore stored values to zero
-            SetChannelOutput(channelNo, zeroValue); // set all channels to zero using the channel specific function
-        }
-    }
+    protected override void InitDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Disconnects the device and resets the output state of all channels to zero.
     /// </summary>
     /// <remarks>This method ensures that all channels are set to a zero output state during the disconnection
     /// process. It is intended to be called as part of the device's disconnection workflow.</remarks>
-    protected override void DisconnectDevice()
-    {
-        const float zeroValue = 0.0f;
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            // call _bluetoothAdvertisingDeviceHandler.SetChannelState() to set global channel state to zero
-            SetChannelOutput(channelNo, zeroValue);
-        }
-    }
+    protected override void DisconnectDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Attempts to retrieve the RF payload for the specified telegram type.
@@ -245,7 +231,7 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// <param name="payload">When this method returns, contains the RF payload as a byte array if the operation succeeds; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns><see langword="true"/> if the RF payload was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
     {
         if (getConnectTelegram)
         {
@@ -274,5 +260,19 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
             CHANNEL_START_OFFSET + (channelNo >> 1), // div 2 -> 2 channels per byte
             (channelNo & 0x01) == 0x01
         );
+    }
+
+    /// <summary>
+    /// Resets the value and the output state of all channels to zero.
+    /// </summary>
+    private void ResetAllChannelsToZero()
+    {
+        const float zeroValue = 0.0f;
+
+        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+        {
+            _storedValues[channelNo] = zeroValue;
+            SetChannelOutput(channelNo, zeroValue);
+        }
     }
 }

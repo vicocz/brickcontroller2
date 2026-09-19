@@ -2,7 +2,7 @@
 using System.Text;
 using BrickController2.PlatformServices.BluetoothLE;
 
-namespace BrickController2.DeviceManagement;
+namespace BrickController2.DeviceManagement.FxBricks;
 
 /// <summary>
 /// Manager for PfxBrick devices

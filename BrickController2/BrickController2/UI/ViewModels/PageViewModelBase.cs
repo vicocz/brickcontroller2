@@ -1,5 +1,6 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.UI.Commands;
+using BrickController2.UI.Extensions;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
@@ -42,7 +43,7 @@ namespace BrickController2.UI.ViewModels
         protected internal CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
 
         protected string Translate(string key) => TranslationService.Translate(key);
-        protected string Translate(string key, string extra) => Translate(key) + " " + extra;
-        protected string Translate(string key, Exception ex) => Translate(key, ex.Message);
+        protected string Translate(string key, string extra) => TranslationService.Translate(key, extra);
+        protected string Translate(string key, Exception ex) => TranslationService.Translate(key, ex);
     }
 }

@@ -2,6 +2,7 @@
 using BrickController2.DeviceManagement.CaDA;
 using BrickController2.DeviceManagement.JieStar;
 using BrickController2.DeviceManagement.MouldKing;
+using BrickController2.DeviceManagement.PowerBox;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.PlatformServices.InputDeviceService;
 using BrickController2.PlatformServices.Infrared;
@@ -12,6 +13,7 @@ using BrickController2.Windows.PlatformServices.BluetoothLE;
 using BrickController2.Windows.PlatformServices.DeviceManagement.CaDA;
 using BrickController2.Windows.PlatformServices.DeviceManagement.JieStar;
 using BrickController2.Windows.PlatformServices.DeviceManagement.MouldKing;
+using BrickController2.Windows.PlatformServices.DeviceManagement.PowerBox;
 using BrickController2.Windows.PlatformServices.GameController;
 using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Localization;
@@ -34,5 +36,6 @@ public class PlatformServicesModule : Module
         builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
         builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
         builder.RegisterType<JieStarPlatformService>().As<IJieStarPlatformService>().SingleInstance();
+        builder.RegisterType<PowerBoxPlatformService>().As<IPowerBoxPlatformService>().SingleInstance();
     }
 }

@@ -210,6 +210,9 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz output level</value>
   </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Set output level</value>
+  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Calibrating...</value>
   </data>
@@ -366,6 +369,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Failed to import the sequence.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Failed to reload macros.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>File already exits</value>
   </data>
@@ -491,6 +497,9 @@
   </data>
   <data name="Reseting" xml:space="preserve">
     <value>Reseting...</value>
+  </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Reloading macros</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Saving...</value>
@@ -648,11 +657,23 @@
   <data name="Applying" xml:space="preserve">
     <value>Applying...</value>
   </data>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Go to Macros</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>No macros available for this device.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>Execution of the macro has failed:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
   </data>
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
+  </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Default volume level</value>
   </data>
   <data name="On" xml:space="preserve">
     <value>On</value>
@@ -764,5 +785,68 @@
   </data>
   <data name="OrientationSensor" xml:space="preserve">
     <value>Tilt Steering</value>
+  </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Play audio</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Stop audio</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Set volume</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Increase volume</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Decrease volume</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Go to Sensors</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Run Macro</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Go to Channels</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Scope:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Kind:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Choices:</value>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Executing...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Immediate</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Repeatable</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Press a button on the game controller</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Move a joystick on the game controller</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Expand</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Collapse</value>
+  </data>
+  <data name="AddControllerAxisEvent" xml:space="preserve">
+    <value>Add a new controller axis event</value>
+  </data>
+  <data name="AddControllerButtonEvent" xml:space="preserve">
+    <value>Add a new controller button event</value>
+  </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Reload macros</value>
   </data>
 </root>

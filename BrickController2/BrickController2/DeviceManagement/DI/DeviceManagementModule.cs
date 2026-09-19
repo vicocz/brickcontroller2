@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using BrickController2.DeviceManagement.FxBricks;
 using BrickController2.DeviceManagement.Vendors;
 using BrickController2.Extensions;
 using BrickController2.UI.Images;

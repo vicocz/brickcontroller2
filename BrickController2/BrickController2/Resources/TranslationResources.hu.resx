@@ -210,6 +210,9 @@
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz kimeneti szint</value>
   </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Kimeneti szint beállítása</value>
+  </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Kalibrálás...</value>
   </data>
@@ -366,6 +369,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Nem sikerült importálni a szekvenciát.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Nem sikerült újratölteni a makrókat.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>A file már létezik</value>
   </data>
@@ -491,6 +497,9 @@
   </data>
   <data name="Reseting" xml:space="preserve">
     <value>Átállítás...</value>
+  </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Makrók újratöltése folyamatban</value>
   </data>
   <data name="Saving" xml:space="preserve">
     <value>Mentés...</value>
@@ -648,11 +657,23 @@
   <data name="Applying" xml:space="preserve">
     <value>Jelentkezés...</value>
   </data>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Ugrás a makrókhoz</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>Nincsenek makrók ehhez az eszközhöz.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>A makró végrehajtása sikertelen:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Alapértelmezett kimeneti szint</value>
   </data>
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Alapértelmezett kimeneti szint</value>
+  </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Alapértelmezett hangerő</value>
   </data>
   <data name="On" xml:space="preserve">
     <value>On</value>
@@ -755,5 +776,68 @@
   </data>
   <data name="OrientationSensor" xml:space="preserve">
     <value>Dönthető kormányzás</value>
+  </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Hang lejátszása</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Hang leállítása</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Hangerő beállítása</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Hangerő növelése</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Hangerő csökkentése</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Ugrás az Érzékelőkhöz</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Makró futtatása</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Ugrás a Csatornák oldalra</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Hatály:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Fajta:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Választási lehetőségek:</value>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Végrehajtó...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Azonnali</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Ismételhető</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Nyomj meg egy gombot a játékvezérlőn</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Mozgasd a joystickot a játékvezérlőn</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Bontsa ki</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Csukja össze</value>
+  </data>
+  <data name="AddControllerAxisEvent" xml:space="preserve">
+    <value>Új vezérlőtengely esemény hozzáadása</value>
+  </data>
+  <data name="AddControllerButtonEvent" xml:space="preserve">
+    <value>Új kontrollergomb esemény hozzáadása</value>
+  </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Makrók újratöltése</value>
   </data>
 </root>

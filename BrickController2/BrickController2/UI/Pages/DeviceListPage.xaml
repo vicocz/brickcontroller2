@@ -5,12 +5,13 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:deviceManagement="clr-namespace:BrickController2.DeviceManagement"
     x:Class="BrickController2.UI.Pages.DeviceListPage"
     x:Name="Page"
+    x:DataType="viewModels:DeviceListPageViewModel"
     Title="{extensions:Translate Devices}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <local:PageBase.Resources>
@@ -26,28 +27,29 @@
                 <!-- Device list -->
                 <CollectionView ItemsSource="{Binding DeviceManager.Devices}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="deviceManagement:Device">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteDeviceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteDeviceCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
                                         <controls:SwipeIcon Text="{extensions:Translate Settings}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
                                                             IsVisible="{Binding HasSettings}"
-                                                            Command="{Binding BindingContext.DeviceSettingsCommand, Source={x:Reference Page}}"
+                                                            Command="{Binding DeviceSettingsCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"
                                                             CommandParameter="{Binding .}"/>
                                         <controls:SwipeIcon Text="{extensions:Translate Rename}" Icon="edit" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding BindingContext.RenameDeviceCommand, Source={x:Reference Page}}"
+                                                            Command="{Binding RenameDeviceCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"
                                                             CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.DeviceTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding DeviceTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>

@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.AboutPage"
+    x:DataType="viewModels:AboutPageViewModel"
     Title="{extensions:Translate About}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <local:PageBase.Content>
@@ -28,7 +28,7 @@
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 
-                        <Label Text="Copyright © 2025, István Murvai (SCN)"/>
+                        <Label Text="Copyright © 2026, István Murvai (SCN)"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,16,6,16"/>
 

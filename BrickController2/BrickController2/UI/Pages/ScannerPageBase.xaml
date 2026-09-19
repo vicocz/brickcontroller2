@@ -4,11 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-	xmlns:local="clr-namespace:BrickController2.UI.Pages"
-	xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
-	xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
-	x:Class="BrickController2.UI.Pages.ScannerPageBase"
-	x:DataType="viewModels:ScannerPageViewModelBase"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    x:Class="BrickController2.UI.Pages.ScannerPageBase"
+    x:DataType="viewModels:ScannerPageViewModelBase"
     Title="{extensions:Translate ScanQr}"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 

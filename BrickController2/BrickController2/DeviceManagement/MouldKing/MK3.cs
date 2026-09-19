@@ -39,10 +39,9 @@ internal class MK3 : MKBaseByte, IDeviceType<MK3>
     private bool _function1Enabled;
     private bool _function2Enabled;
 
-    public MK3(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 3, MK3.Telegram_Connect, MK3.Telegram_Base_Device)
+    public MK3(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
+      : base(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 3, MK3.Telegram_Connect, MK3.Telegram_Base_Device)
     {
-        InitDevice();
     }
 
     public static DeviceType Type => DeviceType.MK3;

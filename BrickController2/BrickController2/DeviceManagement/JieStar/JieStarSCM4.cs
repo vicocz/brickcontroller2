@@ -39,8 +39,8 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// </summary>
     private static readonly TimeSpan ReconnectTimeSpan = TimeSpan.FromSeconds(3);
 
-    public JieStarSCM4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, Telegram_Connect_Device, GetTelegramBase(address), GetCTXValue2(address))
+    public JieStarSCM4(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager)
+      : base(name, address, deviceRepository, bleService, jieStarPlatformService, jieStarDeviceManager, Telegram_Connect_Device, GetTelegramBase(address), GetCTXValue2(address))
     {
     }
 
@@ -91,7 +91,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// </summary>
     /// <param name="address">address</param>
     /// <returns>reference to Base-Telegram</returns>
-    private static byte[] GetTelegramBase(string address)
+    private static ReadOnlySpan<byte> GetTelegramBase(string address)
     {
         return address switch
         {

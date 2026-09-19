@@ -14,7 +14,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     private readonly OutputValuesGroup<Half> _outputValues = new(3);
 
     public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMessageEncoderFactory messageEncoderFactory)
-      : base(name, address, deviceData, deviceRepository, bleService)
+      : base(name, address, deviceRepository, bleService)
     {
         // create message encoder for this device based on advertised data
         _messageEncoder = messageEncoderFactory.Create(deviceData);

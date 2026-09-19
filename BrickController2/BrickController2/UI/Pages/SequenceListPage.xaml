@@ -5,12 +5,13 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:models="clr-namespace:BrickController2.CreationManagement"
     x:Class="BrickController2.UI.Pages.SequenceListPage"
     x:Name="Page"
+    x:DataType="viewModels:SequenceListPageViewModel"
     Title="{extensions:Translate Sequences}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <local:PageBase.Resources>
@@ -34,23 +35,24 @@
                 <!-- Sequence list -->
                 <CollectionView ItemsSource="{Binding Sequences}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="models:Sequence">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
-                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}" Command="{Binding BindingContext.DeleteSequenceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                        <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel"  BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
+                                                            Command="{Binding DeleteSequenceCommand, Source={RelativeSource AncestorType={x:Type viewModels:SequenceListPageViewModel}}, x:DataType=viewModels:SequenceListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
                                         <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding BindingContext.ShareSequenceCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                                            Command="{Binding ShareSequenceCommand, Source={RelativeSource AncestorType={x:Type viewModels:SequenceListPageViewModel}}, x:DataType=viewModels:SequenceListPageViewModel}" CommandParameter="{Binding .}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}">
                                         <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.SequenceTappedCommand, Source={x:Reference Page}}" CommandParameter="{Binding .}"/>
+                                            <TapGestureRecognizer Command="{Binding SequenceTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:SequenceListPageViewModel}}, x:DataType=viewModels:SequenceListPageViewModel}" CommandParameter="{Binding .}"/>
                                         </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>

@@ -1,5 +1,6 @@
 ﻿using BrickController2.Settings;
 using BrickController2.UI.Commands;
+using BrickController2.UI.Extensions;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels.Settings;
@@ -37,12 +37,9 @@ public abstract class SettingsPageViewModelBase : PageViewModelBase
         }
 
         ResetToDefaultsCommand = new SafeCommand(ResetToDefaults, () => AllSettings.Any(x => x.HasNonDefaultValue));
-        ResetGroupToDefaultCommand = new SafeCommand<SettingGroupViewModel>(ResetGroupToDefaults,
-            (o) => o is SettingGroupViewModel group && group.HasNonDefaultValue);
     }
 
     public ICommand ResetToDefaultsCommand { get; }
-    public ICommand ResetGroupToDefaultCommand { get; }
 
     public bool IsGrouped { get; }
     public IEnumerable<INotifyPropertyChanged> Settings => IsGrouped ? Groups : AllSettings;
@@ -58,7 +55,6 @@ public abstract class SettingsPageViewModelBase : PageViewModelBase
     protected virtual void OnDefaultValueChanged()
     {
         ResetToDefaultsCommand.RaiseCanExecuteChanged();
-        ResetGroupToDefaultCommand.RaiseCanExecuteChanged();
     }
 
     private void Group_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -99,15 +95,5 @@ public abstract class SettingsPageViewModelBase : PageViewModelBase
         throw new InvalidOperationException($"The specified type {setting.Type} is not supported.");
     }
 
-    private void ResetToDefaults() => ResetToDefaults(AllSettings);
-
-    private static void ResetGroupToDefaults(SettingGroupViewModel group) => ResetToDefaults(group);
-
-    private static void ResetToDefaults(ICollection<SettingViewModelBase> viewModels)
-    {
-        foreach (var setting in viewModels.Where(s => s.HasNonDefaultValue))
-        {
-            setting.ResetToDefault();
-        }
-    }
+    private void ResetToDefaults() => AllSettings.ResetToDefaults();
 }

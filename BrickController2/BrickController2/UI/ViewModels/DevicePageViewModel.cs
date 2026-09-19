@@ -66,7 +66,7 @@ namespace BrickController2.UI.ViewModels
                 () => Device.DeviceState == DeviceState.Connected && Device.CanActivateShelfMode);
             ScanCommand = new SafeCommand(ScanAsync, () => CanExecuteScan);
             OpenDeviceSettingsPageCommand = new SafeCommand(OpenDeviceSettingsAsync, () => CanOpenSettings);
-            SwitchToChannelViewCommand = new SafeCommand(() => SwitchViewAsync(showChannels:true), () => CanSwitchToChannelView);
+            SwitchToChannelViewCommand = new SafeCommand(() => SwitchViewAsync(showChannels: true), () => CanSwitchToChannelView);
             SwitchToSensorViewCommand = new SafeCommand(() => SwitchViewAsync(showInputs: true), () => CanSwitchToSensorView);
             SwitchToMacroViewCommand = new SafeCommand(() => SwitchViewAsync(showMacros: true), () => CanSwitchToMacroView);
             ReloadMacrosCommand = new SafeCommand(async () => await ReloadMacrosAsync(DisappearingToken));
@@ -623,7 +623,7 @@ namespace BrickController2.UI.ViewModels
                     ServoBaseAngle = DEFAULT_SERVO_BASE_ANGLE,
                     StepperAngle = DEFAULT_STEPPER_ANGLE,
                     // choose first supported output type
-                    ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor) 
+                    ChannelOutputType = Device.IsOutputTypeSupported(Channel, ChannelOutputType.ServoMotor)
                         ? ChannelOutputType.ServoMotor
                         : ChannelOutputType.StepperMotor,
                 };

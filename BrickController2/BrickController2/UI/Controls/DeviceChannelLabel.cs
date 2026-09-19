@@ -14,7 +14,7 @@ namespace BrickController2.UI.Controls
         private readonly static string[] _circuitCubesChannelLetters = new[] { "A", "B", "C" };
         private readonly static string[] _buwizz3ChannelLetters = new[] { "1", "2", "3", "4", "A", "B" };
         private readonly static string[] _mk5ChannelLetters = ["AB", "T", "C", "AB+T", "TL"];
-        private readonly static string[] _mk6ChannelLetters = new[] { "A", "B", "C", "D", "E", "F" };
+        private readonly static string[] _mkDefaultChannelLetters = ["A", "B", "C", "D", "E", "F"];
         private readonly static string[] _sBrickLightChannelLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
         private readonly static string[] _jieStarChannelLetters = ["A", "B", "C", "D", "E", "F", "G", "H"];
         private readonly static string[] _powerBoxChannelLetters = ["A", "B", "C", "D"];
@@ -86,11 +86,12 @@ namespace BrickController2.UI.Controls
                         TranslationHelper.Translate("Red");
                     break;
 
+                case DeviceType.MK3:
                 case DeviceType.MK3_8:
                 case DeviceType.MK4:
                 case DeviceType.MK6:
                 case DeviceType.MK_DIY:
-                    SetChannelText(_mk6ChannelLetters);
+                    SetChannelText(_mkDefaultChannelLetters);
                     break;
 
                 case DeviceType.MK5:

@@ -6,13 +6,11 @@
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.DevicePage"
     x:DataType="viewmodels:DevicePageViewModel"
     Title="{extensions:Translate Device}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <local:PageBase.Resources>

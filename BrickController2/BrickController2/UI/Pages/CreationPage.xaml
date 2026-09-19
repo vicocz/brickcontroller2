@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     xmlns:models="clr-namespace:BrickController2.CreationManagement"
@@ -12,7 +11,6 @@
     x:Name="Page"
     x:DataType="viewModels:CreationPageViewModel"
     Title="{extensions:Translate Creation}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ContentPage.ToolbarItems>

@@ -4,13 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
     xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.PlayerPage"
     x:DataType="viewModels:PlayerPageViewModel"
     Title="{extensions:Translate Play}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <local:PageBase.Content>

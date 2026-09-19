@@ -30,7 +30,7 @@
                 <!-- Device list -->
                 <CollectionView ItemsSource="{Binding GroupedFactoryDatas}" IsGrouped="True">
                     <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate x:DataType="viewModels:DeviceGroup">
+                        <DataTemplate x:DataType="viewModels:ManualDeviceListPageViewModel+DeviceGroup">
                             <Grid Style="{StaticResource CollectionItemGridStyle}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -44,12 +44,12 @@
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                     <CollectionView.GroupFooterTemplate>
-                        <DataTemplate x:DataType="viewModels:DeviceGroup">
+                        <DataTemplate x:DataType="viewModels:ManualDeviceListPageViewModel+DeviceGroup">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
                         </DataTemplate>
                     </CollectionView.GroupFooterTemplate>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="viewModels:DeviceEntry">
+                        <DataTemplate x:DataType="viewModels:ManualDeviceListPageViewModel+DeviceEntry">
                             <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="50"/>

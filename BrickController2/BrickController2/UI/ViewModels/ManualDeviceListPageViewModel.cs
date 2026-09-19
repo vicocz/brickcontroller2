@@ -14,6 +14,32 @@ namespace BrickController2.UI.ViewModels
 {
     public class ManualDeviceListPageViewModel : PageViewModelBase
     {
+        public class DeviceEntry
+        {
+            public IDeviceFactoryData DeviceFactoryData { get; }
+            public Device? ExistingDevice { get; }
+            public bool Selected { get; set; }
+
+            public DeviceEntry(IDeviceFactoryData deviceFactoryData, Device? instace)
+            {
+                DeviceFactoryData = deviceFactoryData;
+                ExistingDevice = instace;
+                Selected = instace != null;
+            }
+        }
+        public class DeviceGroup : List<DeviceEntry>
+        {
+            public DeviceType DeviceType { get; }
+
+            public string GroupName { get; }
+
+            public DeviceGroup(DeviceType deviceType, string groupName, List<DeviceEntry> deviceEntries) : base(deviceEntries)
+            {
+                GroupName = groupName;
+                DeviceType = deviceType;
+            }
+        }
+
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
 
@@ -22,7 +48,7 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDeviceManager deviceManager,
             IManualDeviceManager manualDeviceManager,
-            IDialogService dialogService) 
+            IDialogService dialogService)
             : base(navigationService, translationService)
         {
             _deviceManager = deviceManager;
@@ -65,7 +91,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowProgressDialogAsync(
                     false,
-                    async (progressDialog, token) => 
+                    async (progressDialog, token) =>
                     {
                         if (devicesToCreate.Length > 0)
                         {

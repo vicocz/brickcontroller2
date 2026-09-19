@@ -5,11 +5,10 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:viewmodels="clr-namespace:BrickController2.UI.ViewModels"
-    xmlns:local="clr-namespace:BrickController2.UI.Pages"
     xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
     x:Class="BrickController2.UI.Pages.DevicePage"
-    x:DataType="viewmodels:DevicePageViewModel"
+    x:DataType="viewModels:DevicePageViewModel"
     Title="{extensions:Translate Device}"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
@@ -131,7 +130,7 @@
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding DeviceOutputs}">
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:DeviceOutputViewModel">
+                                    <DataTemplate x:DataType="viewModels:DevicePageViewModel+DeviceOutputViewModel">
                                         <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="5,0,5,0" RowDefinitions="*,*">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="25"/>
@@ -155,7 +154,7 @@
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="10,20,10,8"/>
                             <CollectionView ItemsSource="{Binding InputEventList}" SelectionMode="None" ItemsLayout="VerticalList">
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:InputDeviceEventViewModel">
+                                    <DataTemplate x:DataType="viewModels:InputDeviceEventViewModel">
                                         <VerticalStackLayout Padding="{OnIdiom '10,5,10,5', Desktop='10,0,10,0'}">
                                             <HorizontalStackLayout>
                                                 <Label Text="{Binding EventCode}" FontSize="Large" FontAttributes="Bold"/>
@@ -178,7 +177,7 @@
                                    IsVisible="{Binding Macros.Count, Converter={StaticResource IntEqualsZeroToBool}}" Margin="0,50,0,0"/>
                             <VerticalStackLayout BindableLayout.ItemsSource="{Binding Macros}" Margin="0,0,0,50" >
                                 <BindableLayout.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:MacroItemViewModel">
+                                    <DataTemplate x:DataType="viewModels:MacroItemViewModel">
                                         <VerticalStackLayout>
                                             <Grid Style="{StaticResource CollectionItemGridStyle}" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
                                                 <Border Grid.Column="0" Grid.RowSpan="2" WidthRequest="40" HeightRequest="40" BackgroundColor="{Binding Idx, Converter={StaticResource IntToColor}}" StrokeShape="RoundRectangle 20" Padding="0" VerticalOptions="Center">

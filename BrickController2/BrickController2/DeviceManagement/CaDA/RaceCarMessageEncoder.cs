@@ -81,7 +81,7 @@ public class RaceCarMessageEncoder : IMessageEncoder
         _controlDataArray[8] = (byte)(random & 0xFF);
         _controlDataArray[9] = (byte)((random >> 8) & 0xFF);
         _controlDataArray[10] = Clamp(HalfByte - (values[0] * HalfByte)); // speed value - reversed
-        _controlDataArray[11] = Clamp(HalfByte + (values[1] * HalfByte)); // stearing value
+        _controlDataArray[11] = Clamp(HalfByte + (values[1] * HalfByte)); // steering value
         _controlDataArray[12] = (byte)values[2];                          // bitfield: 0x01 frontlights, 0x02 rearlights
         _controlDataArray[13] = 0;
         _controlDataArray[14] = 0;

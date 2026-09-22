@@ -83,15 +83,14 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
 
     private bool SetLights(int bitoffset, float value)
     {
-        if (value == 0)
-        {
-            _lightsBitArray &= (byte)~(1 << bitoffset);
-        }
-        else
+        if (Math.Abs(value) > 0.5f)
         {
             _lightsBitArray |= (byte)(1 << bitoffset);
         }
+        else
+        {
+            _lightsBitArray &= (byte)~(1 << bitoffset);
+        }
         return _outputValues.SetOutput(2, (Half)_lightsBitArray);
     }
-
 }

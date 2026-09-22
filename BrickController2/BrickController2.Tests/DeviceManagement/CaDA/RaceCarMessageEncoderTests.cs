@@ -106,7 +106,7 @@ public class RaceCarMessageEncoderTests
         [
             0xFF, // [10] ChannelData verticalValue (min= 0x80 (128))
             0xFF, // [11] ChannelData horizontalValue (min= 0x80 (128))
-            0xFF, // [12] ChannelData lightValue
+            0x00, // [12] ChannelData lightValue
             0x00, // [13] ChannelData 
             0x00, // [14] ChannelData 
             0x00, // [15] ChannelData 

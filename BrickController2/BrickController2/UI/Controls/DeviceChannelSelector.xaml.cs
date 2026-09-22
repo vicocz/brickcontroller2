@@ -100,6 +100,7 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.Command = new SafeCommand(() => SelectedChannel = 0);
             CaDARaceCarChannel1.Command = new SafeCommand(() => SelectedChannel = 1);
             CaDARaceCarChannel2.Command = new SafeCommand(() => SelectedChannel = 2);
+            CaDARaceCarChannel3.Command = new SafeCommand(() => SelectedChannel = 3);
             // JIESTAR SCM 4
             JieStarSCM4Channel0.Command = new SafeCommand(() => SelectedChannel = 0);
             JieStarSCM4Channel1.Command = new SafeCommand(() => SelectedChannel = 1);
@@ -327,6 +328,7 @@ namespace BrickController2.UI.Controls
             CaDARaceCarChannel0.SelectedChannel = selectedChannel;
             CaDARaceCarChannel1.SelectedChannel = selectedChannel;
             CaDARaceCarChannel2.SelectedChannel = selectedChannel;
+            CaDARaceCarChannel3.SelectedChannel = selectedChannel;
             // SBrick Light - special handling
             var sBrickLightChannel = selectedChannel % SBrickProtocol.LIGHT_PORTS_COUNT;
             var sBrickLightSubchannel = selectedChannel < SBrickProtocol.LIGHT_PORTS_COUNT ?

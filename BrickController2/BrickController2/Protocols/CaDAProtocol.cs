@@ -136,5 +136,4 @@ public static class CaDAProtocol
     }
 
     public static byte Clamp(Half value) => (byte)Half.Clamp(value, Half.Zero, MaxByte);
-    public static byte MapAsFlag(Half value) => (byte)(Half.Abs(value) > OneHalf ? 0x01 : 0x00);
 }

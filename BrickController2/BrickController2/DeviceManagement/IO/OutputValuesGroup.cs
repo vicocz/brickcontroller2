@@ -41,6 +41,17 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         return false;
     }
 
+    public bool ExecuteLocked(int channel, Func<TValue, TValue> operation)
+    {
+        lock (_outputLock)
+        {
+            TValue currentValue = _outputValues[channel];
+            TValue newValue = operation(currentValue);
+
+            return SetOutput(channel, newValue);
+        }
+    }
+
     public void Initialize()
     {
         lock (_outputLock)

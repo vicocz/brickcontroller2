@@ -26,7 +26,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     /// </summary>
     protected override ushort ManufacturerId => CaDAProtocol.ManufacturerID;
 
-    public override int NumberOfChannels => 3;
+    public override int NumberOfChannels => 4;
 
     public override void SetOutput(int channelNo, float value)
     {
@@ -34,7 +34,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
         value = CutOutputValue(value);
 
         // check for change
-        if (_outputValues.SetOutput(channelNo, (Half)value))
+        if (SetChannelOutput(channelNo, value))
         {
             // notify data changed
             _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
@@ -66,5 +66,30 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler()
     {
         return new BluetoothAdvertisingDeviceHandler(_bleService, ManufacturerId, TryGetTelegram, TimeSpan.MaxValue);
+    }
+
+    private bool SetChannelOutput(int channelNo, float value)
+    {
+        return channelNo switch
+        {
+            2 => _outputValues.ExecuteLocked(2, currentValue => SetLights(currentValue, 0, value)), // front lights
+            3 => _outputValues.ExecuteLocked(2, currentValue => SetLights(currentValue, 1, value)), // rear lights
+            _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for motors
+        };
+    }
+
+    private static Half SetLights(Half currentValue, int bitoffset, float value)
+    {
+        byte lightsBitArray = (byte)currentValue;
+
+        if (Math.Abs(value) > 0.5f)
+        {
+            lightsBitArray |= (byte)(1 << bitoffset);
+        }
+        else
+        {
+            lightsBitArray &= (byte)~(1 << bitoffset);
+        }
+        return (Half)lightsBitArray;
     }
 }

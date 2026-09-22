@@ -94,7 +94,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         _data[7] = throttle;
         _data[8] = steering;
         // flags: lights on/off
-        _data[9] = MapAsFlag(values[2]);
+        _data[9] = (byte)values[2]; // bitfield: 0x01 frontlights, 0x02 rearlights
         _data[10] = 0x00; // reset checksum before recalculating
         _data[11] = (connectDevice || (throttle == 0x80 && steering == 0x80))
             ? _defaultSequenceValue

@@ -41,26 +41,13 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         return false;
     }
 
-    public bool SetOutputBit(int channel, int bitOffset, bool value)
+    public bool ExecuteLocked(int channel, Func<TValue, TValue> operation)
     {
         lock (_outputLock)
         {
-            // Convert current value to an unsigned 64-bit mask, modify the requested bit,
-            // then create a TValue from the resulting mask. This handles numeric TValue types
-            // (byte, ushort, int, etc.) via the generic numeric support (INumber).
-            ulong current = Convert.ToUInt64(_outputValues[channel]);
+            TValue currentValue = _outputValues[channel];
+            TValue newValue = operation(currentValue);
 
-            if (value)
-            {
-                current |= 1UL << bitOffset;
-            }
-            else
-            {
-                current &= ~(1UL << bitOffset);
-            }
-
-            // CreateChecked will convert the ulong back to the target numeric TValue.
-            var newValue = TValue.CreateChecked<ulong>(current);
             return SetOutput(channel, newValue);
         }
     }

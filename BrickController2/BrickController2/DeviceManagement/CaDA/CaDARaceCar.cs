@@ -72,9 +72,24 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         return channelNo switch
         {
-            2 => _outputValues.SetOutputBit(2, 0, Math.Abs(value) > 0.5f), // front lights
-            3 => _outputValues.SetOutputBit(2, 1, Math.Abs(value) > 0.5f), // rear lights
+            2 => _outputValues.ExecuteLocked(2, currentValue => SetLights(currentValue, 0, value)), // front lights
+            3 => _outputValues.ExecuteLocked(2, currentValue => SetLights(currentValue, 1, value)), // rear lights
             _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for motors
         };
+    }
+
+    private static Half SetLights(Half currentValue, int bitoffset, float value)
+    {
+        byte lightsBitArray = (byte)currentValue;
+
+        if (Math.Abs(value) > 0.5f)
+        {
+            lightsBitArray |= (byte)(1 << bitoffset);
+        }
+        else
+        {
+            lightsBitArray &= (byte)~(1 << bitoffset);
+        }
+        return (Half)lightsBitArray;
     }
 }

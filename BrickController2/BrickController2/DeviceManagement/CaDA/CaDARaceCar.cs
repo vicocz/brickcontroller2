@@ -12,8 +12,6 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
 {
     private readonly IMessageEncoder _messageEncoder;
     private readonly OutputValuesGroup<Half> _outputValues = new(3);
-    private byte _lightsBitArray;
-
 
     public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMessageEncoderFactory messageEncoderFactory)
       : base(name, address, deviceData, deviceRepository, bleService)
@@ -47,7 +45,6 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         _outputValues.Initialize();
         _messageEncoder.Initialize();
-        _lightsBitArray = 0;
     }
 
     protected override void DisconnectDevice()
@@ -75,22 +72,9 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         return channelNo switch
         {
-            2 => SetLights(0, value), // front lights
-            3 => SetLights(1, value), // rear lights
+            2 => _outputValues.SetOutputBit(2, 0, Math.Abs(value) > 0.5f), // front lights
+            3 => _outputValues.SetOutputBit(2, 1, Math.Abs(value) > 0.5f), // rear lights
             _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for motors
         };
-    }
-
-    private bool SetLights(int bitoffset, float value)
-    {
-        if (Math.Abs(value) > 0.5f)
-        {
-            _lightsBitArray |= (byte)(1 << bitoffset);
-        }
-        else
-        {
-            _lightsBitArray &= (byte)~(1 << bitoffset);
-        }
-        return _outputValues.SetOutput(2, (Half)_lightsBitArray);
     }
 }

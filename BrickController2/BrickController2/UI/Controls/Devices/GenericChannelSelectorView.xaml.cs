@@ -8,7 +8,7 @@ using Device = BrickController2.DeviceManagement.Device;
 namespace BrickController2.UI.Controls.Devices;
 
 /// <summary>
-/// Generic, fallback channel selector for <see cref="DeviceManagement.DeviceType.None"/>.
+/// Generic, fallback channel selector for <see cref="DeviceType.Unknown"/>.
 /// Presents a single Picker whose items are the 1-based channel names ("1", "2", ...),
 /// while internally mapping to/from the 0-based <see cref="SelectedChannel"/> index.
 /// </summary>

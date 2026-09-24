@@ -18,8 +18,6 @@ public partial class GenericChannelSelectorView : DeviceChannelSelectorViewBase,
     public static DeviceType DeviceType => DeviceType.Unknown;
     protected override DeviceType SelectorDeviceType => DeviceType;
 
-    private bool _suppressPickerSelectionChanged;
-
     public GenericChannelSelectorView()
     {
         InitializeComponent();
@@ -33,12 +31,10 @@ public partial class GenericChannelSelectorView : DeviceChannelSelectorViewBase,
             .Select(channelNumber => channelNumber.ToString())
             .ToList();
 
-        _suppressPickerSelectionChanged = true;
         ChannelPicker.ItemsSource = channelNames;
         ChannelPicker.SelectedIndex = channelNames.Count > 0
             ? Math.Clamp(SelectedChannel, 0, channelNames.Count - 1)
             : -1;
-        _suppressPickerSelectionChanged = false;
     }
 
     protected override void OnSelectedChannelChanged(int channel)
@@ -50,14 +46,12 @@ public partial class GenericChannelSelectorView : DeviceChannelSelectorViewBase,
             return;
         }
 
-        _suppressPickerSelectionChanged = true;
         ChannelPicker.SelectedIndex = channel;
-        _suppressPickerSelectionChanged = false;
     }
 
     private void OnChannelPickerSelectedIndexChanged(object? sender, EventArgs e)
     {
-        if (_suppressPickerSelectionChanged || ChannelPicker.SelectedIndex < 0)
+        if (ChannelPicker.SelectedIndex < 0)
         {
             return;
         }

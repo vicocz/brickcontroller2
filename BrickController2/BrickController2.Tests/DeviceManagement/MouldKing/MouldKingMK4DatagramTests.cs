@@ -5,6 +5,7 @@ using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.MouldKing;
 
+[CollectionDefinition(DisableParallelization = true)]
 public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
 {
     private const byte PayloadIdentifierConnect1 = 0xad;

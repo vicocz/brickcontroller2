@@ -41,12 +41,10 @@ public partial class GenericChannelSelectorView : DeviceChannelSelectorViewBase,
     {
         base.OnSelectedChannelChanged(channel);
 
-        if (ChannelPicker.SelectedIndex == channel)
+        if (ChannelPicker.SelectedIndex != channel)
         {
-            return;
+            ChannelPicker.SelectedIndex = channel;
         }
-
-        ChannelPicker.SelectedIndex = channel;
     }
 
     private void OnChannelPickerSelectedIndexChanged(object? sender, EventArgs e)

@@ -7,11 +7,14 @@
     x:Class="BrickController2.UI.Controls.Devices.GenericChannelSelectorView">
 
     <ContentView.Content>
-        <Picker x:Name="ChannelPicker"
-            Title="{extensions:Translate Channel}"
-            HorizontalOptions="Fill"
-            VerticalOptions="Center"
-            SelectedIndexChanged="OnChannelPickerSelectedIndexChanged"/>
+        <Grid ColumnDefinitions="*,*">
+            <Label Grid.Column="0" Text="{extensions:Translate Channel}"/>
+            <Picker Grid.Column="1" x:Name="ChannelPicker"
+                Title="{extensions:Translate Channel}"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                SelectedIndexChanged="OnChannelPickerSelectedIndexChanged"/>
+        </Grid>
     </ContentView.Content>
 
 </devices:DeviceChannelSelectorViewBase>

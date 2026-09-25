@@ -7,8 +7,8 @@
     x:Class="BrickController2.UI.Controls.Devices.GenericChannelSelectorView">
 
     <ContentView.Content>
-        <Grid ColumnDefinitions="*,*">
-            <Label Grid.Column="0" Text="{extensions:Translate Channel}"/>
+        <Grid ColumnDefinitions="2*,3*">
+            <Label Grid.Column="0" Text="{extensions:Translate Channel}" VerticalTextAlignment="Center"/>
             <Picker Grid.Column="1" x:Name="ChannelPicker"
                 Title="{extensions:Translate Channel}"
                 HorizontalOptions="Fill"

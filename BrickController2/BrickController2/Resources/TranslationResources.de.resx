@@ -849,4 +849,7 @@
   <data name="ReloadMacros" xml:space="preserve">
     <value>Makros neu laden</value>
   </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
 </root>

@@ -26,7 +26,7 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// * channels 0..3 for Device2 start at offset 5 and are analog channels
     /// * channels 0..3 for Device3 start at offset 7 and are analog channels
     /// </summary>
-    private static readonly byte[] Telegram_Base = [0x7D, 0x7B, 0xA7, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82];
+    private static readonly SharedTelegram Telegram_Base = new([0x7D, 0x7B, 0xA7, 0x88, 0x88, 0x88, 0x88, 0x88, 0x88, 0x82]);
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -38,8 +38,8 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
     /// </summary>
     private static BluetoothAdvertisingDeviceHandler? bluetoothAdvertisingDeviceHandler;
 
-    public MK4(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, GetInstanceNo(address), Telegram_Connect, Telegram_Base)
+    public MK4(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
+      : base(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, GetInstanceNo(address), Telegram_Connect, Telegram_Base)
     {
     }
 
@@ -74,7 +74,7 @@ internal class MK4 : MKBaseNibble, IDeviceType<MK4>
         // Because the 3 instances of the MK4.0 device are using the same static Telegram_Base, we need to reset the values for all channels of all instances.
         for (int index = 3; index <= 8; index++)
         {
-            Telegram_Base[index] = 0x88;
+            _telegram_Base[index] = 0x88;
         }
     }
 

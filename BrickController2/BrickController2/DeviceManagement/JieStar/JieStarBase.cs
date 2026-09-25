@@ -39,11 +39,11 @@ internal abstract class JieStarBase : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected JieStarBase(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, byte[] telegram_Connect, byte[] telegram_Base, byte ctxValue2)
-        : base(name, address, deviceData, deviceRepository, bleService)
+    protected JieStarBase(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IJieStarPlatformService jieStarPlatformService, IJieStarDeviceManager jieStarDeviceManager, ReadOnlySpan<byte> telegram_Connect, ReadOnlySpan<byte> telegram_Base, byte ctxValue2)
+        : base(name, address, deviceRepository, bleService)
     {
-        _telegram_Connect = telegram_Connect;
-        _telegram_Base = telegram_Base;
+        _telegram_Connect = telegram_Connect.ToArray();
+        _telegram_Base = telegram_Base.ToArray();
         _ctxValue2 = ctxValue2;
         _jieStarPlatformService = jieStarPlatformService;
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels

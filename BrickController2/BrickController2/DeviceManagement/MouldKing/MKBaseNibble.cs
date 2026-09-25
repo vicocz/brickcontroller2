@@ -44,10 +44,20 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly int _instanceNo;
 
-    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, byte[] telegram_Connect, byte[] telegram_Base)
-        : base(name, address, deviceData, deviceRepository, bleService)
+    protected MKBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, ReadOnlySpan<byte> telegram_Connect, ReadOnlySpan<byte> telegram_Base)
+        : this(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, instanceNo, telegram_Connect, telegram_Base.ToArray())
     {
-        _telegram_Connect = telegram_Connect;
+    }
+
+    protected MKBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, ReadOnlySpan<byte> telegram_Connect, SharedTelegram sharedTelegram_Base)
+        : this(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, instanceNo, telegram_Connect, sharedTelegram_Base.Payload)
+    {
+    }
+
+    private MKBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, ReadOnlySpan<byte> telegram_Connect, byte[] telegram_Base)
+        : base(name, address, deviceRepository, bleService)
+    {
+        _telegram_Connect = telegram_Connect.ToArray();
         _telegram_Base = telegram_Base;
         _mkPlatformService = mkPlatformService;
 

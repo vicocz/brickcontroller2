@@ -1,15 +1,17 @@
-using Autofac;
+﻿using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.PlatformServices.BluetoothLE;
 using FluentAssertions;
 using Moq;
 using System;
+using BrickController2.Tests.DeviceManagement.MouldKing;
 using Xunit;
 using MouldKingVendor = BrickController2.DeviceManagement.MouldKing.MouldKing;
 
 namespace BrickController2.Tests.DeviceManagement.DI;
 
+[Collection(typeof(MK4SharedTelegramCollection))]
 public class MouldKingVendorTests : VendorTestsBase
 {
     private readonly DeviceFactory _deviceFactory;

@@ -26,15 +26,6 @@ namespace BrickController2.DeviceManagement
         /// </summary>
         protected readonly object _outputLock = new object();
 
-
-        [Obsolete]
-        protected BluetoothAdvertisingDevice(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
-            : base(name, address, deviceRepository)
-        {
-            _bleService = bleService;
-            _bluetoothAdvertisingDeviceHandler = GetBluetoothAdvertisingDeviceHandler();
-        }
-
         protected BluetoothAdvertisingDevice(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository)
         {

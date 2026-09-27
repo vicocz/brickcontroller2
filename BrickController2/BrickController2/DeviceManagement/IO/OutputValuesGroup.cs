@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace BrickController2.DeviceManagement.IO;
 
-public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>, INumber<TValue>
+public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>, INumber<TValue>, IBitwiseOperators<TValue, TValue, TValue>
 {
     private const int MAX_SEND_ATTEMPTS = 5;
 
@@ -41,12 +41,12 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         return false;
     }
 
-    public bool ExecuteLocked(int channel, Func<TValue, TValue> operation)
+    public bool SetFlag(int channel, TValue bitMask, bool enable)
     {
         lock (_outputLock)
         {
             TValue currentValue = _outputValues[channel];
-            TValue newValue = operation(currentValue);
+            TValue newValue = enable ? currentValue | bitMask : currentValue & ~bitMask;
 
             return SetOutput(channel, newValue);
         }

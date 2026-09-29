@@ -212,9 +212,6 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         return true;
     }
 
-    protected override ValueTask<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
-        => GetAvailableMacrosAsync(token);
-
     protected override async Task ProcessOutputsAsync(CancellationToken token)
     {
         try
@@ -261,11 +258,17 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                     await Task.Delay(10, token).ConfigureAwait(false);
                 }
             }
+
+            // ensure everything is stopped in the end
+            await WriteCommandAsync(PfxProtocol.AllOff(), token).ConfigureAwait(false);
         }
         catch
         {
         }
     }
+
+    protected override ValueTask<IReadOnlyList<MacroDescriptor>> DiscoverDynamicMacrosAsync(CancellationToken token)
+        => GetAvailableMacrosAsync(token);
 
     protected override Task<bool> WriteMacroCommandAsync(byte[] command, CancellationToken token)
         => WriteCommandAsync(command, token);
@@ -342,6 +345,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             if (entry.Value.IsAudio)
             {
                 audioFilesChoices.Add(new MacroChoice<string>(entry.Value.FileName, entry.Value.FileName));
+                _macroFileIds[entry.Value.FileName] = (byte)entry.Value.FileId;
             }
         }
 

@@ -454,6 +454,8 @@ namespace BrickController2.UI.ViewModels
             _device is not null &&
             ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
             _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
+
+        public bool ShowChannelInfo => Channel >= 0;
     }
 
     public class ControllerEventViewModel : List<ControllerActionViewModel>

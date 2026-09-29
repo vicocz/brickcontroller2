@@ -131,6 +131,16 @@ namespace BrickController2.BusinessLogic
                                     continue;
                                 }
 
+                                // handle macros separately as there is no real output value assigned
+                                if (controllerAction.ButtonType == ControllerButtonType.Macro)
+                                {
+                                    if (isPressed)
+                                    {
+                                        InvokeMacro(controllerAction, device);
+                                    }
+                                    continue;
+                                }
+
                                 var outputValue = ProcessButtonEvent(isPressed, controllerAction, device);
                                 device.SetOutput(channel, outputValue);
                             }
@@ -242,13 +252,6 @@ namespace BrickController2.BusinessLogic
                     if (sequence != null)
                     {
                         _sequencePlayer.ToggleSequence(controllerAction.DeviceId, controllerAction.Channel, controllerAction.IsInvert, sequence);
-                    }
-                    break;
-
-                case ControllerButtonType.Macro:
-                    if (isPressed)
-                    {
-                        InvokeMacro(controllerAction, device);
                     }
                     break;
             }

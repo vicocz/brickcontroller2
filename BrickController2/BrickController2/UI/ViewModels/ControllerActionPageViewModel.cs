@@ -383,7 +383,8 @@ namespace BrickController2.UI.ViewModels
 
             if (result.IsOk)
             {
-                Action.ButtonType = (ControllerButtonType)Enum.Parse(typeof(ControllerButtonType), result.SelectedItem);
+                Action.ButtonType = Enum.Parse<ControllerButtonType>(result.SelectedItem);
+                ValidateCurrentChannelSettings();
             }
         }
 

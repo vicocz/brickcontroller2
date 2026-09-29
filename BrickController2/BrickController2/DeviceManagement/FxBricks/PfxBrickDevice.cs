@@ -17,11 +17,13 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     private const int LIGHT_CHANNELS = 8;
     private const string PlaySoundMacroId = "PlaySound";
     private const string StopSoundMacroId = "StopSound";
+    private const string ToggleSoundMacroId = "ToggleSound";
     private const string SetVolumeMacroId = "SetVolume";
     private const string IncreaseVolumeMacroId = "IncreaseVolume";
     private const string DecreaseVolumeMacroId = "DecreaseVolume";
     private const string PlaySoundMacroNameKey = "PfxPlaySoundMacro";
     private const string StopSoundMacroNameKey = "PfxStopSoundMacro";
+    private const string ToggleSoundMacroNameKey = "PfxToggleSoundMacro";
     private const string SetVolumeMacroNameKey = "PfxSetVolumeMacro";
     private const string IncreaseVolumeMacroNameKey = "PfxIncreaseVolumeMacro";
     private const string DecreaseVolumeMacroNameKey = "PfxDecreaseVolumeMacro";
@@ -116,6 +118,11 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             && invocation.ChoiceValue.TryGet<string>(out var stopFileName))
         {
             return EnqueueSoundCommandAsync(stopFileName, id => PfxProtocol.StopSoundFile(id), token);
+        }
+        else if (invocation.DescriptorId == ToggleSoundMacroId
+            && invocation.ChoiceValue.TryGet<string>(out var toggleFileName))
+        {
+            return EnqueueSoundCommandAsync(toggleFileName, id => PfxProtocol.PlaySoundFile(id, PfxProtocol.EVT_SOUNDFX_RETRIGGER_TOGGLE), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
             && invocation.ChoiceValue.TryGet<float>(out var volume))
@@ -360,6 +367,12 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             new MacroDescriptor(
                 id: StopSoundMacroId,
                 nameKey: StopSoundMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.OneShot,
+                choices: audioFilesChoices),
+            new MacroDescriptor(
+                id: ToggleSoundMacroId,
+                nameKey: ToggleSoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
                 choices: audioFilesChoices)

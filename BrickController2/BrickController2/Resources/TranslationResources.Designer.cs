@@ -1710,6 +1710,12 @@ namespace BrickController2.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Stop audio.
         /// </summary>
+        internal static string PfxToggleSoundMacro {
+            get {
+                return ResourceManager.GetString("PfxToggleSoundMacro", resourceCulture);
+            }
+        }
+
         internal static string PfxStopSoundMacro {
             get {
                 return ResourceManager.GetString("PfxStopSoundMacro", resourceCulture);

@@ -34,11 +34,11 @@ internal abstract class PowerBoxBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly float[] _storedValues;
 
-    protected PowerBoxBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, IPowerBoxDeviceManager powerboxDeviceManager, byte[] telegram_Connect, byte[] telegram_Base)
-        : base(name, address, deviceData, deviceRepository, bleService)
+    protected PowerBoxBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IPowerBoxPlatformService powerboxPlatformService, IPowerBoxDeviceManager powerboxDeviceManager, ReadOnlySpan<byte> telegram_Connect, ReadOnlySpan<byte> telegram_Base)
+        : base(name, address, deviceRepository, bleService)
     {
-        _telegram_Connect = telegram_Connect;
-        _telegram_Base = telegram_Base;
+        _telegram_Connect = telegram_Connect.ToArray();
+        _telegram_Base = telegram_Base.ToArray();
         _powerboxPlatformService = powerboxPlatformService;
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
 

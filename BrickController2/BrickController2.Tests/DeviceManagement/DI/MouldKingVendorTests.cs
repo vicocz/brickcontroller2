@@ -1,15 +1,17 @@
-using Autofac;
+﻿using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.MouldKing;
 using BrickController2.PlatformServices.BluetoothLE;
 using FluentAssertions;
 using Moq;
 using System;
+using BrickController2.Tests.DeviceManagement.MouldKing;
 using Xunit;
 using MouldKingVendor = BrickController2.DeviceManagement.MouldKing.MouldKing;
 
 namespace BrickController2.Tests.DeviceManagement.DI;
 
+[Collection(typeof(MK4SharedTelegramCollection))]
 public class MouldKingVendorTests : VendorTestsBase
 {
     private readonly DeviceFactory _deviceFactory;
@@ -35,6 +37,22 @@ public class MouldKingVendorTests : VendorTestsBase
 
         return builder;
     }
+
+    [Theory]
+    [InlineData("Device")]        // The address is not relevant for this device
+    [InlineData("IllegalDevice")] // The address is not relevant for this device
+    public void RegisterDevice_MK3_ReturnedDevice(string address)
+    {
+        DeviceType deviceType = DeviceType.MK3;
+        string name = "TestDevice";
+        byte[] deviceData = [1, 2, 3];
+
+        var device = _deviceFactory(deviceType, name, address, deviceData, []);
+
+        device.Should().NotBeNull();
+        device.Should().BeOfType<MK3>();
+    }
+
 
     [Theory]
     [InlineData("Device")]        // The address is not relevant for this device

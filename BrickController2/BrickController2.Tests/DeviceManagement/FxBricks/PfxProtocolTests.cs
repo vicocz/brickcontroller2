@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace BrickController2.Tests.Protocols;
+namespace BrickController2.Tests.DeviceManagement.FxBricks;
 
 public class PfxProtocolTests
 {

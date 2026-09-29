@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Dialog;
@@ -22,6 +23,9 @@ namespace BrickController2.UI.Pages
 
             // On iOS hide the back button title
             NavigationPage.SetBackButtonTitle(this, string.Empty);
+
+            // Cross-platform safe-area handling (replaces old iOS-only Page.UseSafeArea)
+            SafeAreaEdges = SafeAreaEdges.All;
         }
 
         protected void AfterInitialize(IPageViewModel vm)

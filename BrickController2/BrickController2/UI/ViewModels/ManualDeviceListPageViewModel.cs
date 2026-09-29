@@ -48,7 +48,7 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDeviceManager deviceManager,
             IManualDeviceManager manualDeviceManager,
-            IDialogService dialogService) 
+            IDialogService dialogService)
             : base(navigationService, translationService)
         {
             _deviceManager = deviceManager;
@@ -91,7 +91,7 @@ namespace BrickController2.UI.ViewModels
             {
                 await _dialogService.ShowProgressDialogAsync(
                     false,
-                    async (progressDialog, token) => 
+                    async (progressDialog, token) =>
                     {
                         if (devicesToCreate.Length > 0)
                         {

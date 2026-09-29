@@ -18,7 +18,7 @@ public sealed class PowerBoxAseriesDatagramTests : PowerBoxDatagramTestsBase
     [Fact]
     public void TryGetTelegram_ConnectDatagram_PayloadIdentifier()
     {
-        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
+        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifierConnect1);
@@ -31,7 +31,7 @@ public sealed class PowerBoxAseriesDatagramTests : PowerBoxDatagramTestsBase
     [Fact]
     public void TryGetTelegram_ConnectDatagram_AppIdentifier()
     {
-        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
+        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
@@ -44,7 +44,7 @@ public sealed class PowerBoxAseriesDatagramTests : PowerBoxDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_PayloadIdentifier()
     {
-        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
+        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifierCommand1);
@@ -57,7 +57,7 @@ public sealed class PowerBoxAseriesDatagramTests : PowerBoxDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_AppIdentifier()
     {
-        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
+        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
@@ -83,7 +83,7 @@ public sealed class PowerBoxAseriesDatagramTests : PowerBoxDatagramTestsBase
     [InlineData(new float[] { -9.0f, -9.0f, -9.0f, -9.0f }, new byte[] { PayloadIdentifierCommand1, AppIdentifier1, AppIdentifier2, 0x77, 0x77, 0x00, 0x00, PayloadIdentifierCommand2 })]  // all channels below minimum, should be clamped to minimum
     public void TryGetTelegram_CommandDatagram_Payload(float[] setValues, byte[] expectedPayload)
     {
-        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
+        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         // Set the output values for the device
         for (int i = 0; i < setValues.Length; i++)
@@ -104,7 +104,7 @@ public sealed class PowerBoxAseriesDatagramTests : PowerBoxDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_SetIllegalChannel()
     {
-        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
+        PowerBoxASeries device = new PowerBoxASeries("PowerBoxASeries", PowerBoxASeries.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         Action action = () => device.SetOutput(device.NumberOfChannels, 0);
 

@@ -592,6 +592,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Channel.
+        /// </summary>
+        internal static string Channel {
+            get {
+                return ResourceManager.GetString("Channel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A.
         /// </summary>
         internal static string ChannelAColor {
@@ -1195,6 +1204,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to reload macros..
+        /// </summary>
+        internal static string FailedToReloadMacros {
+            get {
+                return ResourceManager.GetString("FailedToReloadMacros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File already exits.
         /// </summary>
         internal static string FileAlreadyExists {
@@ -1645,6 +1663,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default volume level.
+        /// </summary>
+        internal static string PfxBrickDefaultVolumeLevel {
+            get {
+                return ResourceManager.GetString("PfxBrickDefaultVolumeLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Decrease volume.
         /// </summary>
         internal static string PfxDecreaseVolumeMacro {
@@ -1789,7 +1816,16 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Update the list of macros.
+        ///   Looks up a localized string similar to Reloading macros.
+        /// </summary>
+        internal static string ReloadingMacros {
+            get {
+                return ResourceManager.GetString("ReloadingMacros", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reload macros.
         /// </summary>
         internal static string ReloadMacros {
             get {

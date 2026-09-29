@@ -18,7 +18,7 @@ public sealed class MouldKingMK5DatagramTests : MouldKingDatagramTestsBase
     [Fact]
     public void TryGetTelegram_ConnectDatagram_PayloadIdentifier()
     {
-        MK5 device = new MK5("MK5", MK5.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK5 device = new MK5("MK5", MK5.Device, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifierConnect1);
@@ -31,7 +31,7 @@ public sealed class MouldKingMK5DatagramTests : MouldKingDatagramTestsBase
     [Fact]
     public void TryGetTelegram_ConnectDatagram_AppIdentifier()
     {
-        MK5 device = new MK5("MK5", MK5.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK5 device = new MK5("MK5", MK5.Device, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
@@ -44,7 +44,7 @@ public sealed class MouldKingMK5DatagramTests : MouldKingDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_PayloadIdentifier()
     {
-        MK5 device = new MK5("MK5", MK5.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK5 device = new MK5("MK5", MK5.Device, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifierCommand1);
@@ -57,7 +57,7 @@ public sealed class MouldKingMK5DatagramTests : MouldKingDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_AppIdentifier()
     {
-        MK5 device = new MK5("MK5", MK5.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK5 device = new MK5("MK5", MK5.Device, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
@@ -85,7 +85,7 @@ public sealed class MouldKingMK5DatagramTests : MouldKingDatagramTestsBase
     [InlineData(new float[] { -9.0f, -9.0f, -9.0f, -9.0f, -9.0f }, new byte[] { PayloadIdentifierCommand1, AppIdentifier1, AppIdentifier2, 0x7f, 0xf7, 0x80, 0x80, 0x80, 0x80, PayloadIdentifierCommand2 })]  // all channels below minimum, should be clamped to minimum
     public void TryGetTelegram_CommandDatagram_Payload(float[] setValues, byte[] expectedPayload)
     {
-        MK5 device = new MK5("MK5", MK5.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK5 device = new MK5("MK5", MK5.Device, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         // Set the output values for the device
         for (int i = 0; i < setValues.Length; i++)
@@ -106,7 +106,7 @@ public sealed class MouldKingMK5DatagramTests : MouldKingDatagramTestsBase
     [Fact]
     public void TryGetTelegram_CommandDatagram_SetIllegalChannel()
     {
-        MK5 device = new MK5("MK5", MK5.Device, [], _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
+        MK5 device = new MK5("MK5", MK5.Device, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         Action action = () => device.SetOutput(device.NumberOfChannels, 0);
 

@@ -26,7 +26,7 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     [InlineData(JieStarSCM8.Device3)]
     public void TryGetTelegram_ConnectDatagram_PayloadIdentifier(string deviceAddress)
     {
-        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(PayloadIdentifierConnect1);
@@ -43,7 +43,7 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     [InlineData(JieStarSCM8.Device3)]
     public void TryGetTelegram_ConnectDatagram_AppIdentifier(string deviceAddress)
     {
-        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
@@ -62,7 +62,7 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     [InlineData(JieStarSCM8.Device3, PayloadIdentifierCommand3_1, PayloadIdentifierCommand3_2)]
     public void TryGetTelegram_CommandDatagram_PayloadIdentifier(string deviceAddress, byte expectedPayloadIdentifier1, byte expectedPayloadIdentifier2)
     {
-        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[0].Should().Be(expectedPayloadIdentifier1);
@@ -79,7 +79,7 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     [InlineData(JieStarSCM8.Device3)]
     public void TryGetTelegram_CommandDatagram_AppIdentifier(string deviceAddress)
     {
-        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
@@ -114,7 +114,7 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     [InlineData(JieStarSCM8.Device3, new float[] { -9.0f, -9.0f, -9.0f, -9.0f }, new byte[] { PayloadIdentifierCommand3_1, AppIdentifier1, AppIdentifier2, 0x77, 0x77, 0x00, 0x00, PayloadIdentifierCommand3_2 })]  // all channels below minimum, should be clamped to minimum
     public void TryGetTelegram_CommandDatagram_Payload(string deviceAddress, float[] setValues, byte[] expectedPayload)
     {
-        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         // Set the output values for the device
         for (int i = 0; i < setValues.Length; i++)
@@ -139,7 +139,7 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
     [InlineData(JieStarSCM8.Device3)]
     public void TryGetTelegram_CommandDatagram_SetIllegalChannel(string deviceAddress)
     {
-        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device = new JieStarSCM8("JieStarSCM8", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         Action action = () => device.SetOutput(device.NumberOfChannels, 0);
 
@@ -161,9 +161,9 @@ public sealed class JieStarSCM8DatagramTests : JieStarDatagramTestsBase
         float[] setValues3 = [0.0f, 0.0f, 0.0f, 0.0f];
         byte[] expectedPayload3 = [PayloadIdentifierCommand3_1, AppIdentifier1, AppIdentifier2, 0x00, 0x00, 0x00, 0x00, PayloadIdentifierCommand3_2];
 
-        JieStarSCM8 device1 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device1, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
-        JieStarSCM8 device2 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device2, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
-        JieStarSCM8 device3 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device3, [], _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device1 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device1, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device2 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device2, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
+        JieStarSCM8 device3 = new JieStarSCM8("JieStarSCM8", JieStarSCM8.Device3, _deviceRepository.Object, _bluetoothLEService.Object, _jieStarPlatformService, _manager.Object);
 
         // Set the output values for the device
         for (int i = 0; i < setValues1.Length; i++)

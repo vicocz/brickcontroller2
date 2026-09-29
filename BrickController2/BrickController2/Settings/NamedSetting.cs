@@ -35,4 +35,7 @@ public record NamedSetting
 
     [JsonIgnore]
     public bool IsDoubleType => Type == typeof(double);
+
+    [JsonIgnore]
+    public bool IsPercentType => Type == typeof(Percent);
 }

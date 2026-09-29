@@ -120,13 +120,13 @@ namespace BrickController2.UI.ViewModels
         public ObservableCollection<string> Sequences => new ObservableCollection<string>(_creationManager.Sequences.Select(s => s.Name).ToArray());
 
         public System.Collections.Generic.IReadOnlyList<MacroDescriptor> AvailableMacros
-            => _selectedDevice?.AvailableMacros.Where(m => m.Scope == MacroScope.Channel).ToList() ?? [];
+            => _selectedDevice?.AvailableMacros ?? [];
 
         public bool HasMacros => _selectedDevice?.SupportsMacros == true;
 
         public bool SupportsChannelMacros => _selectedDevice?.SupportsMacros == true &&
             (_selectedDevice?.SupportsDynamicMacros == true ||
-            _selectedDevice?.AvailableMacros.Any(m => m.Scope == MacroScope.Channel) == true);
+            _selectedDevice?.AvailableMacros.Any() == true);
 
         public MacroDescriptor? SelectedMacro
             => AvailableMacros.FirstOrDefault(m => m.Id == Action.MacroId);
@@ -457,6 +457,14 @@ namespace BrickController2.UI.ViewModels
                 if (index >= 0)
                 {
                     var macro = macros[index];
+                    if (macro.Scope == MacroScope.Device)
+                    {
+                        Action.Channel = -1;
+                    }
+                    else if (macro.Scope == MacroScope.Channel && Action.Channel < 0)
+                    {
+                        Action.Channel = 0;
+                    }
                     Action.MacroId = macro.Id;
                     SetSelectedChoice(macro.Choices.Count > 0 ? macro.Choices[0] : null);
                     RaisePropertyChanged(nameof(SelectedMacro));
@@ -610,6 +618,11 @@ namespace BrickController2.UI.ViewModels
                 {
                     ValidateChannelType(0, Action.ChannelOutputType);
                 }
+            }
+            else if (Action.Channel < 0 && Action.ButtonType != ControllerButtonType.Macro)
+            {
+                // reset channel
+                Action.Channel = 0;
             }
             else
             {

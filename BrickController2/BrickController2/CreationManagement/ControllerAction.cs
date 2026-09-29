@@ -141,5 +141,10 @@ namespace BrickController2.CreationManagement
         {
             return $"{DeviceId} - {Channel}";
         }
+
+        public bool IsValidMacro(MacroDescriptor macro) => ButtonType == ControllerButtonType.Macro
+                && macro.Id == MacroId
+                && ((macro.Scope == MacroScope.Channel && Channel >= 0) ||
+                    (macro.Scope == MacroScope.Device && Channel == -1));
     }
 }

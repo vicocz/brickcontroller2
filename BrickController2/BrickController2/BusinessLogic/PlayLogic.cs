@@ -82,7 +82,7 @@ namespace BrickController2.BusinessLogic
 
             if (controllerAction.ButtonType == ControllerButtonType.Macro)
             {
-                return device.AvailableMacros.Any(m => m.Id == controllerAction.MacroId && m.Scope == MacroScope.Channel);
+                return device.AvailableMacros.Any(controllerAction.IsValidMacro);
             }
 
             return true;

@@ -45,10 +45,11 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     {
         lock (_outputLock)
         {
-            TValue currentValue = _outputValues[channel];
-            TValue newValue = enable ? currentValue | bitMask : currentValue & ~bitMask;
+            BigInteger currentValue = BigInteger.CreateChecked(_outputValues[channel]);
+            BigInteger mask = BigInteger.CreateChecked(bitMask);
+            BigInteger newValue = enable ? currentValue | mask : currentValue & ~mask;
 
-            return SetOutput(channel, newValue);
+            return SetOutput(channel, TValue.CreateChecked(newValue));
         }
     }
 

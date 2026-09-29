@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFrameworks>net10.0-ios</TargetFrameworks>
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
-    <SupportedOSPlatformVersion>12.2</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
     <ApplicationId>com.scn.BrickController2</ApplicationId>
     <RootNamespace>BrickController2.iOS</RootNamespace>

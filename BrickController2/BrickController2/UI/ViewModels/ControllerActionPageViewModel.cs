@@ -460,9 +460,9 @@ namespace BrickController2.UI.ViewModels
                     var macro = macros[index];
                     if (macro.Scope == MacroScope.Device)
                     {
-                        Action.Channel = -1;
+                        Action.Channel = ControllerAction.NoChannel;
                     }
-                    else if (macro.Scope == MacroScope.Channel && Action.Channel < 0)
+                    else if (macro.Scope == MacroScope.Channel && !Action.HasChannel)
                     {
                         Action.Channel = 0;
                     }
@@ -620,7 +620,7 @@ namespace BrickController2.UI.ViewModels
                     ValidateChannelType(0, Action.ChannelOutputType);
                 }
             }
-            else if (Action.Channel < 0 && Action.ButtonType != ControllerButtonType.Macro)
+            else if (!Action.HasChannel && Action.ButtonType != ControllerButtonType.Macro)
             {
                 // reset channel
                 Action.Channel = 0;

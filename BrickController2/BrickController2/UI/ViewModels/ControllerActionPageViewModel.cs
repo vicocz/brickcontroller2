@@ -61,6 +61,8 @@ namespace BrickController2.UI.ViewModels
                 Action.ServoBaseAngle = ControllerAction.ServoBaseAngle;
                 Action.StepperAngle = ControllerAction.StepperAngle;
                 Action.SequenceName = ControllerAction.SequenceName;
+                Action.MacroId = ControllerAction.MacroId;
+                Action.MacroChoice = ControllerAction.MacroChoice;
             }
             else
             {
@@ -79,6 +81,8 @@ namespace BrickController2.UI.ViewModels
                 Action.ServoBaseAngle = 0;
                 Action.StepperAngle = 90;
                 Action.SequenceName = string.Empty;
+                Action.MacroId = string.Empty;
+                Action.MacroChoice = default;
             }
 
             // do validation of current channel settings
@@ -230,7 +234,9 @@ namespace BrickController2.UI.ViewModels
                             Action.MaxServoAngle,
                             Action.ServoBaseAngle,
                             Action.StepperAngle,
-                            Action.SequenceName);
+                            Action.SequenceName,
+                            Action.MacroId,
+                            Action.MacroChoice);
                     }
                     else
                     {
@@ -249,7 +255,9 @@ namespace BrickController2.UI.ViewModels
                             Action.MaxServoAngle,
                             Action.ServoBaseAngle,
                             Action.StepperAngle,
-                            Action.SequenceName);
+                            Action.SequenceName,
+                            Action.MacroId,
+                            Action.MacroChoice);
                     }
                 },
                 Translate("Saving"),

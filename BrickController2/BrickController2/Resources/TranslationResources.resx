@@ -789,6 +789,9 @@
   <data name="PfxPlaySoundMacro" xml:space="preserve">
     <value>Play audio</value>
   </data>
+  <data name="PfxToggleSoundMacro" xml:space="preserve">
+    <value>Toggle audio</value>
+  </data>
   <data name="PfxStopSoundMacro" xml:space="preserve">
     <value>Stop audio</value>
   </data>
@@ -851,5 +854,8 @@
   </data>
   <data name="Channel" xml:space="preserve">
     <value>Channel</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>There is a missing or misconfigured macro.</value>
   </data>
 </root>

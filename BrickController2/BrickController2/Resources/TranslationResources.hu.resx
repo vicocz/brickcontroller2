@@ -780,6 +780,9 @@
   <data name="PfxPlaySoundMacro" xml:space="preserve">
     <value>Hang lejátszása</value>
   </data>
+  <data name="PfxToggleSoundMacro" xml:space="preserve">
+    <value>Hang váltása</value>
+  </data>
   <data name="PfxStopSoundMacro" xml:space="preserve">
     <value>Hang leállítása</value>
   </data>
@@ -842,5 +845,8 @@
   </data>
   <data name="Channel" xml:space="preserve">
     <value>Csatorna</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>Hiányzó vagy hibás makró</value>
   </data>
 </root>

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace BrickController2.DeviceManagement.Macros;
 
@@ -46,6 +46,29 @@ public readonly record struct MacroChoiceValue(object? Value)
     }
 
     public T? As<T>() => TryGet<T>(out var value) ? value : default;
+
+    /// <summary>
+    /// Compares a saved value against this (reference) value by converting the saved value
+    /// to the reference type, tolerating type drift caused by (de)serialization
+    /// (e.g. int -> long, float -> double). Strings are compared ordinally.
+    /// Not symmetric: call it on the reference value (e.g. the descriptor's choice).
+    /// </summary>
+    public bool ValueEquals(MacroChoiceValue other) => (Value, other.Value) switch
+    {
+        (null, null) => true,
+        (null, _) or (_, null) => false,
+        (string a, _) => other.Value is string b && string.Equals(a, b, StringComparison.Ordinal),
+        (bool a, _) => other.Value is bool b && a == b,
+        (int a, _) => IsIntegral(other.Value) && other.TryGet<long>(out var b) && a == b,
+        (long a, _) => IsIntegral(other.Value) && other.TryGet<long>(out var b) && a == b,
+        (float a, _) => IsNumeric(other.Value) && other.TryGet<float>(out var b) && a.Equals(b),
+        (double a, _) => IsNumeric(other.Value) && other.TryGet<double>(out var b) && a.Equals(b),
+        _ => Value.Equals(other.Value)
+    };
+
+    private static bool IsIntegral(object? value) => value is sbyte or byte or short or ushort or int or uint or long or ulong;
+
+    private static bool IsNumeric(object? value) => IsIntegral(value) || value is float or double or decimal;
 
     public override string? ToString() => Value?.ToString();
 }

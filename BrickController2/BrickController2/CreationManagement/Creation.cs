@@ -78,5 +78,26 @@ namespace BrickController2.CreationManagement
 
             return sequenceNames;
         }
+
+        public IReadOnlyCollection<(string DeviceId, string MacroId, DeviceManagement.Macros.MacroScope Scope, DeviceManagement.Macros.MacroChoiceValue Choice)> GetMacroReferences()
+        {
+            var macroReferences = new HashSet<(string, string, DeviceManagement.Macros.MacroScope, DeviceManagement.Macros.MacroChoiceValue)>();
+
+            foreach (var profile in ControllerProfiles)
+            {
+                foreach (var controllerEvent in profile.ControllerEvents)
+                {
+                    foreach (var controllerAction in controllerEvent.ControllerActions)
+                    {
+                        if (controllerAction.ButtonType == ControllerButtonType.Macro)
+                        {
+                            macroReferences.Add((controllerAction.DeviceId, controllerAction.MacroId, controllerAction.MacroScope, controllerAction.MacroChoice));
+                        }
+                    }
+                }
+            }
+
+            return macroReferences;
+        }
     }
 }

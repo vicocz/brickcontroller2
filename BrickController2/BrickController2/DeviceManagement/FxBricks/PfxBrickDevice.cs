@@ -17,11 +17,13 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     private const int LIGHT_CHANNELS = 8;
     private const string PlaySoundMacroId = "PlaySound";
     private const string StopSoundMacroId = "StopSound";
+    private const string ToggleSoundMacroId = "ToggleSound";
     private const string SetVolumeMacroId = "SetVolume";
     private const string IncreaseVolumeMacroId = "IncreaseVolume";
     private const string DecreaseVolumeMacroId = "DecreaseVolume";
     private const string PlaySoundMacroNameKey = "PfxPlaySoundMacro";
     private const string StopSoundMacroNameKey = "PfxStopSoundMacro";
+    private const string ToggleSoundMacroNameKey = "PfxToggleSoundMacro";
     private const string SetVolumeMacroNameKey = "PfxSetVolumeMacro";
     private const string IncreaseVolumeMacroNameKey = "PfxIncreaseVolumeMacro";
     private const string DecreaseVolumeMacroNameKey = "PfxDecreaseVolumeMacro";
@@ -107,15 +109,17 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             return Task.FromResult(false);
         }
 
-        if (invocation.DescriptorId == PlaySoundMacroId
-            && invocation.ChoiceValue.TryGet<string>(out var fileName))
+        if (invocation.DescriptorId == PlaySoundMacroId)
         {
-            return EnqueueSoundCommandAsync(fileName, id => PfxProtocol.PlaySoundFile(id), token);
+            return EnqueueSoundCommandAsync(invocation, id => PfxProtocol.PlaySoundFile(id), token);
         }
-        else if (invocation.DescriptorId == StopSoundMacroId
-            && invocation.ChoiceValue.TryGet<string>(out var stopFileName))
+        else if (invocation.DescriptorId == StopSoundMacroId)
         {
-            return EnqueueSoundCommandAsync(stopFileName, id => PfxProtocol.StopSoundFile(id), token);
+            return EnqueueSoundCommandAsync(invocation, id => PfxProtocol.StopSoundFile(id), token);
+        }
+        else if (invocation.DescriptorId == ToggleSoundMacroId)
+        {
+            return EnqueueSoundCommandAsync(invocation, id => PfxProtocol.PlaySoundFile(id, PfxProtocol.EVT_SOUNDFX_RETRIGGER_TOGGLE), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
             && invocation.ChoiceValue.TryGet<float>(out var volume))
@@ -271,7 +275,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         => GetAvailableMacrosAsync(token);
 
     protected override Task<bool> WriteMacroCommandAsync(byte[] command, CancellationToken token)
-    => WriteCommandAsync(command, token);
+        => WriteCommandAsync(command, token);
 
     private async Task<bool> SendOutputValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
     {
@@ -362,27 +366,40 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                 nameKey: StopSoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
+                choices: audioFilesChoices),
+            new MacroDescriptor(
+                id: ToggleSoundMacroId,
+                nameKey: ToggleSoundMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.OneShot,
                 choices: audioFilesChoices)
         ];
     }
 
-    private Task<bool> EnqueueSoundCommandAsync(string fileName, Func<byte, byte[]> buildCommand, CancellationToken token)
-        => EnqueueMacroCommandAsync(async t =>
+    private Task<bool> EnqueueSoundCommandAsync(MacroInvocation invocation, Func<byte, byte[]> buildCommand, CancellationToken token)
+    {
+        if (!invocation.ChoiceValue.TryGet<string>(out var fileName))
         {
-            if (!_macroFileIds.TryGetValue(fileName, out var fileId))
+            return Task.FromResult(false);
+        }
+
+        return EnqueueMacroCommandAsync(async t =>
             {
-                var resolvedFileId = await ResolveFileIdAsync(fileName, t).ConfigureAwait(false);
-                if (resolvedFileId is null)
+                if (!_macroFileIds.TryGetValue(fileName, out var fileId))
                 {
-                    return null; // unknown file, nothing to write
+                    var resolvedFileId = await ResolveFileIdAsync(fileName, t).ConfigureAwait(false);
+                    if (resolvedFileId is null)
+                    {
+                        return null; // unknown file, nothing to write
+                    }
+
+                    fileId = resolvedFileId.Value;
+                    _macroFileIds[fileName] = fileId;
                 }
 
-                fileId = resolvedFileId.Value;
-                _macroFileIds[fileName] = fileId;
-            }
-
-            return buildCommand(fileId);
-        }, token);
+                return buildCommand(fileId);
+            }, token);
+    }
 
     private async Task<byte?> ResolveFileIdAsync(string fileName, CancellationToken token)
     {

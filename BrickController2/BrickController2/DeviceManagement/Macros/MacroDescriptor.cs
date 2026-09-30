@@ -23,4 +23,20 @@ public sealed record MacroDescriptor
     public MacroScope Scope { get; }
     public MacroKind Kind { get; }
     public IReadOnlyList<MacroChoice> Choices { get; }
+
+    public bool IsMatch(string macroId, MacroScope macroScope, MacroChoiceValue value) => Id == macroId
+        && Scope == macroScope
+        && (Choices.Count == 0 || (value.HasValue && Contains(value)));
+
+    private bool Contains(MacroChoiceValue value)
+    {
+        foreach (var choice in Choices)
+        {
+            if (choice.Value.ValueEquals(value))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

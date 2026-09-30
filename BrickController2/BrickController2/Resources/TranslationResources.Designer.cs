@@ -1438,6 +1438,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is a missing or misconfigured macro..
+        /// </summary>
+        internal static string MissingMacro {
+            get {
+                return ResourceManager.GetString("MissingMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing sequence.
         /// </summary>
         internal static string MissingSequence {
@@ -1686,6 +1695,15 @@ namespace BrickController2.Resources {
         internal static string PfxStopSoundMacro {
             get {
                 return ResourceManager.GetString("PfxStopSoundMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle audio.
+        /// </summary>
+        internal static string PfxToggleSoundMacro {
+            get {
+                return ResourceManager.GetString("PfxToggleSoundMacro", resourceCulture);
             }
         }
         

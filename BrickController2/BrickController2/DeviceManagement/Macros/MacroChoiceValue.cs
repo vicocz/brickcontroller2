@@ -47,5 +47,25 @@ public readonly record struct MacroChoiceValue(object? Value)
 
     public T? As<T>() => TryGet<T>(out var value) ? value : default;
 
+    /// <summary>
+    /// Compares values tolerant to numeric type changes caused by (de)serialization
+    /// (e.g. int/long/float/double), strings are compared ordinally.
+    /// </summary>
+    public bool ValueEquals(MacroChoiceValue other)
+    {
+        return (Value, other.Value) switch
+        {
+            (null, null) => true,
+            (null, _) or (_, null) => false,
+            (string a, string b) => string.Equals(a, b, StringComparison.Ordinal),
+            (bool a, bool b) => a == b,
+            ({ } a, { } b) when IsNumeric(a) && IsNumeric(b) => Convert.ToSingle(a) == Convert.ToSingle(b),
+            _ => false
+        };
+
+        static bool IsNumeric(object value) => value is sbyte or byte or short or ushort or int or uint
+            or long or ulong or float or double or decimal;
+    }
+
     public override string? ToString() => Value?.ToString();
 }

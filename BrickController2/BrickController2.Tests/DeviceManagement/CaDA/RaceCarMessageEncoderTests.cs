@@ -59,6 +59,52 @@ public class RaceCarMessageEncoderTests
          ]);
     }
 
+    [Fact]
+    public void Encode_WithFrontLightValue_EncodesAndEncryptsValues()
+    {
+        // Arrange
+        var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
+
+        // Act
+        var result = encoder.Encode([Zero, Zero, (Half)0b00000001]);
+
+        // Assert
+        result.Length.Should().Be(16);
+        result.Should().EndWith([
+            0xD6,
+            0xA4,
+            0x25,  // [10] ChannelData verticalValue (min= 0x80 (128))
+            0x89,  // [11] ChannelData horizontalValue (min= 0x80 (128))
+            0x24,  // [12] ChannelData lightValue
+            0x6D,  // [13] ChannelData 
+            0x25,  // [14] ChannelData 
+            0x25   // [15] ChannelData 
+         ]);
+    }
+
+    [Fact]
+    public void Encode_WithRearLightValue_EncodesAndEncryptsValues()
+    {
+        // Arrange
+        var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
+
+        // Act
+        var result = encoder.Encode([Zero, Zero, (Half)0b00000001]);
+
+        // Assert
+        result.Length.Should().Be(16);
+        result.Should().EndWith([
+            0xD6,
+            0xA4,
+            0x25,  // [10] ChannelData verticalValue (min= 0x80 (128))
+            0x89,  // [11] ChannelData horizontalValue (min= 0x80 (128))
+            0x24,  // [12] ChannelData lightValue
+            0x6D,  // [13] ChannelData 
+            0x25,  // [14] ChannelData 
+            0x25   // [15] ChannelData 
+         ]);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(1)]

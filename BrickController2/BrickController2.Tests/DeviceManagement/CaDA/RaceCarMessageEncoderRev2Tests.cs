@@ -157,6 +157,76 @@ public class RaceCarMessageEncoderRev2Tests
         ]);
     }
 
+    [Theory]
+    [InlineData(0xC1C9, 0x2979, 0x0001, 0x4A, 0x4A, 0xCA, 0xFA)] // bb 11 11 c9 c1 79 29  4a 4a 01 ca fa  cc b8 92 b0
+    public void EncodeValues_WithZeroValuesAndFrontLightOn_ReturnsProperPayload(ushort deviceId, ushort appId,
+        byte value, byte v1, byte v2, byte v4, byte sequence)
+    {
+        // arrange
+        var encoder = Create(deviceId, appId, sequence: sequence); // speed and steering are zero, so the sequence is not incremented
+
+        // act
+        var result = encoder.EncodeValues([Zero, Zero, (Half)value]);
+
+        // assert
+        result.Length.Should().Be(16);
+        result.ToArray().Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
+            (byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF),
+            (byte)(appId & 0xFF), (byte)((appId >> 8) & 0xFF),
+            v1, v2, 0x01, v4,
+            sequence, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+
+    [Theory]
+    [InlineData(0xC1C9, 0x2979, 0x0010, 0x59, 0x59, 0xD9, 0xFA)] // bb 11 11 c9 c1 79 29  59 59 10 d9 fa  cc b8 92 b0
+    public void EncodeValues_WithZeroValuesAndRearLightOn_ReturnsProperPayload(ushort deviceId, ushort appId,
+        byte value, byte v1, byte v2, byte v4, byte sequence)
+    {
+        // arrange
+        var encoder = Create(deviceId, appId, sequence: sequence); // speed and steering are zero, so the sequence is not incremented
+
+        // act
+        var result = encoder.EncodeValues([Zero, Zero, (Half)value]);
+
+        // assert
+        result.Length.Should().Be(16);
+        result.ToArray().Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
+            (byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF),
+            (byte)(appId & 0xFF), (byte)((appId >> 8) & 0xFF),
+            v1, v2, 0x10, v4,
+            sequence, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+
+
+    [Theory]
+    [InlineData(0xC1C9, 0x2979, 0x0011, 0x5A, 0x5A, 0xDA, 0xFA)] // bb 11 11 c9 c1 79 29  5a 5a 11 da fa  cc b8 92 b0
+    public void EncodeValues_WithZeroValuesAndFrontLightAndRearLightOn_ReturnsProperPayload(ushort deviceId, ushort appId,
+        byte value, byte v1, byte v2, byte v4, byte sequence)
+    {
+        // arrange
+        var encoder = Create(deviceId, appId, sequence: sequence); // speed and steering are zero, so the sequence is not incremented
+
+        // act
+        var result = encoder.EncodeValues([Zero, Zero, (Half)value]);
+
+        // assert
+        result.Length.Should().Be(16);
+        result.ToArray().Should().BeEquivalentTo(
+        [
+            0xBB, 0x11, 0x11,
+            (byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF),
+            (byte)(appId & 0xFF), (byte)((appId >> 8) & 0xFF),
+            v1, v2, 0x11, v4,
+            sequence, 0xCC, 0xB8, 0x92, 0xB0
+        ]);
+    }
+
     private static RaceCarMessageEncoderRev2 Create(ushort deviceId, ushort appId, byte sequence = 0xA1)
         => new(new PlatformService.Default(),
             deviceId: [(byte)(deviceId & 0xFF), (byte)((deviceId >> 8) & 0xFF)],

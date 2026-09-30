@@ -366,14 +366,6 @@ namespace BrickController2.CreationManagement
             }
         }
 
-        public async Task ImportSequenceAsync(string sequenceFilename)
-        {
-            var sequenceJson = await File.ReadAllTextAsync(sequenceFilename);
-            var sequence = JsonConvert.DeserializeObject<Sequence>(sequenceJson);
-
-            await ImportSequenceAsync(sequence!);
-        }
-
         public async Task ImportSequenceAsync(Sequence sequence)
         {
             using (await _asyncLock.LockAsync())

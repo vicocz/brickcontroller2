@@ -42,6 +42,115 @@ public class MacroChoiceValueTests
         Assert.Equal("sound.wav", value.Value);
     }
 
+    [Theory]
+    [InlineData(50)]
+    [InlineData(50L)]
+    [InlineData(50.0)]
+    [InlineData(50f)]
+    public void ValueEquals_FloatReference_MatchesSavedNumericOfAnyType(object saved)
+    {
+        MacroChoiceValue reference = 50f;
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(saved)));
+    }
+
+    [Fact]
+    public void ValueEquals_FloatReference_ComparesWithFloatPrecision()
+    {
+        MacroChoiceValue reference = 0.1f;
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(0.1d)));
+    }
+
+    [Theory]
+    [InlineData(50)]
+    [InlineData(50L)]
+    public void ValueEquals_IntReference_MatchesSavedIntegral(object saved)
+    {
+        MacroChoiceValue reference = 50;
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(saved)));
+    }
+
+    [Theory]
+    [InlineData(50.0)]
+    [InlineData(50.5)]
+    [InlineData(50f)]
+    public void ValueEquals_IntReference_RejectsSavedFloatingPoint(object saved)
+    {
+        MacroChoiceValue reference = 50;
+
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(saved)));
+    }
+
+    [Fact]
+    public void ValueEquals_IntReference_ReturnsFalse_ForIntegralsDifferingByOne()
+    {
+        MacroChoiceValue reference = 16777216;
+
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(16777217L)));
+    }
+
+    [Fact]
+    public void ValueEquals_LongReference_ReturnsFalse_WhenSavedUlongOverflows()
+    {
+        var reference = new MacroChoiceValue(long.MaxValue);
+
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(ulong.MaxValue)));
+    }
+
+    [Fact]
+    public void ValueEquals_StringReference_RejectsNumeric()
+    {
+        MacroChoiceValue reference = "50";
+
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(50)));
+    }
+
+    [Fact]
+    public void ValueEquals_NumericReference_RejectsString()
+    {
+        MacroChoiceValue reference = 50f;
+
+        Assert.False(reference.ValueEquals("50"));
+    }
+
+    [Fact]
+    public void ValueEquals_StringReference_IsOrdinal()
+    {
+        MacroChoiceValue reference = "Sound.mp3";
+
+        Assert.True(reference.ValueEquals("Sound.mp3"));
+        Assert.False(reference.ValueEquals("sound.mp3"));
+    }
+
+    [Fact]
+    public void ValueEquals_BoolReference_MatchesOnlyBool()
+    {
+        MacroChoiceValue reference = true;
+
+        Assert.True(reference.ValueEquals(true));
+        Assert.False(reference.ValueEquals(false));
+        Assert.False(reference.ValueEquals(1));
+    }
+
+    [Fact]
+    public void ValueEquals_HandlesNull()
+    {
+        Assert.True(default(MacroChoiceValue).ValueEquals(default));
+        Assert.False(default(MacroChoiceValue).ValueEquals(1));
+        Assert.False(new MacroChoiceValue(1).ValueEquals(default));
+    }
+
+    [Fact]
+    public void ValueEquals_FloatReference_HandlesNaN()
+    {
+        MacroChoiceValue reference = float.NaN;
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(double.NaN)));
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(0L)));
+    }
+
     [Fact]
     public void HasValue_IsFalse_WhenDefault()
     {

@@ -48,53 +48,27 @@ public readonly record struct MacroChoiceValue(object? Value)
     public T? As<T>() => TryGet<T>(out var value) ? value : default;
 
     /// <summary>
-    /// Compares values tolerant to numeric type changes caused by (de)serialization
-    /// (e.g. int/long/float/double), strings are compared ordinally.
+    /// Compares a saved value against this (reference) value by converting the saved value
+    /// to the reference type, tolerating type drift caused by (de)serialization
+    /// (e.g. int -> long, float -> double). Strings are compared ordinally.
+    /// Not symmetric: call it on the reference value (e.g. the descriptor's choice).
     /// </summary>
-    public bool ValueEquals(MacroChoiceValue other)
+    public bool ValueEquals(MacroChoiceValue other) => (Value, other.Value) switch
     {
-        return (Value, other.Value) switch
-        {
-            (null, null) => true,
-            (null, _) or (_, null) => false,
-            (string a, string b) => string.Equals(a, b, StringComparison.Ordinal),
-            (bool a, bool b) => a == b,
-            ({ } a, { } b) when IsNumeric(a) && IsNumeric(b) => NumericEquals(a, b),
-            _ => false
-        };
+        (null, null) => true,
+        (null, _) or (_, null) => false,
+        (string a, _) => other.Value is string b && string.Equals(a, b, StringComparison.Ordinal),
+        (bool a, _) => other.Value is bool b && a == b,
+        (int a, _) => IsIntegral(other.Value) && other.TryGet<long>(out var b) && a == b,
+        (long a, _) => IsIntegral(other.Value) && other.TryGet<long>(out var b) && a == b,
+        (float a, _) => IsNumeric(other.Value) && other.TryGet<float>(out var b) && a.Equals(b),
+        (double a, _) => IsNumeric(other.Value) && other.TryGet<double>(out var b) && a.Equals(b),
+        _ => Value.Equals(other.Value)
+    };
 
-        static bool IsNumeric(object value) => value is sbyte or byte or short or ushort or int or uint
-            or long or ulong or float or double or decimal;
+    private static bool IsIntegral(object? value) => value is sbyte or byte or short or ushort or int or uint or long or ulong;
 
-        static bool IsFloatingPoint(object value) => value is float or double;
-
-        static bool NumericEquals(object a, object b)
-        {
-            if (!IsFloatingPoint(a) && !IsFloatingPoint(b))
-            {
-                // integral/decimal values are compared exactly
-                return Convert.ToDecimal(a) == Convert.ToDecimal(b);
-            }
-
-            if (a is float || b is float)
-            {
-                // float vs double: serialization may change the type, compare with float precision
-                // float vs integral: compare exactly as double to avoid collapsing large integers
-                if (IsFloatingPoint(a) && IsFloatingPoint(b))
-                {
-                    return FloatEquals(Convert.ToSingle(a), Convert.ToSingle(b));
-                }
-            }
-
-            var x = ToDouble(a);
-            var y = ToDouble(b);
-            return double.IsNaN(x) && double.IsNaN(y) || x == y;
-        }
-
-        static bool FloatEquals(float x, float y) => float.IsNaN(x) && float.IsNaN(y) || x == y;
-
-        static double ToDouble(object value) => value is decimal d ? (double)d : Convert.ToDouble(value);
-    }
+    private static bool IsNumeric(object? value) => IsIntegral(value) || value is float or double or decimal;
 
     public override string? ToString() => Value?.ToString();
 }

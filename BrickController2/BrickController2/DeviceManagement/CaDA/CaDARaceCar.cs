@@ -72,8 +72,8 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         return channelNo switch
         {
-            2 => _outputValues.SetFlag(2, (Half)0b0001, value > 0.5f), // front lights
-            3 => _outputValues.SetFlag(2, (Half)0b0010, value > 0.5f), // rear lights
+            2 => _outputValues.SetFlag(2, (Half)0b0001, Math.Abs(value) > 0.5f), // front lights
+            3 => _outputValues.SetFlag(2, (Half)0b0010, Math.Abs(value) > 0.5f), // rear lights
             _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for motors
         };
     }

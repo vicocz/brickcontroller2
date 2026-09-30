@@ -51,7 +51,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
     }
 
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
         var changed = _outputValues.TryGetValues(out var outputValues);
         currentData = _messageEncoder.Encode(outputValues, getConnectTelegram);

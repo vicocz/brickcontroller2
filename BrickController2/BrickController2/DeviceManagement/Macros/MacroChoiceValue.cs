@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace BrickController2.DeviceManagement.Macros;
 
@@ -59,12 +59,41 @@ public readonly record struct MacroChoiceValue(object? Value)
             (null, _) or (_, null) => false,
             (string a, string b) => string.Equals(a, b, StringComparison.Ordinal),
             (bool a, bool b) => a == b,
-            ({ } a, { } b) when IsNumeric(a) && IsNumeric(b) => Convert.ToSingle(a) == Convert.ToSingle(b),
+            ({ } a, { } b) when IsNumeric(a) && IsNumeric(b) => NumericEquals(a, b),
             _ => false
         };
 
         static bool IsNumeric(object value) => value is sbyte or byte or short or ushort or int or uint
             or long or ulong or float or double or decimal;
+
+        static bool IsFloatingPoint(object value) => value is float or double;
+
+        static bool NumericEquals(object a, object b)
+        {
+            if (!IsFloatingPoint(a) && !IsFloatingPoint(b))
+            {
+                // integral/decimal values are compared exactly
+                return Convert.ToDecimal(a) == Convert.ToDecimal(b);
+            }
+
+            if (a is float || b is float)
+            {
+                // float vs double: serialization may change the type, compare with float precision
+                // float vs integral: compare exactly as double to avoid collapsing large integers
+                if (IsFloatingPoint(a) && IsFloatingPoint(b))
+                {
+                    return FloatEquals(Convert.ToSingle(a), Convert.ToSingle(b));
+                }
+            }
+
+            var x = ToDouble(a);
+            var y = ToDouble(b);
+            return double.IsNaN(x) && double.IsNaN(y) || x == y;
+        }
+
+        static bool FloatEquals(float x, float y) => float.IsNaN(x) && float.IsNaN(y) || x == y;
+
+        static double ToDouble(object value) => value is decimal d ? (double)d : Convert.ToDouble(value);
     }
 
     public override string? ToString() => Value?.ToString();

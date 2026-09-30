@@ -165,9 +165,9 @@ namespace BrickController2.BusinessLogic
             return controllerAction.ButtonType == ControllerButtonType.Normal || isPressed;
         }
 
-        private static void InvokeMacro(ControllerAction controllerAction, Device device, CancellationToken token = default)
+        private static void InvokeMacro(ControllerAction action, Device device, CancellationToken token = default)
         {
-            var macro = device.AvailableMacros.FirstOrDefault(m => m.Id == controllerAction.MacroId);
+            var macro = device.AvailableMacros.FirstOrDefault(m => m.Id == action.MacroId && m.Scope == action.MacroScope);
             if (macro == null)
             {
                 return;
@@ -179,8 +179,8 @@ namespace BrickController2.BusinessLogic
             {
                 try
                 {
-                    int? channel = macro.Scope == MacroScope.Channel ? controllerAction.Channel : null;
-                    var invocation = new MacroInvocation(macro.Id, controllerAction.MacroChoice, channel);
+                    int? channel = macro.Scope == MacroScope.Channel ? action.Channel : null;
+                    var invocation = new MacroInvocation(macro.Id, action.MacroChoice, channel);
                     await device.ExecuteMacroAsync(invocation, token);
                 }
                 catch

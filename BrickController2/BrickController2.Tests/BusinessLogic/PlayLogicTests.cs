@@ -116,7 +116,7 @@ public class PlayLogicTests
     }
 
     [Fact]
-    public void ValidateCreation_ReturnsMissingMacro_WhenDeviceDOesNotSupportMacros()
+    public void ValidateCreation_ReturnsMissingMacro_WhenDeviceDoesNotSupportMacros()
     {
         var creation = CreateCreation(CreateControllerAction(
             deviceId: "device-1",

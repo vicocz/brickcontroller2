@@ -137,9 +137,11 @@ namespace BrickController2.CreationManagement
         [JsonIgnore]
         public string? MacroChoiceBlob { get; set; }
 
+        [Ignore]
         [JsonIgnore]
         internal bool HasChannel => Channel != NoChannel;
 
+        [Ignore]
         [JsonIgnore]
         internal MacroScope MacroScope => HasChannel ? MacroScope.Channel : MacroScope.Device;
 

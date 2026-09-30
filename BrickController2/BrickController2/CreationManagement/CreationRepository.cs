@@ -161,7 +161,7 @@ namespace BrickController2.CreationManagement
             {
                 foreach (var controllerAction in controllerEvent.ControllerActions)
                 {
-                    await _databaseConnection.InsertAsync(controllerAction);
+                    await _databaseConnection.InsertWithChildrenAsync(controllerAction);
                 }
                 await _databaseConnection.UpdateWithChildrenAsync(controllerEvent);
             }
@@ -187,7 +187,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _lock.LockAsync())
             {
-                await _databaseConnection.InsertAsync(controllerAction);
+                await _databaseConnection.InsertWithChildrenAsync(controllerAction);
 
                 if (controllerEvent.ControllerActions == null)
                 {
@@ -203,7 +203,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _lock.LockAsync())
             {
-                await _databaseConnection.UpdateAsync(controllerAction);
+                await _databaseConnection.UpdateWithChildrenAsync(controllerAction);
             }
         }
 
@@ -211,7 +211,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _lock.LockAsync())
             {
-                await _databaseConnection.DeleteAsync(controllerAction);
+                await _databaseConnection.DeleteAsync(controllerAction, true);
             }
         }
 

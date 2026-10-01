@@ -1,5 +1,5 @@
 name: Setup MAUI
-description: Installs the .NET SDK pinned in global.json, optionally installs the MAUI workload for a platform, and exposes the full target framework moniker (e.g. net10.0-android) as an output.
+description: Installs the .NET SDK pinned in global.json, optionally installs the MAUI workload for a platform (optionally pinned to a workload set version), and exposes the full target framework moniker (e.g. net10.0-android) as an output.
 inputs:
   platform:
     description: MAUI platform suffix appended to the TFM base, e.g. android, ios, maccatalyst, windows10.0.19041.0
@@ -11,6 +11,10 @@ inputs:
     default: "true"
   workload-id:
     description: Override the workload id passed to dotnet workload install (defaults to maui-<platform>).
+    required: false
+    default: ""
+  workload-version:
+    description: Workload set version to pin, e.g. 10.0.401. Empty = latest available.
     required: false
     default: ""
 outputs:
@@ -53,7 +57,14 @@ runs:
           fi
           WORKLOAD_ID="maui-${{ inputs.platform }}"
         fi
-        dotnet workload install "$WORKLOAD_ID"
+
+        VERSION_ARG=""
+        if [ -n "${{ inputs.workload-version }}" ]; then
+          VERSION_ARG="--version ${{ inputs.workload-version }}"
+        fi
+
+        dotnet workload install "$WORKLOAD_ID" $VERSION_ARG
+        dotnet workload list
 
     - id: app-version
       name: Get App Version from Build Properties

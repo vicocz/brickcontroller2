@@ -45,9 +45,9 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     {
         lock (_outputLock)
         {
-            BigInteger currentValue = BigInteger.CreateChecked(_outputValues[channel]);
-            BigInteger mask = BigInteger.CreateChecked(bitMask);
-            BigInteger newValue = enable ? currentValue | mask : currentValue & ~mask;
+            ulong currentValue = ulong.CreateChecked(_outputValues[channel]);
+            ulong mask = ulong.CreateChecked(bitMask);
+            ulong newValue = enable ? currentValue | mask : currentValue & ~mask;
 
             return SetOutput(channel, TValue.CreateChecked(newValue));
         }

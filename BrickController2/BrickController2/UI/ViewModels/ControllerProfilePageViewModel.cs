@@ -333,7 +333,7 @@ namespace BrickController2.UI.ViewModels
                     token: DisappearingToken);
 
                 await NavigationService.NavigateToAsync<ControllerActionPageViewModel>(new NavigationParameters(("controllerevent", controllerEvent!)));
-                
+
             }
             catch (OperationCanceledException)
             {
@@ -454,6 +454,8 @@ namespace BrickController2.UI.ViewModels
             _device is not null &&
             ControllerAction.ChannelOutputType.IsChannelSetupSupported() &&
             _device.IsOutputTypeSupported(Channel, ControllerAction.ChannelOutputType);
+
+        public bool ShowChannelInfo => ControllerAction.HasChannel;
     }
 
     public class ControllerEventViewModel : List<ControllerActionViewModel>

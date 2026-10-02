@@ -260,7 +260,10 @@ namespace BrickController2.CreationManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                var controllerAction = controllerEvent.ControllerActions.FirstOrDefault(ca => ca.DeviceId == deviceId && ca.Channel == channel);
+                var controllerAction = controllerEvent.ControllerActions.FirstOrDefault(ca => ca.DeviceId == deviceId &&
+                    ca.Channel == channel &&
+                    (ca.HasChannel || ca.MacroId == macroId));
+
                 if (controllerAction != null)
                 {
                     controllerAction.IsInvert = isInvert;

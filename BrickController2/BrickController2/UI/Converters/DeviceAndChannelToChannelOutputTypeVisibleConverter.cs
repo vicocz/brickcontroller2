@@ -10,7 +10,7 @@ namespace BrickController2.UI.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values[0] is Device device && values[1] is int channel)
+            if (values[0] is Device device && values[1] is int channel && channel != ControllerAction.NoChannel)
             {
                 return device.IsOutputTypeSupported(channel, ChannelOutputType.ServoMotor) ||
                      device.IsOutputTypeSupported(channel, ChannelOutputType.StepperMotor);

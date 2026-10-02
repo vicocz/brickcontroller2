@@ -858,4 +858,16 @@
   <data name="MissingMacro" xml:space="preserve">
     <value>Fehlendes oder falsches Makro</value>
   </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Makroparameter</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Makro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Makroparameter auswählen</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Makro auswählen</value>
+  </data>
 </root>

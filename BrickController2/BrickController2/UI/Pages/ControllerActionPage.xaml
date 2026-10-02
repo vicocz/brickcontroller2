@@ -60,23 +60,34 @@
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
 
+                        <!-- Scope selector -->
+                        <VerticalStackLayout IsVisible="{Binding SupportsDeviceScope}">
+                            <Grid ColumnSpacing="6" ColumnDefinitions="2*,3*">
+                                <Label Grid.Column="0" Text="{extensions:Translate Scope}" VerticalOptions="Center"/>
+                                <Button Grid.Column="1" Text="{Binding ScopeDisplayName}" Command="{Binding SelectScopeCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                            </Grid>
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
+                        </VerticalStackLayout>
+
                         <!-- Device channel selector -->
-                        <controls:DeviceChannelSelector Device="{Binding SelectedDevice}" SelectedChannel="{Binding Action.Channel}"/>
+                        <controls:DeviceChannelSelector Device="{Binding SelectedDevice}" SelectedChannel="{Binding Action.Channel}" IsEnabled="{Binding IsChannelScope}"/>
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
 
-                        <!-- Invert switch -->
-                        <Grid ColumnSpacing="6" Margin="0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="3*"/>
-                            </Grid.ColumnDefinitions>
+                        <VerticalStackLayout IsVisible="{Binding IsChannelScope}">
+                            <!-- Invert switch -->
+                            <Grid ColumnSpacing="6" Margin="0,6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="3*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <Label Grid.Column="0" Text="{extensions:Translate Invert}" VerticalOptions="Center"/>
-                            <controls:CheckBox Grid.Column="1" Checked="{Binding Action.IsInvert}" HorizontalOptions="End"/>
-                        </Grid>
+                                <Label Grid.Column="0" Text="{extensions:Translate Invert}" VerticalOptions="Center"/>
+                                <controls:CheckBox Grid.Column="1" Checked="{Binding Action.IsInvert}" HorizontalOptions="End"/>
+                            </Grid>
 
-                        <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
+                            <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
+                        </VerticalStackLayout>
                         <Label Text="{extensions:Translate AdvancedSettings}" FontSize="Medium" FontAttributes="Bold" Margin="0,6,0,16"/>
 
                         <!-- Channel output type selector -->

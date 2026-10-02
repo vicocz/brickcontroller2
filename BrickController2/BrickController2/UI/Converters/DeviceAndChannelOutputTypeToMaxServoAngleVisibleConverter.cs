@@ -13,7 +13,7 @@ namespace BrickController2.UI.Converters
             if (values[0] is Device device)
             {
                 return values[1] is ChannelOutputType outputType && outputType == ChannelOutputType.ServoMotor &&
-                    values[2] is int channel && device.CanChangeMaxServoAngle(channel);
+                    values[2] is int channel && channel != ControllerAction.NoChannel && device.CanChangeMaxServoAngle(channel);
             }
 
             return false;

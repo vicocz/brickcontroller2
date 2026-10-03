@@ -91,7 +91,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     /// </summary>
     /// <param name="changes">Collection of changes</param>
     /// <returns>true there is any reason to apply changes</returns>
-    public bool TryGetChanges(out IReadOnlyCollection<KeyValuePair<int,TValue>> changes)
+    public bool TryGetChanges(out IReadOnlyCollection<KeyValuePair<int, TValue>> changes)
     {
         if (!TryGetValues(out var values) || values.IsEmpty)
         {

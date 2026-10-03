@@ -19,7 +19,7 @@ public class RaceCarMessageEncoderTests
         var encoder = Create(0x4032, [0x01, 0x23, 0x40], [0x87, 0x65, 0x43]);
 
         // Act
-        var result = encoder.Encode([Zero, Zero, Zero]);
+        var result = encoder.Encode([Zero, Zero, Zero, Zero]);
 
         // Assert
         result.Length.Should().Be(16);
@@ -43,18 +43,74 @@ public class RaceCarMessageEncoderTests
         var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
 
         // Act
-        var result = encoder.Encode([Zero, Zero, One]);
+        var result = encoder.Encode([Zero, Zero, One, One]);
 
         // Assert
         result.Length.Should().Be(16);
-        result.Should().EndWith([0xD6, 0xA4, 0x25, 0x89, 0x4E, 0x6D, 0x25, 0x25]);
+        result.Should().EndWith([
+            0xD6, 
+            0xA4, 
+            0x25,  // [10] ChannelData verticalValue (min= 0x80 (128))
+            0x89,  // [11] ChannelData horizontalValue (min= 0x80 (128))
+            0x26,  // [12] ChannelData lightValue
+            0x6D,  // [13] ChannelData 
+            0x25,  // [14] ChannelData 
+            0x25   // [15] ChannelData 
+         ]);
+    }
+
+    [Fact]
+    public void Encode_WithFrontLightValue_EncodesAndEncryptsValues()
+    {
+        // Arrange
+        var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
+
+        // Act
+        var result = encoder.Encode([Zero, Zero, One, Zero]);
+
+        // Assert
+        result.Length.Should().Be(16);
+        result.Should().EndWith([
+            0xD6,
+            0xA4,
+            0x25,  // [10] ChannelData verticalValue (min= 0x80 (128))
+            0x89,  // [11] ChannelData horizontalValue (min= 0x80 (128))
+            0x24,  // [12] ChannelData lightValue
+            0x6D,  // [13] ChannelData 
+            0x25,  // [14] ChannelData 
+            0x25   // [15] ChannelData 
+         ]);
+    }
+
+    [Fact]
+    public void Encode_WithRearLightValue_EncodesAndEncryptsValues()
+    {
+        // Arrange
+        var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
+
+        // Act
+        var result = encoder.Encode([Zero, Zero, Zero, One]);
+
+        // Assert
+        result.Length.Should().Be(16);
+        result.Should().EndWith([
+            0xD6,
+            0xA4,
+            0x25,  // [10] ChannelData verticalValue (min= 0x80 (128))
+            0x89,  // [11] ChannelData horizontalValue (min= 0x80 (128))
+            0x27,  // [12] ChannelData lightValue
+            0x6D,  // [13] ChannelData 
+            0x25,  // [14] ChannelData 
+            0x25   // [15] ChannelData 
+         ]);
     }
 
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    [InlineData(4)]
+    [InlineData(3)]
+    [InlineData(5)]
     [InlineData(10)]
     public void Encode_WithInvalidValueCount_ThrowsArgumentException(int count)
     {
@@ -76,7 +132,7 @@ public class RaceCarMessageEncoderTests
         // Arrange
         var encoder = Create(0xABCD, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
         // Act
-        var result = encoder.EncodeValues([Zero, Zero, Zero]);
+        var result = encoder.EncodeValues([Zero, Zero, Zero, Zero]);
         // Assert
         result.Length.Should().Be(8);
         result.ToArray().Should().Equal(
@@ -85,7 +141,7 @@ public class RaceCarMessageEncoderTests
             0xAB, //  [9] ChannelData random
             0x80, // [10] ChannelData verticalValue (min= 0x80 (128))
             0x80, // [11] ChannelData horizontalValue (min= 0x80 (128))
-            0x80, // [12] ChannelData lightValue
+            0x00, // [12] ChannelData lightValue
             0x00, // [13] ChannelData 
             0x00, // [14] ChannelData 
             0x00, // [15] ChannelData 
@@ -93,21 +149,20 @@ public class RaceCarMessageEncoderTests
     }
 
     [Theory]
-    [InlineData(-2.0f, 1.0f, 1.0f)]  // Out of range speed
-    [InlineData(-1.0f, 2.0f, 1.0f)]  // Out of range steering
-    [InlineData(-1.0f, 1.0f, 2.0f)]  // Out of range light
-    public void Encode_WithOutOfRangeValues_ClampsTo0xFF(float speed, float steering, float light)
+    [InlineData(-2.0f, 1.0f)]  // Out of range speed
+    [InlineData(-1.0f, 2.0f)]  // Out of range steering
+    public void Encode_WithOutOfRangeValues_ClampsTo0xFF(float speed, float steering)
     {
         // Arrange
         var encoder = Create();
         // Act
-        var result = encoder.EncodeValues([(Half)speed, (Half)steering, (Half)light]);
+        var result = encoder.EncodeValues([(Half)speed, (Half)steering, Zero, Zero]);
         // Assert
         result.ToArray().Should().EndWith(
         [
             0xFF, // [10] ChannelData verticalValue (min= 0x80 (128))
             0xFF, // [11] ChannelData horizontalValue (min= 0x80 (128))
-            0xFF, // [12] ChannelData lightValue
+            0x00, // [12] ChannelData lightValue
             0x00, // [13] ChannelData 
             0x00, // [14] ChannelData 
             0x00, // [15] ChannelData 
@@ -115,15 +170,14 @@ public class RaceCarMessageEncoderTests
     }
 
     [Theory]
-    [InlineData(2.0f, -1.0f, -1.0f)]  // Out of range speed
-    [InlineData(1.0f, -2.0f, -1.0f)]  // Out of range steering
-    [InlineData(1.0f, -1.0f, -2.0f)]  // Out of range light
-    public void Encode_WithOutOfRangeValues_ClampsTo0x00(float speed, float steering, float light)
+    [InlineData(2.0f, -1.0f)]  // Out of range speed
+    [InlineData(1.0f, -2.0f)]  // Out of range steering
+    public void Encode_WithOutOfRangeValues_ClampsTo0x00(float speed, float steering)
     {
         // Arrange
         var encoder = Create();
         // Act
-        var result = encoder.EncodeValues([(Half)speed, (Half)steering, (Half)light]);
+        var result = encoder.EncodeValues([(Half)speed, (Half)steering, Zero, Zero]);
         // Assert
         result.ToArray().Should().EndWith(
         [

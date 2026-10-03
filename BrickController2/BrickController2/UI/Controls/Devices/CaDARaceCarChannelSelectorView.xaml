@@ -7,17 +7,20 @@
     x:Class="BrickController2.UI.Controls.Devices.CaDARaceCarChannelSelectorView">
 
     <ContentView.Content>
-        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto">
+        <Grid RowDefinitions="*,Auto,Auto,*" ColumnDefinitions="*,Auto, Auto, *">
+            <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="4" Source="{extensions:ImageResource Source=cada_racecar_image.png}" HeightRequest="100" VerticalOptions="Center" HorizontalOptions="End" Margin="0,0,30,0"/>
+            
+            <controls:ColorImage Grid.Column="1" Grid.Row="0" Icon="arrow_upward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="2" Grid.Row="0" Icon="arrow_downward" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="1" Grid.Row="1" Icon="turn_left" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="2" Grid.Row="1" Icon="turn_right" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Icon="lightbulb" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
+            <controls:ColorImage Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" Icon="online_prediction" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30"/>
 
-            <Image Grid.Row="0" Grid.Column="0" Source="{extensions:ImageResource Source=rc_up_down_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
-            <controls:ChannelSelectorRadioButton Grid.Row="0" Grid.Column="1" x:Name="CaDARaceCarChannel0" Channel="0" VerticalOptions="Center"/>
-
-            <Image Grid.Row="1" Grid.Column="0" Source="{extensions:ImageResource Source=rc_left_right_image.png}" HeightRequest="50" Margin="0,0,10,5"/>
-            <controls:ChannelSelectorRadioButton Grid.Row="1" Grid.Column="1" x:Name="CaDARaceCarChannel1" Channel="1" VerticalOptions="Center"/>
-
-            <Image Grid.Row="2" Grid.Column="0" Source="{extensions:ImageResource Source=rc_light_on_off.png}" HeightRequest="50" Margin="0,0,10,5"/>
-            <controls:ChannelSelectorRadioButton Grid.Row="2" Grid.Column="1" x:Name="CaDARaceCarChannel2" Channel="2" VerticalOptions="Center"/>
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="0" x:Name="CaDARaceCarChannel0" DeviceType="CaDA_RaceCar" Channel="0" HorizontalOptions="Start" VerticalOptions="Center" />
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="1" x:Name="CaDARaceCarChannel1" DeviceType="CaDA_RaceCar" Channel="1" HorizontalOptions="Start" VerticalOptions="Center" />
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="2" x:Name="CaDARaceCarChannel2" DeviceType="CaDA_RaceCar" Channel="2" HorizontalOptions="Start" VerticalOptions="Center" />
+            <controls:ChannelSelectorRadioButton Grid.Column="3" Grid.Row="3" x:Name="CaDARaceCarChannel3" DeviceType="CaDA_RaceCar" Channel="3" HorizontalOptions="Start" VerticalOptions="Center" />
         </Grid>
     </ContentView.Content>
-
 </devices:DeviceChannelSelectorViewBase>

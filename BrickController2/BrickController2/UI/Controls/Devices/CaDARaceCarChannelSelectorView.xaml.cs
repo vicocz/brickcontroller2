@@ -12,6 +12,6 @@ public partial class CaDARaceCarChannelSelectorView : DeviceChannelSelectorViewB
     public CaDARaceCarChannelSelectorView()
     {
         InitializeComponent();
-        RegisterChannelButtons(CaDARaceCarChannel0, CaDARaceCarChannel1, CaDARaceCarChannel2);
+        RegisterChannelButtons(CaDARaceCarChannel0, CaDARaceCarChannel1, CaDARaceCarChannel2, CaDARaceCarChannel3);
     }
 }

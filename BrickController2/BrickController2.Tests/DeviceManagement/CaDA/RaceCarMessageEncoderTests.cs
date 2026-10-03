@@ -19,7 +19,7 @@ public class RaceCarMessageEncoderTests
         var encoder = Create(0x4032, [0x01, 0x23, 0x40], [0x87, 0x65, 0x43]);
 
         // Act
-        var result = encoder.Encode([Zero, Zero, Zero]);
+        var result = encoder.Encode([Zero, Zero, Zero, Zero]);
 
         // Assert
         result.Length.Should().Be(16);
@@ -43,7 +43,7 @@ public class RaceCarMessageEncoderTests
         var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
 
         // Act
-        var result = encoder.Encode([Zero, Zero, (Half)0b00000011]);
+        var result = encoder.Encode([Zero, Zero, One, One]);
 
         // Assert
         result.Length.Should().Be(16);
@@ -66,7 +66,7 @@ public class RaceCarMessageEncoderTests
         var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
 
         // Act
-        var result = encoder.Encode([Zero, Zero, (Half)0b00000001]);
+        var result = encoder.Encode([Zero, Zero, One, Zero]);
 
         // Assert
         result.Length.Should().Be(16);
@@ -89,7 +89,7 @@ public class RaceCarMessageEncoderTests
         var encoder = Create(0x4032, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
 
         // Act
-        var result = encoder.Encode([Zero, Zero, (Half)0b00000001]);
+        var result = encoder.Encode([Zero, Zero, Zero, One]);
 
         // Assert
         result.Length.Should().Be(16);
@@ -98,7 +98,7 @@ public class RaceCarMessageEncoderTests
             0xA4,
             0x25,  // [10] ChannelData verticalValue (min= 0x80 (128))
             0x89,  // [11] ChannelData horizontalValue (min= 0x80 (128))
-            0x24,  // [12] ChannelData lightValue
+            0x27,  // [12] ChannelData lightValue
             0x6D,  // [13] ChannelData 
             0x25,  // [14] ChannelData 
             0x25   // [15] ChannelData 
@@ -109,7 +109,8 @@ public class RaceCarMessageEncoderTests
     [InlineData(0)]
     [InlineData(1)]
     [InlineData(2)]
-    [InlineData(4)]
+    [InlineData(3)]
+    [InlineData(5)]
     [InlineData(10)]
     public void Encode_WithInvalidValueCount_ThrowsArgumentException(int count)
     {
@@ -131,7 +132,7 @@ public class RaceCarMessageEncoderTests
         // Arrange
         var encoder = Create(0xABCD, [0x01, 0x02, 0x03], [0x04, 0x05, 0x06]);
         // Act
-        var result = encoder.EncodeValues([Zero, Zero, Zero]);
+        var result = encoder.EncodeValues([Zero, Zero, Zero, Zero]);
         // Assert
         result.Length.Should().Be(8);
         result.ToArray().Should().Equal(
@@ -155,7 +156,7 @@ public class RaceCarMessageEncoderTests
         // Arrange
         var encoder = Create();
         // Act
-        var result = encoder.EncodeValues([(Half)speed, (Half)steering, (Half)0x00]);
+        var result = encoder.EncodeValues([(Half)speed, (Half)steering, Zero, Zero]);
         // Assert
         result.ToArray().Should().EndWith(
         [
@@ -176,7 +177,7 @@ public class RaceCarMessageEncoderTests
         // Arrange
         var encoder = Create();
         // Act
-        var result = encoder.EncodeValues([(Half)speed, (Half)steering, (Half)0x00]);
+        var result = encoder.EncodeValues([(Half)speed, (Half)steering, Zero, Zero]);
         // Assert
         result.ToArray().Should().EndWith(
         [

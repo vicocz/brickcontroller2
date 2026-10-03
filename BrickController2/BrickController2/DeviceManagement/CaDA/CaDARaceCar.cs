@@ -11,7 +11,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 internal class CaDARaceCar : BluetoothAdvertisingDevice
 {
     private readonly IMessageEncoder _messageEncoder;
-    private readonly OutputValuesGroup<Half> _outputValues = new(3);
+    private readonly OutputValuesGroup<Half> _outputValues = new(4);
 
     public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMessageEncoderFactory messageEncoderFactory)
       : base(name, address, deviceRepository, bleService)
@@ -51,7 +51,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
     }
 
-    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
+    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] currentData)
     {
         var changed = _outputValues.TryGetValues(out var outputValues);
         currentData = _messageEncoder.Encode(outputValues, getConnectTelegram);
@@ -72,9 +72,9 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         return channelNo switch
         {
-            2 => _outputValues.SetFlag(2, (Half)0b0001, Math.Abs(value) > 0.5f), // front lights
-            3 => _outputValues.SetFlag(2, (Half)0b0010, Math.Abs(value) > 0.5f), // rear lights
-            _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for motors
+            2 => _outputValues.SetOutput(2, (Math.Abs(value) > 0.5f) ? Half.One : Half.Zero), // front lights
+            3 => _outputValues.SetOutput(3, (Math.Abs(value) > 0.5f) ? Half.One : Half.Zero), // rear lights
+            _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for throttle and steering, which are continuous values
         };
     }
 }

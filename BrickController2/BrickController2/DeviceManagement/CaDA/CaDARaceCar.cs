@@ -72,9 +72,8 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     {
         return channelNo switch
         {
-            2 => _outputValues.SetOutput(2, (Math.Abs(value) > 0.5f) ? Half.One : Half.Zero), // front lights
-            3 => _outputValues.SetOutput(3, (Math.Abs(value) > 0.5f) ? Half.One : Half.Zero), // rear lights
-            _ => _outputValues.SetOutput(channelNo, (Half)value) // channels 0 and 1 are for throttle and steering, which are continuous values
+            2 or 3 => _outputValues.SetOutput(channelNo, (Math.Abs(value) > 0.5f) ? Half.One : Half.Zero),  // channel 2 front lights, channel 3 rear lights
+            _ => _outputValues.SetOutput(channelNo, (Half)value)                                            // channel 0 throttle, channel 1 steering
         };
     }
 }

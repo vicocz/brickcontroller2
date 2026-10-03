@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace BrickController2.DeviceManagement.IO;
 
-public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>, INumber<TValue>, IBitwiseOperators<TValue, TValue, TValue>
+public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>, INumber<TValue>
 {
     private const int MAX_SEND_ATTEMPTS = 5;
 
@@ -39,18 +39,6 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
             }
         }
         return false;
-    }
-
-    public bool SetFlag(int channel, TValue bitMask, bool enable)
-    {
-        lock (_outputLock)
-        {
-            ulong currentValue = ulong.CreateChecked(_outputValues[channel]);
-            ulong mask = ulong.CreateChecked(bitMask);
-            ulong newValue = enable ? currentValue | mask : currentValue & ~mask;
-
-            return SetOutput(channel, TValue.CreateChecked(newValue));
-        }
     }
 
     public void Initialize()
@@ -103,7 +91,7 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     /// </summary>
     /// <param name="changes">Collection of changes</param>
     /// <returns>true there is any reason to apply changes</returns>
-    public bool TryGetChanges(out IReadOnlyCollection<KeyValuePair<int,TValue>> changes)
+    public bool TryGetChanges(out IReadOnlyCollection<KeyValuePair<int, TValue>> changes)
     {
         if (!TryGetValues(out var values) || values.IsEmpty)
         {

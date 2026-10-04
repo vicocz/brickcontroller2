@@ -11,7 +11,7 @@ namespace BrickController2.DeviceManagement.CaDA;
 internal class CaDARaceCar : BluetoothAdvertisingDevice
 {
     private readonly IMessageEncoder _messageEncoder;
-    private readonly OutputValuesGroup<Half> _outputValues = new(3);
+    private readonly OutputValuesGroup<Half> _outputValues = new(4);
 
     public CaDARaceCar(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMessageEncoderFactory messageEncoderFactory)
       : base(name, address, deviceRepository, bleService)
@@ -26,7 +26,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     /// </summary>
     protected override ushort ManufacturerId => CaDAProtocol.ManufacturerID;
 
-    public override int NumberOfChannels => 3;
+    public override int NumberOfChannels => 4;
 
     public override void SetOutput(int channelNo, float value)
     {
@@ -34,7 +34,7 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
         value = CutOutputValue(value);
 
         // check for change
-        if (_outputValues.SetOutput(channelNo, (Half)value))
+        if (SetChannelOutput(channelNo, value))
         {
             // notify data changed
             _bluetoothAdvertisingDeviceHandler.NotifyDataChanged();
@@ -66,5 +66,14 @@ internal class CaDARaceCar : BluetoothAdvertisingDevice
     protected override BluetoothAdvertisingDeviceHandler GetBluetoothAdvertisingDeviceHandler()
     {
         return new BluetoothAdvertisingDeviceHandler(_bleService, ManufacturerId, TryGetTelegram, TimeSpan.MaxValue);
+    }
+
+    private bool SetChannelOutput(int channelNo, float value)
+    {
+        return channelNo switch
+        {
+            2 or 3 => _outputValues.SetOutput(channelNo, (Math.Abs(value) > 0.5f) ? Half.One : Half.Zero),  // channel 2 front lights, channel 3 rear lights
+            _ => _outputValues.SetOutput(channelNo, (Half)value)                                            // channel 0 throttle, channel 1 steering
+        };
     }
 }

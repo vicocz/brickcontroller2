@@ -120,6 +120,24 @@ namespace BrickController2.CreationManagement
             }
         }
 
+        public async Task AssignControllerAsync(Creation creation, string? assignmentId, string? name)
+        {
+            using (await _asyncLock.LockAsync())
+            {
+                var previousId = creation.ControllerAssignmentId;
+                var previousName = creation.ControllerAssignmentName;
+                creation.ControllerAssignmentId = assignmentId;
+                creation.ControllerAssignmentName = name;
+                try { await _creationRepository.UpdateCreationAsync(creation); }
+                catch
+                {
+                    creation.ControllerAssignmentId = previousId;
+                    creation.ControllerAssignmentName = previousName;
+                    throw;
+                }
+            }
+        }
+
         public async Task RenameCreationAsync(Creation creation, string newName)
         {
             using (await _asyncLock.LockAsync())

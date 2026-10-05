@@ -34,6 +34,7 @@ namespace BrickController2.BusinessLogic
         }
 
         public ControllerProfile? ActiveProfile { get; set; }
+        public bool UseCreationControllerAssignment { get; set; }
 
         public CreationValidationResult ValidateCreation(Creation creation)
         {
@@ -96,6 +97,14 @@ namespace BrickController2.BusinessLogic
         public void StopPlay()
         {
             _sequencePlayer.StopPlayer();
+            if (ActiveProfile != null)
+                foreach (var channel in ActiveProfile.ControllerEvents.SelectMany(e => e.ControllerActions)
+                    .Select(a => (a.DeviceId, a.Channel)).Distinct())
+                    _deviceManager.GetDeviceById(channel.DeviceId)?.SetOutput(channel.Channel, 0);
+            _previousOutputs.Clear();
+            _previousAxisOutputs.Clear();
+            _disabledOutputForAxises.Clear();
+            _axisOutputValues.Clear();
         }
 
         public void ProcessGameControllerEvent(InputDeviceEventArgs e)
@@ -109,7 +118,7 @@ namespace BrickController2.BusinessLogic
             {
                 foreach (var controllerEvent in ActiveProfile.ControllerEvents)
                 {
-                    if ((string.IsNullOrEmpty(controllerEvent.ControllerId) ||      // for backward compatibility with undef ControllerId
+                    if ((UseCreationControllerAssignment || string.IsNullOrEmpty(controllerEvent.ControllerId) ||
                         e.InputDeviceId == controllerEvent.ControllerId) &&
                         gameControllerEvent.Key.EventType == controllerEvent.EventType &&
                         gameControllerEvent.Key.EventCode == controllerEvent.EventCode)

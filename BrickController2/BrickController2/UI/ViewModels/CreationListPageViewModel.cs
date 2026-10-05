@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.ApplicationModel;
@@ -61,7 +62,14 @@ namespace BrickController2.UI.ViewModels
             PasteCreationCommand = commandFactory.PasteItemFromClipboardCommand(this);
             OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(new NavigationParameters(("parent", this))), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
-            CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
+            CreationTappedCommand = new SafeCommand<CreationListItemViewModel>(async item =>
+            {
+                if (IsSelectingCreations) item.IsSelected = !item.IsSelected;
+                else await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", item.Creation)));
+            });
+            PlayAssignedCreationsCommand = new SafeCommand(() => SetSelectionMode(true));
+            CancelSelectionCommand = new SafeCommand(() => SetSelectionMode(false));
+            PlaySelectedCreationsCommand = new SafeCommand(PlaySelectedCreationsAsync, () => Items.Any(i => i.IsSelected));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
             PlayCreationCommand = new SafeCommand<Creation>(PlayAsync);
             ShareCreationCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", creation))));
@@ -72,6 +80,59 @@ namespace BrickController2.UI.ViewModels
         }
 
         public ObservableCollection<Creation> Creations => _creationManager.Creations;
+        public ObservableCollection<CreationListItemViewModel> Items { get; } = new();
+        public bool IsSelectingCreations { get; private set; }
+        public bool IsBrowsingCreations => !IsSelectingCreations;
+        public string SelectionHint => Translate("SelectCreationsToPlay") + $" ({Items.Count(i => i.IsSelected)})";
+        public ICommand PlayAssignedCreationsCommand { get; }
+        public ICommand PlaySelectedCreationsCommand { get; }
+        public ICommand CancelSelectionCommand { get; }
+
+        private void RefreshItems()
+        {
+            foreach (var item in Items) item.PropertyChanged -= SelectionChanged;
+            Items.Clear();
+            foreach (var creation in Creations)
+            {
+                var text = creation.ControllerAssignmentId == null ? Translate("AnyController") :
+                    creation.ControllerAssignmentId == "none" ? Translate("NoController") : creation.ControllerAssignmentName ?? Translate("ControllerAssignment");
+                var item = new CreationListItemViewModel(creation, text);
+                item.IsSelected = IsSelectingCreations && item.CanSelect;
+                item.PropertyChanged += SelectionChanged;
+                Items.Add(item);
+            }
+            SelectionChanged(this, new System.ComponentModel.PropertyChangedEventArgs(null));
+        }
+
+        private void SelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(SelectionHint));
+            PlaySelectedCreationsCommand.RaiseCanExecuteChanged();
+        }
+
+        private void SetSelectionMode(bool selecting)
+        {
+            IsSelectingCreations = selecting;
+            RaisePropertyChanged(nameof(IsSelectingCreations));
+            RaisePropertyChanged(nameof(IsBrowsingCreations));
+            foreach (var item in Items) item.IsSelected = selecting && item.CanSelect;
+            SelectionChanged(this, new System.ComponentModel.PropertyChangedEventArgs(null));
+        }
+
+        private async Task PlaySelectedCreationsAsync()
+        {
+            var creations = Items.Where(i => i.IsSelected).Select(i => i.Creation).ToArray();
+            if (creations.Length == 0) return;
+            if (creations.Any(c => c.ControllerProfiles.Count == 0 || _playLogic.ValidateCreation(c) != CreationValidationResult.Ok) ||
+                creations.SelectMany(c => c.GetDeviceIds()).GroupBy(id => id).Any(g => g.Count() > 1))
+            {
+                await _dialogService.ShowMessageBoxAsync(Translate("Warning"), Translate("AssignedCreationsInvalid"),
+                    Translate("Ok"), DisappearingToken);
+                return;
+            }
+            await NavigationService.NavigateToAsync<PlayerPageViewModel>(new NavigationParameters(
+                ("creation", creations[0]), ("creations", creations)));
+        }
 
         public ISharedFileStorageService SharedFileStorageService { get; }
 
@@ -97,6 +158,8 @@ namespace BrickController2.UI.ViewModels
                 base.OnAppearing();
 
                 await LoadCreationsAndDevicesAsync();
+                SetSelectionMode(false);
+                RefreshItems();
                 await RequestPermissionsAsync();
             }
         }
@@ -255,6 +318,7 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteCreationAsync(creation),
                         Translate("Deleting"),
                         token: DisappearingToken);
+                    RefreshItems();
                 }
             }
             catch (OperationCanceledException)

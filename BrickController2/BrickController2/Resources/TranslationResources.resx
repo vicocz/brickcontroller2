@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -858,4 +858,18 @@
   <data name="MissingMacro" xml:space="preserve">
     <value>There is a missing or misconfigured macro.</value>
   </data>
+  <data name="ControllerAssignment" xml:space="preserve"><value>Controller</value></data>
+  <data name="AnyController" xml:space="preserve"><value>Any controller</value></data>
+  <data name="NoController" xml:space="preserve"><value>None</value></data>
+  <data name="ThisConnectionOnly" xml:space="preserve"><value>This connection only</value></data>
+  <data name="RememberController" xml:space="preserve"><value>Remember this controller</value></data>
+  <data name="PlayAssignedCreations" xml:space="preserve"><value>Play assigned creations</value></data>
+  <data name="ControllerAlreadyAssigned" xml:space="preserve"><value>This controller is already assigned to another creation.</value></data>
+  <data name="AssignedCreationsInvalid" xml:space="preserve"><value>Selected creations need valid mappings and separate smart bricks.</value></data>
+  <data name="ControllerReady" xml:space="preserve"><value>ready</value></data>
+  <data name="ControllerUnavailable" xml:space="preserve"><value>disconnected or ambiguous</value></data>
+  <data name="ControllerDisabled" xml:space="preserve"><value>disabled</value></data>
+  <data name="PlaySelectedCreations" xml:space="preserve"><value>Play selected</value></data>
+  <data name="SelectCreationsToPlay" xml:space="preserve"><value>Select the creations to play together</value></data>
+  <data name="AssignControllerBeforeSelection" xml:space="preserve"><value>Assign a controller in creation details to play together</value></data>
 </root>

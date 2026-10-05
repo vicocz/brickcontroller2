@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <local:PageBase
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -33,42 +33,64 @@
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- Creation list -->
-                <CollectionView Grid.Row="0" ItemsSource="{Binding Creations}" SelectionMode="None">
+                <VerticalStackLayout Grid.Row="0" Padding="12,6" Spacing="6">
+                    <Button Text="{extensions:Translate PlayAssignedCreations}" Command="{Binding PlayAssignedCreationsCommand}" IsVisible="{Binding IsBrowsingCreations}"/>
+                    <VerticalStackLayout IsVisible="{Binding IsSelectingCreations}" Spacing="6">
+                        <Label Text="{Binding SelectionHint}" LineBreakMode="WordWrap"/>
+                        <Label Text="{extensions:Translate AssignControllerBeforeSelection}" FontSize="Small" LineBreakMode="WordWrap"/>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button Grid.Column="0" Text="{extensions:Translate PlaySelectedCreations}" Command="{Binding PlaySelectedCreationsCommand}"/>
+                            <Button Grid.Column="1" Text="{extensions:Translate Cancel}" Command="{Binding CancelSelectionCommand}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+                <CollectionView Grid.Row="1" ItemsSource="{Binding Items}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Creation">
+                        <DataTemplate x:DataType="viewModels:CreationListItemViewModel">
                             <SwipeView>
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
                                         <controls:SwipeIcon Text="{extensions:Translate Delete}" Icon="cancel" BackgroundColor="{DynamicResource DeleteSwipeItemBackgroundColor}"
-                                                            Command="{Binding DeleteCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
+                                                            Command="{Binding DeleteCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding Creation}"/>
                                     </SwipeItems>
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
                                         <controls:SwipeIcon Text="{extensions:Translate Share}" Icon="share" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding ShareCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
+                                                            Command="{Binding ShareCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding Creation}"/>
                                         <controls:SwipeIcon Text="{extensions:Translate Play}" Icon="play_arrow" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
-                                                            Command="{Binding PlayCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
+                                                            Command="{Binding PlayCreationCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding Creation}"/>
                                     </SwipeItems>
                                 </SwipeView.RightItems>
                                 <VerticalStackLayout>
                                     <Grid Style="{StaticResource CollectionItemGridStyle}" Margin="0,0">
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding CreationTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
-                                        </Grid.GestureRecognizers>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" BackgroundColor="{Binding Id, Converter={StaticResource IntToColor}}" StrokeShape="RoundRectangle 20" Padding="0" VerticalOptions="Center">
-                                            <Label Text="{Binding Name, Converter={StaticResource TextToCapitalInitial}}" TextColor="White" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"/>
-                                        </Border>
-                                        <Label Grid.Column="1" Text="{Binding Name}" FontSize="Large" FontAttributes="Bold" VerticalOptions="CenterAndExpand"/>
+                                        <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
+                                            <controls:CheckBox Checked="{Binding IsSelected, Mode=TwoWay}" ReadOnly="{Binding CannotSelect}"
+                                                IsVisible="{Binding IsSelectingCreations, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}"/>
+                                            <Border WidthRequest="40" HeightRequest="40" BackgroundColor="{Binding Creation.Id, Converter={StaticResource IntToColor}}" StrokeShape="RoundRectangle 20" Padding="0">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding CreationTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                                <Label Text="{Binding Creation.Name, Converter={StaticResource TextToCapitalInitial}}" TextColor="White" FontSize="Medium" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            </Border>
+                                        </HorizontalStackLayout>
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <VerticalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding CreationTappedCommand, Source={RelativeSource AncestorType={x:Type viewModels:CreationListPageViewModel}}, x:DataType=viewModels:CreationListPageViewModel}" CommandParameter="{Binding .}"/>
+                                            </VerticalStackLayout.GestureRecognizers>
+                                            <Label Text="{Binding Creation.Name}" FontSize="Large" FontAttributes="Bold" LineBreakMode="WordWrap"/>
+                                            <Label Text="{Binding AssignmentText}" FontSize="Small" LineBreakMode="WordWrap"/>
+                                        </VerticalStackLayout>
                                     </Grid>
                                     <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
                                 </VerticalStackLayout>
@@ -81,7 +103,7 @@
                 </CollectionView>
 
                 <!-- Footer -->
-                <Grid Grid.Row="1" Style="{StaticResource FooterGridStyle}">
+                <Grid Grid.Row="2" Style="{StaticResource FooterGridStyle}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -127,7 +149,7 @@
                     </Border>
                 </Grid>
 
-                <controls:FloatingActionButton Grid.Row="0" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddCreationCommand}" ToolTipProperties.Text="{extensions:Translate AddCreation}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="1" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddCreationCommand}" ToolTipProperties.Text="{extensions:Translate AddCreation}" HorizontalOptions="End" VerticalOptions="End" Margin="10" IsVisible="{Binding IsBrowsingCreations}"/>
             </Grid>
 
             <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>

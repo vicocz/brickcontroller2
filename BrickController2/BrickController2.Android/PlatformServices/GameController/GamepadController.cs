@@ -10,6 +10,10 @@ namespace BrickController2.Droid.PlatformServices.GameController
 {
     internal class GamepadController : InputDeviceBase<InputDevice>
     {
+        public override string RuntimeId { get; }
+        public override string? AssignmentId => string.IsNullOrWhiteSpace(InputDeviceDevice.Descriptor)
+            ? null : "android:descriptor:" + InputDeviceDevice.Descriptor;
+
         /// <summary>
         /// Set of supported axes (might get filtered in future)
         /// </summary>
@@ -20,11 +24,12 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// </summary>
         /// <param name="service">reference to GameControllerService</param>
         /// <param name="gamePad">reference to InputDevice</param>
-        public GamepadController(IInputDeviceEventServiceInternal service, InputDevice gamePad)
+        public GamepadController(IInputDeviceEventServiceInternal service, InputDevice gamePad, string runtimeId, string? bluetoothAlias)
             : base(service, gamePad)
         {
             // initialize properties
-            Name = GetDisplayName(gamePad);
+            Name = string.IsNullOrWhiteSpace(bluetoothAlias) ? GetDisplayName(gamePad) : bluetoothAlias;
+            RuntimeId = runtimeId;
             InputDeviceNumber = gamePad.ControllerNumber;
             InputDeviceId = GetControllerIdFromNumber(gamePad.ControllerNumber);
         }

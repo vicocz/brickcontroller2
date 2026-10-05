@@ -2,6 +2,12 @@
 
 public interface IInputDevice
 {
+    /// <summary>Identity of this connection; never persist it as a physical device identity.</summary>
+    string RuntimeId => InputDeviceId;
+
+    /// <summary>Persistent identity when the platform supplies one.</summary>
+    string? AssignmentId => null;
+
     /// <summary>
     /// String to identify the inputdevice like "Controller 1"
     /// </summary>

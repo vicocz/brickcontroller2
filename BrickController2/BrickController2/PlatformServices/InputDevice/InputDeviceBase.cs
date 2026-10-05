@@ -35,6 +35,8 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     /// string to identify the inputdevice like "Controller 1"
     /// </summary>
     public string InputDeviceId { get; protected init; } = default!;
+    public virtual string RuntimeId => InputDeviceId;
+    public virtual string? AssignmentId => null;
 
     /// <summary>
     /// DisplayName of the inputdevice
@@ -92,7 +94,7 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
         {
             return;
         }
-        _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, events));
+        _inputDeviceManagerService.RaiseEvent(new InputDeviceEventArgs(InputDeviceId, events) { RuntimeId = RuntimeId });
     }
 
     private void RaiseEventsWithNonDefaultValues()

@@ -27,7 +27,10 @@
 
                         <!-- Header -->
                         <Grid Grid.Row="0" Style="{StaticResource HeaderGridStyle}">
-                            <Label Text="{Binding Creation.Name}" FontSize="Large" FontAttributes="Bold"/>
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Creation.Name}" FontSize="Large" FontAttributes="Bold"/>
+                                <Label Text="{Binding SessionStatus}" FontSize="Small"/>
+                            </VerticalStackLayout>
                         </Grid>
 
                         <!-- Buwizz output level controls -->

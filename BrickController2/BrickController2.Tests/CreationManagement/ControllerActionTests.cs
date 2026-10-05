@@ -115,6 +115,46 @@ public class ControllerActionTests
         Assert.False(action.IsValidMacro(CreateMacro()));
     }
 
+    [Fact]
+    public void IsBoundTo_ReturnsTrue_WhenDeviceAndChannelMatch()
+    {
+        var action = CreateAction(default, channel: 1);
+
+        Assert.True(action.IsBoundTo("device-1", 1, "other-macro"));
+    }
+
+    [Fact]
+    public void IsBoundTo_ReturnsFalse_WhenDeviceDiffers()
+    {
+        var action = CreateAction(default, channel: 1);
+
+        Assert.False(action.IsBoundTo("device-2", 1, MacroId));
+    }
+
+    [Fact]
+    public void IsBoundTo_ReturnsFalse_WhenChannelDiffers()
+    {
+        var action = CreateAction(default, channel: 1);
+
+        Assert.False(action.IsBoundTo("device-1", 2, MacroId));
+    }
+
+    [Fact]
+    public void IsBoundTo_ReturnsTrue_ForDeviceMacro_WhenMacroIdMatches()
+    {
+        var action = CreateAction(default);
+
+        Assert.True(action.IsBoundTo("device-1", ControllerAction.NoChannel, MacroId));
+    }
+
+    [Fact]
+    public void IsBoundTo_ReturnsFalse_ForDeviceMacro_WhenMacroIdDiffers()
+    {
+        var action = CreateAction(default);
+
+        Assert.False(action.IsBoundTo("device-1", ControllerAction.NoChannel, "other-macro"));
+    }
+
     private static ControllerAction CreateAction(MacroChoiceValue choice, int channel = ControllerAction.NoChannel)
         => new()
         {

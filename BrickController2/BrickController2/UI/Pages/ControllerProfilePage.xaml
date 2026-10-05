@@ -105,15 +105,21 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <controls:ColorImage Grid.Column="0" Icon="warning_amber" Color="{DynamicResource NegativeColor}" IsVisible="{Binding ControllerActionValid, Converter={StaticResource InverseBool}}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"/>
-                                    <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="0,4" Spacing="6">
+                                    <HorizontalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="0,4" Spacing="4">
                                         <Label Text="{extensions:Translate Device}"/>
-                                        <Label Text=": "/>
+                                        <Label Text=":"/>
                                         <Label Text="{Binding DeviceName}" FontAttributes="Bold"/>
-                                        <Label Text="{extensions:Translate ShortChannel}" IsVisible="{Binding ShowChannelInfo}"/>
-                                        <Label Text=": " IsVisible="{Binding ShowChannelInfo}"/>
-                                        <controls:DeviceChannelLabel DeviceType="{Binding DeviceType}" Channel="{Binding Channel}" FontAttributes="Bold" IsVisible="{Binding ShowChannelInfo}"/>
-                                        <Label Text=" - " IsVisible="{Binding ShowChannelInfo}"/>
-                                        <Label Text="{Binding InvertName}" FontAttributes="Bold" IsVisible="{Binding ShowChannelInfo}"/>
+                                        <HorizontalStackLayout IsVisible="{Binding ShowChannelInfo}" Spacing="4">
+                                            <Label Text="{extensions:Translate ShortChannel}"/>
+                                            <Label Text=":"/>
+                                            <controls:DeviceChannelLabel DeviceType="{Binding DeviceType}" Channel="{Binding Channel}" FontAttributes="Bold"/>
+                                            <Label Text="-"/>
+                                            <Label Text="{Binding InvertName}" FontAttributes="Bold"/>
+                                        </HorizontalStackLayout>
+                                        <HorizontalStackLayout IsVisible="{Binding ShowChannelInfo, Converter={StaticResource InverseBool}}" Spacing="4">
+                                            <Label Text="{extensions:Translate ShortMacro}"/>
+                                            <Label Text="{Binding MacroName}" FontAttributes="Bold"/>
+                                        </HorizontalStackLayout>                                        
                                     </HorizontalStackLayout>
                                 </Grid>
                             </SwipeView>

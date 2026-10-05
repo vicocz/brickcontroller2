@@ -260,9 +260,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                var controllerAction = controllerEvent.ControllerActions.FirstOrDefault(ca => ca.DeviceId == deviceId &&
-                    ca.Channel == channel &&
-                    (ca.HasChannel || ca.MacroId == macroId));
+                var controllerAction = controllerEvent.ControllerActions.FirstOrDefault(ca => ca.IsBoundTo(deviceId, channel, macroId));
 
                 if (controllerAction != null)
                 {
@@ -341,7 +339,7 @@ namespace BrickController2.CreationManagement
         {
             using (await _asyncLock.LockAsync())
             {
-                var otherControllerAction = controllerAction.ControllerEvent?.ControllerActions.FirstOrDefault(ca => ca.Id != controllerAction.Id && ca.DeviceId == deviceId && ca.Channel == channel);
+                var otherControllerAction = controllerAction.ControllerEvent?.ControllerActions.FirstOrDefault(ca => ca.Id != controllerAction.Id && ca.IsBoundTo(deviceId, channel, macroId));
                 if (otherControllerAction is not null)
                 {
                     var parent = otherControllerAction.ControllerEvent;

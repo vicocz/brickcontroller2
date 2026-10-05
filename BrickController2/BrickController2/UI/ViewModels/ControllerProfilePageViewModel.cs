@@ -441,6 +441,14 @@ namespace BrickController2.UI.ViewModels
                 (DeviceId.TryParse(controllerAction.DeviceId, out var deviceType, out var _) ? deviceType : DeviceType.Unknown);
             Channel = controllerAction.Channel;
             InvertName = controllerAction.IsInvert ? translationService.Translate("Inv") : string.Empty;
+            var macro = string.IsNullOrEmpty(controllerAction.MacroId)
+                ? null
+                : _device?.AvailableMacros.FirstOrDefault(m => m.Id == controllerAction.MacroId && m.Scope == controllerAction.MacroScope);
+            MacroName = string.IsNullOrEmpty(controllerAction.MacroId)
+                ? string.Empty
+                : macro is not null
+                    ? translationService.Translate(macro.NameKey)
+                    : "?";
         }
 
         public ControllerAction ControllerAction { get; }
@@ -449,6 +457,7 @@ namespace BrickController2.UI.ViewModels
         public DeviceType DeviceType { get; }
         public int Channel { get; }
         public string InvertName { get; }
+        public string MacroName { get; }
 
         public bool IsChannelSetupSupported =>
             _device is not null &&

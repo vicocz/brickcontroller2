@@ -870,4 +870,7 @@
   <data name="SelectMacro" xml:space="preserve">
     <value>Select macro</value>
   </data>
+  <data name="ShortMacro" xml:space="preserve">
+    <value>M:</value>
+  </data>
 </root>

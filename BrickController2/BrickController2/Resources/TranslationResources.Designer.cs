@@ -2149,6 +2149,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to M:.
+        /// </summary>
+        internal static string ShortMacro {
+            get {
+                return ResourceManager.GetString("ShortMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Go to Channels.
         /// </summary>
         internal static string ShowChannels {

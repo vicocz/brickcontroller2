@@ -293,6 +293,9 @@
                                 <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.ChannelOutputType}" Value="{x:Static creationManagement:ChannelOutputType.NormalMotor}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.ButtonType}" Value="{x:Static creationManagement:ControllerButtonType.Macro}">
+                                    <Setter Property="IsVisible" Value="False"/>
+                                </DataTrigger>
                             </VerticalStackLayout.Triggers>
                             <Grid ColumnSpacing="6">
                                 <Grid.ColumnDefinitions>

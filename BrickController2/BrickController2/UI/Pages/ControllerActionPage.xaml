@@ -74,7 +74,12 @@
 
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,10,6,10"/>
 
-                        <VerticalStackLayout IsVisible="{Binding IsChannelScope}">
+                        <VerticalStackLayout IsVisible="True">
+                            <VerticalStackLayout.Triggers>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.ButtonType}" Value="{x:Static creationManagement:ControllerButtonType.Macro}">
+                                    <Setter Property="IsVisible" Value="False"/>
+                                </DataTrigger>
+                            </VerticalStackLayout.Triggers>
                             <!-- Invert switch -->
                             <Grid ColumnSpacing="6" Margin="0,6">
                                 <Grid.ColumnDefinitions>

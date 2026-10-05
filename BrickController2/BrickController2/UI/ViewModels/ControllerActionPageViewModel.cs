@@ -570,6 +570,7 @@ namespace BrickController2.UI.ViewModels
         {
             var connectionResult = DeviceConnectionResult.Ok;
 
+            var reloadFailed = false;
             var dialogResult = await _dialogService.ShowProgressDialogAsync(
                 false,
                 async (progressDialog, ct) =>
@@ -584,7 +585,14 @@ namespace BrickController2.UI.ViewModels
 
                     if (device.DeviceState == DeviceState.Connected)
                     {
-                        await device.GetMacrosAsync(forceRefresh: true, ct);
+                        try
+                        {
+                            await device.GetMacrosAsync(forceRefresh: true, ct);
+                        }
+                        catch (MacroDiscoveryException)
+                        {
+                            reloadFailed = true;
+                        }
                     }
                 },
                 Translate("ConnectingTo"),
@@ -600,7 +608,15 @@ namespace BrickController2.UI.ViewModels
             }
             finally
             {
-                if (!dialogResult.IsCancelled && connectionResult == DeviceConnectionResult.Error)
+                if (reloadFailed)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("FailedToReloadMacros"),
+                        Translate("Ok"),
+                        token);
+                }
+                else if (!dialogResult.IsCancelled && connectionResult == DeviceConnectionResult.Error)
                 {
                     await _dialogService.ShowMessageBoxAsync(
                         Translate("Warning"),

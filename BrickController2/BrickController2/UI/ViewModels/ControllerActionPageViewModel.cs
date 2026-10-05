@@ -151,7 +151,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     return string.Empty;
                 }
-                var choice = macro.Choices.FirstOrDefault(c => c.Value == Action.MacroChoice);
+                var choice = macro.Choices.FirstOrDefault(c => c.Value.ValueEquals(Action.MacroChoice));
                 return choice is null ? string.Empty : Translate(choice.LabelKey);
             }
         }

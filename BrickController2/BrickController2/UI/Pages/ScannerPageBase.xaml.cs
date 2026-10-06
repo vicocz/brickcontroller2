@@ -21,22 +21,17 @@ public partial class ScannerPageBase
 
     private readonly IPreferencesService _preferencesService;
     private readonly List<CameraInfo> _cameras = [];
+    private readonly ScannerPageViewModelBase _viewModel;
     private int _cameraIndex;
-
 
     public ScannerPageBase(PageViewModelBase vm, IBackgroundService backgroundService, IDialogServerHost dialogServerHost, IPreferencesService preferencesService)
         : base(backgroundService, dialogServerHost)
     {
+        _viewModel = (ScannerPageViewModelBase)vm;
         _preferencesService = preferencesService;
         InitializeComponent();
         AfterInitialize(vm);
         Loaded += async (_, _) => await InitializeCamerasAsync(vm.DisappearingToken);
-    }
-
-    protected override void OnDisappearing()
-    {
-        CameraView.IsTorchOn = false;
-        base.OnDisappearing();
     }
 
     private async Task InitializeCamerasAsync(CancellationToken token)
@@ -90,7 +85,7 @@ public partial class ScannerPageBase
         }
 
         _cameraIndex = (_cameraIndex + 1) % _cameras.Count;
-        CameraView.IsTorchOn = false;
+        _viewModel.IsTorchOn = false;
         CameraView.SelectedCamera = _cameras[_cameraIndex];
         UpdateTorchState();
         _preferencesService.Set(CameraLocationKey, _cameras[_cameraIndex].Location, PreferencesSection);
@@ -107,13 +102,13 @@ public partial class ScannerPageBase
 
         if (!isRear)
         {
-            CameraView.IsTorchOn = false;
+            _viewModel.IsTorchOn = false;
         }
     }
 
     private void TorchClicked(object sender, EventArgs e)
     {
-        CameraView.IsTorchOn = !CameraView.IsTorchOn;
+        _viewModel.IsTorchOn = !_viewModel.IsTorchOn;
     }
 
     private void ZoomChanged(object sender, ValueChangedEventArgs e)

@@ -26,7 +26,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- QR code scanner -->
-                <zxing:CameraBarcodeReaderView x:Name="CameraView" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" BarcodesDetected="BarcodesDetected" Options="{Binding Options}" ZIndex="0" />
+                <zxing:CameraBarcodeReaderView x:Name="CameraView" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" BarcodesDetected="BarcodesDetected" Options="{Binding Options}" IsTorchOn="{Binding IsTorchOn, Mode=TwoWay}" ZIndex="0" />
 
                 <!-- Camera controls -->
                 <controls:FloatingActionButton x:Name="SwitchCameraButton" Grid.Row="1" Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="cameraswitch" Clicked="SwitchCameraClicked" ToolTipProperties.Text="{extensions:Translate SwitchCamera}"
@@ -34,7 +34,7 @@
                 <controls:FloatingActionButton x:Name="TorchButton" Grid.Row="0" Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="flashlight_on" Clicked="TorchClicked" ToolTipProperties.Text="{extensions:Translate ToggleTorch}"
                                                HorizontalOptions="End" VerticalOptions="Start" Margin="10,10,20,10" ZIndex="3" IsVisible="False">
                     <controls:FloatingActionButton.Triggers>
-                        <DataTrigger TargetType="controls:FloatingActionButton" x:DataType="zxing:CameraBarcodeReaderView" Binding="{Binding Source={x:Reference CameraView}, Path=IsTorchOn}" Value="True">
+                        <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding IsTorchOn}" Value="True">
                             <Setter Property="Icon" Value="flashlight_off" />
                         </DataTrigger>
                     </controls:FloatingActionButton.Triggers>

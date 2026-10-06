@@ -4,6 +4,8 @@ Each creation now has a **Controller** chooser. Existing creations default to **
 
 Choose **Remember this controller** to save an Android descriptor, or **This connection only** to distinguish controllers that Android cannot identify persistently. Connection choices expire on disconnect or app restart; opening another app page does not expire them. Assignments are local settings stored in the creation database and are deliberately excluded from exported/shared creation JSON.
 
+Specific assignments require a provider that supplies a safe connection identity. Currently Android gamepads supply one; other providers are omitted from the assignment chooser and remain available through **Any controller** and existing controller-number mappings. A reusable Controller N label is never treated as a connection token.
+
 Use **Play assigned creations** on the Creations list to enter selection mode. Assigned creations are initially checked; uncheck the creations you do not want and tap **Play selected**. Only the checked creations start together. Creations set to Any controller or None are excluded. All included creations must have valid mappings and use separate smart bricks; the app refuses a session that shares a brick. Each creation has its own PlayLogic state and SequencePlayer. Group play starts each selected creation with its first profile; the first selected creation in list order is the primary creation. The player screen lists each participant and its connection status; profile selection there changes only the primary creation. Leaving the player screen stops all participants and disconnects their bricks.
 
 ## Existing architecture and implementation
@@ -57,11 +59,13 @@ Automated tests cover interleaved joystick/button events through real PlayLogic 
 
 Verified locally:
 
-- `dotnet test BrickController2/BrickController2.Tests/BrickController2.Tests.csproj --no-restore --verbosity minimal`: 671 passed, 0 failed, 0 skipped.
+- `dotnet test BrickController2/BrickController2.Tests/BrickController2.Tests.csproj --no-restore --verbosity minimal`: 680 passed, 0 failed, 0 skipped.
 - `dotnet build BrickController2/BrickController2.Android/BrickController2.Android.csproj --no-restore --configuration Debug --verbosity minimal`: succeeded with 0 warnings and 0 errors.
 - `git diff --check`: passed.
 
 Bluetooth pairing, physical controller descriptors and actual motor behavior still require the hardware checks below.
+
+PR review regression tests also cover device-wide macros being excluded from channel resets, permanently ambiguous remembered assignments not blocking explicit connections, providers without safe connection identities being excluded from assignment, and live collection updates preserving the checked subset. Imported creations appear immediately while the list is visible and enter an ongoing selection unchecked. Deleting a creation does not reselect unchecked robots. Collection subscriptions are removed when the page disappears.
 
 1. Pair one controller. Leave one existing creation on Any controller, tap its normal Play action, and check its existing axes/buttons and profile selection.
 2. Pair two gamepads with Android. Create Robot A and Robot B using separate smart bricks. Map the same buttons/axes to their respective motors. Choose each physical controller in its creation's Controller field; use Remember when available. For identical names, verify the Controller N number in the existing input-device tester.
@@ -74,4 +78,4 @@ Bluetooth pairing, physical controller descriptors and actual motor behavior sti
 
 9. Rename paired gamepads in Android Bluetooth settings (for example GamePad White and GamePad Black). Reopen the app controller chooser and check that an exact supported descriptor match shows the nickname; otherwise the original name should remain readable and wrapped. Reselect to update an older saved label. On the Creations list, uncheck one creation and verify only the checked creation connects and receives input. Cancel selection and confirm tapping a row opens its details normally.
 
-The updated installable test APK is generated at BrickController2/BrickController2.Android/bin/ControllerSelection/com.scn.BrickController2-Signed.apk. Install it over the earlier test build to retain local creations and assignments; do not uninstall the earlier test build just to update it.
+The updated installable test APK is generated at BrickController2/BrickController2.Android/bin/ControllerReview/com.scn.BrickController2-Signed.apk. Install it over the earlier test build to retain local creations and assignments; do not uninstall the earlier test build just to update it.

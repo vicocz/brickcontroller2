@@ -35,7 +35,8 @@ public abstract class InputDeviceBase<TInputDeviceDevice> : IInputDevice, IInput
     /// string to identify the inputdevice like "Controller 1"
     /// </summary>
     public string InputDeviceId { get; protected init; } = default!;
-    public virtual string RuntimeId => InputDeviceId;
+    // Providers must opt in with an identity that survives discovery cycles but expires on disconnect.
+    public virtual string RuntimeId => string.Empty;
     public virtual string? AssignmentId => null;
 
     /// <summary>

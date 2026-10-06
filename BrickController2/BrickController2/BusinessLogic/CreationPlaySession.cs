@@ -100,8 +100,9 @@ public sealed class CreationPlaySession
     /// <summary>Never guess when two connected devices have the same descriptor.</summary>
     public static string? Resolve(string? assignmentId, IEnumerable<IInputDevice> devices)
     {
-        if (assignmentId == null || assignmentId == "none") return null;
-        var matches = devices.Where(d => d.AssignmentId == assignmentId || d.RuntimeId == assignmentId).ToArray();
+        if (string.IsNullOrWhiteSpace(assignmentId) || assignmentId == "none") return null;
+        var matches = devices.Where(d => !string.IsNullOrWhiteSpace(d.RuntimeId) &&
+            (d.AssignmentId == assignmentId || d.RuntimeId == assignmentId)).ToArray();
         return matches.Length == 1 ? matches[0].RuntimeId : null;
     }
 
@@ -113,12 +114,12 @@ public sealed class CreationPlaySession
         {
             foreach (var group in devices.Where(d => d.AssignmentId != null).GroupBy(d => d.AssignmentId!))
                 if (group.Count() > 1) _ambiguousAssignments.Add(group.Key);
-            var resolved = _bindings.ToDictionary(b => b, b => Resolve(b.Creation.ControllerAssignmentId, devices));
+            var resolved = _bindings.ToDictionary(b => b, b =>
+                b.Creation.ControllerAssignmentId != null && _ambiguousAssignments.Contains(b.Creation.ControllerAssignmentId)
+                    ? null : Resolve(b.Creation.ControllerAssignmentId, devices));
             foreach (var b in _bindings)
             {
                 var runtimeId = resolved[b];
-                if (b.Creation.ControllerAssignmentId != null && _ambiguousAssignments.Contains(b.Creation.ControllerAssignmentId))
-                    runtimeId = null;
                 if (runtimeId != null && resolved.Values.Count(id => id == runtimeId) > 1) runtimeId = null;
                 b.ControllerName = devices.FirstOrDefault(d => d.RuntimeId == runtimeId)?.Name;
                 if (b.RuntimeId == runtimeId) continue;

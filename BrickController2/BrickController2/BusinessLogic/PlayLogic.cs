@@ -99,6 +99,7 @@ namespace BrickController2.BusinessLogic
             _sequencePlayer.StopPlayer();
             if (ActiveProfile != null)
                 foreach (var channel in ActiveProfile.ControllerEvents.SelectMany(e => e.ControllerActions)
+                    .Where(a => a.HasChannel)
                     .Select(a => (a.DeviceId, a.Channel)).Distinct())
                     _deviceManager.GetDeviceById(channel.DeviceId)?.SetOutput(channel.Channel, 0);
             _previousOutputs.Clear();

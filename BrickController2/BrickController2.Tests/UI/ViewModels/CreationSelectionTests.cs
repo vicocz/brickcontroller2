@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BrickController2.BusinessLogic;
@@ -11,6 +12,7 @@ using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
+using Microsoft.Maui.ApplicationModel;
 using Moq;
 using Xunit;
 
@@ -21,17 +23,20 @@ public class CreationSelectionTests
     private readonly Mock<INavigationService> _navigation = new();
     private readonly Mock<IDialogService> _dialogs = new();
     private readonly Mock<IPlayLogic> _playLogic = new();
+    private readonly ObservableCollection<Creation> _creations = new();
 
     private CreationListPageViewModel MakeViewModel()
     {
         var manager = new Mock<ICreationManager>();
-        manager.SetupGet(m => m.Creations).Returns(new ObservableCollection<Creation>());
+        manager.SetupGet(m => m.Creations).Returns(_creations);
         var translation = new Mock<ITranslationService>();
         translation.Setup(t => t.Translate(It.IsAny<string>())).Returns((string s) => s);
         _playLogic.Setup(p => p.ValidateCreation(It.IsAny<Creation>())).Returns(CreationValidationResult.Ok);
+        var permissions = new Mock<IBluetoothPermission>();
+        permissions.Setup(p => p.CheckStatusAsync()).ReturnsAsync(PermissionStatus.Granted);
         return new CreationListPageViewModel(_navigation.Object, translation.Object, manager.Object,
             Mock.Of<IDeviceManager>(), _playLogic.Object, _dialogs.Object, Mock.Of<ISharedFileStorageService>(),
-            Mock.Of<ICommandFactory<Creation>>(), Mock.Of<IBluetoothPermission>(), Mock.Of<IReadWriteExternalStoragePermission>());
+            Mock.Of<ICommandFactory<Creation>>(), permissions.Object, Mock.Of<IReadWriteExternalStoragePermission>());
     }
 
     private static CreationListItemViewModel Item(string? assignment, string brick)
@@ -43,6 +48,81 @@ public class CreationSelectionTests
         p.ControllerEvents.Add(e);
         c.ControllerProfiles.Add(p);
         return new CreationListItemViewModel(c, assignment ?? "Any");
+    }
+
+    [Fact]
+    public void ImportedCreationsAppearImmediatelyAndRemainUncheckedDuringSelection()
+    {
+        var vm = MakeViewModel();
+        var a = Item("controller-a", "A").Creation;
+        var b = Item("controller-b", "B").Creation;
+        _creations.Add(a);
+        _creations.Add(b);
+        vm.OnAppearing();
+        vm.PlayAssignedCreationsCommand.Execute(null);
+        vm.Items.Single(i => i.Creation == b).IsSelected = false;
+
+        var imported = Item("controller-c", "Imported").Creation;
+        _creations.Add(imported);
+
+        Assert.Equal(new[] { a, b, imported }, vm.Items.Select(i => i.Creation));
+        Assert.True(vm.Items.Single(i => i.Creation == a).IsSelected);
+        Assert.False(vm.Items.Single(i => i.Creation == b).IsSelected);
+        Assert.False(vm.Items.Single(i => i.Creation == imported).IsSelected);
+        Assert.Equal("SelectCreationsToPlay (1)", vm.SelectionHint);
+        vm.OnDisappearing();
+    }
+
+    [Fact]
+    public void DeletionPreservesCheckedSubsetAndPlayDoesNotIncludeUncheckedRobots()
+    {
+        var vm = MakeViewModel();
+        var a = Item("controller-a", "A").Creation;
+        var b = Item("controller-b", "B").Creation;
+        var c = Item("controller-c", "C").Creation;
+        _creations.Add(a);
+        _creations.Add(b);
+        _creations.Add(c);
+        vm.OnAppearing();
+        vm.PlayAssignedCreationsCommand.Execute(null);
+        vm.Items.Single(i => i.Creation == b).IsSelected = false;
+
+        // The manager removes a creation after the delete command succeeds.
+        _creations.Remove(c);
+        NavigationParameters? received = null;
+        _navigation.Setup(n => n.NavigateToAsync<PlayerPageViewModel>(It.IsAny<NavigationParameters>()))
+            .Callback<NavigationParameters>(p => received = p).Returns(Task.CompletedTask);
+        vm.PlaySelectedCreationsCommand.Execute(null);
+
+        Assert.NotNull(received);
+        Assert.Equal(new[] { a }, received.Get<Creation[]>("creations"));
+        _creations.Remove(a);
+        Assert.False(vm.PlaySelectedCreationsCommand.CanExecute(null));
+        vm.OnDisappearing();
+    }
+
+    [Fact]
+    public void CollectionSubscriptionOnlyUpdatesVisiblePageAndResumesWithoutDuplicates()
+    {
+        var vm = MakeViewModel();
+        vm.OnAppearing();
+        _creations.Add(Item(null, "A").Creation);
+        Assert.Single(vm.Items);
+        vm.OnDisappearing();
+        _creations.Add(Item(null, "B").Creation);
+        Assert.Single(vm.Items);
+        vm.OnAppearing();
+        Assert.Equal(2, vm.Items.Count);
+        vm.OnAppearing();
+        var resets = 0;
+        vm.Items.CollectionChanged += (_, e) =>
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) resets++;
+        };
+        _creations.Add(Item(null, "C").Creation);
+        Assert.Equal(3, vm.Items.Count);
+        Assert.Equal(1, resets);
+        vm.OnDisappearing();
     }
 
     [Fact]

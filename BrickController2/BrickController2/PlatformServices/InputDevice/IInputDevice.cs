@@ -2,8 +2,9 @@
 
 public interface IInputDevice
 {
-    /// <summary>Identity of this connection; never persist it as a physical device identity.</summary>
-    string RuntimeId => InputDeviceId;
+    /// <summary>Identity of this connection; empty when the provider cannot track connections safely.
+    /// Never persist it as a physical device identity. Reusable mapping labels are not connection identities.</summary>
+    string RuntimeId => string.Empty;
 
     /// <summary>Persistent identity when the platform supplies one.</summary>
     string? AssignmentId => null;

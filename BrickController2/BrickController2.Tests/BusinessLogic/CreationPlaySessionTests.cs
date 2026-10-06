@@ -173,6 +173,47 @@ public class CreationPlaySessionTests
     }
 
     [Fact]
+    public void AmbiguousRememberedAssignmentDoesNotBlockConnectionOnlyPlayerAfterDisconnect()
+    {
+        var inputs = new InputDeviceManagerService();
+        // Both controllers are present when play starts, so only the explicit connection is usable.
+        inputs.InputDeviceEvent += (_, _) => { }; // Keep discovery alive before the session subscribes.
+        inputs.AddInputDevice(new Input("r1", "same"));
+        inputs.AddInputDevice(new Input("r2", "same"));
+        var a = Creation("same", "A");
+        var b = Creation("r2", "B");
+        var playerA = new Mock<IPlayLogic>();
+        var playerB = new Mock<IPlayLogic>();
+        playerA.SetupAllProperties();
+        playerB.SetupAllProperties();
+        var session = new CreationPlaySession(inputs, () => playerB.Object);
+        session.Configure([a, b], a, playerA.Object);
+        session.Listen();
+        session.Start();
+        playerB.Invocations.Clear();
+
+        var e = new InputDeviceEventArgs("Controller 1", InputDeviceEventType.Button, "A", 1) { RuntimeId = "r2" };
+        inputs.RaiseEvent(e);
+        inputs.TryRemoveInputDevice<Input>(d => d.RuntimeId == "r1", out _);
+        inputs.RaiseEvent(e);
+
+        playerA.Verify(p => p.StartPlay(), Times.Never);
+        playerA.Verify(p => p.ProcessGameControllerEvent(It.IsAny<InputDeviceEventArgs>()), Times.Never);
+        playerB.Verify(p => p.StopPlay(), Times.Never);
+        playerB.Verify(p => p.ProcessGameControllerEvent(e), Times.Exactly(2));
+        session.Close();
+    }
+
+    [Theory]
+    [InlineData("Controller 1")]
+    [InlineData("descriptor")]
+    [InlineData("")]
+    public void ProvidersWithoutConnectionIdentityCannotResolveSpecificAssignments(string assignment)
+    {
+        Assert.Null(CreationPlaySession.Resolve(assignment, [new Input("", "descriptor")]));
+    }
+
+    [Fact]
     public void NoneIgnoresInputAndClosingSessionPreventsFurtherEvents()
     {
         var inputs = new InputDeviceManagerService();

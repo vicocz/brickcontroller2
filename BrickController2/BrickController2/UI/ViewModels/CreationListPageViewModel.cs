@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -28,6 +29,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IReadWriteExternalStoragePermission _readWriteExternalStoragePermission;
 
         private bool _isLoaded;
+        private bool _isObservingCreations;
 
         // Permission request fires OnDisappearing somehow (WTF???)
         private bool _isRequestingPermission = false;
@@ -90,6 +92,7 @@ namespace BrickController2.UI.ViewModels
 
         private void RefreshItems()
         {
+            var selectedCreations = Items.Where(i => i.IsSelected).Select(i => i.Creation).ToHashSet();
             foreach (var item in Items) item.PropertyChanged -= SelectionChanged;
             Items.Clear();
             foreach (var creation in Creations)
@@ -97,12 +100,14 @@ namespace BrickController2.UI.ViewModels
                 var text = creation.ControllerAssignmentId == null ? Translate("AnyController") :
                     creation.ControllerAssignmentId == "none" ? Translate("NoController") : creation.ControllerAssignmentName ?? Translate("ControllerAssignment");
                 var item = new CreationListItemViewModel(creation, text);
-                item.IsSelected = IsSelectingCreations && item.CanSelect;
+                item.IsSelected = IsSelectingCreations && item.CanSelect && selectedCreations.Contains(creation);
                 item.PropertyChanged += SelectionChanged;
                 Items.Add(item);
             }
             SelectionChanged(this, new System.ComponentModel.PropertyChangedEventArgs(null));
         }
+
+        private void CreationsChanged(object? sender, NotifyCollectionChangedEventArgs e) => RefreshItems();
 
         private void SelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -157,6 +162,12 @@ namespace BrickController2.UI.ViewModels
             {
                 base.OnAppearing();
 
+                if (!_isObservingCreations)
+                {
+                    Creations.CollectionChanged += CreationsChanged;
+                    _isObservingCreations = true;
+                }
+
                 await LoadCreationsAndDevicesAsync();
                 SetSelectionMode(false);
                 RefreshItems();
@@ -168,6 +179,8 @@ namespace BrickController2.UI.ViewModels
         {
             if (!_isRequestingPermission)
             {
+                Creations.CollectionChanged -= CreationsChanged;
+                _isObservingCreations = false;
                 base.OnDisappearing();
             }
         }
@@ -318,7 +331,6 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) => await _creationManager.DeleteCreationAsync(creation),
                         Translate("Deleting"),
                         token: DisappearingToken);
-                    RefreshItems();
                 }
             }
             catch (OperationCanceledException)

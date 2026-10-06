@@ -84,7 +84,7 @@ namespace BrickController2.UI.ViewModels
                     [Translate("NoController")] = ("none", null, null)
                 };
                 var controllerIndex = 0;
-                foreach (var device in devices)
+                foreach (var device in devices.Where(d => !string.IsNullOrWhiteSpace(d.RuntimeId)))
                 {
                     controllerIndex++;
                     var label = devices.Count(d => d.Name == device.Name) > 1

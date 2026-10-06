@@ -19,6 +19,8 @@ namespace BrickController2.UI.ViewModels
         private readonly IDialogService _dialogService;
         private readonly ICameraPermission _cameraPermission;
 
+        // Permission request fires OnDisappearing / OnAppearing, so suppress lifecycle transitions meanwhile
+        private bool _isRequestingPermission = false;
         private bool _isCameraPermissionRequested = false;
 
         public SequenceListPageViewModel(
@@ -53,6 +55,23 @@ namespace BrickController2.UI.ViewModels
         public ICommand ShareSequenceCommand { get; }
         public ICommand SequenceTappedCommand { get; }
         public ICommand DeleteSequenceCommand { get; }
+
+
+        public override void OnAppearing()
+        {
+            if (!_isRequestingPermission)
+            {
+                base.OnAppearing();
+            }
+        }
+
+        public override void OnDisappearing()
+        {
+            if (!_isRequestingPermission)
+            {
+                base.OnDisappearing();
+            }
+        }
 
         private async Task AddSequenceAsync()
         {
@@ -116,7 +135,16 @@ namespace BrickController2.UI.ViewModels
                 var cameraPermissionStatus = await _cameraPermission.CheckStatusAsync();
                 if (cameraPermissionStatus != PermissionStatus.Granted && !_isCameraPermissionRequested)
                 {
-                    cameraPermissionStatus = await _cameraPermission.RequestAsync();
+                    _isRequestingPermission = true;
+                    try
+                    {
+                        cameraPermissionStatus = await _cameraPermission.RequestAsync();
+                    }
+                    finally
+                    {
+                        _isRequestingPermission = false;
+                    }
+
                     _isCameraPermissionRequested = true;
                     DisappearingToken.ThrowIfCancellationRequested();
                 }

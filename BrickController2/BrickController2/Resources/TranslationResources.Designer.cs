@@ -583,6 +583,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Camera will NOT be available.
+        /// </summary>
+        internal static string CameraWillNOTBeAvailable {
+            get {
+                return ResourceManager.GetString("CameraWillNOTBeAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string Cancel {

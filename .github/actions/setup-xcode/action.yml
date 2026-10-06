@@ -46,7 +46,7 @@ runs:
         sudo xcode-select -s "$TARGET_XCODE_PATH"
         
         # Export for .NET
-        echo "MD_APPLE_SDK_ROOT=$TARGET_XCODE_PATH" >> "$GITHUB_ENV"
+        echo "DEVELOPER_DIR=$TARGET_XCODE_PATH/Contents/Developer" >> "$GITHUB_ENV"
         echo "Successfully set Xcode to $TARGET_XCODE_PATH" >> "$GITHUB_STEP_SUMMARY"
 
     - name: Verify Xcode Version

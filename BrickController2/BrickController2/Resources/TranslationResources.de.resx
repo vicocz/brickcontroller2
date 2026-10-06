@@ -657,6 +657,9 @@
   <data name="ToggleTorch" xml:space="preserve">
     <value>Lampe umschalten</value>
   </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Fehler beim Aktivieren des Shelf-Modus:</value>
   </data>

@@ -170,9 +170,15 @@ namespace BrickController2.UI.ViewModels
                 if (cameraPermissionStatus != PermissionStatus.Granted && !_isCameraPermissionRequested)
                 {
                     _isRequestingPermission = true;
-                    cameraPermissionStatus = await _cameraPermission.RequestAsync();
-                    _isCameraPermissionRequested = true;
-                    _isRequestingPermission = false;
+                    try
+                    {
+                        cameraPermissionStatus = await _cameraPermission.RequestAsync();
+                        _isCameraPermissionRequested = true;
+                    }
+                    finally
+                    {
+                        _isRequestingPermission = false;
+                    }
 
                     DisappearingToken.ThrowIfCancellationRequested();
                 }

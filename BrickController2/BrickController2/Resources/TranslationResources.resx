@@ -867,4 +867,7 @@
   <data name="MissingMacro" xml:space="preserve">
     <value>There is a missing or misconfigured macro.</value>
   </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
 </root>

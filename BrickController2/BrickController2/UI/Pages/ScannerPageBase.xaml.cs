@@ -9,6 +9,7 @@ using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.ViewModels;
 using Microsoft.Maui.Controls.Xaml;
 using ZXing.Net.Maui;
+using System.Linq;
 
 namespace BrickController2.UI.Pages;
 
@@ -59,14 +60,14 @@ public partial class ScannerPageBase
 
             SwitchCameraButton.IsVisible = _cameras.Count > 1;
 
-            var preferedLocation = _preferencesService.Get(CameraLocationKey, CameraLocation.Rear, PreferencesSection);
-            var selectedIndex = Math.Max(0, _cameras.FindIndex(c => c.Location == preferedLocation));
+            var preferredLocation = _preferencesService.Get(CameraLocationKey, CameraLocation.Rear, PreferencesSection);
+            var selectedIndex = Math.Max(0, _cameras.FindIndex(c => c.Location == preferredLocation));
 
             if (_cameras.Count > 0)
             {
                 // always align the view with the retrieved cameras, the default location might not be available
                 _cameraIndex = selectedIndex;
-                CameraView.CameraLocation = _cameras[selectedIndex].Location;
+                CameraView.SelectedCamera = _cameras[_cameraIndex];
             }
 
             UpdateTorchState();
@@ -90,17 +91,18 @@ public partial class ScannerPageBase
 
         _cameraIndex = (_cameraIndex + 1) % _cameras.Count;
         CameraView.IsTorchOn = false;
-        CameraView.CameraLocation = _cameras[_cameraIndex].Location;
+        CameraView.SelectedCamera = _cameras[_cameraIndex];
         UpdateTorchState();
         _preferencesService.Set(CameraLocationKey, _cameras[_cameraIndex].Location, PreferencesSection);
     }
 
     private void UpdateTorchState()
     {
-        var isRear = CameraView.CameraLocation == CameraLocation.Rear;
+        var hasCamera = _cameras.Count > 0;
+        var isRear = hasCamera && CameraView.SelectedCamera.Location == CameraLocation.Rear;
 
         // a single front camera has no torch at all, so hide the button
-        TorchButton.IsVisible = isRear || _cameras.Count != 1;
+        TorchButton.IsVisible = isRear || _cameras.Any(x => x.Location == CameraLocation.Rear);
         TorchButton.IsEnabled = isRear;
 
         if (!isRear)

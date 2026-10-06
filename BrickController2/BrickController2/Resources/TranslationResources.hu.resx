@@ -649,7 +649,7 @@
     <value>Aktiválja a polc módot</value>
   </data>
   <data name="SwitchCamera" xml:space="preserve">
-    <value>Kamerát váltani</value>
+    <value>Kamera váltása</value>
   </data>
   <data name="ToggleTorch" xml:space="preserve">
     <value>Váltólámpa</value>

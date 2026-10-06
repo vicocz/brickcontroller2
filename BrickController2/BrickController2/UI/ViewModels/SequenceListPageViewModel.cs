@@ -1,8 +1,10 @@
 ﻿using BrickController2.CreationManagement;
+using BrickController2.PlatformServices.Permission;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
+using Microsoft.Maui.ApplicationModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -15,21 +17,25 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly ICreationManager _creationManager;
         private readonly IDialogService _dialogService;
+        private readonly ICameraPermission _cameraPermission;
+
+        private bool _isCameraPermissionRequested = false;
 
         public SequenceListPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
             ICreationManager creationManager,
             IDialogService dialogService,
+            ICameraPermission cameraPermission,
             ICommandFactory<Sequence> commandFactory)
             : base(navigationService, translationService)
         {
             _creationManager = creationManager;
             _dialogService = dialogService;
-
+            _cameraPermission = cameraPermission;
             ImportSequenceCommand = commandFactory.ImportItemFromFileCommand(this);
             ImportSequenceFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
-            ScanSequenceCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters()), () => BarcodeScanning.IsSupported);
+            ScanSequenceCommand = new SafeCommand(ScanSequenceAsync, () => BarcodeScanning.IsSupported);
             PasteSequenceCommand = commandFactory.PasteItemFromClipboardCommand(this);
             AddSequenceCommand = new SafeCommand(async () => await AddSequenceAsync());
             ShareSequenceCommand = new SafeCommand<Sequence>(async sequence => await NavigationService.NavigateToAsync<SequenceSharePageViewModel>(new NavigationParameters(("item", sequence))));
@@ -95,6 +101,38 @@ namespace BrickController2.UI.ViewModels
                         token: DisappearingToken);
 
                     await NavigationService.NavigateToAsync<SequenceEditorPageViewModel>(new NavigationParameters(("sequence", sequence!)));
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+
+        private async Task ScanSequenceAsync()
+        {
+            try
+            {
+                var cameraPermissionStatus = await _cameraPermission.CheckStatusAsync();
+                if (cameraPermissionStatus != PermissionStatus.Granted && !_isCameraPermissionRequested)
+                {
+                    cameraPermissionStatus = await _cameraPermission.RequestAsync();
+                    _isCameraPermissionRequested = true;
+                    DisappearingToken.ThrowIfCancellationRequested();
+                }
+
+                if (cameraPermissionStatus != PermissionStatus.Granted)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("CameraWillNOTBeAvailable"),
+                        Translate("Ok"),
+                        DisappearingToken);
+                    DisappearingToken.ThrowIfCancellationRequested();
+                }
+                else
+                {
+                    await NavigationService.NavigateToAsync<SequenceScannerPageViewModel>(new NavigationParameters());
                 }
             }
             catch (OperationCanceledException)

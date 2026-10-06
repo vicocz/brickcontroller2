@@ -43,7 +43,7 @@ public partial class ScannerPageBase
     {
         try
         {
-            // on the first display the camera permission may not be granted yet, so the list can be empty - retry for a while
+            // the view may need a moment
             for (var attempt = 0; attempt < 10 && !token.IsCancellationRequested; attempt++)
             {
                 _cameras.Clear();

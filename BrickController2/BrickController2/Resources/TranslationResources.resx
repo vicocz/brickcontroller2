@@ -195,6 +195,9 @@
   <data name="BluetoothDevicesWillNOTBeAvailable" xml:space="preserve">
     <value>Bluetooth devices will NOT be available</value>
   </data>
+  <data name="CameraWillNOTBeAvailable" xml:space="preserve">
+    <value>Camera will NOT be available</value>
+  </data>
   <data name="BluetoothIsTurnedOff" xml:space="preserve">
     <value>Bluetooth is turned off.</value>
   </data>

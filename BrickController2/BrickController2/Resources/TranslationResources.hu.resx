@@ -195,6 +195,9 @@
   <data name="BluetoothDevicesWillNOTBeAvailable" xml:space="preserve">
     <value>A bluetooth eszközök nem lesznek elérhetőek</value>
   </data>
+  <data name="CameraWillNOTBeAvailable" xml:space="preserve">
+    <value>A kamera nem lesz elérhető</value>
+  </data>
   <data name="BluetoothIsTurnedOff" xml:space="preserve">
     <value>A bluetooth ki van kapcsolva</value>
   </data>

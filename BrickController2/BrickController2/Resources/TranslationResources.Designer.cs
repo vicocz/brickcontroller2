@@ -2176,6 +2176,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Switch camera.
+        /// </summary>
+        internal static string SwitchCamera {
+            get {
+                return ResourceManager.GetString("SwitchCamera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to System.
         /// </summary>
         internal static string System {
@@ -2199,6 +2208,15 @@ namespace BrickController2.Resources {
         internal static string Theme {
             get {
                 return ResourceManager.GetString("Theme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle torch.
+        /// </summary>
+        internal static string ToggleTorch {
+            get {
+                return ResourceManager.GetString("ToggleTorch", resourceCulture);
             }
         }
         

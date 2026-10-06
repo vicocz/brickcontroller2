@@ -648,6 +648,12 @@
   <data name="ActivateShelfMode" xml:space="preserve">
     <value>Aktiválja a polc módot</value>
   </data>
+  <data name="SwitchCamera" xml:space="preserve">
+    <value>Kamerát váltani</value>
+  </data>
+  <data name="ToggleTorch" xml:space="preserve">
+    <value>Váltólámpa</value>
+  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>A polc üzemmód aktiválása sikertelen:</value>
   </data>

@@ -648,6 +648,12 @@
   <data name="ActivateShelfMode" xml:space="preserve">
     <value>Shelf-Modus aktivieren</value>
   </data>
+  <data name="SwitchCamera" xml:space="preserve">
+    <value>Kamera wechseln</value>
+  </data>
+  <data name="ToggleTorch" xml:space="preserve">
+    <value>Lampe umschalten</value>
+  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Fehler beim Aktivieren des Shelf-Modus:</value>
   </data>

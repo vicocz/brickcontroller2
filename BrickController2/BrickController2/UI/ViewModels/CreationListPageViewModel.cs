@@ -32,7 +32,6 @@ namespace BrickController2.UI.ViewModels
         // Permission request fires OnDisappearing somehow (WTF???)
         private bool _isRequestingPermission = false;
         private bool _isBluetoothPermissionRequested = false;
-        private bool _isCameraPermissionRequested = false;
         //private bool _isLocationPermissionRequested = false;
         private bool _isStoragePermissionRequested = false;
 
@@ -167,13 +166,12 @@ namespace BrickController2.UI.ViewModels
             try
             {
                 var cameraPermissionStatus = await _cameraPermission.CheckStatusAsync();
-                if (cameraPermissionStatus != PermissionStatus.Granted && !_isCameraPermissionRequested)
+                if (cameraPermissionStatus != PermissionStatus.Granted)
                 {
                     _isRequestingPermission = true;
                     try
                     {
                         cameraPermissionStatus = await _cameraPermission.RequestAsync();
-                        _isCameraPermissionRequested = true;
                     }
                     finally
                     {

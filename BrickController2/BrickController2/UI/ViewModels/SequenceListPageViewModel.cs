@@ -21,7 +21,6 @@ namespace BrickController2.UI.ViewModels
 
         // Permission request fires OnDisappearing / OnAppearing, so suppress lifecycle transitions meanwhile
         private bool _isRequestingPermission = false;
-        private bool _isCameraPermissionRequested = false;
 
         public SequenceListPageViewModel(
             INavigationService navigationService,
@@ -133,7 +132,7 @@ namespace BrickController2.UI.ViewModels
             try
             {
                 var cameraPermissionStatus = await _cameraPermission.CheckStatusAsync();
-                if (cameraPermissionStatus != PermissionStatus.Granted && !_isCameraPermissionRequested)
+                if (cameraPermissionStatus != PermissionStatus.Granted)
                 {
                     _isRequestingPermission = true;
                     try
@@ -145,7 +144,6 @@ namespace BrickController2.UI.ViewModels
                         _isRequestingPermission = false;
                     }
 
-                    _isCameraPermissionRequested = true;
                     DisappearingToken.ThrowIfCancellationRequested();
                 }
 

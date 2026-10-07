@@ -24,6 +24,7 @@ namespace BrickController2.UI.ViewModels
         private readonly IPlayLogic _playLogic;
         private readonly IDialogService _dialogService;
         private readonly IBluetoothPermission _bluetoothPermission;
+        private readonly ICameraPermission _cameraPermission;
         private readonly IReadWriteExternalStoragePermission _readWriteExternalStoragePermission;
 
         private bool _isLoaded;
@@ -44,6 +45,7 @@ namespace BrickController2.UI.ViewModels
             ISharedFileStorageService sharedFileStorageService,
             ICommandFactory<Creation> commandFactory,
             IBluetoothPermission bluetoothPermission,
+            ICameraPermission cameraPermission,
             IReadWriteExternalStoragePermission readWriteExternalStoragePermission)
             : base(navigationService, translationService)
         {
@@ -52,6 +54,7 @@ namespace BrickController2.UI.ViewModels
             _playLogic = playLogic;
             _dialogService = dialogService;
             _bluetoothPermission = bluetoothPermission;
+            this._cameraPermission = cameraPermission;
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
             SharedFileStorageService = sharedFileStorageService;
 
@@ -162,7 +165,35 @@ namespace BrickController2.UI.ViewModels
         {
             try
             {
-                await NavigationService.NavigateToAsync<CreationScannerPageViewModel>(new NavigationParameters());
+                var cameraPermissionStatus = await _cameraPermission.CheckStatusAsync();
+                if (cameraPermissionStatus != PermissionStatus.Granted)
+                {
+                    _isRequestingPermission = true;
+                    try
+                    {
+                        cameraPermissionStatus = await _cameraPermission.RequestAsync();
+                    }
+                    finally
+                    {
+                        _isRequestingPermission = false;
+                    }
+
+                    DisappearingToken.ThrowIfCancellationRequested();
+                }
+
+                if (cameraPermissionStatus != PermissionStatus.Granted)
+                {
+                    await _dialogService.ShowMessageBoxAsync(
+                        Translate("Warning"),
+                        Translate("CameraWillNOTBeAvailable"),
+                        Translate("Ok"),
+                        DisappearingToken);
+                    DisappearingToken.ThrowIfCancellationRequested();
+                }
+                else
+                {
+                    await NavigationService.NavigateToAsync<CreationScannerPageViewModel>(new NavigationParameters());
+                }
             }
             catch (OperationCanceledException)
             {

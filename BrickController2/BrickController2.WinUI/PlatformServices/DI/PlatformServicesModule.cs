@@ -33,6 +33,7 @@ public class PlatformServicesModule : Module
         builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
         builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
         builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
+        builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
         builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
         builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
         builder.RegisterType<JieStarPlatformService>().As<IJieStarPlatformService>().SingleInstance();

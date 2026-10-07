@@ -59,7 +59,7 @@ public class RaceCarMessageEncoder : IMessageEncoder
     public byte[] Encode(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
         // check params
-        if (values.Length != 3)
+        if (values.Length != 4)
         {
             throw new ArgumentException("Invalid input data.", nameof(values));
         }
@@ -78,11 +78,15 @@ public class RaceCarMessageEncoder : IMessageEncoder
     {
         ushort random = (ushort)_random.Next(ushort.MinValue, ushort.MaxValue);
 
+        byte lightsBits = (byte)(
+            (values[2] != Half.Zero ? (byte)0x01 : (byte)0x00) |
+            (values[3] != Half.Zero ? (byte)0x02 : (byte)0x00));
+
         _controlDataArray[8] = (byte)(random & 0xFF);
         _controlDataArray[9] = (byte)((random >> 8) & 0xFF);
         _controlDataArray[10] = Clamp(HalfByte - (values[0] * HalfByte)); // speed value - reversed
-        _controlDataArray[11] = Clamp(HalfByte + (values[1] * HalfByte)); // 
-        _controlDataArray[12] = Clamp(HalfByte + (values[2] * HalfByte)); // light on/off
+        _controlDataArray[11] = Clamp(HalfByte + (values[1] * HalfByte)); // steering value
+        _controlDataArray[12] = lightsBits;                            // bitfield: 0x01 frontlights, 0x02 rearlights
         _controlDataArray[13] = 0;
         _controlDataArray[14] = 0;
         _controlDataArray[15] = 0;

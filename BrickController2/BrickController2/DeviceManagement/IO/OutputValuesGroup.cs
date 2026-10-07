@@ -41,6 +41,25 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
         return false;
     }
 
+    /// <summary>
+    /// Accumulates the value into the channel's current output.
+    /// Non-zero values are added; zero values are ignored (input released).
+    /// </summary>
+    public bool AccumulateOutput(int channel, TValue value)
+    {
+        if (value == TValue.Zero)
+        {
+            return false;
+        }
+
+        lock (_outputLock)
+        {
+            _outputValues[channel] += value;
+            _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+            return true;
+        }
+    }
+
     public void Initialize()
     {
         lock (_outputLock)

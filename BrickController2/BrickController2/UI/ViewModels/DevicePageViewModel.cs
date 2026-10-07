@@ -419,7 +419,7 @@ namespace BrickController2.UI.ViewModels
                         async (progressDialog, token) =>
                         {
                             // send command and later cancel connection
-                            await Device.ActiveShelfModeAsync();
+                            await Device.ActiveShelfModeAsync(token);
                             _connectionTokenSource?.Cancel();
                             // disconnection is expected to be triggered by Back
                             await Task.Delay(500, DisappearingToken);
@@ -563,6 +563,10 @@ namespace BrickController2.UI.ViewModels
             SwitchToMacroViewCommand.RaiseCanExecuteChanged();
             // to ensure that servo/stepper commands are enabled / disabled properly
             RaisePropertyChanged(nameof(IsServoOrStepperSupported));
+            foreach (var output in DeviceOutputs)
+            {
+                output.UpdateCommandsAvailability();
+            }
         }
 
         private void SetBuWizzOutputLevel(int level)
@@ -609,6 +613,11 @@ namespace BrickController2.UI.ViewModels
 
             public ICommand TouchUpCommand { get; }
             public ICommand TestServoStepperCommand { get; }
+
+            internal void UpdateCommandsAvailability()
+            {
+                TestServoStepperCommand.RaiseCanExecuteChanged();
+            }
 
             private async Task OpenChannelSetupAsync()
             {

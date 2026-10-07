@@ -155,6 +155,16 @@ namespace BrickController2.CreationManagement
         public bool IsValidMacro(MacroDescriptor macro) => ButtonType == ControllerButtonType.Macro
             && macro.IsMatch(MacroId, MacroScope, MacroChoice);
 
+        /// <summary>
+        /// Determines whether this action is bound to the given device output.
+        /// Channel actions are identified by device and channel;
+        /// device-level macro actions (<see cref="NoChannel"/>) also by macro id.
+        /// </summary>
+        public bool IsBoundTo(string deviceId, int channel, string macroId)
+            => DeviceId == deviceId &&
+                Channel == channel &&
+                (HasChannel || MacroId == macroId);
+
         public const int NoChannel = -1; // special case for device macro
     }
 }

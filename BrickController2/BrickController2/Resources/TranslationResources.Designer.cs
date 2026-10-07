@@ -79,6 +79,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The action is not valid. Please check its configuration..
+        /// </summary>
+        internal static string ActionNotValid {
+            get {
+                return ResourceManager.GetString("ActionNotValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Activate shelf mode.
         /// </summary>
         internal static string ActivateShelfMode {
@@ -1411,11 +1420,29 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Macro.
+        /// </summary>
+        internal static string Macro {
+            get {
+                return ResourceManager.GetString("Macro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Set output level.
         /// </summary>
         internal static string Macro_SetOutputLevel {
             get {
                 return ResourceManager.GetString("Macro_SetOutputLevel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Macro parameters.
+        /// </summary>
+        internal static string MacroChoice {
+            get {
+                return ResourceManager.GetString("MacroChoice", resourceCulture);
             }
         }
         
@@ -1996,6 +2023,24 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select macro.
+        /// </summary>
+        internal static string SelectMacro {
+            get {
+                return ResourceManager.GetString("SelectMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select macro parameter.
+        /// </summary>
+        internal static string SelectMacroChoice {
+            get {
+                return ResourceManager.GetString("SelectMacroChoice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select a sequence.
         /// </summary>
         internal static string SelectSequence {
@@ -2118,6 +2163,15 @@ namespace BrickController2.Resources {
         internal static string ShortChannel {
             get {
                 return ResourceManager.GetString("ShortChannel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to M:.
+        /// </summary>
+        internal static string ShortMacro {
+            get {
+                return ResourceManager.GetString("ShortMacro", resourceCulture);
             }
         }
         

@@ -585,6 +585,9 @@
   <data name="Version" xml:space="preserve">
     <value>Version</value>
   </data>
+  <data name="ActionNotValid" xml:space="preserve">
+    <value>The action is not valid. Please check its configuration.</value>
+  </data>
   <data name="Warning" xml:space="preserve">
     <value>Warning</value>
   </data>
@@ -869,5 +872,20 @@
   </data>
   <data name="Zoom" xml:space="preserve">
     <value>Zoom</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Macro parameters</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Select macro parameter</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Select macro</value>
+  </data>
+  <data name="ShortMacro" xml:space="preserve">
+    <value>M:</value>
   </data>
 </root>

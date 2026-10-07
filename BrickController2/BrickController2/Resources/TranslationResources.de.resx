@@ -585,6 +585,9 @@
   <data name="Version" xml:space="preserve">
     <value>Version</value>
   </data>
+  <data name="ActionNotValid" xml:space="preserve">
+    <value>Die Aktion ist ungültig. Bitte überprüfe die Konfiguration.</value>
+  </data>
   <data name="Warning" xml:space="preserve">
     <value>Warnung</value>
   </data>
@@ -869,5 +872,20 @@
   </data>
   <data name="MissingMacro" xml:space="preserve">
     <value>Fehlendes oder falsches Makro</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Makroparameter</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Makro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Makroparameter auswählen</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Makro auswählen</value>
+  </data>
+  <data name="ShortMacro" xml:space="preserve">
+    <value>M:</value>
   </data>
 </root>

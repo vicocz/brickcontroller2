@@ -585,6 +585,9 @@
   <data name="Version" xml:space="preserve">
     <value>Verzió</value>
   </data>
+  <data name="ActionNotValid" xml:space="preserve">
+    <value>A művelet érvénytelen. Ellenőrizd a beállításait.</value>
+  </data>
   <data name="Warning" xml:space="preserve">
     <value>Figyelmeztetés</value>
   </data>
@@ -850,7 +853,7 @@
     <value>Új kontrollergomb esemény hozzáadása</value>
   </data>
   <data name="ReloadMacros" xml:space="preserve">
-    <value>Makrók újratöltése</value>
+    <value>Makrók listájának frissítése</value>
   </data>
   <data name="Channel" xml:space="preserve">
     <value>Csatorna</value>
@@ -860,5 +863,20 @@
   </data>
   <data name="Zoom" xml:space="preserve">
     <value>Nagyítás</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Makró paraméterek</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Makró</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Válassza ki a makróparamétert</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Válassza ki a makrót</value>
+  </data>
+  <data name="ShortMacro" xml:space="preserve">
+    <value>M:</value>
   </data>
 </root>

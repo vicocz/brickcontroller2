@@ -98,9 +98,9 @@ namespace BrickController2.UI.ViewModels
                     {
                         // validate output type for given channel change
                         ValidateChannelType(Action.Channel, Action.ChannelOutputType);
+                        NotifySBrickLightChanges();
                     }
                     NotifyScopeChanges();
-                    NotifySBrickLightChanges();
                 }
             };
 
@@ -261,8 +261,8 @@ namespace BrickController2.UI.ViewModels
             base.OnDisappearing();
         }
 
-        private int SBrickLightPort => Action.Channel % LIGHT_PORTS_COUNT;
-        private int SBrickLightSubchannel => Action.Channel / LIGHT_PORTS_COUNT;
+        private int SBrickLightPort => !Action.HasChannel ? 0 : Action.Channel % LIGHT_PORTS_COUNT;
+        private int SBrickLightSubchannel => !Action.HasChannel ? 0 : Action.Channel / LIGHT_PORTS_COUNT;
 
         private bool SupportsMacroScope(MacroScope scope) =>
             ControllerEvent?.EventType == PlatformServices.InputDevice.InputDeviceEventType.Button &&
@@ -385,6 +385,7 @@ namespace BrickController2.UI.ViewModels
             RaisePropertyChanged(nameof(SelectedMacroDisplayName));
             RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
             SelectMacroChoiceCommand.RaiseCanExecuteChanged();
+            NotifyScopeChanges();
         }
 
         private void NotifyScopeChanges()

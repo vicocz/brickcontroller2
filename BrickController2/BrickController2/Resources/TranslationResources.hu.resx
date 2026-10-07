@@ -655,10 +655,7 @@
     <value>Kamera váltása</value>
   </data>
   <data name="ToggleTorch" xml:space="preserve">
-    <value>Váltólámpa</value>
-  </data>
-  <data name="Zoom" xml:space="preserve">
-    <value>Nagyítás</value>
+    <value>Kapcsold be/ki a kamera vakuját</value>
   </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>A polc üzemmód aktiválása sikertelen:</value>
@@ -860,5 +857,8 @@
   </data>
   <data name="MissingMacro" xml:space="preserve">
     <value>Hiányzó vagy hibás makró</value>
+  </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Nagyítás</value>
   </data>
 </root>

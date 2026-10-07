@@ -2,6 +2,8 @@
 {
     public interface ISharedFileStorageService
     {
+        public const string SharedDirectoryName = "BrickController2";
+
         bool IsSharedStorageAvailable { get; }
 
         bool IsPermissionGranted { get; set; }

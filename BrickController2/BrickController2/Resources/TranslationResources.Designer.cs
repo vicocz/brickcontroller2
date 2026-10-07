@@ -79,6 +79,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The action is not valid. Please check its configuration..
+        /// </summary>
+        internal static string ActionNotValid {
+            get {
+                return ResourceManager.GetString("ActionNotValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Activate shelf mode.
         /// </summary>
         internal static string ActivateShelfMode {

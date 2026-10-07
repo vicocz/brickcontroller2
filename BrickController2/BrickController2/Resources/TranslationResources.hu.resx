@@ -585,6 +585,9 @@
   <data name="Version" xml:space="preserve">
     <value>Verzió</value>
   </data>
+  <data name="ActionNotValid" xml:space="preserve">
+    <value>A művelet érvénytelen. Ellenőrizd a beállításait.</value>
+  </data>
   <data name="Warning" xml:space="preserve">
     <value>Figyelmeztetés</value>
   </data>

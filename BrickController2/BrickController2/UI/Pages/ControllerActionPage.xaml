@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <local:PageBase
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -244,8 +244,8 @@
                                         <controls:FloatingActionButton Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="cached" Command="{Binding ReloadMacrosCommand}" ToolTipProperties.Text="{extensions:Translate ReloadMacros}" VerticalOptions="Center"/>
                                     </Grid>
                                     
-                                    <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate MacroChoice}" VerticalOptions="Center"/>
-                                    <Button Grid.Column="1" Grid.Row="1" Text="{Binding SelectedMacroChoiceDisplayName}" Command="{Binding SelectMacroChoiceCommand}" Style="{StaticResource PickerButtonStyle}"/>
+                                    <Label Grid.Column="0" Grid.Row="1" Text="{extensions:Translate MacroChoice}" VerticalOptions="Center" IsVisible="{Binding HasMacroChoices}"/>
+                                    <Button Grid.Column="1" Grid.Row="1" Text="{Binding SelectedMacroChoiceDisplayName}" Command="{Binding SelectMacroChoiceCommand}" IsVisible="{Binding HasMacroChoices}" Style="{StaticResource PickerButtonStyle}"/>
                                 </Grid>
                             </VerticalStackLayout>
 

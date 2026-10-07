@@ -1,4 +1,5 @@
-﻿using BrickController2.CreationManagement;
+using BrickController2.BusinessLogic;
+using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.DeviceManagement.Vengit;
@@ -24,6 +25,7 @@ namespace BrickController2.UI.ViewModels
         private readonly ICreationManager _creationManager;
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
+        private readonly IPlayLogic _playLogic;
         private readonly IPreferencesService _preferences;
 
         private Device? _selectedDevice;
@@ -35,6 +37,7 @@ namespace BrickController2.UI.ViewModels
             ICreationManager creationManager,
             IDeviceManager deviceManager,
             IDialogService dialogService,
+            IPlayLogic playLogic,
             IPreferencesService preferences,
             NavigationParameters parameters)
             : base(navigationService, translationService)
@@ -42,6 +45,7 @@ namespace BrickController2.UI.ViewModels
             _creationManager = creationManager;
             _deviceManager = deviceManager;
             _dialogService = dialogService;
+            _playLogic = playLogic;
             _preferences = preferences;
 
             ControllerAction = parameters.Get<ControllerAction?>("controlleraction", null);
@@ -142,6 +146,8 @@ namespace BrickController2.UI.ViewModels
         public string SelectedMacroDisplayName
             => SelectedMacro is null ? string.Empty : Translate(SelectedMacro.NameKey);
 
+        public bool HasMacroChoices => SelectedMacro?.Choices.Count > 0;
+
         public string SelectedMacroChoiceDisplayName
         {
             get
@@ -185,6 +191,7 @@ namespace BrickController2.UI.ViewModels
                 RaisePropertyChanged(nameof(SelectedMacro));
                 RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                 RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                RaisePropertyChanged(nameof(HasMacroChoices));
                 SelectMacroCommand.RaiseCanExecuteChanged();
                 SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 NotifySBrickLightChanges();
@@ -276,6 +283,17 @@ namespace BrickController2.UI.ViewModels
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),
                     Translate("SelectDeviceBeforeSaving"),
+                    Translate("Ok"),
+                    DisappearingToken);
+                return;
+            }
+
+            // do validation of the current action
+            if (_playLogic.ValidateControllerAction(Action))
+            {
+                await _dialogService.ShowMessageBoxAsync(
+                    Translate("Warning"),
+                    Translate("ActionNotValid"),
                     Translate("Ok"),
                     DisappearingToken);
                 return;
@@ -384,6 +402,7 @@ namespace BrickController2.UI.ViewModels
             RaisePropertyChanged(nameof(SelectedMacro));
             RaisePropertyChanged(nameof(SelectedMacroDisplayName));
             RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+            RaisePropertyChanged(nameof(HasMacroChoices));
             SelectMacroChoiceCommand.RaiseCanExecuteChanged();
             NotifyScopeChanges();
         }
@@ -505,8 +524,8 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectMacroAsync()
         {
-            var scope = IsChannelScope ? MacroScope.Channel : MacroScope.Device;
-            var macros = AvailableMacros.Where(m => m.Scope == scope).ToArray();
+            var actionScope = Action.MacroScope;
+            var macros = AvailableMacros.Where(m => m.Scope == actionScope).ToArray();
             if (SelectedDevice is null || macros.Length == 0)
             {
                 await _dialogService.ShowMessageBoxAsync(
@@ -530,11 +549,15 @@ namespace BrickController2.UI.ViewModels
                 if (index >= 0)
                 {
                     var macro = macros[index];
+                    if (Action.MacroId != macro.Id)
+                    {
+                        SetSelectedChoice(macro.Choices.Count > 0 ? macro.Choices[0] : null);
+                    }
                     Action.MacroId = macro.Id;
-                    SetSelectedChoice(macro.Choices.Count > 0 ? macro.Choices[0] : null);
                     RaisePropertyChanged(nameof(SelectedMacro));
                     RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    RaisePropertyChanged(nameof(HasMacroChoices));
                     SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 }
             }
@@ -563,6 +586,7 @@ namespace BrickController2.UI.ViewModels
                 {
                     SetSelectedChoice(macro.Choices[index]);
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    RaisePropertyChanged(nameof(HasMacroChoices));
                 }
             }
         }
@@ -625,13 +649,14 @@ namespace BrickController2.UI.ViewModels
                         Translate("Ok"),
                         token);
                 }
-                else if (connected)
+                else if (connected && device == SelectedDevice)
                 {
                     RaisePropertyChanged(nameof(AvailableMacros));
                     RaisePropertyChanged(nameof(HasMacros));
                     RaisePropertyChanged(nameof(SelectedMacro));
                     RaisePropertyChanged(nameof(SelectedMacroDisplayName));
                     RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+                    RaisePropertyChanged(nameof(HasMacroChoices));
                     SelectMacroCommand.RaiseCanExecuteChanged();
                     SelectMacroChoiceCommand.RaiseCanExecuteChanged();
                 }
@@ -673,9 +698,12 @@ namespace BrickController2.UI.ViewModels
 
         private void ValidateCurrentButtonType()
         {
-            if (Action.ButtonType == ControllerButtonType.Macro && !SupportsChannelMacros)
+            if (Action.ButtonType == ControllerButtonType.Macro &&
+                !SupportsMacroScope(Action.MacroScope))
             {
                 Action.ButtonType = ControllerButtonType.Normal;
+                Action.MacroId = string.Empty;
+                Action.MacroChoice = default;
             }
         }
 

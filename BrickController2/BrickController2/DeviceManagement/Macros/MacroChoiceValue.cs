@@ -27,6 +27,31 @@ public readonly record struct MacroChoiceValue(object? Value)
                 value = typed;
                 return true;
 
+            case string text when typeof(T).IsEnum:
+                if (Enum.TryParse(typeof(T), text, ignoreCase: true, out var parsed) && Enum.IsDefined(typeof(T), parsed))
+                {
+                    value = (T)parsed;
+                    return true;
+                }
+                value = default!;
+                return false;
+
+            case var integral when typeof(T).IsEnum && IsIntegral(integral):
+                try
+                {
+                    var enumValue = Enum.ToObject(typeof(T), integral!);
+                    if (Enum.IsDefined(typeof(T), enumValue))
+                    {
+                        value = (T)enumValue;
+                        return true;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                }
+                value = default!;
+                return false;
+
             case IConvertible convertible when typeof(T).IsValueType:
                 try
                 {
@@ -63,7 +88,16 @@ public readonly record struct MacroChoiceValue(object? Value)
         (long a, _) => IsIntegral(other.Value) && other.TryGet<long>(out var b) && a == b,
         (float a, _) => IsNumeric(other.Value) && other.TryGet<float>(out var b) && a.Equals(b),
         (double a, _) => IsNumeric(other.Value) && other.TryGet<double>(out var b) && a.Equals(b),
+        (Enum a, _) => EnumEquals(a, other.Value),
         _ => Value.Equals(other.Value)
+    };
+
+    private static bool EnumEquals(Enum reference, object? saved) => saved switch
+    {
+        Enum e => reference.Equals(e),
+        string s => Enum.TryParse(reference.GetType(), s, ignoreCase: true, out var parsed) && reference.Equals(parsed),
+        _ when IsIntegral(saved) => new MacroChoiceValue(saved).TryGet<long>(out var b) && Convert.ToInt64(reference) == b,
+        _ => false
     };
 
     private static bool IsIntegral(object? value) => value is sbyte or byte or short or ushort or int or uint or long or ulong;

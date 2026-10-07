@@ -466,11 +466,11 @@ namespace BrickController2.UI.ViewModels
 
         private async Task SelectButtonTypeAsync()
         {
-            var allowMacro = SupportsChannelMacros;
+            var allowMacro = SupportsMacroScope(Action.MacroScope);
             var channelScope = IsChannelScope;
             var buttonTypes = Enum.GetNames<ControllerButtonType>()
-                .Where(n => n != nameof(ControllerButtonType.Macro) || allowMacro)
-                .Where(n => channelScope || n == nameof(ControllerButtonType.Macro))
+                .Where(n => (channelScope && n != nameof(ControllerButtonType.Macro)) ||
+                    (allowMacro && n == nameof(ControllerButtonType.Macro)))
                 .ToArray();
 
             var result = await _dialogService.ShowSelectionDialogAsync(

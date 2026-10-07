@@ -170,6 +170,13 @@ namespace BrickController2.UI.ViewModels
             get { return _selectedDevice; }
             set
             {
+                // precheck
+                if (_selectedDevice?.Id is not null && _selectedDevice.Id != value!.Id)
+                {
+                    Action.MacroId = string.Empty;
+                    Action.MacroChoice = default;
+                }
+
                 _selectedDevice = value;
                 Action.DeviceId = value!.Id;
 
@@ -289,7 +296,7 @@ namespace BrickController2.UI.ViewModels
             }
 
             // do validation of the current action
-            if (_playLogic.ValidateControllerAction(Action))
+            if (!_playLogic.ValidateControllerAction(Action))
             {
                 await _dialogService.ShowMessageBoxAsync(
                     Translate("Warning"),
@@ -596,17 +603,22 @@ namespace BrickController2.UI.ViewModels
             var connectionResult = DeviceConnectionResult.Ok;
 
             var reloadFailed = false;
+            var ownsConnection = false;
             var dialogResult = await _dialogService.ShowProgressDialogAsync(
                 false,
                 async (progressDialog, ct) =>
                 {
-                    connectionResult = await device.ConnectAsync(
-                        reconnect: false,
-                        onDeviceDisconnected: default!,
-                        [],
-                        startOutputProcessing: false,
-                        requestDeviceInformation: false,
-                        ct);
+                    if (device.DeviceState != DeviceState.Connected)
+                    {
+                        ownsConnection = true;
+                        connectionResult = await device.ConnectAsync(
+                            reconnect: false,
+                            onDeviceDisconnected: default!,
+                            [],
+                            startOutputProcessing: false,
+                            requestDeviceInformation: false,
+                            ct);
+                    }
 
                     if (device.DeviceState == DeviceState.Connected)
                     {
@@ -629,7 +641,10 @@ namespace BrickController2.UI.ViewModels
 
             try
             {
-                await device.DisconnectAsync();
+                if (ownsConnection)
+                {
+                    await device.DisconnectAsync();
+                }
             }
             finally
             {

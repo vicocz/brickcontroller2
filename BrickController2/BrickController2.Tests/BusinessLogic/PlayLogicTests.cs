@@ -37,6 +37,25 @@ public class PlayLogicTests
     }
 
     [Fact]
+    public void StopPlay_SkipsDeviceMacrosAndResetsEachMappedChannelOnce()
+    {
+        _sequencePlayerMock.Setup(p => p.StopPlayer());
+        _deviceMock.Setup(d => d.SetOutput(ControllerAction.NoChannel, It.IsAny<float>()))
+            .Throws(new ArgumentOutOfRangeException("channel"));
+        _playLogic.ActiveProfile = CreateProfile(CreateEvent(
+            CreateControllerAction(channel: ControllerAction.NoChannel, buttonType: ControllerButtonType.Macro),
+            CreateControllerAction(channel: 0), CreateControllerAction(channel: 0),
+            CreateControllerAction(channel: 2, buttonType: ControllerButtonType.Macro)));
+
+        _playLogic.StopPlay();
+
+        _sequencePlayerMock.Verify(p => p.StopPlayer(), Times.Once);
+        _deviceMock.Verify(d => d.SetOutput(ControllerAction.NoChannel, It.IsAny<float>()), Times.Never);
+        _deviceMock.Verify(d => d.SetOutput(0, 0), Times.Once);
+        _deviceMock.Verify(d => d.SetOutput(2, 0), Times.Once);
+    }
+
+    [Fact]
     public void ValidateCreation_ReturnsMissingControllerAction_WhenCreationHasNoControllerActions()
     {
         var creation = new Creation();

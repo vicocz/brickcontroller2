@@ -66,12 +66,12 @@
                         <Label x:Name="SelectionDialogTitle" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Large"/>
                         <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,8,0,8"/>
                         <CollectionView x:Name="SelectionDialogItems" SelectionMode="Single" VerticalOptions="FillAndExpand"
-                                        ItemSizingStrategy="MeasureFirstItem"
+                                        ItemSizingStrategy="MeasureAllItems"
                                         MinimumHeightRequest="40"
                                         MaximumHeightRequest="200">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
-                                    <Label Text="{Binding}" FontSize="{OnIdiom Large, Desktop=Medium}" FontAttributes="Bold" Margin="0,4"/>
+                                    <Label Text="{Binding}" FontSize="{OnIdiom Large, Desktop=Medium}" FontAttributes="Bold" Margin="0,4" LineBreakMode="WordWrap"/>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>

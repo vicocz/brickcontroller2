@@ -20,7 +20,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IDeviceManager _deviceManager;
         private readonly IDialogService _dialogService;
-        private readonly IInputDeviceEventService _inputDeviceEventService;
+        private readonly CreationPlaySession _session;
         private readonly IPlayLogic _playLogic;
 
         private readonly IList<Device> _devices = new List<Device>();
@@ -36,14 +36,14 @@ namespace BrickController2.UI.ViewModels
             ITranslationService translationService,
             IDeviceManager deviceManager,
             IDialogService dialogService,
-            IInputDeviceEventService gameControllerService,
+            CreationPlaySession session,
             IPlayLogic playLogic,
             NavigationParameters parameters)
             : base(navigationService, translationService)
         {
             _deviceManager = deviceManager;
             _dialogService = dialogService;
-            _inputDeviceEventService = gameControllerService;
+            _session = session;
             _playLogic = playLogic;
 
             Creation = parameters.Get<Creation>("creation");
@@ -51,6 +51,7 @@ namespace BrickController2.UI.ViewModels
             ControllerProfiles = new ObservableCollection<ControllerProfileViewModel>(Creation.ControllerProfiles.Select(profile => new ControllerProfileViewModel(this, profile)));
             // apply chosen profile (if present) or the first one 
             _playLogic.ActiveProfile = parameters.Get("profile", Creation.ControllerProfiles.First());
+            _session.Configure(parameters.Get("creations", new[] { Creation }), Creation, _playLogic);
 
             CollectDevices();
 
@@ -59,6 +60,7 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Creation Creation { get; }
+        public string SessionStatus => _session.GetStatus(key => Translate(key));
         public ObservableCollection<ControllerProfileViewModel> ControllerProfiles { get; }
 
         public ControllerProfileViewModel ActiveProfile
@@ -86,7 +88,7 @@ namespace BrickController2.UI.ViewModels
             {
                 if (_playLogic.ActiveProfile != value)
                 {
-                    _playLogic.ActiveProfile = value;
+                    _session.ChangeProfile(Creation, value);
                     // notify all profiles
                     foreach (var profile in ControllerProfiles)
                     {
@@ -113,7 +115,9 @@ namespace BrickController2.UI.ViewModels
                 return;
             }
 
-            _inputDeviceEventService.InputDeviceEvent += GameControllerEventHandler!;
+            _session.Changed += SessionChanged;
+            _session.Listen();
+            RaisePropertyChanged(nameof(SessionStatus));
 
             _connectionTokenSource = new CancellationTokenSource();
             _connectionTask = ConnectDevicesAsync();
@@ -124,7 +128,8 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = true;
             base.OnDisappearing();
 
-            _inputDeviceEventService.InputDeviceEvent -= GameControllerEventHandler!;
+            _session.Changed -= SessionChanged;
+            _session.Close();
 
             StopPlay();
 
@@ -139,7 +144,7 @@ namespace BrickController2.UI.ViewModels
 
         private void CollectDevices()
         {
-            var deviceIds = Creation.GetDeviceIds();
+            var deviceIds = _session.Creations.SelectMany(c => c.GetDeviceIds()).Distinct();
             foreach (var deviceId in deviceIds)
             {
                 var device = _deviceManager.GetDeviceById(deviceId);
@@ -179,7 +184,7 @@ namespace BrickController2.UI.ViewModels
                             {
                                 progressDialog.Message = deviceToConnectTo.Name;
 
-                                var channelConfigs = Creation.ControllerProfiles
+                                var channelConfigs = _session.Creations.SelectMany(c => c.ControllerProfiles)
                                     .SelectMany(cp => cp.ControllerEvents.SelectMany(ce => ce.ControllerActions))
                                     .Where(ca => ca.DeviceId == deviceToConnectTo.Id)
                                     .Select(ca => new ChannelConfiguration
@@ -251,6 +256,7 @@ namespace BrickController2.UI.ViewModels
                 }
                 else
                 {
+                    StartPlay();
                     await Task.Delay(50);
                 }
             }
@@ -259,12 +265,12 @@ namespace BrickController2.UI.ViewModels
         {
             // prevent the app from locking/turning off the screen
             Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = true;
-            _playLogic.StartPlay();
+            _session.Start();
         }
 
         private void StopPlay()
         {
-            _playLogic.StopPlay();
+            _session.Stop();
             // reenable screen locking/turning off 
             Microsoft.Maui.Devices.DeviceDisplay.KeepScreenOn = false;
         }
@@ -315,9 +321,7 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
-        private void GameControllerEventHandler(object sender, InputDeviceEventArgs e)
-        {
-            _playLogic?.ProcessGameControllerEvent(e);
-        }
+        private void SessionChanged(object? sender, System.EventArgs e) =>
+            Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() => RaisePropertyChanged(nameof(SessionStatus)));
     }
 }

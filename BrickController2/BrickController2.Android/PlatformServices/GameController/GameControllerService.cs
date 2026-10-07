@@ -12,6 +12,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
     internal class GameControllerService : InputDeviceServiceBase<GamepadController>
     {
         private readonly InputManager _inputManager;
+        private readonly global::Android.Bluetooth.BluetoothManager? _bluetoothManager;
+        private readonly System.Collections.Generic.Dictionary<int, (string? Descriptor, string RuntimeId)> _connectionIds = new();
 
         public GameControllerService(Context context,
             IInputDeviceManagerService inputDeviceManagerService,
@@ -19,6 +21,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
             : base(inputDeviceManagerService, logger)
         {
             _inputManager = (InputManager)context.GetSystemService(Context.InputService)!;
+            _bluetoothManager = context.GetSystemService(Context.BluetoothService) as global::Android.Bluetooth.BluetoothManager;
         }
 
         /// <summary>
@@ -39,6 +42,7 @@ namespace BrickController2.Droid.PlatformServices.GameController
         /// <param name="deviceId">deviceId of InputDevice</param>
         internal void MainActivityOnInputDeviceRemoved(int deviceId)
         {
+            lock (_lockObject) _connectionIds.Remove(deviceId);
             if (TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out var controller))
             {
                 _logger.LogInformation("InputDeviceDevice has been removed DeviceId:{id}, InputDeviceId:{controllerId}",
@@ -59,7 +63,8 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 {
                     // if there is no existing controller present - add it
                     if (TryGetControllerByDeviceId(deviceId, out var controller) &&
-                        controller.InputDeviceNumber == device.ControllerNumber)
+                        controller.InputDeviceNumber == device.ControllerNumber &&
+                        controller.InputDeviceDevice.Descriptor == device.Descriptor)
                     {
                         // ignore it, it's some update
                         return;
@@ -68,12 +73,18 @@ namespace BrickController2.Droid.PlatformServices.GameController
                     {
                         // handle change - remove and then add it again
                         TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out _);
+                        lock (_lockObject) _connectionIds.Remove(deviceId);
                     }
                     AddGameControllerDevice(device);
+                }
+                else if (!IsGamapadDevice(device))
+                {
+                    MainActivityOnInputDeviceRemoved(deviceId);
                 }
             }
             else if (TryRemoveInputDevice(x => x.InputDeviceDevice.Id == deviceId, out var controller))
             {
+                lock (_lockObject) _connectionIds.Remove(deviceId);
                 _logger.LogInformation("InputDeviceDevice has been removed DeviceId:{id}, InputDeviceId:{controllerId}",
                     deviceId, controller.InputDeviceId);
             }
@@ -127,13 +138,37 @@ namespace BrickController2.Droid.PlatformServices.GameController
         {
             lock (_lockObject)
             {
-                var newController = new GamepadController(InputDeviceEventService, gamepad);
+                if (TryGetControllerByDeviceId(gamepad.Id, out _)) return;
+                if (!_connectionIds.TryGetValue(gamepad.Id, out var connection) || connection.Descriptor != gamepad.Descriptor)
+                    _connectionIds[gamepad.Id] = connection = (gamepad.Descriptor, "android:session:" + System.Guid.NewGuid().ToString("N"));
+                var newController = new GamepadController(InputDeviceEventService, gamepad, connection.RuntimeId, GetBluetoothAlias(gamepad));
                 AddInputDevice(newController);
             }
         }
 
         private bool TryGetControllerByDeviceId(int deviceId, [MaybeNullWhen(false)] out GamepadController controller)
             => TryGetInputDevice(x => x.InputDeviceDevice.Id == deviceId, out controller);
+
+        private string? GetBluetoothAlias(InputDevice gamepad)
+        {
+            try
+            {
+                var paired = _bluetoothManager?.Adapter?.BondedDevices;
+                if (paired == null) return null;
+                var names = new System.Collections.Generic.List<(string Address, string? Alias)>();
+                foreach (var device in paired)
+                    if (device.Address != null)
+                        names.Add((device.Address, System.OperatingSystem.IsAndroidVersionAtLeast(30)
+                            ? device.Alias ?? device.Name : device.Name));
+                return AndroidBluetoothAliasMatcher.FindAlias(gamepad.Descriptor, gamepad.VendorId,
+                    gamepad.ProductId, gamepad.Name, names);
+            }
+            catch (Java.Lang.SecurityException)
+            {
+                // Nearby devices permission may be denied/revoked. Input still works with its native name.
+                return null;
+            }
+        }
 
         private static bool TryGetGamepadDevice(int deviceId, [MaybeNullWhen(false)] out InputDevice device)
         {

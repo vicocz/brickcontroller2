@@ -23,6 +23,13 @@ namespace BrickController2.CreationManagement
             set { _name = value; RaisePropertyChanged(); }
         }
 
+        /// <summary>Null means any controller; "none" disables input. Connection identities expire on disconnect.</summary>
+        [JsonIgnore]
+        public string? ControllerAssignmentId { get; set; }
+
+        [JsonIgnore]
+        public string? ControllerAssignmentName { get; set; }
+
         [OneToMany(CascadeOperations = CascadeOperation.All)]
         public ObservableCollection<ControllerProfile> ControllerProfiles
         {

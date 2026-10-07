@@ -27,6 +27,7 @@
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -41,7 +42,10 @@
                 </Grid>
 
                 <!-- Controller profile list -->
-                <CollectionView Grid.Row="1" ItemsSource="{Binding Creation.ControllerProfiles}" SelectionMode="None">
+                <VerticalStackLayout Grid.Row="1" Padding="16,4">
+                    <Button Text="{Binding ControllerAssignmentText}" Command="{Binding AssignControllerCommand}"/>
+                </VerticalStackLayout>
+                <CollectionView Grid.Row="2" ItemsSource="{Binding Creation.ControllerProfiles}" SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:ControllerProfile">
                             <SwipeView>
@@ -76,7 +80,7 @@
                     </CollectionView.EmptyView>
                 </CollectionView>
 
-                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="2" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerProfileCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerProfile}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
+                <controls:FloatingActionButton Grid.Row="0" Grid.RowSpan="3" Style="{StaticResource FloatingActionButtonStyle}" Icon="add" Command="{Binding AddControllerProfileCommand}" ToolTipProperties.Text="{extensions:Translate AddControllerProfile}" HorizontalOptions="End" VerticalOptions="End" Margin="10"/>
 
             </Grid>
 

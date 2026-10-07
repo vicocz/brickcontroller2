@@ -8,6 +8,7 @@ public class InputDeviceEventArgs : EventArgs
     public InputDeviceEventArgs(string inputDeviceId, InputDeviceEventType eventType, string eventCode, float value)
     {
         InputDeviceId = inputDeviceId;
+        RuntimeId = inputDeviceId;
         InputDeviceEvents = new Dictionary<(InputDeviceEventType, string), float>
         {
             [(eventType, eventCode)] = value
@@ -17,9 +18,11 @@ public class InputDeviceEventArgs : EventArgs
     public InputDeviceEventArgs(string inputDeviceId, IReadOnlyDictionary<(InputDeviceEventType, string), float> events)
     {
         InputDeviceId = inputDeviceId;
+        RuntimeId = inputDeviceId;
         InputDeviceEvents = events;
     }
 
     public IReadOnlyDictionary<(InputDeviceEventType EventType, string EventCode), float> InputDeviceEvents { get; }
     public string InputDeviceId { get; }
+    public string RuntimeId { get; init; }
 }

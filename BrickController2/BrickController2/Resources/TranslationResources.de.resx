@@ -195,6 +195,9 @@
   <data name="BluetoothDevicesWillNOTBeAvailable" xml:space="preserve">
     <value>Bluetooth-Geräte werden NICHT verfügbar sein</value>
   </data>
+  <data name="CameraWillNOTBeAvailable" xml:space="preserve">
+    <value>Die Kamera wird NICHT verfügbar sein</value>
+  </data>
   <data name="BluetoothIsTurnedOff" xml:space="preserve">
     <value>Bluetooth ist ausgeschaltet</value>
   </data>
@@ -647,6 +650,15 @@
   </data>
   <data name="ActivateShelfMode" xml:space="preserve">
     <value>Shelf-Modus aktivieren</value>
+  </data>
+  <data name="SwitchCamera" xml:space="preserve">
+    <value>Kamera wechseln</value>
+  </data>
+  <data name="ToggleTorch" xml:space="preserve">
+    <value>Lampe umschalten</value>
+  </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
   </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Fehler beim Aktivieren des Shelf-Modus:</value>

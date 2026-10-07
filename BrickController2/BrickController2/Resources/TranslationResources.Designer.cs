@@ -583,6 +583,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Camera will NOT be available.
+        /// </summary>
+        internal static string CameraWillNOTBeAvailable {
+            get {
+                return ResourceManager.GetString("CameraWillNOTBeAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         internal static string Cancel {
@@ -2176,6 +2185,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Switch camera.
+        /// </summary>
+        internal static string SwitchCamera {
+            get {
+                return ResourceManager.GetString("SwitchCamera", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to System.
         /// </summary>
         internal static string System {
@@ -2199,6 +2217,15 @@ namespace BrickController2.Resources {
         internal static string Theme {
             get {
                 return ResourceManager.GetString("Theme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle torch.
+        /// </summary>
+        internal static string ToggleTorch {
+            get {
+                return ResourceManager.GetString("ToggleTorch", resourceCulture);
             }
         }
         
@@ -2280,6 +2307,15 @@ namespace BrickController2.Resources {
         internal static string Yes {
             get {
                 return ResourceManager.GetString("Yes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom.
+        /// </summary>
+        internal static string Zoom {
+            get {
+                return ResourceManager.GetString("Zoom", resourceCulture);
             }
         }
     }

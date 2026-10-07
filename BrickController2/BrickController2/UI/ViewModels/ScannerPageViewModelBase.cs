@@ -17,6 +17,7 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
     private readonly IDialogService _dialogService;
     private string? _currentValue;
     private bool _currentValueValidity;
+    private bool _isTorchOn;
 
     public ScannerPageViewModelBase(
         INavigationService navigationService,
@@ -65,10 +66,25 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
 
     public ICommand ImportCommand { get; }
 
+    public bool IsTorchOn
+    {
+        get => _isTorchOn;
+        set
+        {
+            if (_isTorchOn != value)
+            {
+                _isTorchOn = value;
+                RaisePropertyChanged();
+            }
+        }
+    }
+
     public override void OnDisappearing()
     {
         // disable scanning
         IsCurrentValueValid = false;
+        // switch off the torch (page disappearing and application sleep)
+        IsTorchOn = false;
 
         base.OnDisappearing();
     }

@@ -26,13 +26,27 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- QR code scanner -->
-                <zxing:CameraBarcodeReaderView Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" BarcodesDetected="BarcodesDetected" Options="{Binding Options}" ZIndex="0" />
+                <zxing:CameraBarcodeReaderView x:Name="CameraView" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="3" BarcodesDetected="BarcodesDetected" Options="{Binding Options}" IsTorchOn="{Binding IsTorchOn, Mode=TwoWay}" ZIndex="0" />
+
+                <!-- Camera controls -->
+                <controls:FloatingActionButton x:Name="SwitchCameraButton" Grid.Row="1" Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="cameraswitch" Clicked="SwitchCameraClicked" ToolTipProperties.Text="{extensions:Translate SwitchCamera}"
+                                               HorizontalOptions="End" VerticalOptions="Center" Margin="10,10,20,10" ZIndex="3" IsVisible="False" />
+                <controls:FloatingActionButton x:Name="TorchButton" Grid.Row="0" Grid.Column="2" Style="{StaticResource InlineActionButtonStyle}" Icon="flashlight_on" Clicked="TorchClicked" ToolTipProperties.Text="{extensions:Translate ToggleTorch}"
+                                               HorizontalOptions="End" VerticalOptions="Start" Margin="10,10,20,10" ZIndex="3" IsVisible="False">
+                    <controls:FloatingActionButton.Triggers>
+                        <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding IsTorchOn}" Value="True">
+                            <Setter Property="Icon" Value="flashlight_off" />
+                        </DataTrigger>
+                    </controls:FloatingActionButton.Triggers>
+                </controls:FloatingActionButton>
+                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1" Value="0" VerticalOptions="End" Margin="10,10" ValueChanged="ZoomChanged" ZIndex="3"
+                        SemanticProperties.Description="{extensions:Translate Zoom}" ToolTipProperties.Text="{extensions:Translate Zoom}" />
 
                 <!-- Detected QR preview -->
                 <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" BackgroundColor="#80000000" ZIndex="1"/>
                 <zxing:BarcodeGeneratorView Grid.Row="1" Grid.Column="0" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="64" WidthRequest="64" Format="{Binding Format}" Value="{Binding CurrentValue}" BarcodeMargin="0" Margin="20" ZIndex="2" />
 
-                <controls:FloatingActionButton Grid.Row="3" Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="download" Command="{Binding ImportCommand}" ToolTipProperties.Text="{extensions:Translate Import}"
+                <controls:FloatingActionButton Grid.Row="1" Grid.Column="1" Style="{StaticResource InlineActionButtonStyle}" Icon="download" Command="{Binding ImportCommand}" ToolTipProperties.Text="{extensions:Translate Import}"
                                                HorizontalOptions="Center" VerticalOptions="Center" Margin="10" ZIndex="3">
                     <controls:FloatingActionButton.Triggers>
                         <DataTrigger TargetType="controls:FloatingActionButton" Binding="{Binding IsCurrentValueValid}" Value="True">

@@ -484,6 +484,15 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Set output level.
+        /// </summary>
+        internal static string BuWizz2SetOutputLevelMacro {
+            get {
+                return ResourceManager.GetString("BuWizz2SetOutputLevelMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Swap channels.
         /// </summary>
         internal static string BuWizz2SwapChannels {

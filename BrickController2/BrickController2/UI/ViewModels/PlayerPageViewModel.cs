@@ -77,7 +77,18 @@ namespace BrickController2.UI.ViewModels
         public ICommand BuWizz2OutputLevelChangedCommand { get; }
 
         public int BuWizzOutputLevel { get; set; } = 1;
-        public int BuWizz2OutputLevel { get; set; } = 1;
+        public int BuWizz2OutputLevel
+        {
+            get;
+            set
+            {
+                if (field != value)
+                {
+                    field = value;
+                    RaisePropertyChanged();
+                }
+            }
+        } = 1;
 
         internal ControllerProfile ActiveProfileInternal
         {
@@ -126,6 +137,7 @@ namespace BrickController2.UI.ViewModels
 
             _inputDeviceEventService.InputDeviceEvent -= GameControllerEventHandler!;
 
+            UnsubscribeFromBuWizz2Devices();
             StopPlay();
 
             if (_connectionTokenSource != null && _connectionTask != null)
@@ -245,6 +257,7 @@ namespace BrickController2.UI.ViewModels
                             ChangeOutputLevel(BuWizzOutputLevel, _buwizzDevices);
                             ChangeOutputLevel(BuWizz2OutputLevel, _buwizz2Devices);
 
+                            SubscribeToBuWizz2Devices();
                             StartPlay();
                         }
                     }
@@ -307,7 +320,32 @@ namespace BrickController2.UI.ViewModels
         {
         }
 
-        private void ChangeOutputLevel(int level, IList<Device> devices)
+        private void SubscribeToBuWizz2Devices()
+        {
+            foreach (var device in _buwizz2Devices)
+            {
+                device.PropertyChanged -= OnBuWizz2DevicePropertyChanged;
+                device.PropertyChanged += OnBuWizz2DevicePropertyChanged;
+            }
+        }
+
+        private void UnsubscribeFromBuWizz2Devices()
+        {
+            foreach (var device in _buwizz2Devices)
+            {
+                device.PropertyChanged -= OnBuWizz2DevicePropertyChanged;
+            }
+        }
+
+        private void OnBuWizz2DevicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (sender is Device device && e.PropertyName == nameof(Device.OutputLevel))
+            {
+                Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() => BuWizz2OutputLevel = device.OutputLevel);
+            }
+        }
+
+        private static void ChangeOutputLevel(int level, IList<Device> devices)
         {
             foreach (var device in devices)
             {

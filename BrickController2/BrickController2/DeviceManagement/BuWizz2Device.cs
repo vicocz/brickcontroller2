@@ -1,5 +1,6 @@
 ﻿using BrickController2.DeviceManagement.BuWizz;
 using BrickController2.DeviceManagement.IO;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Helpers;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
@@ -23,6 +24,17 @@ namespace BrickController2.DeviceManagement
         private const string SwapChannelsSettingName = "BuWizz2SwapChannels";
         private const string DefaultOutputLevelName = "BuWizz2DefaultOutputLevel";
         private const BuWizz2OutputLevels DefaultLevel = BuWizz2OutputLevels.Normal;
+        private const string SetOutputLevelMacroId = "SetOutputLevel";
+        private const string SetOutputLevelMacroNameKey = "BuWizz2SetOutputLevelMacro";
+
+        private static readonly IReadOnlyList<MacroDescriptor> StaticMacros =
+        [
+            new MacroDescriptor(id: SetOutputLevelMacroId,
+                nameKey: SetOutputLevelMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.OneShot,
+                choices: [.. Enum.GetValues<BuWizz2OutputLevels>().Select(MacroChoice.Create)]),
+        ];
 
         private readonly OutputValuesGroup<int> _outputGroup = new(4);
 
@@ -30,8 +42,6 @@ namespace BrickController2.DeviceManagement
         private byte _batteryVoltageRaw;
         private byte _motorVoltageRaw;
 
-        private volatile int _outputLevelValue;
-        
         private IGattCharacteristic? _characteristic;
         private IGattCharacteristic? _modelNumberCharacteristic;
         private IGattCharacteristic? _firmwareRevisionCharacteristic;
@@ -47,7 +57,7 @@ namespace BrickController2.DeviceManagement
             SetSettingValue(SwapChannelsSettingName, settings, swapChannels);
             SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
             // update output value again to apply settings
-            _outputLevel = DefaultOutputLevel;
+            OutputLevel = DefaultOutputLevel;
         }
 
         public static string TypeName => "BuWizz 2";
@@ -77,10 +87,27 @@ namespace BrickController2.DeviceManagement
 
         public override void SetOutputLevel(int value)
         {
-            _outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
+            OutputLevel = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
         }
 
         public override bool CanBePowerSource => true;
+
+        public override bool SupportsMacros => true;
+        public override IReadOnlyList<MacroDescriptor> AvailableMacros => StaticMacros;
+
+        public override Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+
+            if (invocation.DescriptorId == SetOutputLevelMacroId
+                && invocation.ChoiceValue.TryGet<BuWizz2OutputLevels>(out var level))
+            {
+                SetOutputLevel((int)level);
+                return Task.FromResult(true);
+            }
+
+            return Task.FromResult(false);
+        }
 
         protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
         {
@@ -174,17 +201,18 @@ namespace BrickController2.DeviceManagement
             try
             {
                 _outputGroup.Initialize();
-                _outputLevelValue = DefaultOutputLevel;
+                OutputLevel = DefaultOutputLevel;
 
                 var lastSentOutputLevelValue = -1;
 
                 while (!token.IsCancellationRequested)
                 {
-                    if (lastSentOutputLevelValue != _outputLevelValue)
+                    var outputLevel = OutputLevel;
+                    if (lastSentOutputLevelValue != outputLevel)
                     {
-                        if (await SendOutputLevelValueAsync(_outputLevelValue, token))
+                        if (await SendOutputLevelValueAsync(outputLevel, token))
                         {
-                            lastSentOutputLevelValue = _outputLevelValue;
+                            lastSentOutputLevelValue = outputLevel;
                         }
                     }
                     else if (_outputGroup.TryGetValues(out var values))

@@ -339,9 +339,9 @@ namespace BrickController2.UI.ViewModels
 
         private void OnBuWizz2DevicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (sender is Device device && e.PropertyName == nameof(Device.OutputLevel))
+            if (sender is BuWizz2Device device && e.PropertyName == nameof(Device.OutputLevel))
             {
-                Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() => BuWizz2OutputLevel = device.OutputLevel);
+                BuWizz2OutputLevel = device.OutputLevel;
             }
         }
 

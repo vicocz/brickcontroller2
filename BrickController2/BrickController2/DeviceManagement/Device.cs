@@ -22,7 +22,7 @@ namespace BrickController2.DeviceManagement
         private string _batteryVoltage = "-";
 
         private volatile DeviceState _deviceState;
-        protected int _outputLevel;
+        private int _outputLevel;
 
         internal Device(string name, string address, IDeviceRepository deviceRepository)
         {

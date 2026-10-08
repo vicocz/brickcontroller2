@@ -40,7 +40,7 @@ public readonly record struct MacroChoiceValue(object? Value)
                 try
                 {
                     var enumValue = Enum.ToObject(typeof(T), integral!);
-                    if (Enum.IsDefined(typeof(T), enumValue))
+                    if (typeof(T).IsEnumDefined(enumValue))
                     {
                         value = (T)enumValue;
                         return true;

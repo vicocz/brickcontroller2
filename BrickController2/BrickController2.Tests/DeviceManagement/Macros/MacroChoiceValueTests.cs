@@ -152,6 +152,123 @@ public class MacroChoiceValueTests
     }
 
     [Fact]
+    public void TryGet_Enum_ReturnsTrue_ForBoxedEnum()
+    {
+        var value = new MacroChoiceValue(TestEnum.Second);
+
+        Assert.True(value.TryGet<TestEnum>(out var result));
+        Assert.Equal(TestEnum.Second, result);
+    }
+
+    [Theory]
+    [InlineData("First", TestEnum.First)]
+    [InlineData("second", TestEnum.Second)]
+    [InlineData("SECOND", TestEnum.Second)]
+    [InlineData("2", TestEnum.Second)]
+    public void TryGet_Enum_ParsesString_IgnoringCase(string text, TestEnum expected)
+    {
+        MacroChoiceValue value = text;
+
+        Assert.True(value.TryGet<TestEnum>(out var result));
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData("Unknown")]
+    [InlineData("")]
+    [InlineData("42")]
+    public void TryGet_Enum_ReturnsFalse_ForInvalidString(string text)
+    {
+        MacroChoiceValue value = text;
+
+        Assert.False(value.TryGet<TestEnum>(out var result));
+        Assert.Equal(default, result);
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(1L)]
+    [InlineData((short)1)]
+    [InlineData((byte)1)]
+    public void TryGet_Enum_ConvertsIntegral(object saved)
+    {
+        var value = new MacroChoiceValue(saved);
+
+        Assert.True(value.TryGet<TestEnum>(out var result));
+        Assert.Equal(TestEnum.First, result);
+    }
+
+    [Theory]
+    [InlineData(99)]
+    [InlineData(-1)]
+    [InlineData(99L)]
+    public void TryGet_Enum_ReturnsFalse_ForUndefinedIntegral(object saved)
+    {
+        var value = new MacroChoiceValue(saved);
+
+        Assert.False(value.TryGet<TestEnum>(out _));
+    }
+
+    [Fact]
+    public void TryGet_Enum_ReturnsFalse_ForOtherEnumType()
+    {
+        var value = new MacroChoiceValue(OtherEnum.One);
+
+        Assert.False(value.TryGet<TestEnum>(out _));
+    }
+
+    [Fact]
+    public void TryGet_Enum_ReturnsFalse_ForNullOrNonEnumLike()
+    {
+        Assert.False(default(MacroChoiceValue).TryGet<TestEnum>(out _));
+        Assert.False(new MacroChoiceValue(1.5f).TryGet<TestEnum>(out _));
+        Assert.False(new MacroChoiceValue(true).TryGet<TestEnum>(out _));
+    }
+
+    [Fact]
+    public void As_Enum_ReturnsParsedValue_OrDefault()
+    {
+        Assert.Equal(TestEnum.First, new MacroChoiceValue("First").As<TestEnum>());
+        Assert.Equal(TestEnum.None, new MacroChoiceValue("Nope").As<TestEnum>());
+    }
+
+    [Theory]
+    [InlineData(TestEnum.First)]
+    [InlineData("First")]
+    [InlineData("first")]
+    [InlineData(1)]
+    [InlineData(1L)]
+    public void ValueEquals_EnumReference_MatchesSavedRepresentations(object saved)
+    {
+        var reference = new MacroChoiceValue(TestEnum.First);
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(saved)));
+    }
+
+    [Theory]
+    [InlineData(TestEnum.Second)]
+    [InlineData("Second")]
+    [InlineData("Unknown")]
+    [InlineData(2)]
+    [InlineData(2L)]
+    [InlineData(1.0f)]
+    [InlineData(true)]
+    public void ValueEquals_EnumReference_RejectsDifferentValues(object saved)
+    {
+        var reference = new MacroChoiceValue(TestEnum.First);
+
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(saved)));
+    }
+
+    [Fact]
+    public void ValueEquals_EnumReference_RejectsOtherEnumType()
+    {
+        var reference = new MacroChoiceValue(TestEnum.First);
+
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(OtherEnum.One)));
+    }
+
+    [Fact]
     public void HasValue_IsFalse_WhenDefault()
     {
         MacroChoiceValue value = default;
@@ -240,5 +357,18 @@ public class MacroChoiceValueTests
 
         Assert.Contains("\"Value\"", json);
         Assert.Equal(value, deserialized);
+    }
+
+    public enum TestEnum
+    {
+        None = 0,
+        First = 1,
+        Second = 2
+    }
+
+    public enum OtherEnum
+    {
+        Zero = 0,
+        One = 1
     }
 }

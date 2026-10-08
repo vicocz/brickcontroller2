@@ -269,6 +269,36 @@ public class MacroChoiceValueTests
     }
 
     [Fact]
+    public void ValueEquals_DecimalReference_MatchesSavedNumericOfAnyType()
+    {
+        var reference = new MacroChoiceValue(50m);
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(50.0d)));
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(50L)));
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(51L)));
+        Assert.False(reference.ValueEquals("50"));
+    }
+
+    [Fact]
+    public void ValueEquals_UlongEnumReference_MatchesValueAboveLongMaxValue()
+    {
+        var reference = new MacroChoiceValue(UlongEnum.Huge);
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(ulong.MaxValue)));
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(-1L)));
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(1UL)));
+    }
+
+    [Fact]
+    public void ValueEquals_UlongEnumReference_RejectsNegativeSaved()
+    {
+        var reference = new MacroChoiceValue(UlongEnum.Small);
+
+        Assert.True(reference.ValueEquals(new MacroChoiceValue(1)));
+        Assert.False(reference.ValueEquals(new MacroChoiceValue(-1)));
+    }
+
+    [Fact]
     public void HasValue_IsFalse_WhenDefault()
     {
         MacroChoiceValue value = default;
@@ -370,5 +400,11 @@ public class MacroChoiceValueTests
     {
         Zero = 0,
         One = 1
+    }
+
+    public enum UlongEnum : ulong
+    {
+        Small = 1,
+        Huge = ulong.MaxValue
     }
 }

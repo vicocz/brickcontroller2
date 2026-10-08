@@ -25,6 +25,10 @@ public readonly struct MacroChoiceValue(object? value)
     {
         switch (Value)
         {
+            case T typed when typeof(T).IsEnum:
+                value = typed;
+                return typeof(T).IsEnumDefined(typed);
+
             case T typed:
                 value = typed;
                 return true;

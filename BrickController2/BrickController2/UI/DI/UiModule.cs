@@ -10,6 +10,7 @@ using BrickController2.UI.Controls.Devices;
 using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.MainThread;
 using BrickController2.UI.Services.Navigation;
@@ -35,6 +36,7 @@ namespace BrickController2.UI.DI
             builder.RegisterType<ThemeService>().AsSelf().As<IThemeService>().SingleInstance();
             builder.RegisterType<LocalizationService>().AsSelf().As<ILocalizationService>().SingleInstance();
             builder.RegisterType<AppIdentifierService>().AsSelf().As<IAppIdentifierService>().SingleInstance();
+            builder.RegisterType<HelpService>().As<IHelpService>().SingleInstance();
 
             // Register Dialogs
             builder.RegisterType<DialogService>().As<IDialogService>().As<IDialogServerHost>().SingleInstance();

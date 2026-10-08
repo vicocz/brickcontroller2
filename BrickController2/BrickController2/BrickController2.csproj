@@ -11,12 +11,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Help documents (see docs/README.md), logical name: docs/{devices|pages}/{topic}/help[.culture].md -->
+    <EmbeddedResource Include="..\..\docs\devices\**\*.md" LogicalName="docs/devices/%(RecursiveDir)%(Filename)%(Extension)" Link="Docs\devices\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\..\docs\pages\**\*.md" LogicalName="docs/pages/%(RecursiveDir)%(Filename)%(Extension)" Link="Docs\pages\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Custom Fonts -->
     <MauiFont Include="Resources\Fonts\*" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Autofac" />
+    <PackageReference Include="Markdig" />
     <PackageReference Include="Microsoft.Maui.Controls" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" />
     <PackageReference Include="Microsoft.Maui.Essentials" />

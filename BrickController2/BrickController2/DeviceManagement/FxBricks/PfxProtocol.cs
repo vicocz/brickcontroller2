@@ -23,6 +23,8 @@ internal static class PfxProtocol
 
     public const byte EVT_COMMAND_NONE = 0x00;
     public const byte EVT_COMMAND_ALL_OFF = 0x01;
+    public const byte EVT_COMMAND_RUN_SCRIPT = 0x09;
+    public const byte EVT_COMMAND_STOP_SCRIPT = 0x0A;
 
     // Motor Action IDs
     public const byte MOTOR_ACTION_EMERGENCY_STOP = 0x00;
@@ -266,6 +268,18 @@ internal static class PfxProtocol
                 _ => (byte)(volume * 255.0f / 100f)
             });
 
+    /// <summary>
+    /// Runs the script file identified by <paramref name="fileId"/> (COMMAND byte 0 = run script, SOUND_FILE_ID byte 13 = script file id).
+    /// </summary>
+    public static byte[] RunScript(byte fileId)
+        => TestEventAction(EVT_COMMAND_RUN_SCRIPT, soundFileId: fileId);
+
+    /// <summary>
+    /// Stops the script file identified by <paramref name="fileId"/>.
+    /// </summary>
+    public static byte[] StopScript(byte fileId)
+        => TestEventAction(EVT_COMMAND_STOP_SCRIPT, soundFileId: fileId);
+
     public static byte[] IncreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_INC_VOLUME);
     public static byte[] DecreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_DEC_VOLUME);
 
@@ -358,5 +372,7 @@ internal static class PfxProtocol
         public bool IsValid => FileId < 0xFF && !string.IsNullOrEmpty(FileName);
 
         public bool IsAudio => FileFormat <= FileFormat.Gsm;
+
+        public bool IsScript => FileFormat == FileFormat.Pfx;
     }
 }

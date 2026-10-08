@@ -798,6 +798,12 @@
   <data name="PfxStopSoundMacro" xml:space="preserve">
     <value>Hang leállítása</value>
   </data>
+  <data name="PfxRunScriptMacro" xml:space="preserve">
+    <value>Szkript futtatása</value>
+  </data>
+  <data name="PfxStopScriptMacro" xml:space="preserve">
+    <value>Szkript leállítása</value>
+  </data>
   <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
     <value>Kimeneti szint beállítása</value>
   </data>

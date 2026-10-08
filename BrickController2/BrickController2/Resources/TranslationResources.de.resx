@@ -660,6 +660,9 @@
   <data name="ToggleTorch" xml:space="preserve">
     <value>Lampe umschalten</value>
   </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Fehler beim Aktivieren des Shelf-Modus:</value>
   </data>
@@ -872,9 +875,6 @@
   </data>
   <data name="MissingMacro" xml:space="preserve">
     <value>Fehlendes oder falsches Makro</value>
-  </data>
-  <data name="Zoom" xml:space="preserve">
-    <value>Zoom</value>
   </data>
   <data name="MacroChoice" xml:space="preserve">
     <value>Makroparameter</value>

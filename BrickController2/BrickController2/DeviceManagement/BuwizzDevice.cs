@@ -55,8 +55,8 @@ namespace BrickController2.DeviceManagement
 
         public override void SetOutputLevel(int value)
         {
-            var outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
-            _outputGroup.SetOutput(4, outputLevelValue);
+            OutputLevel = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
+            _outputGroup.SetOutput(4, OutputLevel);
         }
 
         public override bool CanBePowerSource => true;

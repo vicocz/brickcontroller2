@@ -1,4 +1,6 @@
 using BrickController2.UI.Services.Help;
+using BrickController2.UI.Commands;
+using System.Windows.Input;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using Microsoft.Maui.ApplicationModel;
@@ -12,6 +14,7 @@ namespace BrickController2.UI.ViewModels
     {
         private readonly IHelpService _helpService;
         private readonly HelpTopic _topic;
+        private readonly int _depth;
 
         private bool _isLoaded;
         private string _title;
@@ -26,8 +29,12 @@ namespace BrickController2.UI.ViewModels
         {
             _helpService = helpService;
             _topic = parameters.Get<HelpTopic>("topic");
+            _depth = parameters.Get("depth", 1);
             _title = Translate("Help");
+            CloseHelpCommand = new SafeCommand(CloseHelpAsync);
         }
+
+        public ICommand CloseHelpCommand { get; }
 
         public string Title
         {
@@ -62,7 +69,8 @@ namespace BrickController2.UI.ViewModels
                 var topic = new HelpTopic(url[HelpService.LinkScheme.Length..].Trim('/'));
                 if (_helpService.HasHelp(topic))
                 {
-                    _ = NavigationService.NavigateToAsync<HelpPageViewModel>(new NavigationParameters(("topic", topic)));
+                    _ = NavigationService.NavigateToAsync<HelpPageViewModel>(
+                        new NavigationParameters(("topic", topic), ("depth", _depth + 1)));
                 }
 
                 return true;
@@ -77,6 +85,15 @@ namespace BrickController2.UI.ViewModels
             }
 
             return false;
+        }
+
+        private async Task CloseHelpAsync()
+        {
+            // leave all help pages opened by following links
+            for (var i = 0; i < _depth; i++)
+            {
+                await NavigationService.NavigateBackAsync();
+            }
         }
 
         private async Task LoadAsync()

@@ -371,39 +371,47 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             }
         }
 
-        return
-        [
-            new MacroDescriptor(
+        var macros = new List<MacroDescriptor>();
+
+        if (audioFilesChoices.Count > 0)
+        {
+            macros.Add(new MacroDescriptor(
                 id: PlaySoundMacroId,
                 nameKey: PlaySoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.Repeatable,
-                choices: audioFilesChoices),
-            new MacroDescriptor(
+                choices: audioFilesChoices));
+            macros.Add(new MacroDescriptor(
                 id: StopSoundMacroId,
                 nameKey: StopSoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
-                choices: audioFilesChoices),
-            new MacroDescriptor(
+                choices: audioFilesChoices));
+            macros.Add(new MacroDescriptor(
                 id: ToggleSoundMacroId,
                 nameKey: ToggleSoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
-                choices: audioFilesChoices),
-            new MacroDescriptor(
+                choices: audioFilesChoices));
+        }
+
+        if (scriptFilesChoices.Count > 0)
+        {
+            macros.Add(new MacroDescriptor(
                 id: RunScriptMacroId,
                 nameKey: RunScriptMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
-                choices: scriptFilesChoices),
-            new MacroDescriptor(
+                choices: scriptFilesChoices));
+            macros.Add(new MacroDescriptor(
                 id: StopScriptMacroId,
                 nameKey: StopScriptMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
-                choices: scriptFilesChoices)
-        ];
+                choices: scriptFilesChoices));
+        }
+
+        return macros;
     }
 
     private Task<bool> EnqueueFileCommandAsync(MacroInvocation invocation, Func<byte, byte[]> buildCommand, CancellationToken token)

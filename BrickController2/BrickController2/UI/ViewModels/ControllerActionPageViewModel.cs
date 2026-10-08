@@ -398,6 +398,7 @@ namespace BrickController2.UI.ViewModels
             if (toChannel)
             {
                 Action.Channel = 0;
+                ValidateCurrentButtonType();
                 ValidateCurrentChannelSettings();
             }
             else

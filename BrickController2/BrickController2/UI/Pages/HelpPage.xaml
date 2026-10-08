@@ -12,7 +12,8 @@
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="close" Text="{extensions:Translate Close}" Command="{Binding CloseHelpCommand}" />
+        <controls:ToolbarIcon Icon="arrow_back" Text="{extensions:Translate Back}" Command="{Binding GoBackCommand}" />
+        <controls:ToolbarIcon Icon="arrow_forward" Text="{extensions:Translate Forward}" Command="{Binding GoForwardCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

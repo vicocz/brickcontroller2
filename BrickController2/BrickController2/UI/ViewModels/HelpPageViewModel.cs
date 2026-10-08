@@ -1,21 +1,23 @@
-using BrickController2.UI.Services.Help;
 using BrickController2.UI.Commands;
-using System.Windows.Input;
+using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels
 {
     public class HelpPageViewModel : PageViewModelBase
     {
         private readonly IHelpService _helpService;
-        private readonly HelpTopic _topic;
-        private readonly int _depth;
+        private readonly List<HelpTopic> _history = [];
 
+        private int _index;
+        private int _loadVersion;
         private bool _isLoaded;
         private string _title;
         private WebViewSource? _source;
@@ -28,13 +30,19 @@ namespace BrickController2.UI.ViewModels
             : base(navigationService, translationService)
         {
             _helpService = helpService;
-            _topic = parameters.Get<HelpTopic>("topic");
-            _depth = parameters.Get("depth", 1);
+            _history.Add(parameters.Get<HelpTopic>("topic"));
             _title = Translate("Help");
-            CloseHelpCommand = new SafeCommand(CloseHelpAsync);
+
+            GoBackCommand = new SafeCommand(GoBackAsync);
+            GoForwardCommand = new SafeCommand(GoForwardAsync, () => _index < _history.Count - 1);
         }
 
-        public ICommand CloseHelpCommand { get; }
+        /// <summary>
+        /// Goes to the previous topic, or leaves help when on the first topic.
+        /// </summary>
+        public ICommand GoBackCommand { get; }
+
+        public ICommand GoForwardCommand { get; }
 
         public string Title
         {
@@ -48,6 +56,8 @@ namespace BrickController2.UI.ViewModels
             private set { _source = value; RaisePropertyChanged(); }
         }
 
+        private HelpTopic CurrentTopic => _history[_index];
+
         public override void OnAppearing()
         {
             base.OnAppearing();
@@ -55,7 +65,7 @@ namespace BrickController2.UI.ViewModels
             if (!_isLoaded)
             {
                 _isLoaded = true;
-                _ = LoadAsync();
+                _ = LoadTopicAsync(CurrentTopic);
             }
         }
 
@@ -66,13 +76,7 @@ namespace BrickController2.UI.ViewModels
         {
             if (url.StartsWith(HelpService.LinkScheme, StringComparison.OrdinalIgnoreCase))
             {
-                var topic = new HelpTopic(url[HelpService.LinkScheme.Length..].Trim('/'));
-                if (_helpService.HasHelp(topic))
-                {
-                    _ = NavigationService.NavigateToAsync<HelpPageViewModel>(
-                        new NavigationParameters(("topic", topic), ("depth", _depth + 1)));
-                }
-
+                OpenTopic(new HelpTopic(url[HelpService.LinkScheme.Length..].Trim('/')));
                 return true;
             }
 
@@ -87,25 +91,59 @@ namespace BrickController2.UI.ViewModels
             return false;
         }
 
-        private async Task CloseHelpAsync()
+        private void OpenTopic(HelpTopic topic)
         {
-            // leave all help pages opened by following links
-            for (var i = 0; i < _depth; i++)
+            if (topic == CurrentTopic || !_helpService.HasHelp(topic))
             {
-                await NavigationService.NavigateBackAsync();
+                return;
             }
+
+            // discard forward history
+            _history.RemoveRange(_index + 1, _history.Count - _index - 1);
+            _history.Add(topic);
+            _index++;
+
+            GoForwardCommand.RaiseCanExecuteChanged();
+            _ = LoadTopicAsync(topic);
         }
 
-        private async Task LoadAsync()
+        private async Task GoBackAsync()
         {
-            var markdown = await _helpService.GetHelpMarkdownAsync(_topic);
-            if (markdown is null)
+            if (_index == 0)
+            {
+                await NavigationService.NavigateBackAsync();
+                return;
+            }
+
+            _index--;
+            GoForwardCommand.RaiseCanExecuteChanged();
+            await LoadTopicAsync(CurrentTopic);
+        }
+
+        private async Task GoForwardAsync()
+        {
+            if (_index >= _history.Count - 1)
+            {
+                return;
+            }
+
+            _index++;
+            GoForwardCommand.RaiseCanExecuteChanged();
+            await LoadTopicAsync(CurrentTopic);
+        }
+
+        private async Task LoadTopicAsync(HelpTopic topic)
+        {
+            var version = ++_loadVersion;
+
+            var markdown = await _helpService.GetHelpMarkdownAsync(topic);
+            if (markdown is null || version != _loadVersion)
             {
                 return;
             }
 
             Title = HelpHtmlRenderer.GetTitle(markdown) ?? Translate("Help");
-            Source = new HtmlWebViewSource { Html = HelpHtmlRenderer.Render(markdown, _topic, _helpService) };
+            Source = new HtmlWebViewSource { Html = HelpHtmlRenderer.Render(markdown, topic, _helpService) };
         }
 
         private static async Task OpenExternalAsync(string url)

@@ -9,8 +9,10 @@ namespace BrickController2.DeviceManagement.Macros;
 /// <see cref="float"/>, <see cref="bool"/>) directly, without manually boxing into <see cref="object"/>
 /// or constructing this struct explicitly.
 /// </summary>
-public readonly record struct MacroChoiceValue(object? Value)
+public readonly struct MacroChoiceValue(object? value)
 {
+    public object? Value { get; init; } = value;
+
     [JsonIgnore]
     public bool HasValue => Value is not null;
 
@@ -23,9 +25,38 @@ public readonly record struct MacroChoiceValue(object? Value)
     {
         switch (Value)
         {
+            case T typed when typeof(T).IsEnum:
+                value = typed;
+                return typeof(T).IsEnumDefined(typed);
+
             case T typed:
                 value = typed;
                 return true;
+
+            case string text when typeof(T).IsEnum:
+                if (Enum.TryParse(typeof(T), text, ignoreCase: true, out var parsed) && Enum.IsDefined(typeof(T), parsed))
+                {
+                    value = (T)parsed;
+                    return true;
+                }
+                value = default!;
+                return false;
+
+            case var integral when typeof(T).IsEnum && IsIntegral(integral):
+                try
+                {
+                    var enumValue = Enum.ToObject(typeof(T), integral!);
+                    if (typeof(T).IsEnumDefined(enumValue))
+                    {
+                        value = (T)enumValue;
+                        return true;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                }
+                value = default!;
+                return false;
 
             case IConvertible convertible when typeof(T).IsValueType:
                 try
@@ -63,8 +94,31 @@ public readonly record struct MacroChoiceValue(object? Value)
         (long a, _) => IsIntegral(other.Value) && other.TryGet<long>(out var b) && a == b,
         (float a, _) => IsNumeric(other.Value) && other.TryGet<float>(out var b) && a.Equals(b),
         (double a, _) => IsNumeric(other.Value) && other.TryGet<double>(out var b) && a.Equals(b),
+        (decimal a, _) => IsNumeric(other.Value) && other.TryGet<decimal>(out var b) && a == b,
+        (Enum a, _) => EnumEquals(a, other.Value),
         _ => Value.Equals(other.Value)
     };
+
+    private static bool EnumEquals(Enum reference, object? saved) => saved switch
+    {
+        Enum e => reference.Equals(e),
+        string s => Enum.TryParse(reference.GetType(), s, ignoreCase: true, out var parsed) && reference.Equals(parsed),
+        _ when IsIntegral(saved) => IntegralEqualsEnum(reference, saved!),
+        _ => false
+    };
+
+    private static bool IntegralEqualsEnum(Enum reference, object saved)
+    {
+        var underlying = Enum.GetUnderlyingType(reference.GetType());
+        try
+        {
+            return Convert.ChangeType(saved, underlying).Equals(Convert.ChangeType(reference, underlying));
+        }
+        catch (OverflowException)
+        {
+            return false;
+        }
+    }
 
     private static bool IsIntegral(object? value) => value is sbyte or byte or short or ushort or int or uint or long or ulong;
 

@@ -43,7 +43,7 @@
                             <!-- BuWizz 2 output level -->
                             <StackLayout Orientation="Vertical" IsVisible="{Binding HasBuWizz2Device}" Padding="20">
                                 <Label Text="{extensions:Translate BuWizz2OutputLevel}"/>
-                                <controls:SegmentedControl ItemsCsv="Low,Normal,High,Ludicrous" SelectionChangedCommand="{Binding BuWizz2OutputLevelChangedCommand}" SelectedIndex="{Binding BuWizzOutputLevel}" HorizontalOptions="Fill" VerticalOptions="Start"/>
+                                <controls:SegmentedControl ItemsCsv="Low,Normal,High,Ludicrous" SelectionChangedCommand="{Binding BuWizz2OutputLevelChangedCommand}" SelectedIndex="{Binding BuWizz2OutputLevel}" HorizontalOptions="Fill" VerticalOptions="Start"/>
                                 <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="0,4,0,4"/>
                             </StackLayout>
                         </StackLayout>

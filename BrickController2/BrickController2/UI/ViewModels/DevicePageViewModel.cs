@@ -48,8 +48,6 @@ namespace BrickController2.UI.ViewModels
             _dialogService = dialogService;
 
             Device = parameters.Get<Device>("device");
-            BuWizzOutputLevel = Device.DefaultOutputLevel;
-            BuWizz2OutputLevel = Device.DefaultOutputLevel;
             DeviceOutputs = Enumerable
                 .Range(0, Device.NumberOfChannels)
                 .Select(channel => new DeviceOutputViewModel(this, Device, channel))
@@ -104,8 +102,31 @@ namespace BrickController2.UI.ViewModels
         public ICommand SwitchToMacroViewCommand { get; }
         public ICommand ReloadMacrosCommand { get; }
 
-        public int BuWizzOutputLevel { get; set; }
-        public int BuWizz2OutputLevel { get; set; }
+        public int BuWizzOutputLevel
+        {
+            get;
+            set
+            {
+                if (field != value)
+                {
+                    field = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        public int BuWizz2OutputLevel
+        {
+            get;
+            set
+            {
+                if (field != value)
+                {
+                    field = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
 
         public IEnumerable<DeviceOutputViewModel> DeviceOutputs { get; }
 
@@ -161,6 +182,9 @@ namespace BrickController2.UI.ViewModels
             _isDisappearing = false;
             base.OnAppearing();
 
+            Device.PropertyChanged += OnDevicePropertyChanged;
+            OnDeviceOutputLevelChanged();
+
             if (Device is IBluetoothDevice)
             {
                 if (!await _deviceManager.IsBluetoothOnAsync())
@@ -188,6 +212,8 @@ namespace BrickController2.UI.ViewModels
         {
             _isDisappearing = true;
             base.OnDisappearing();
+
+            Device.PropertyChanged -= OnDevicePropertyChanged;
 
             // disconnect input device if available
             ResetInputEvents();
@@ -272,7 +298,7 @@ namespace BrickController2.UI.ViewModels
             ShowSensorView = showInputs;
             ShowMacroView = showMacros;
 
-            if (showMacros && Device.SupportsDynamicMacros && !_macrosLoaded)
+            if (showMacros && !_macrosLoaded)
             {
                 _macrosLoaded = true;
                 await ReloadMacrosAsync(DisappearingToken);
@@ -563,6 +589,26 @@ namespace BrickController2.UI.ViewModels
             SwitchToMacroViewCommand.RaiseCanExecuteChanged();
             // to ensure that servo/stepper commands are enabled / disabled properly
             RaisePropertyChanged(nameof(IsServoOrStepperSupported));
+        }
+
+        private void OnDevicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Device.OutputLevel))
+            {
+                MainThread.BeginInvokeOnMainThread(OnDeviceOutputLevelChanged);
+            }
+        }
+
+        private void OnDeviceOutputLevelChanged()
+        {
+            if (IsBuWizzDevice)
+            {
+                BuWizzOutputLevel = Device.OutputLevel;
+            }
+            else if (IsBuWizz2Device)
+            {
+                BuWizz2OutputLevel = Device.OutputLevel;
+            }
         }
 
         private void SetBuWizzOutputLevel(int level)

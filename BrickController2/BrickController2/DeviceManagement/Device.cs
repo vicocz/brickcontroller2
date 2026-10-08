@@ -22,7 +22,7 @@ namespace BrickController2.DeviceManagement
         private string _batteryVoltage = "-";
 
         private volatile DeviceState _deviceState;
-        protected int _outputLevel;
+        private int _outputLevel;
 
         internal Device(string name, string address, IDeviceRepository deviceRepository)
         {
@@ -70,7 +70,17 @@ namespace BrickController2.DeviceManagement
             protected set { _deviceState = value; RaisePropertyChanged(); }
         }
 
-        public int OutputLevel => _outputLevel;
+        public int OutputLevel
+        {
+            get => Volatile.Read(ref _outputLevel);
+            protected set
+            {
+                if (Interlocked.Exchange(ref _outputLevel, value) != value)
+                {
+                    RaisePropertyChanged();
+                }
+            }
+        }
         public bool HasOutputChannel => NumberOfChannels > 0;
 
         public abstract int NumberOfChannels { get; }

@@ -810,6 +810,9 @@
   <data name="PfxStopSoundMacro" xml:space="preserve">
     <value>Audio stoppen</value>
   </data>
+  <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
+    <value>Ausgabestufe einstellen</value>
+  </data>
   <data name="PfxSetVolumeMacro" xml:space="preserve">
     <value>Lautstärke einstellen</value>
   </data>

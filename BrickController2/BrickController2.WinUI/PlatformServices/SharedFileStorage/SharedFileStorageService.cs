@@ -8,13 +8,19 @@ namespace BrickController2.Windows.PlatformServices.SharedFileStorage;
 
 public class SharedFileStorageService : ISharedFileStorageService
 {
-    public bool IsSharedStorageAvailable => true;
+    private readonly string? _sharedStorageBaseDirectory = InitialGetSharedStorageBaseDirectory();
+
+    public bool IsSharedStorageAvailable => _sharedStorageBaseDirectory != null;
 
     public bool IsPermissionGranted { get; set; }
 
-    public string SharedStorageBaseDirectory 
-    { 
-        get
+    public string? SharedStorageBaseDirectory => _sharedStorageBaseDirectory;
+
+    public string? SharedStorageDirectory => _sharedStorageBaseDirectory;
+
+    private static string? InitialGetSharedStorageBaseDirectory()
+    {
+        try
         {
             if (PackageHelper.IsPackaged)
             {
@@ -23,23 +29,20 @@ public class SharedFileStorageService : ISharedFileStorageService
             }
             else
             {
-                try
-                {
-                    string bc2StorageDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ISharedFileStorageService.SharedDirectoryName);
+                // return i.e. C:\\Users\\me\\AppData\\Roaming\\BrickController2
+                string bc2StorageDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ISharedFileStorageService.SharedDirectoryName);
 
-                    if (!Directory.Exists(bc2StorageDirectory))
-                    {
-                        Directory.CreateDirectory(bc2StorageDirectory);
-                    }
-
-                    return bc2StorageDirectory;
-                }
-                catch (Exception)
+                if (!Directory.Exists(bc2StorageDirectory))
                 {
-                    return null!;
+                    Directory.CreateDirectory(bc2StorageDirectory);
                 }
+
+                return bc2StorageDirectory;
             }
         }
+        catch (Exception)
+        {
+            return null;
+        }
     }
-    public string SharedStorageDirectory => SharedStorageBaseDirectory;
 }

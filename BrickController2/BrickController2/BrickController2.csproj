@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Help documents (see docs/README.md), logical name: docs/{devices|pages}/{topic}/help[.culture].md -->
-    <EmbeddedResource Include="..\..\docs\devices\**\*.md" LogicalName="docs/devices/%(RecursiveDir)%(Filename)%(Extension)" Link="Docs\devices\%(RecursiveDir)%(Filename)%(Extension)" />
-    <EmbeddedResource Include="..\..\docs\pages\**\*.md" LogicalName="docs/pages/%(RecursiveDir)%(Filename)%(Extension)" Link="Docs\pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Help documents (see doc/README.md), logical name: doc/{devices|pages}/{topic}/README[.culture].md -->
+    <EmbeddedResource Include="..\..\doc\devices\**\*.md" LogicalName="doc/devices/%(RecursiveDir)%(Filename)%(Extension)" Link="Doc\devices\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\..\doc\pages\**\*.md" LogicalName="doc/pages/%(RecursiveDir)%(Filename)%(Extension)" Link="Doc\pages\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

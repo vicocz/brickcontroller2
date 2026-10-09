@@ -15,9 +15,9 @@ The device exposes 10 channels:
 
 ## Getting started
 
-1. Power on the PfxBrick.
+1. Power on the PFx Brick.
 2. Open the device list and scan for devices.
-3. Select the PfxBrick from the scan results to add it.
+3. Select the PFx Brick from the scan results to add it.
 4. Use the device in a creation: assign its channels to controller actions.
 
 ## Sound
@@ -44,10 +44,10 @@ Script macros can be assigned to controller actions:
 ## Notes
 
 - The device does not connect automatically on first use. Connect it from the device page or by starting a creation that uses it.
-- Sound files and scripts must be present on the PfxBrick; the app only triggers them.
+- Sound files and scripts must be present on the PFx Brick; the app only triggers them.
 - Sound files and scripts are managed by the PFx Brick app, not by this app.
 
 ## See also
 
 - [FX Bricks documentation](https://shop.fxbricks.com/pages/documentation)
-- [Controller action](../../pages/controller-action/help.md)
+- [Controller action](../../pages/controller-action/README.md)

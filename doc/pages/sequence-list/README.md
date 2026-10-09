@@ -5,7 +5,7 @@ A sequence is a reusable series of control points that automates the output valu
 ## What you can do
 
 - Add a new sequence with the floating **+** button.
-- Tap a sequence to open it in the [sequence editor](../sequence-editor/help.md).
+- Tap a sequence to open it in the [sequence editor](../sequence-editor/README.md).
 - Swipe a sequence to the right to **Share** it.
 - Swipe a sequence to the left to **Delete** it.
 
@@ -19,5 +19,5 @@ A sequence is a reusable series of control points that automates the output valu
 
 ## See also
 
-- [Sequence editor](../sequence-editor/help.md)
-- [Creations](../creation-list/help.md)
+- [Sequence editor](../sequence-editor/README.md)
+- [Creations](../creation-list/README.md)

@@ -9,7 +9,7 @@ internal class HelpService : IHelpService
 {
     public const string LinkScheme = "help://";
 
-    private static readonly Regex TopicFile = new(@"^(?<topic>.+)/help(\.[\w-]+)?\.md$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex TopicFile = new(@"^(?<topic>.+)/README(\.[\w-]+)?\.md$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public bool HasHelp(HelpTopic topic) => HelpResources.Exists(topic);
 

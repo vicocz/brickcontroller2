@@ -43,14 +43,14 @@ Devices with a detailed help page are linked.
 - BuWizz, BuWizz 2, BuWizz 3
 - Power Functions Infrared
 - LEGO Boost, Powered Up, Technic Hub, Technic Move, Duplo Train Hub, WeDo 2.0
-- Circuit Cubes
+- [Circuit Cubes](../../devices/circuitcubes/README.md)
 - Mould King: MK3, MK3.8, MK4, MK5, MK6, MK DIY
 - CaDA Race Car
 - JieStar SCM4, SCM8
 - Power Box M Battery, Power Box A Series
 - Remote control
-- [PFx Brick](../../devices/pfxbrick/help.md)
+- [PFx Brick](../../devices/pfxbrick/README.md)
 
 ## See also
 
-- [Controller action](../controller-action/help.md)
+- [Controller action](../controller-action/README.md)

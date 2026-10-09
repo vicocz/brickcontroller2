@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 namespace BrickController2.UI.Services.Help;
 
 /// <summary>
-/// Access to help documents embedded as docs/{topic path}/help[.culture].md
+/// Access to help markdown documents embedded as doc/{topic.Path}/README[.culture].md.
 /// </summary>
 internal static class HelpResources
 {
-    private const string Prefix = "docs/";
+    private const string Prefix = "doc/";
 
     private static readonly Lazy<Dictionary<string, string>> Resources = new(LoadResourceNames);
 
@@ -22,7 +22,7 @@ internal static class HelpResources
     {
         foreach (var suffix in GetSuffixes(culture))
         {
-            var key = $"{Prefix}{topic.Path}/help{suffix}.md";
+            var key = $"{Prefix}{topic.Path}/README{suffix}.md";
             if (Resources.Value.TryGetValue(key, out var resourceName))
             {
                 return resourceName;

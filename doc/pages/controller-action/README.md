@@ -57,5 +57,5 @@ For servo and stepper channel types, a channel setup button appears next to the 
 
 ## See also
 
-- [Controller profile](../controller-profile/help.md)
-- [Devices](../device-list/help.md)
+- [Controller profile](../controller-profile/README.md)
+- [Devices](../device-list/README.md)

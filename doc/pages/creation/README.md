@@ -14,5 +14,5 @@ This page shows the controller profiles of a creation.
 
 ## See also
 
-- [Controller profile](../controller-profile/help.md)
-- [Creations](../creation-list/help.md)
+- [Controller profile](../controller-profile/README.md)
+- [Creations](../creation-list/README.md)

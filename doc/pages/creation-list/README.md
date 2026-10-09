@@ -1,4 +1,4 @@
-﻿# Creations
+# Creations
 
 A creation represents one of your models together with the controller setup that drives it. This is the main page of the app.
 
@@ -27,5 +27,5 @@ A creation represents one of your models together with the controller setup that
 
 ## See also
 
-- [Creation](../creation/help.md)
-- [Devices](../device-list/help.md)
+- [Creation](../creation/README.md)
+- [Devices](../device-list/README.md)

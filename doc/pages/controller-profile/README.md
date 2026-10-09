@@ -36,4 +36,4 @@ The same button or joystick can have separate events for different controllers.
 
 ## See also
 
-- [Controller action](../controller-action/help.md)
+- [Controller action](../controller-action/README.md)

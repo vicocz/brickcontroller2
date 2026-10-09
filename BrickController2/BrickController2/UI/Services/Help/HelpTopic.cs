@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace BrickController2.UI.Services.Help;
 
 /// <summary>
-/// Identifies a help topic. The path is relative to the docs root, e.g. "devices/pfxbrick" or "pages/creation-list".
+/// Identifies a help topic by its path relative to the doc root (e.g. devices/pfxbrick, pages/creation).
 /// </summary>
 public sealed record HelpTopic(string Path)
 {

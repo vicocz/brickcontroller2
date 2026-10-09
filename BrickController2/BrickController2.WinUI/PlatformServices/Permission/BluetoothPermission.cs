@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace BrickController2.Windows.PlatformServices.Permission;
 
-public class BluetoothPermission : SavePlatformPermission, IBluetoothPermission
+public class BluetoothPermission : SafePlatformPermission, IBluetoothPermission
 {
     protected override Func<IEnumerable<string>> RequiredDeclarations => () => ["bluetooth"];
 }

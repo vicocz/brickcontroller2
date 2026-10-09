@@ -9,153 +9,152 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace BrickController2.UI.ViewModels
+namespace BrickController2.UI.ViewModels;
+
+public class HelpPageViewModel : PageViewModelBase
 {
-    public class HelpPageViewModel : PageViewModelBase
+    private readonly IHelpService _helpService;
+    private readonly List<HelpTopic> _history = [];
+
+    private int _index;
+    private int _loadVersion;
+    private bool _isLoaded;
+
+    public HelpPageViewModel(
+        INavigationService navigationService,
+        ITranslationService translationService,
+        IHelpService helpService,
+        NavigationParameters parameters)
+        : base(navigationService, translationService)
     {
-        private readonly IHelpService _helpService;
-        private readonly List<HelpTopic> _history = [];
+        _helpService = helpService;
+        _history.Add(parameters.Get<HelpTopic>("topic"));
 
-        private int _index;
-        private int _loadVersion;
-        private bool _isLoaded;
-        private string _title;
-        private WebViewSource? _source;
+        Title = Translate("Help");
+        GoBackCommand = new SafeCommand(GoBackAsync, () => _index > 0);
+        GoForwardCommand = new SafeCommand(GoForwardAsync, () => _index < _history.Count - 1);
+    }
 
-        public HelpPageViewModel(
-            INavigationService navigationService,
-            ITranslationService translationService,
-            IHelpService helpService,
-            NavigationParameters parameters)
-            : base(navigationService, translationService)
+    /// <summary>
+    /// Goes to the previous topic. Not available on the first topic (help is not left by this command).
+    /// </summary>
+    public ICommand GoBackCommand { get; }
+
+    public ICommand GoForwardCommand { get; }
+
+    public string Title
+    {
+        get;
+        private set { field = value; RaisePropertyChanged(); }
+    }
+
+    public WebViewSource? Source
+    {
+        get;
+        private set { field = value; RaisePropertyChanged(); }
+    }
+
+    private HelpTopic CurrentTopic => _history[_index];
+
+    public override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (!_isLoaded)
         {
-            _helpService = helpService;
-            _history.Add(parameters.Get<HelpTopic>("topic"));
-            _title = Translate("Help");
+            _isLoaded = true;
+            _ = LoadTopicAsync(CurrentTopic);
+        }
+    }
 
-            GoBackCommand = new SafeCommand(GoBackAsync);
-            GoForwardCommand = new SafeCommand(GoForwardAsync, () => _index < _history.Count - 1);
+    /// <summary>
+    /// Handles navigation request of the web view. Returns true when handled (the web view navigation should be cancelled).
+    /// </summary>
+    public bool TryHandleNavigation(string url)
+    {
+        if (url.StartsWith(HelpService.LinkScheme, StringComparison.OrdinalIgnoreCase))
+        {
+            OpenTopic(new HelpTopic(url[HelpService.LinkScheme.Length..].Trim('/')));
+            return true;
         }
 
-        /// <summary>
-        /// Goes to the previous topic, or leaves help when on the first topic.
-        /// </summary>
-        public ICommand GoBackCommand { get; }
-
-        public ICommand GoForwardCommand { get; }
-
-        public string Title
+        if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+            || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+            || url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
         {
-            get => _title;
-            private set { _title = value; RaisePropertyChanged(); }
+            _ = OpenExternalAsync(url);
+            return true;
         }
 
-        public WebViewSource? Source
+        return false;
+    }
+
+    private void OpenTopic(HelpTopic topic)
+    {
+        if (topic == CurrentTopic || !_helpService.HasHelp(topic))
         {
-            get => _source;
-            private set { _source = value; RaisePropertyChanged(); }
+            return;
         }
 
-        private HelpTopic CurrentTopic => _history[_index];
+        // discard forward history
+        _history.RemoveRange(_index + 1, _history.Count - _index - 1);
+        _history.Add(topic);
+        _index++;
 
-        public override void OnAppearing()
+        GoBackCommand.RaiseCanExecuteChanged();
+        GoForwardCommand.RaiseCanExecuteChanged();
+        _ = LoadTopicAsync(topic);
+    }
+
+    private async Task GoBackAsync()
+    {
+        if (_index == 0)
         {
-            base.OnAppearing();
-
-            if (!_isLoaded)
-            {
-                _isLoaded = true;
-                _ = LoadTopicAsync(CurrentTopic);
-            }
+            return;
         }
 
-        /// <summary>
-        /// Handles navigation request of the web view. Returns true when handled (the web view navigation should be cancelled).
-        /// </summary>
-        public bool TryHandleNavigation(string url)
+        _index--;
+        GoBackCommand.RaiseCanExecuteChanged();
+        GoForwardCommand.RaiseCanExecuteChanged();
+        await LoadTopicAsync(CurrentTopic);
+    }
+
+    private async Task GoForwardAsync()
+    {
+        if (_index >= _history.Count - 1)
         {
-            if (url.StartsWith(HelpService.LinkScheme, StringComparison.OrdinalIgnoreCase))
-            {
-                OpenTopic(new HelpTopic(url[HelpService.LinkScheme.Length..].Trim('/')));
-                return true;
-            }
-
-            if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
-                || url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
-                || url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase))
-            {
-                _ = OpenExternalAsync(url);
-                return true;
-            }
-
-            return false;
+            return;
         }
 
-        private void OpenTopic(HelpTopic topic)
+        _index++;
+        GoBackCommand.RaiseCanExecuteChanged();
+        GoForwardCommand.RaiseCanExecuteChanged();
+        await LoadTopicAsync(CurrentTopic);
+    }
+
+    private async Task LoadTopicAsync(HelpTopic topic)
+    {
+        var version = ++_loadVersion;
+
+        var markdown = await _helpService.GetHelpMarkdownAsync(topic);
+        if (markdown is null || version != _loadVersion)
         {
-            if (topic == CurrentTopic || !_helpService.HasHelp(topic))
-            {
-                return;
-            }
-
-            // discard forward history
-            _history.RemoveRange(_index + 1, _history.Count - _index - 1);
-            _history.Add(topic);
-            _index++;
-
-            GoForwardCommand.RaiseCanExecuteChanged();
-            _ = LoadTopicAsync(topic);
+            return;
         }
 
-        private async Task GoBackAsync()
-        {
-            if (_index == 0)
-            {
-                await NavigationService.NavigateBackAsync();
-                return;
-            }
+        Title = HelpHtmlRenderer.GetTitle(markdown) ?? Translate("Help");
+        Source = new HtmlWebViewSource { Html = HelpHtmlRenderer.Render(markdown, topic, _helpService) };
+    }
 
-            _index--;
-            GoForwardCommand.RaiseCanExecuteChanged();
-            await LoadTopicAsync(CurrentTopic);
+    private static async Task OpenExternalAsync(string url)
+    {
+        try
+        {
+            await Launcher.Default.OpenAsync(url);
         }
-
-        private async Task GoForwardAsync()
+        catch
         {
-            if (_index >= _history.Count - 1)
-            {
-                return;
-            }
-
-            _index++;
-            GoForwardCommand.RaiseCanExecuteChanged();
-            await LoadTopicAsync(CurrentTopic);
-        }
-
-        private async Task LoadTopicAsync(HelpTopic topic)
-        {
-            var version = ++_loadVersion;
-
-            var markdown = await _helpService.GetHelpMarkdownAsync(topic);
-            if (markdown is null || version != _loadVersion)
-            {
-                return;
-            }
-
-            Title = HelpHtmlRenderer.GetTitle(markdown) ?? Translate("Help");
-            Source = new HtmlWebViewSource { Html = HelpHtmlRenderer.Render(markdown, topic, _helpService) };
-        }
-
-        private static async Task OpenExternalAsync(string url)
-        {
-            try
-            {
-                await Launcher.Default.OpenAsync(url);
-            }
-            catch
-            {
-                // ignore failure to open an external link
-            }
+            // ignore failure to open an external link
         }
     }
 }

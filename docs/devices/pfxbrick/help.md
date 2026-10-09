@@ -1,6 +1,8 @@
-# PfxBrick
+# PFx Brick
 
-PfxBrick (FX Bricks) is a Bluetooth LE brick that drives Power Functions motors and lights, and plays sounds.
+PFx Brick (FX Bricks) is a Bluetooth LE brick that drives Power Functions motors and lights, and plays sounds.
+
+![PFx Brick](../../../BrickController2/BrickController2/UI/Images/pfxbrick_image.png)
 
 ## Channels
 
@@ -8,8 +10,8 @@ The device exposes 10 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 1 - 2 | Power Functions motors | -100 % to +100 % |
-| 3 - 10 | Lights | brightness 0 to 255 |
+| A - B | Power Functions motors | -100 % to +100 % |
+| 1 - 8 | Lights | brightness 0 to 100 % |
 
 ## Getting started
 
@@ -28,6 +30,13 @@ Sound is controlled by macros that can be assigned to controller actions:
 - **Set volume** sets the volume to a chosen level.
 - **Increase volume** and **Decrease volume** change the volume by a step.
 
+## Scripts
+
+Script macros can be assigned to controller actions:
+
+- **Run script** starts a script stored on the device.
+- **Stop script** stops a running script.
+
 ## Settings
 
 - **Default volume level**: the volume applied after connecting. The default is 50 %.
@@ -35,8 +44,10 @@ Sound is controlled by macros that can be assigned to controller actions:
 ## Notes
 
 - The device does not connect automatically on first use. Connect it from the device page or by starting a creation that uses it.
-- Sound files must be present on the PfxBrick; the app only triggers them.
+- Sound files and scripts must be present on the PfxBrick; the app only triggers them.
+- Sound files and scripts are managed by the PFx Brick app, not by this app.
 
 ## See also
 
+- [FX Bricks documentation](https://shop.fxbricks.com/pages/documentation)
 - [Controller action](../../pages/controller-action/help.md)

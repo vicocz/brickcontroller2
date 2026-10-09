@@ -1,7 +1,9 @@
+using BrickController2.Helpers;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -21,6 +23,7 @@ internal static class HelpHtmlRenderer
         pre { padding: 8px; overflow-x: auto; }
         code { padding: 0 3px; }
         a { color: #4a90e2; }
+        img { max-width: 100%; height: auto; }
         """;
 
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
@@ -44,6 +47,15 @@ internal static class HelpHtmlRenderer
             }
         }
 
+        foreach (var image in document.Descendants<LinkInline>().Where(l => l.IsImage && l.Url is not null).ToList())
+        {
+            var dataUri = GetImageDataUri(image.Url!);
+            if (dataUri is not null)
+            {
+                image.Url = dataUri;
+            }
+        }
+
         var body = document.ToHtml(Pipeline);
         return $"<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>{Style}</style></head><body>{body}</body></html>";
     }
@@ -55,5 +67,29 @@ internal static class HelpHtmlRenderer
     {
         var match = Heading.Match(markdown);
         return match.Success ? match.Groups["title"].Value.Trim() : null;
+    }
+
+    /// <summary>
+    /// Converts a link to an app image (.../UI/Images/{name}.png) to a data URI of the embedded resource.
+    /// </summary>
+    private static string? GetImageDataUri(string url)
+    {
+        const string ImagesFolder = "UI/Images/";
+        var index = url.Replace('\\', '/').LastIndexOf(ImagesFolder, StringComparison.OrdinalIgnoreCase);
+        if (index < 0 || !url.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var resourceName = ResourceHelper.GetImageResourcePath(url[(index + ImagesFolder.Length)..]);
+        using var stream = typeof(ResourceHelper).Assembly.GetManifestResourceStream(resourceName);
+        if (stream is null)
+        {
+            return null;
+        }
+
+        using var memory = new MemoryStream();
+        stream.CopyTo(memory);
+        return "data:image/png;base64," + Convert.ToBase64String(memory.ToArray());
     }
 }

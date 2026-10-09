@@ -83,13 +83,13 @@ public class HelpPageViewModelTests
     }
 
     [Fact]
-    public void GoBack_OnFirstTopic_LeavesHelp()
+    public void GoBack_OnFirstTopic_IsDisabled_AndDoesNotLeaveHelp()
     {
-        _navigationServiceMock.Setup(n => n.NavigateBackAsync()).Returns(Task.CompletedTask);
+        _viewModel.GoBackCommand.CanExecute(null).Should().BeFalse();
 
         _viewModel.GoBackCommand.Execute(null);
 
-        _navigationServiceMock.Verify(n => n.NavigateBackAsync(), Times.Once);
+        _navigationServiceMock.Verify(n => n.NavigateBackAsync(), Times.Never);
         _viewModel.Title.Should().Be("pages/a");
     }
 
@@ -114,11 +114,7 @@ public class HelpPageViewModelTests
         _viewModel.TryHandleNavigation("help://pages/a");
 
         _viewModel.GoForwardCommand.CanExecute(null).Should().BeFalse();
-        _navigationServiceMock.Setup(n => n.NavigateBackAsync()).Returns(Task.CompletedTask);
-
-        _viewModel.GoBackCommand.Execute(null);
-
-        _navigationServiceMock.Verify(n => n.NavigateBackAsync(), Times.Once);
+        _viewModel.GoBackCommand.CanExecute(null).Should().BeFalse();
     }
 
     [Fact]

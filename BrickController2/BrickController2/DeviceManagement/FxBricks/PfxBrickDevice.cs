@@ -2,6 +2,7 @@
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -21,6 +22,10 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     private const string SetVolumeMacroId = "SetVolume";
     private const string IncreaseVolumeMacroId = "IncreaseVolume";
     private const string DecreaseVolumeMacroId = "DecreaseVolume";
+    private const string RunScriptMacroId = "RunScript";
+    private const string StopScriptMacroId = "StopScript";
+    private const string RunScriptMacroNameKey = "PfxRunScriptMacro";
+    private const string StopScriptMacroNameKey = "PfxStopScriptMacro";
     private const string PlaySoundMacroNameKey = "PfxPlaySoundMacro";
     private const string StopSoundMacroNameKey = "PfxStopSoundMacro";
     private const string ToggleSoundMacroNameKey = "PfxToggleSoundMacro";
@@ -49,6 +54,11 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             kind: MacroKind.OneShot),
         new MacroDescriptor(id: DecreaseVolumeMacroId,
             nameKey: DecreaseVolumeMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot),
+        new MacroDescriptor(
+            id: StopScriptMacroId,
+            nameKey: StopScriptMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot),
     ];
@@ -111,15 +121,23 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
 
         if (invocation.DescriptorId == PlaySoundMacroId)
         {
-            return EnqueueSoundCommandAsync(invocation, id => PfxProtocol.PlaySoundFile(id), token);
+            return EnqueueFileCommandAsync(invocation, id => PfxProtocol.PlaySoundFile(id), token);
         }
         else if (invocation.DescriptorId == StopSoundMacroId)
         {
-            return EnqueueSoundCommandAsync(invocation, id => PfxProtocol.StopSoundFile(id), token);
+            return EnqueueFileCommandAsync(invocation, id => PfxProtocol.StopSoundFile(id), token);
         }
         else if (invocation.DescriptorId == ToggleSoundMacroId)
         {
-            return EnqueueSoundCommandAsync(invocation, id => PfxProtocol.PlaySoundFile(id, PfxProtocol.EVT_SOUNDFX_RETRIGGER_TOGGLE), token);
+            return EnqueueFileCommandAsync(invocation, id => PfxProtocol.PlaySoundFile(id, PfxProtocol.EVT_SOUNDFX_RETRIGGER_TOGGLE), token);
+        }
+        else if (invocation.DescriptorId == RunScriptMacroId)
+        {
+            return EnqueueFileCommandAsync(invocation, id => PfxProtocol.RunScript(id), token);
+        }
+        else if (invocation.DescriptorId == StopScriptMacroId)
+        {
+            return EnqueueMacroCommandAsync(PfxProtocol.StopScript(), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
             && invocation.ChoiceValue.TryGet<float>(out var volume))
@@ -334,6 +352,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
 
         var foundCount = 0;
         var audioFilesChoices = new List<MacroChoice<string>>();
+        var scriptFilesChoices = new List<MacroChoice<string>>();
 
         for (byte i = FirstDirectoryIndex; i <= MaxDirectorySlots && foundCount < filesCount && !token.IsCancellationRequested; i++)
         {
@@ -351,32 +370,51 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                 audioFilesChoices.Add(new MacroChoice<string>(entry.Value.FileName, entry.Value.FileName));
                 _macroFileIds[entry.Value.FileName] = (byte)entry.Value.FileId;
             }
+            else if (entry.Value.IsScript)
+            {
+                scriptFilesChoices.Add(new MacroChoice<string>(entry.Value.FileName, entry.Value.FileName));
+                _macroFileIds[entry.Value.FileName] = (byte)entry.Value.FileId;
+            }
         }
 
-        return
-        [
-            new MacroDescriptor(
+        var macros = new List<MacroDescriptor>();
+
+        if (audioFilesChoices.Count > 0)
+        {
+            macros.Add(new MacroDescriptor(
                 id: PlaySoundMacroId,
                 nameKey: PlaySoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.Repeatable,
-                choices: audioFilesChoices),
-            new MacroDescriptor(
+                choices: audioFilesChoices));
+            macros.Add(new MacroDescriptor(
                 id: StopSoundMacroId,
                 nameKey: StopSoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
-                choices: audioFilesChoices),
-            new MacroDescriptor(
+                choices: audioFilesChoices));
+            macros.Add(new MacroDescriptor(
                 id: ToggleSoundMacroId,
                 nameKey: ToggleSoundMacroNameKey,
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
-                choices: audioFilesChoices)
-        ];
+                choices: audioFilesChoices));
+        }
+
+        if (scriptFilesChoices.Count > 0)
+        {
+            macros.Add(new MacroDescriptor(
+                id: RunScriptMacroId,
+                nameKey: RunScriptMacroNameKey,
+                scope: MacroScope.Device,
+                kind: MacroKind.OneShot,
+                choices: scriptFilesChoices));
+        }
+
+        return macros;
     }
 
-    private Task<bool> EnqueueSoundCommandAsync(MacroInvocation invocation, Func<byte, byte[]> buildCommand, CancellationToken token)
+    private Task<bool> EnqueueFileCommandAsync(MacroInvocation invocation, Func<byte, byte[]> buildCommand, CancellationToken token)
     {
         if (!invocation.ChoiceValue.TryGet<string>(out var fileName))
         {

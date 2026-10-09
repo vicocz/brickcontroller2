@@ -5,7 +5,7 @@ using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace BrickController2.Windows.PlatformServices.Permission;
 
-public abstract class SavePlatformPermission : BasePlatformPermission
+public abstract class SafePlatformPermission : BasePlatformPermission
 {
     public override Task<PermissionStatus> CheckStatusAsync()
     {

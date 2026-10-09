@@ -2,6 +2,7 @@
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.Settings;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -53,6 +54,11 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             kind: MacroKind.OneShot),
         new MacroDescriptor(id: DecreaseVolumeMacroId,
             nameKey: DecreaseVolumeMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot),
+        new MacroDescriptor(
+            id: StopScriptMacroId,
+            nameKey: StopScriptMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot),
     ];
@@ -404,11 +410,6 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                 kind: MacroKind.OneShot,
                 choices: scriptFilesChoices));
         }
-        macros.Add(new MacroDescriptor(
-            id: StopScriptMacroId,
-            nameKey: StopScriptMacroNameKey,
-            scope: MacroScope.Device,
-            kind: MacroKind.OneShot));
 
         return macros;
     }

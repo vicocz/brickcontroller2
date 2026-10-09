@@ -25,7 +25,7 @@
 
     <ContentPage.ToolbarItems>
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveControllerActionCommand}" />
-        <controls:ToolbarIcon Icon="help" Text="{extensions:Translate Help}" Command="{Binding ShowHelpCommand}" Order="Secondary" />
+        <controls:HelpToolbarIcon />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

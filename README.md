@@ -51,6 +51,7 @@ or Visual Studio for Mac.
 ## 3rd party libraries used
 
 - [Autofac IOC container](https://github.com/autofac/Autofac)
+- [Markdig](https://github.com/xoofx/markdig)
 - [SQLite-Net-Extensions Async](https://bitbucket.org/twincoders/sqlite-net-extensions)
 - [ZXing.Net.Maui](https://github.com/Redth/ZXing.Net.Maui)
 

@@ -21,6 +21,10 @@
         </ResourceDictionary>
     </local:PageBase.Resources>
 
+    <ContentPage.ToolbarItems>
+        <controls:HelpToolbarIcon Order="Primary" />
+    </ContentPage.ToolbarItems>
+
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
             <Grid RowSpacing="0" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
@@ -38,7 +42,7 @@
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
-                                        <controls:SwipeIcon Text="{extensions:Translate Help}" Icon="help" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                        <controls:SwipeIcon Text="{extensions:Translate Help}" Icon="help_outline" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
                                                             IsVisible="{Binding DeviceType, Converter={StaticResource DeviceTypeToHasHelp}}"
                                                             Command="{Binding ShowDeviceHelpCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"
                                                             CommandParameter="{Binding .}"/>

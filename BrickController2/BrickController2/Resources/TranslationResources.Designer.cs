@@ -1744,7 +1744,7 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Stop script.
+        ///   Looks up a localized string similar to Stop current script.
         /// </summary>
         internal static string PfxStopScriptMacro {
             get {

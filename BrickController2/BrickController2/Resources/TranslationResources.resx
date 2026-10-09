@@ -811,7 +811,7 @@
     <value>Run script</value>
   </data>
   <data name="PfxStopScriptMacro" xml:space="preserve">
-    <value>Stop script</value>
+    <value>Stop current script</value>
   </data>
   <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
     <value>Set output level</value>

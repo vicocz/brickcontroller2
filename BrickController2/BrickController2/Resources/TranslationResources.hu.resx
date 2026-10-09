@@ -802,7 +802,7 @@
     <value>Szkript futtatása</value>
   </data>
   <data name="PfxStopScriptMacro" xml:space="preserve">
-    <value>Szkript leállítása</value>
+    <value>Az aktuális szkript leállítása</value>
   </data>
   <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
     <value>Kimeneti szint beállítása</value>

@@ -131,7 +131,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         }
         else if (invocation.DescriptorId == StopScriptMacroId)
         {
-            return EnqueueFileCommandAsync(invocation, id => PfxProtocol.StopScript(id), token);
+            return EnqueueMacroCommandAsync(PfxProtocol.StopScript(), token);
         }
         else if (invocation.DescriptorId == SetVolumeMacroId
             && invocation.ChoiceValue.TryGet<float>(out var volume))
@@ -403,13 +403,12 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                 scope: MacroScope.Device,
                 kind: MacroKind.OneShot,
                 choices: scriptFilesChoices));
-            macros.Add(new MacroDescriptor(
-                id: StopScriptMacroId,
-                nameKey: StopScriptMacroNameKey,
-                scope: MacroScope.Device,
-                kind: MacroKind.OneShot,
-                choices: scriptFilesChoices));
         }
+        macros.Add(new MacroDescriptor(
+            id: StopScriptMacroId,
+            nameKey: StopScriptMacroNameKey,
+            scope: MacroScope.Device,
+            kind: MacroKind.OneShot));
 
         return macros;
     }

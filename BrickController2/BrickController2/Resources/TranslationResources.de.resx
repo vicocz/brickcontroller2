@@ -660,9 +660,6 @@
   <data name="ToggleTorch" xml:space="preserve">
     <value>Lampe umschalten</value>
   </data>
-  <data name="Zoom" xml:space="preserve">
-    <value>Zoom</value>
-  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Fehler beim Aktivieren des Shelf-Modus:</value>
   </data>
@@ -814,7 +811,7 @@
     <value>Skript ausführen</value>
   </data>
   <data name="PfxStopScriptMacro" xml:space="preserve">
-    <value>Skript stoppen</value>
+    <value>Das aktuelle Skript stoppen</value>
   </data>
   <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
     <value>Ausgabestufe einstellen</value>
@@ -881,6 +878,9 @@
   </data>
   <data name="MissingMacro" xml:space="preserve">
     <value>Fehlendes oder falsches Makro</value>
+  </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
   </data>
   <data name="MacroChoice" xml:space="preserve">
     <value>Makroparameter</value>

@@ -20,11 +20,12 @@ internal static class PfxProtocol
 
     public const byte CMD_GET_STATUS = 0x01;
     public const byte CMD_TEST_ACTION = 0x13;
+    public const byte CMD_RUN_SCRIPT = 0x4B;
+
+    public const byte SCRIPT_FILE_ID_STOP = 0xFF;
 
     public const byte EVT_COMMAND_NONE = 0x00;
     public const byte EVT_COMMAND_ALL_OFF = 0x01;
-    public const byte EVT_COMMAND_RUN_SCRIPT = 0x09;
-    public const byte EVT_COMMAND_STOP_SCRIPT = 0x0A;
 
     // Motor Action IDs
     public const byte MOTOR_ACTION_EMERGENCY_STOP = 0x00;
@@ -269,16 +270,17 @@ internal static class PfxProtocol
             });
 
     /// <summary>
-    /// Runs the script file identified by <paramref name="fileId"/> (COMMAND byte 0 = run script, SOUND_FILE_ID byte 13 = script file id).
+    /// Runs the script file identified by <paramref name="fileId"/> (PFX_CMD_RUN_SCRIPT: [0x4B, FileID]).
     /// </summary>
     public static byte[] RunScript(byte fileId)
-        => TestEventAction(EVT_COMMAND_RUN_SCRIPT, soundFileId: fileId);
+        => [CMD_PRE_DELIMITER, CMD_PRE_DELIMITER, CMD_PRE_DELIMITER,
+            CMD_RUN_SCRIPT, fileId,
+            CMD_POST_DELIMITER, CMD_POST_DELIMITER, CMD_POST_DELIMITER];
 
     /// <summary>
-    /// Stops the script file identified by <paramref name="fileId"/>.
+    /// Stops the currently running script (PFX_CMD_RUN_SCRIPT with File ID 0xFF).
     /// </summary>
-    public static byte[] StopScript(byte fileId)
-        => TestEventAction(EVT_COMMAND_STOP_SCRIPT, soundFileId: fileId);
+    public static byte[] StopScript() => RunScript(SCRIPT_FILE_ID_STOP);
 
     public static byte[] IncreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_INC_VOLUME);
     public static byte[] DecreaseVolume() => TestEventAction(EVT_COMMAND_NONE, soundFxId: EVT_SOUNDFX_DEC_VOLUME);
@@ -369,10 +371,17 @@ internal static class PfxProtocol
         /// </summary>
         public FileFormat FileFormat => (FileFormat)(Attributes >> 8);
 
-        public bool IsValid => FileId < 0xFF && !string.IsNullOrEmpty(FileName);
+        public bool IsValid => FileId < ReservedFileId && !string.IsNullOrEmpty(FileName);
 
-        public bool IsAudio => FileFormat <= FileFormat.Gsm;
+        public bool IsAudio => !IsScript && FileFormat <= FileFormat.Gsm;
 
-        public bool IsScript => FileFormat == FileFormat.Pfx;
+        public bool IsScript => (Attributes & 0xFF) == ScriptAttributeValue || FileFormat == FileFormat.Txt;
+
+        /// <summary>
+        /// Optional User Attributes marker for text files intended for scripting (ICD: Script File User Attributes).
+        /// </summary>
+        public const ushort ScriptAttributeValue = 0x80;
+
+        public const ushort ReservedFileId = 0xE0;
     }
 }

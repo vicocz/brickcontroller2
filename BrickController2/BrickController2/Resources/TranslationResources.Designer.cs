@@ -1726,11 +1726,29 @@ namespace BrickController2.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Run script.
+        /// </summary>
+        internal static string PfxRunScriptMacro {
+            get {
+                return ResourceManager.GetString("PfxRunScriptMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Set volume.
         /// </summary>
         internal static string PfxSetVolumeMacro {
             get {
                 return ResourceManager.GetString("PfxSetVolumeMacro", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stop current script.
+        /// </summary>
+        internal static string PfxStopScriptMacro {
+            get {
+                return ResourceManager.GetString("PfxStopScriptMacro", resourceCulture);
             }
         }
         

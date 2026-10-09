@@ -36,6 +36,37 @@ public class PfxProtocolTests
     }
 
     [Theory]
+    [InlineData(0x00)]
+    [InlineData(0x07)]
+    [InlineData(0xFE)]
+    public void RunScript_ShouldReturnExpectedByteArray(byte fileId)
+    {
+        var result = PfxProtocol.RunScript(fileId);
+
+        result.Should().BeEquivalentTo(new byte[]
+        {
+            0x5B, 0x5B, 0x5B, // CMD_PRE_DELIMITER
+            0x4B,             // PFX_CMD_RUN_SCRIPT
+            fileId,           // File ID
+            0x5D, 0x5D, 0x5D  // CMD_POST_DELIMITER
+        }, options => options.WithStrictOrdering());
+    }
+
+    [Fact]
+    public void StopScript_ShouldReturnExpectedByteArray()
+    {
+        var result = PfxProtocol.StopScript();
+
+        result.Should().BeEquivalentTo(new byte[]
+        {
+            0x5B, 0x5B, 0x5B, // CMD_PRE_DELIMITER
+            0x4B,             // PFX_CMD_RUN_SCRIPT
+            0xFF,             // File ID 0xFF = stop running script
+            0x5D, 0x5D, 0x5D  // CMD_POST_DELIMITER
+        }, options => options.WithStrictOrdering());
+    }
+
+    [Theory]
     [InlineData(0, 50, new byte[] { 0x5B, 0x5B, 0x5B, 0x13, 0x00, 0x71, 0x9F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5D, 0x5D, 0x5D })]
     [InlineData(1, -100, new byte[] { 0x5B, 0x5B, 0x5B, 0x13, 0x00, 0x72, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5D, 0x5D, 0x5D })]
     [InlineData(int.MaxValue, 0, new byte[] { 0x5B, 0x5B, 0x5B, 0x13, 0x00, 0x73, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x5D, 0x5D, 0x5D })]
@@ -341,6 +372,76 @@ public class PfxProtocolTests
 
         ((byte)entry.FileFormat).Should().Be(expectedFormat);
         entry.IsAudio.Should().Be(expectedIsAudio);
+    }
+
+    [Theory]
+    [InlineData((ushort)0x0080, true, false)]   // script marker, format Wav (0x00)
+    [InlineData((ushort)0x1000, true, false)]   // Txt format without marker
+    [InlineData((ushort)0x1080, true, false)]   // Txt format with marker
+    [InlineData((ushort)0x0002, false, true)]   // indexed audio attribute
+    [InlineData((ushort)0x0200, false, true)]   // Mp3
+    [InlineData((ushort)0x0000, false, true)]   // plain Wav
+    [InlineData((ushort)0x3000, false, false)]  // Pfx - neither
+    public void FileDirEntry_IsScriptAndIsAudio_ShouldBeComputedFromAttributes(ushort attributes, bool expectedIsScript, bool expectedIsAudio)
+    {
+        var entry = new PfxProtocol.FileDirEntry(1, 100, attributes, 0, 0, "file");
+
+        entry.IsScript.Should().Be(expectedIsScript);
+        entry.IsAudio.Should().Be(expectedIsAudio);
+    }
+
+    [Fact]
+    public void ParseFileDirEntry_WithScriptResponseFromDevice_ShouldBeScriptNotAudio()
+    {
+        var data = new byte[56];
+        new byte[]
+        {
+            0xC5, 0x02,
+            0x00, 0x02,                     // FileId = 2
+            0x00, 0x00, 0x00, 0x4A,         // FileSize = 74
+            0x0E, 0xFC,                     // FirstSector
+            0x00, 0x80,                     // Attributes = script marker
+            0x00, 0x00, 0x00, 0x00,         // UserData1
+            0x00, 0x00, 0x00, 0x00,         // UserData2
+            0xD4, 0x25, 0xBB, 0x81,         // Crc32
+            (byte)'t', (byte)'e', (byte)'s', (byte)'t'
+        }.CopyTo(data, 0);
+
+        var result = PfxProtocol.ParseFileDirEntry(data);
+
+        result.Should().NotBeNull();
+        result!.Value.FileId.Should().Be(2);
+        result.Value.FileSize.Should().Be(74u);
+        result.Value.Attributes.Should().Be(0x0080);
+        result.Value.FileName.Should().Be("test");
+        result.Value.IsValid.Should().BeTrue();
+        result.Value.IsScript.Should().BeTrue();
+        result.Value.IsAudio.Should().BeFalse();
+    }
+
+    [Fact]
+    public void ParseFileDirEntry_WithAudioResponseFromDevice_ShouldBeAudioNotScript()
+    {
+        var data = new byte[56];
+        new byte[]
+        {
+            0xC5, 0x02,
+            0x00, 0x01,                     // FileId = 1
+            0x00, 0x01, 0x45, 0x90,         // FileSize
+            0x03, 0x05,                     // FirstSector
+            0x00, 0x02,                     // Attributes = 0x0002
+            0x00, 0x01, 0x45, 0x64,         // UserData1
+            0x00, 0x00, 0x00, 0x2C,         // UserData2
+            0xBF, 0x41, 0x30, 0x2D,         // Crc32
+            (byte)'a', (byte)'l', (byte)'a', (byte)'r', (byte)'m'
+        }.CopyTo(data, 0);
+
+        var result = PfxProtocol.ParseFileDirEntry(data);
+
+        result.Should().NotBeNull();
+        result!.Value.FileName.Should().Be("alarm");
+        result.Value.IsAudio.Should().BeTrue();
+        result.Value.IsScript.Should().BeFalse();
     }
 
     [Theory]

@@ -21,7 +21,8 @@ The device exposes 4 channels:
 ## Notes
 
 - The ports are LEGO Power Functions compatible.
-- The output changes
+- The output changes in steps (the acceleration step is 1/7).
+- SBrick Plus is supported as well, but only its output ports.
 - The battery voltage is shown on the device page.
 
 ## See also

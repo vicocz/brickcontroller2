@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement.PowerBox;
 using FluentAssertions;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.PowerBox;
@@ -80,10 +81,7 @@ public sealed class PowerBoxMBatteryDatagramTests : PowerBoxDatagramTestsBase
         PowerBoxMBattery device = new PowerBoxMBattery("PowerBoxMBattery", PowerBoxMBattery.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
         // Set the output values for the device
-        for (int i = 0; i < setValues.Length; i++)
-        {
-            device.SetOutput(i, setValues[i]);
-        }
+        device.SetOutputs(setValues.Select((value, index) => (channel: index, value)));
 
         // Get the command datagram payload
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
@@ -100,7 +98,7 @@ public sealed class PowerBoxMBatteryDatagramTests : PowerBoxDatagramTestsBase
     {
         PowerBoxMBattery device = new PowerBoxMBattery("PowerBoxMBattery", PowerBoxMBattery.Device, _deviceRepository.Object, _bluetoothLEService.Object, _powerBoxPlatformService, _manager.Object);
 
-        Action action = () => device.SetOutput(device.NumberOfChannels, 0);
+        Action action = () => device.SetOutputs(new[] { (device.NumberOfChannels, 0f) });
 
         action.Should().Throw<ArgumentOutOfRangeException>();
     }

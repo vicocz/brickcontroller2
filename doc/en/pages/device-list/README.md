@@ -28,7 +28,7 @@ Manual adding is available only when the phone supports Bluetooth LE advertising
 
 | Added by scanning | Added manually |
 |---|---|
-| SBrick, SBrick Light | BuWizz 2 |
+| SBrick, SBrick Light, BuWizz 2 | |
 | BuWizz, BuWizz 3 | Mould King MK3, MK3.8, MK4, MK5, MK6 |
 | LEGO Boost, Powered Up, Technic Hub, Technic Move, Duplo Train Hub, WeDo 2.0, remote control | JieStar SCM4, SCM8 |
 | Circuit Cubes | Power Box M Battery, A Series |

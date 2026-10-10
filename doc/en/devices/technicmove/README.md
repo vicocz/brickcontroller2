@@ -22,9 +22,7 @@ The device exposes 9 channels:
 
 ## PLAYVM mode
 
-When disabled, port C works as a normal motor.
-
-> **Note:** In PLAYVM mode there is also a virtual channel **AB** that drives ports A and B together (drive motors).
+The **Easy drive mode (PLAYVM)** setting is enabled by default. When enabled, port C acts as a steering servo and the virtual channel **AB** drives ports A and B together. When disabled, ports A, B and C work as normal motors and the virtual **AB** channel is unavailable.
 
 ## See also
 

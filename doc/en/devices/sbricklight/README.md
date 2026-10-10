@@ -24,7 +24,7 @@ The device has 8 ports (A - H), each with an RGB light. Each port can be control
 
 ## Settings
 
-The device page contains a color setting for each port (A - H). It is used in RGB mode as the color of the port.
+The device page contains a color setting for each port (A - H). It is used in RGB mode as the color of the port. Each port's color defaults to white.
 
 ## See also
 

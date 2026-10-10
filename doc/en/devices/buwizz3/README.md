@@ -2,6 +2,8 @@
 
 BuWizz 3 (BuWizz 3.0 Pro) is a Bluetooth LE battery brick with four Powered Up ports and two PowerFunctions ports.
 
+![BuWizz 3](../../../../BrickController2/BrickController2/UI/Images/buwizz3_image.png)
+
 ## Channels
 
 The device exposes 6 channels:

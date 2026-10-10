@@ -1,6 +1,6 @@
 # BuWizz 2
 
-up to four motors.
+BuWizz 2 is a Bluetooth LE battery brick that powers and controls up to four motors.
 
 ![BuWizz 2](../../../../BrickController2/BrickController2/UI/Images/buwizz_image.png)
 
@@ -20,12 +20,12 @@ The device exposes 4 channels:
 
 ## Output level
 
-The output level limits the motor power. Four levels are available: **Low**, **Normal** (default), **High** and **Ludicrous**. The default level can be changed from the device page. The level can also be changed while playing using the **Set output level** macro.
+The output level limits motor power. Four levels are available: **Low**, **Normal**, **High** and **Ludicrous**. The persisted default is **Normal** and can be changed using the **Default output level** setting. You can also change the level while playing using the **Set output level** macro.
 
 ## Notes
 
 - Higher output levels draw more current from the battery and shorten the running time.
-connected.
+- The device reports both battery and motor voltage while connected.
 - On some BuWizz 2 units the ports are swapped. The app detects these units and swaps the channels automatically.
 
 ## See also

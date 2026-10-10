@@ -71,7 +71,7 @@ namespace BrickController2.BusinessLogic
                     _sequences.Remove((deviceId, channel));
 
                     var device = _deviceManager.GetDeviceById(deviceId);
-                    device?.SetOutput(channel, 0);
+                    device?.SetOutputs(new[] { (channel, 0f) });
                 }
                 else
                 {
@@ -177,7 +177,7 @@ namespace BrickController2.BusinessLogic
 
             var device = _deviceManager.GetDeviceById(deviceId);
             value = invert ? -1 * value : value;
-            device?.SetOutput(channel, value);
+            device?.SetOutputs(new[] { (channel, value) });
 
             return true;
         }

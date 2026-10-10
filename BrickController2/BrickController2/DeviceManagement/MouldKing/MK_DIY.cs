@@ -33,7 +33,6 @@ internal class MK_DIY : BluetoothDevice
 
     private readonly int[] _lastOutputValues = new int[4];
     private readonly int[] _outputValues = new int[4];
-    private readonly object _outputLock = new object();
 
     private int _sendAttemptsLeft;
 
@@ -50,19 +49,19 @@ internal class MK_DIY : BluetoothDevice
 
     protected override bool AutoConnectOnFirstConnect => false;
 
-    public override void SetOutput(int channelNo, float value)
+    public override void SetOutputs(IEnumerable<(int, float)> outputs)
     {
-        CheckChannel(channelNo);
-        value = CutOutputValue(value);
-
-        var intValue = (int)(value * 0x80); // scale and cast
-
         lock (_outputLock)
         {
-            if (_outputValues[channelNo] != intValue)
+            foreach (var (channel, value) in outputs)
             {
-                _outputValues[channelNo] = intValue;
-                _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                CheckChannel(channel);
+                var intValue = (int)(CutOutputValue(value) * 0x80); // scale and cast
+                if (_outputValues[channel] != intValue)
+                {
+                    _outputValues[channel] = intValue;
+                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                }
             }
         }
     }

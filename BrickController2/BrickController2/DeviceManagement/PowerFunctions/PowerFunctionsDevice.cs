@@ -47,13 +47,16 @@ namespace BrickController2.DeviceManagement.PowerFunctions
             DeviceState = DeviceState.Disconnected;
         }
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
+            foreach (var (channel, value) in outputs)
+            {
+                CheckChannel(channel);
+                float setValue = CutOutputValue(value);
 
-            var intValue = (int)(7 * value);
-            _powerFunctionsManager.SetOutput(this, channel, intValue);
+                var intValue = (int)(7 * setValue);
+                _powerFunctionsManager.SetOutput(this, channel, intValue);
+            }
         }
     }
 }

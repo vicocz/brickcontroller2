@@ -63,8 +63,8 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             kind: MacroKind.OneShot),
     ];
 
-    private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
-    private readonly OutputValuesGroup<short> _lightOutputs = new(LIGHT_CHANNELS);
+    private readonly OutputValuesGroup<short> _motorOutputs;
+    private readonly OutputValuesGroup<short> _lightOutputs;
     private readonly ConcurrentDictionary<string, byte> _macroFileIds = [];
     private readonly SemaphoreSlim _fileDirSemaphore = new(1, 1);
 
@@ -76,6 +76,9 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     public PfxBrickDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
+        _motorOutputs = new(PF_CHANNELS, _outputLock);    // create with lock to ensure thread safety and data consistency when updating output values
+        _lightOutputs = new(LIGHT_CHANNELS, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+
         // apply values (if any) or default
         SetSettingValue(DefaultVolumeLevelName, settings, DefaultVolumeLevelValue);
     }
@@ -90,25 +93,32 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
 
     protected override bool AutoConnectOnFirstConnect => false;
 
-    public override void SetOutput(int channel, float value)
+    public override void SetOutputs(IEnumerable<(int, float)> outputs)
     {
-        CheckChannel(channel);
-        value = CutOutputValue(value);
+        lock (_outputLock)
+        {
+            foreach (var (channel, value) in outputs)
+            {
+                CheckChannel(channel);
+                float setValue = CutOutputValue(value);
 
-        if (channel >= PF_CHANNELS)
-        {
-            // Per light channel range: +- [0 .. 255]
-            var brightnessValue = (short)(value * 255);
-            int lightChannel = channel - PF_CHANNELS;
-            _lightOutputs.SetOutput(lightChannel, brightnessValue);
-        }
-        else
-        {
-            // Per motor channel range: +- percent
-            var percentValue = (short)(value * 100);
-            _motorOutputs.SetOutput(channel, percentValue);
+                if (channel >= PF_CHANNELS)
+                {
+                    // Per light channel range: +- [0 .. 255]
+                    var brightnessValue = (short)(setValue * 255);
+                    int lightChannel = channel - PF_CHANNELS;
+                    _lightOutputs.SetOutput(lightChannel, brightnessValue);
+                }
+                else
+                {
+                    // Per motor channel range: +- percent
+                    var percentValue = (short)(setValue * 100);
+                    _motorOutputs.SetOutput(channel, percentValue);
+                }
+            }
         }
     }
+
 
     public override Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
     {
@@ -246,6 +256,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             while (!token.IsCancellationRequested)
             {
                 bool changed = false;
+
                 // process motor outputs for a change
                 if (_motorOutputs.TryGetChanges(out var motorChanges))
                 {

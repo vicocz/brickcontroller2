@@ -347,11 +347,11 @@ namespace BrickController2.UI.ViewModels
         private async Task TestButtonAsync(float value, bool reset = false)
         {
             // simulate triggering of button
-            Device.SetOutput(Action.Channel, value);
+            Device.SetOutputs(new[] { (Action.Channel, value) });
             await Task.Delay(500, DisappearingToken);
             if (reset)
             {
-                Device.SetOutput(Action.Channel, InputDevices.BUTTON_RELEASED);
+                Device.SetOutputs(new[] { (Action.Channel, InputDevices.BUTTON_RELEASED) });
             }
         }
 

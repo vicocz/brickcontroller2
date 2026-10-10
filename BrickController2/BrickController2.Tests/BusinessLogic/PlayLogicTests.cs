@@ -6,7 +6,9 @@ using BrickController2.PlatformServices.InputDevice;
 using FluentAssertions;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading;
 using Xunit;
 
@@ -223,7 +225,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(ButtonEvent(1f));
 
-        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Never);
+        _deviceMock.Verify(d => d.SetOutputs(It.IsAny<IEnumerable<(int, float)>>()), Times.Never);
     }
 
     [Fact]
@@ -234,8 +236,8 @@ public class PlayLogicTests
         _playLogic.ProcessGameControllerEvent(ButtonEvent(1f));
         _playLogic.ProcessGameControllerEvent(ButtonEvent(0f));
 
-        _deviceMock.Verify(d => d.SetOutput(2, 1f), Times.Once);
-        _deviceMock.Verify(d => d.SetOutput(2, 0f), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(2, 1f) }))), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(2, 0f) }))), Times.Once);
     }
 
     [Fact]
@@ -245,7 +247,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(ButtonEvent(1f));
 
-        _deviceMock.Verify(d => d.SetOutput(0, -1f), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(0, -1f) }))), Times.Once);
     }
 
     [Fact]
@@ -255,7 +257,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(ButtonEvent(InputDevices.BUTTON_PRESSED_THRESHOLD));
 
-        _deviceMock.Verify(d => d.SetOutput(0, 0f), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(0, 0f) }))), Times.Once);
     }
 
     [Fact]
@@ -265,7 +267,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(new InputDeviceEventArgs(ControllerId, InputDeviceEventType.Button, "B", 1f));
 
-        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Never);
+        _deviceMock.Verify(d => d.SetOutputs(It.IsAny<IEnumerable<(int, float)>>()), Times.Never);
     }
 
     [Fact]
@@ -275,7 +277,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(new InputDeviceEventArgs(ControllerId, InputDeviceEventType.Axis, EventCode, 1f));
 
-        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Never);
+        _deviceMock.Verify(d => d.SetOutputs(It.IsAny<IEnumerable<(int, float)>>()), Times.Never);
     }
 
     [Fact]
@@ -285,7 +287,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(new InputDeviceEventArgs("other", InputDeviceEventType.Button, EventCode, 1f));
 
-        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Never);
+        _deviceMock.Verify(d => d.SetOutputs(It.IsAny<IEnumerable<(int, float)>>()), Times.Never);
     }
 
     [Fact]
@@ -295,7 +297,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(new InputDeviceEventArgs("any", InputDeviceEventType.Button, EventCode, 1f));
 
-        _deviceMock.Verify(d => d.SetOutput(1, 1f), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(1, 1f) }))), Times.Once);
     }
 
     [Fact]
@@ -308,8 +310,8 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(ButtonEvent(1f));
 
-        _deviceMock.Verify(d => d.SetOutput(3, 1f), Times.Once);
-        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(3, 1f) }))), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.IsAny<IEnumerable<(int, float)>>()), Times.Once);
     }
 
     [Fact]
@@ -319,7 +321,7 @@ public class PlayLogicTests
 
         _playLogic.ProcessGameControllerEvent(new InputDeviceEventArgs(ControllerId, InputDeviceEventType.Axis, EventCode, 0.5f));
 
-        _deviceMock.Verify(d => d.SetOutput(0, 0.5f), Times.Once);
+        _deviceMock.Verify(d => d.SetOutputs(It.Is<IEnumerable<(int, float)>>(o => o.SequenceEqual(new[] { ValueTuple.Create(0, 0.5f) }))), Times.Once);
     }
 
     [Fact]
@@ -334,7 +336,7 @@ public class PlayLogicTests
         _deviceMock.Verify(d => d.ExecuteMacroAsync(
             It.Is<MacroInvocation>(i => i.DescriptorId == "macro-1" && i.Channel == null && i.ChoiceValue.ValueEquals("sound1.mp3")),
             It.IsAny<CancellationToken>()), Times.Once);
-        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Never);
+        _deviceMock.Verify(d => d.SetOutputs(It.IsAny<IEnumerable<(int, float)>>()), Times.Never);
     }
 
     [Fact]

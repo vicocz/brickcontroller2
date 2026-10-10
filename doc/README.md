@@ -30,6 +30,6 @@ A topic missing in a language is therefore shown in English. A translation uses 
 - Plain Markdown only: headings, paragraphs, lists, bold/italic, links, tables.
 - The first line is a level-1 heading, used as the help page title.
 - Cross-links use relative paths, e.g. `[Controller profile](../controller-profile/README.md)`.
-- App images are referenced from `BrickController2/UI/Images` using relative paths (`../../../../BrickController2/BrickController2/UI/Images/<name>.png` from a device topic).
+- App images are referenced from `BrickController2/UI/Images` using relative paths (`../../../../BrickController2/BrickController2/UI/Images/<name>.png` from a device topic). Only `.png` files from that folder are inlined in the app. Images in other locations (e.g. next to the topic) are not embedded and do not show in the app help.
 
 New topics start from `_template/device/README.md` or `_template/page/README.md`. Authoring rules are in `.github/instructions/documentation.instructions.md`.

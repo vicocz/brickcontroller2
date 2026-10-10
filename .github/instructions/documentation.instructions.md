@@ -20,7 +20,7 @@ Help content in `doc/` is embedded in the app and also read on GitHub. Keep it s
 - Plain Markdown only: headings, paragraphs, lists, bold/italic, links, tables. No HTML.
 - First line is a single level-1 heading; it is the help page title.
 - Cross-links use relative paths, e.g. `[Controller action](../../pages/controller-action/README.md)`.
-- Images of the app are referenced from the `UI/Images` folder with relative paths, e.g. `../../../../BrickController2/BrickController2/UI/Images/<name>.png` from a device topic; always add alt text.
+- Images of the app are referenced from the `UI/Images` folder with relative paths, e.g. `../../../../BrickController2/BrickController2/UI/Images/<name>.png` from a device topic; always add alt text. Only `.png` files from that folder are shown in the app help; images in other locations are not embedded. Check that the file exists.
 - Use `-100 % to +100 %` style for ranges (space before `%`).
 - Refer to UI elements in **bold**. Use present tense and second person, short sentences.
 

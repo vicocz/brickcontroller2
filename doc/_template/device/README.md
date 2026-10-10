@@ -2,7 +2,7 @@
 
 <One or two sentences: what the device is, connection type (Bluetooth LE, etc.) and what it drives.>
 
-![<Device name>](../../../BrickController2/BrickController2/UI/Images/<devicetype>_image.png)
+![<Device name>](../../../../BrickController2/BrickController2/UI/Images/<devicetype>_image.png)
 
 ## Channels
 

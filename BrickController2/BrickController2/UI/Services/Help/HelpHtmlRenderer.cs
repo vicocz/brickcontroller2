@@ -71,6 +71,7 @@ internal static class HelpHtmlRenderer
 
     /// <summary>
     /// Converts a link to an app image (.../UI/Images/{name}.png) to a data URI of the embedded resource.
+    /// Only app images are supported, images in other locations are not embedded and stay unchanged.
     /// </summary>
     private static string? GetImageDataUri(string url)
     {

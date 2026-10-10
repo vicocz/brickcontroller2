@@ -2,6 +2,10 @@
 
 Cross platform mobile application for controlling your creations using a bluetooth gamepad.
 
+## Documentation
+
+See the [user guide](doc/README.md) for help on [devices](doc/README.md#devices) and [pages](doc/README.md#pages) of the app. The same help is available inside the app.
+
 ## Supported platforms
 
 - Android 5.0+

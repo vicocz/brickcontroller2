@@ -546,6 +546,9 @@
   <data name="ServoAngle" xml:space="preserve">
     <value>Servobereich</value>
   </data>
+  <data name="Help" xml:space="preserve">
+    <value>Hilfe</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Einstellungen</value>
   </data>
@@ -896,5 +899,11 @@
   </data>
   <data name="ShortMacro" xml:space="preserve">
     <value>M:</value>
+  </data>
+  <data name="HelpBack" xml:space="preserve">
+    <value>Vorherige Seite</value>
+  </data>
+  <data name="HelpForward" xml:space="preserve">
+    <value>Nächste Seite</value>
   </data>
 </root>

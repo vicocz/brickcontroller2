@@ -546,6 +546,9 @@
   <data name="ServoAngle" xml:space="preserve">
     <value>Szervó tart.</value>
   </data>
+  <data name="Help" xml:space="preserve">
+    <value>Súgó</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Beállítások</value>
   </data>
@@ -887,5 +890,11 @@
   </data>
   <data name="ShortMacro" xml:space="preserve">
     <value>M:</value>
+  </data>
+  <data name="HelpBack" xml:space="preserve">
+    <value>Előző oldal</value>
+  </data>
+  <data name="HelpForward" xml:space="preserve">
+    <value>Következő oldal</value>
   </data>
 </root>

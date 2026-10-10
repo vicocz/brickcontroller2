@@ -12,8 +12,8 @@
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ContentPage.ToolbarItems>
-        <controls:ToolbarIcon Icon="navigate_before" Text="{extensions:Translate Back}" Command="{Binding GoBackCommand}" />
-        <controls:ToolbarIcon Icon="navigate_next" Text="{extensions:Translate Forward}" Command="{Binding GoForwardCommand}" />
+        <controls:ToolbarIcon Icon="navigate_before" Text="{extensions:Translate HelpBack}" Command="{Binding GoBackCommand}" />
+        <controls:ToolbarIcon Icon="navigate_next" Text="{extensions:Translate HelpForward}" Command="{Binding GoForwardCommand}" />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

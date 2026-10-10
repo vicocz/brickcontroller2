@@ -14,6 +14,8 @@ doc/
 Localized variants (not yet used) are placed next to the default file as `README.<culture>.md`, e.g. `README.de.md`.
 The lookup falls back from `README.<culture>.md` to `README.<language>.md` to `README.md`.
 
+New topics start from `_template/device/README.md` or `_template/page/README.md`. Authoring rules are in `.github/instructions/documentation.instructions.md`.
+
 ## Conventions
 
 - Plain Markdown only: headings, paragraphs, lists, bold/italic, links, tables.

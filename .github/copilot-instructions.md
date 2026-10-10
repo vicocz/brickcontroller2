@@ -79,4 +79,4 @@ game controllers or on-screen controls.
 ## Documentation
 
 - Help pages are markdown in `doc/en/...`, embedded with logical name `doc/{lang}/{devices|pages}/{topic}/README.md`.
-- Follow `doc/_template` when adding a page; keep images next to the README and reference them relatively.
+- Follow `doc/_template` when adding a page; place help images in `BrickController2/BrickController2/UI/Images` and reference them relatively.

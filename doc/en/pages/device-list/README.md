@@ -45,7 +45,7 @@ Devices with a detailed help page are linked.
 - [LEGO Boost](../../devices/boost/README.md), [Powered Up](../../devices/poweredup/README.md), [Technic Hub](../../devices/technichub/README.md), [Technic Move](../../devices/technicmove/README.md), [Duplo Train Hub](../../devices/duplotrainhub/README.md), [WeDo 2.0](../../devices/wedo2/README.md)
 - [Circuit Cubes](../../devices/circuitcubes/README.md)
 - Mould King: MK3, MK3.8, MK4, MK5, MK6, MK DIY
-- [CaDA Race Car](../../devices/cadaracecar/README.md)
+- [CaDA Race Car](../../devices/cada_racecar/README.md)
 - JieStar SCM4, SCM8
 - Power Box M Battery, Power Box A Series
 - [Remote control](../../devices/remotecontrol/README.md)

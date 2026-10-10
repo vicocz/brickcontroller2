@@ -10,7 +10,7 @@ The device exposes 2 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 1 - 2 | Ports 1, 2 | -100 % to +100 % |
+| 1 - 2 | Ports A, B | -100 % to +100 % |
 
 ## Getting started
 

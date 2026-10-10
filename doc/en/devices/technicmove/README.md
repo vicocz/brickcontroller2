@@ -12,7 +12,7 @@ The device exposes 9 channels:
 |---|---|---|
 | 1 - 2 | Ports A, B | -100 % to +100 % |
 | 3 | Port C (motor or steering servo) | -100 % to +100 % |
-| 4 - 9 | Lights 1 - 6 | -100 % to +100 % |
+| 4 - 9 | Lights 1 - 6 | 0 % to 100 % |
 
 ## Getting started
 
@@ -22,9 +22,10 @@ The device exposes 9 channels:
 
 ## PLAYVM mode
 
-When disabled, port C works as a normal motor.
+When enabled, port C works as a steering servo. Virtual channel **AB** drives ports A and B together as drive motors. When disabled, port C works as a normal motor.
 
-> **Note:** In PLAYVM mode there is also a virtual channel **AB** that drives ports A and B together (drive motors).
+ ## Settings
+ - **PLAYVM mode**: Enables PLAYVM behavior. The default is enabled.
 
 ## See also
 

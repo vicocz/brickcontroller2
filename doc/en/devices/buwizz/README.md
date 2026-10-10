@@ -20,7 +20,7 @@ The device exposes 4 channels:
 
 ## Output level
 
-The output level limits motor power. The available levels are **Low**, **Normal** (default) and **High**. The persisted default is **Normal** and can be changed using **Output level** on the device page.
+The output level limits motor power. Three levels are available: **Low**, **Normal** (default), and **High**. Change the default with the **Default output level** setting.
 
 ## Notes
 

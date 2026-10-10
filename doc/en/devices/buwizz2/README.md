@@ -20,7 +20,7 @@ The device exposes 4 channels:
 
 ## Output level
 
-The output level limits motor power. Four levels are available: **Low**, **Normal**, **High** and **Ludicrous**. The persisted default is **Normal** and can be changed using the **Default output level** setting. You can also change the level while playing using the **Set output level** macro.
+The output level limits motor power. Four levels are available: **Low**, **Normal** (default), **High**, and **Ludicrous**. Change the default with the **Default output level** setting. While playing, you can change the current level with the **Set output level** macro.
 
 ## Notes
 

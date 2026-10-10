@@ -12,7 +12,7 @@ The device exposes 2 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 1 - 2 | Receiver outputs (A, B) | -100 % to +100 % |
+| 1 - 2 | Receiver outputs (Blue, Red) | -100 % to +100 % |
 
 ## Getting started
 

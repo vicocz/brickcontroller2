@@ -10,7 +10,7 @@ The device exposes 1 channel:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 1 | Train motor | -100 % to +100 % |
+| 1 | Train motor - A | -100 % to +100 % |
 
 ## Getting started
 

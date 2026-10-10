@@ -11,10 +11,10 @@ The device has 8 ports (A - H), each with an RGB light. Each port can be control
 - **RGB** - define the RGB color of the port in the settings; the channel then controls its brightness (8 channels, one per port).
 - **Micro channels** - control the red, green and blue components of the port separately (3 micro channels per port, 24 in total).
 
-| Mode | Channels | Purpose |
-|---|---|---|
-| RGB | 8 (one per port A - H) | Brightness of the color defined for the port. |
-| Micro channels | 24 (R, G, B of each port) | Brightness of each color component. |
+| Mode | Channels | Purpose | Output |
+|---|---|---|---|
+| RGB | 1-8 (one per port A - H) | Brightness of the color defined for the port. | 0 % to 100 % |
+| Micro channels | 24 (R, G, B of each port) | Brightness of each color component. | 0 % to 100 % |
 
 ## Getting started
 
@@ -24,7 +24,7 @@ The device has 8 ports (A - H), each with an RGB light. Each port can be control
 
 ## Settings
 
-The device page contains a color setting for each port (A - H). It is used in RGB mode as the color of the port. Each port's color defaults to white.
+Under **Channel colors** in device settings, choose the color for each port (A - H). RGB mode uses that color, and the default is white.
 
 ## See also
 

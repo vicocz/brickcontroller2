@@ -39,16 +39,16 @@ Manual adding is available only when the phone supports Bluetooth LE advertising
 
 Devices with a detailed help page are linked.
 
-- SBrick, SBrick Light
-- BuWizz, BuWizz 2, BuWizz 3
-- Power Functions Infrared
-- LEGO Boost, Powered Up, Technic Hub, Technic Move, Duplo Train Hub, WeDo 2.0
+- [SBrick](../../devices/sbrick/README.md), [SBrick Light](../../devices/sbricklight/README.md)
+- [BuWizz](../../devices/buwizz/README.md), [BuWizz 2](../../devices/buwizz2/README.md), [BuWizz 3](../../devices/buwizz3/README.md)
+- [Power Functions Infrared](../../devices/infrared/README.md)
+- [LEGO Boost](../../devices/boost/README.md), [Powered Up](../../devices/poweredup/README.md), [Technic Hub](../../devices/technichub/README.md), [Technic Move](../../devices/technicmove/README.md), [Duplo Train Hub](../../devices/duplotrainhub/README.md), [WeDo 2.0](../../devices/wedo2/README.md)
 - [Circuit Cubes](../../devices/circuitcubes/README.md)
 - Mould King: MK3, MK3.8, MK4, MK5, MK6, MK DIY
-- CaDA Race Car
+- [CaDA Race Car](../../devices/cada_racecar/README.md)
 - JieStar SCM4, SCM8
 - Power Box M Battery, Power Box A Series
-- Remote control
+- [Remote control](../../devices/remotecontrol/README.md)
 - [PFx Brick](../../devices/pfxbrick/README.md)
 
 ## See also

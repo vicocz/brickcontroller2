@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -11,9 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Help documents (see doc/README.md), logical name: doc/{devices|pages}/{topic}/README[.culture].md -->
-    <EmbeddedResource Include="..\..\doc\devices\**\*.md" LogicalName="doc/devices/%(RecursiveDir)%(Filename)%(Extension)" Link="Doc\devices\%(RecursiveDir)%(Filename)%(Extension)" />
-    <EmbeddedResource Include="..\..\doc\pages\**\*.md" LogicalName="doc/pages/%(RecursiveDir)%(Filename)%(Extension)" Link="Doc\pages\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Help documents (see doc/README.md), logical name: doc/{lang}/{devices|pages}/{topic}/README.md -->
+    <EmbeddedResource Include="..\..\doc\**\*.md" Exclude="..\..\doc\*.md;..\..\doc\*\README.md;..\..\doc\_template\**" WithCulture="false" LogicalName="doc/%(RecursiveDir)%(Filename)%(Extension)" Link="Doc\%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

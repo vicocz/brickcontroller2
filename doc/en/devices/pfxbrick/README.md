@@ -1,8 +1,8 @@
-# PFx Brick
+﻿# PFx Brick
 
 PFx Brick (FX Bricks) is a Bluetooth LE brick that drives Power Functions motors and lights, and plays sounds.
 
-![PFx Brick](../../../BrickController2/BrickController2/UI/Images/pfxbrick_image.png)
+![PFx Brick](../../../../BrickController2/BrickController2/UI/Images/pfxbrick_image.png)
 
 ## Channels
 

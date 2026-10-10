@@ -1,8 +1,8 @@
-# Circuit Cubes
+﻿# Circuit Cubes
 
 Circuit Cubes is a Bluetooth LE motor controller cube that drives up to three motors.
 
-![Circuit Cubes](../../../BrickController2/BrickController2/UI/Images/circuitcubes_image.png)
+![Circuit Cubes](../../../../BrickController2/BrickController2/UI/Images/circuitcubes_image.png)
 
 ## Channels
 

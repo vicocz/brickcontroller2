@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 namespace BrickController2.UI.Services.Help;
 
 /// <summary>
-/// Access to help markdown documents embedded as doc/{topic.Path}/README[.culture].md.
+/// Access to help markdown documents embedded as doc/{language}/{topic.Path}/README.md.
 /// </summary>
 internal static class HelpResources
 {
     private const string Prefix = "doc/";
+    private const string DefaultLanguage = "en";
 
     private static readonly Lazy<Dictionary<string, string>> Resources = new(LoadResourceNames);
 
@@ -20,9 +21,9 @@ internal static class HelpResources
 
     public static string? Find(HelpTopic topic, CultureInfo culture)
     {
-        foreach (var suffix in GetSuffixes(culture))
+        foreach (var folder in GetLanguageFolders(culture))
         {
-            var key = $"{Prefix}{topic.Path}/README{suffix}.md";
+            var key = $"{Prefix}{folder}/{topic.Path}/README.md";
             if (Resources.Value.TryGetValue(key, out var resourceName))
             {
                 return resourceName;
@@ -50,20 +51,23 @@ internal static class HelpResources
         return await reader.ReadToEndAsync();
     }
 
-    private static IEnumerable<string> GetSuffixes(CultureInfo culture)
+    private static IEnumerable<string> GetLanguageFolders(CultureInfo culture)
     {
         if (!string.IsNullOrEmpty(culture.Name))
         {
-            yield return "." + culture.Name;
+            yield return culture.Name;
         }
 
         var language = culture.TwoLetterISOLanguageName;
         if (!string.IsNullOrEmpty(language) && language != "iv" && !string.Equals(language, culture.Name, StringComparison.OrdinalIgnoreCase))
         {
-            yield return "." + language;
+            yield return language;
         }
 
-        yield return string.Empty;
+        if (!string.Equals(language, DefaultLanguage, StringComparison.OrdinalIgnoreCase))
+        {
+            yield return DefaultLanguage;
+        }
     }
 
     private static Dictionary<string, string> LoadResourceNames()

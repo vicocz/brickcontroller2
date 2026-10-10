@@ -12,6 +12,11 @@ namespace BrickController2.DeviceManagement
 {
     public abstract class Device : NotifyPropertyChangedSource
     {
+        /// <summary>
+        /// object to lock the output data
+        /// </summary>
+        protected readonly Lock _outputLock = new();
+
         private readonly IDeviceRepository _deviceRepository;
         private readonly Dictionary<string, NamedSetting> _settings = [];
         protected readonly AsyncLock _asyncLock = new AsyncLock();
@@ -109,7 +114,7 @@ namespace BrickController2.DeviceManagement
             CancellationToken token);
         public abstract Task DisconnectAsync();
 
-        public abstract void SetOutput(int channel, float value);
+        public abstract void SetOutputs(IEnumerable<(int, float)> outputs);
 
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }

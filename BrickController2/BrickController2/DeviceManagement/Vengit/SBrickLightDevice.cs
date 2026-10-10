@@ -28,8 +28,8 @@ internal class SBrickLightDevice : BluetoothDevice
 
     private static readonly RgbColor DEFAULT_CHANNEL_COLOR = new(r: 1.0f, g: 1.0f, b: 1.0f);
 
-    private readonly OutputValuesGroup<byte> _bankOutputs0 = new(LIGHT_BANK_0_SIZE);
-    private readonly OutputValuesGroup<byte> _bankOutputs1 = new(LIGHT_BANK_1_SIZE);
+    private readonly OutputValuesGroup<byte> _bankOutputs0;
+    private readonly OutputValuesGroup<byte> _bankOutputs1;
 
     private IGattCharacteristic? _firmwareRevisionCharacteristic;
     private IGattCharacteristic? _hardwareRevisionCharacteristic;
@@ -38,6 +38,9 @@ internal class SBrickLightDevice : BluetoothDevice
     public SBrickLightDevice(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
+        _bankOutputs0 = new(LIGHT_BANK_0_SIZE, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+        _bankOutputs1 = new(LIGHT_BANK_1_SIZE, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+
         // apply A-H channel color settings
         SetSettingValue(ChannelASettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
         SetSettingValue(ChannelBSettingName, settings, ColorSettingGroupName, DEFAULT_CHANNEL_COLOR);
@@ -55,30 +58,36 @@ internal class SBrickLightDevice : BluetoothDevice
     public override int NumberOfChannels => LIGHT_PORTS_COUNT;
     protected override bool AutoConnectOnFirstConnect => false;
 
-    public override void SetOutput(int channel, float value)
+    public override void SetOutputs(IEnumerable<(int, float)> outputs)
     {
-        // normalize value to 0..1 as it's light, not speed
-        value = CutOutputValue(Math.Abs(value));
-
-        var port = channel % LIGHT_PORTS_COUNT;
-        var baseChannel = LIGHT_SUBCHANNEL_COUNT * port;
-
-        if (channel < LIGHT_PORTS_COUNT)
+        lock (_outputLock)
         {
-            // get channel color and transform to HSV model to modify lightness
-            var defaultColor = GetDefaultChannelColor(channel);
-            var color = defaultColor.WithValueFactor(value);
+            foreach (var (channel, value) in outputs)
+            {
+                // normalize value to 0..1 as it's light, not speed
+                float setValue = CutOutputValue(Math.Abs(value));
 
-            // each channel controls 3 subchannels-RGB
-            SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_RED, color.R);
-            SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_GREEN, color.G);
-            SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_BLUE, color.B);
-        }
-        else
-        {
-            // write directly
-            var subchannel = channel / LIGHT_PORTS_COUNT - 1;
-            SetChannelOutput(baseChannel + subchannel, value);
+                var port = channel % LIGHT_PORTS_COUNT;
+                var baseChannel = LIGHT_SUBCHANNEL_COUNT * port;
+
+                if (channel < LIGHT_PORTS_COUNT)
+                {
+                    // get channel color and transform to HSV model to modify lightness
+                    var defaultColor = GetDefaultChannelColor(channel);
+                    var color = defaultColor.WithValueFactor(setValue);
+
+                    // each channel controls 3 subchannels-RGB
+                    SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_RED, color.R);
+                    SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_GREEN, color.G);
+                    SetChannelOutput(baseChannel + LIGHT_SUBCHANNEL_BLUE, color.B);
+                }
+                else
+                {
+                    // write directly
+                    var subchannel = channel / LIGHT_PORTS_COUNT - 1;
+                    SetChannelOutput(baseChannel + subchannel, setValue);
+                }
+            }
         }
     }
 

@@ -27,8 +27,8 @@ namespace BrickController2.DeviceManagement
         private const int PLAYVM_CHANNEL_STEER = 1;
         private const string EnablePlayVmSettingName = "PlayVmEnabled";
 
-        private readonly OutputValuesGroup<Half> _outputValues = new(9);
-        private readonly OutputValuesGroup<Half> _playVmValues = new(2);
+        private readonly OutputValuesGroup<Half> _outputValues;
+        private readonly OutputValuesGroup<Half> _playVmValues;
 
         private bool _applyPlayVmMode;
         private int _calibratedZeroAngle; // zero ABS angle for steering C channel in non PLAYVM mode
@@ -41,6 +41,9 @@ namespace BrickController2.DeviceManagement
             IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            _outputValues = new(9, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+            _playVmValues = new(2, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+
             // apply value (if any) or TRUE by default
             SetSettingValue(EnablePlayVmSettingName, settings, true);
         }
@@ -75,21 +78,27 @@ namespace BrickController2.DeviceManagement
             return base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            var rawValue = (Half)(100 * CutOutputValue(value));
-
-            _ = channel switch
+            lock (_outputLock)
             {
-                // store A+B virtual channel value for PLAYVM
-                CHANNEL_VM => _playVmValues.SetOutput(PLAYVM_CHANNEL_DRIVE, rawValue),
-                // store C channel value for PLAYVM
-                CHANNEL_C when _applyPlayVmMode => _playVmValues.SetOutput(PLAYVM_CHANNEL_STEER, rawValue),
-                // Light channels 1 - 6 require absolute value
-                >= CHANNEL_1 and <= CHANNEL_6 => _outputValues.SetOutput(channel, Half.Abs(rawValue)),
-                // rest of ports: such as A, B or C when not in PLAYVM mode - use value as is
-                _ => _outputValues.SetOutput(CheckChannel(channel), rawValue)
-            };
+                foreach (var (channel, value) in outputs)
+                {
+                    var rawValue = (Half)(100 * CutOutputValue(value));
+
+                    _ = channel switch
+                    {
+                        // store A+B virtual channel value for PLAYVM
+                        CHANNEL_VM => _playVmValues.SetOutput(PLAYVM_CHANNEL_DRIVE, rawValue),
+                        // store C channel value for PLAYVM
+                        CHANNEL_C when _applyPlayVmMode => _playVmValues.SetOutput(PLAYVM_CHANNEL_STEER, rawValue),
+                        // Light channels 1 - 6 require absolute value
+                        >= CHANNEL_1 and <= CHANNEL_6 => _outputValues.SetOutput(channel, Half.Abs(rawValue)),
+                        // rest of ports: such as A, B or C when not in PLAYVM mode - use value as is
+                        _ => _outputValues.SetOutput(CheckChannel(channel), rawValue)
+                    };
+                }
+            }
         }
 
         public override async Task ResetOutputAsync(int channel, float value, CancellationToken token)

@@ -1,35 +1,28 @@
 # BrickController 2 documentation
 
-Help content is shipped with the app (embedded) and also readable here. Each language has its own complete folder; English is the default and the fallback.
+BrickController 2 lets you control LEGO and compatible creations with a gamepad, using Bluetooth (and infrared on some Android devices). This documentation explains the app and the supported devices.
 
-## Languages
+## Basic principles
 
-- [English](en/README.md)
-- [Deutsch](de/README.md)
-- [Magyar](hu/README.md)
+- **Devices** are the receivers in your model (hubs, bricks, modules). Add them by scanning or, for some devices, manually. Each device exposes channels, e.g. motor or light outputs.
+- **Creations** represent your models. A creation groups everything needed to control one model.
+- **Controller profiles** belong to a creation. A creation can have several profiles, e.g. for different driving modes or gamepads.
+- **Controller actions** map a gamepad button or axis to a device channel, with settings such as direction, speed or button behavior.
+- **Sequences** are timed series of channel outputs that can be played by a controller action.
+- The **Input device tester** shows the events of your connected gamepads, so you can check that a controller works and find the event code of a button or axis. See [Input device tester](en/pages/input-device-tester/README.md).
 
-## Structure
+Typical flow: add devices, create a creation, add a controller profile, assign gamepad buttons and axes to device channels, then play the creation.
 
-```
-doc/
-  <lang>/README.md                       index of the language
-  <lang>/devices/<devicetype>/README.md  per device, folder = DeviceType name in lowercase
-  <lang>/pages/<page-key>/README.md      per page, key = view model name without "PageViewModel", kebab-case
-  _template/                             starting points for new topics (not embedded)
-```
+## Available documentation
 
-Only `README.md` files inside `devices/` and `pages/` folders are embedded into the app. Index files and templates are not.
+| Language | Index | Content |
+|---|---|---|
+| English | [en](en/README.md) | Device and page topics |
+| Deutsch | [de](de/README.md) | Not translated yet, English is shown |
+| Magyar | [hu](hu/README.md) | Not translated yet, English is shown |
 
-## Language lookup
+The same help is available inside the app via the **Help** button on pages and devices.
 
-The app looks for a topic in the folder of the UI culture (e.g. `de-AT`), then in the language folder (`de`), then in `en`.
-A topic missing in a language is therefore shown in English. A translation uses the same relative path as the English topic.
+## Contributing
 
-## Conventions
-
-- Plain Markdown only: headings, paragraphs, lists, bold/italic, links, tables.
-- The first line is a level-1 heading, used as the help page title.
-- Cross-links use relative paths, e.g. `[Controller profile](../controller-profile/README.md)`.
-- App images are referenced from `BrickController2/UI/Images` using relative paths (`../../../../BrickController2/BrickController2/UI/Images/<name>.png` from a device topic). Only `.png` files from that folder are inlined in the app. Images in other locations (e.g. next to the topic) are not embedded and do not show in the app help.
-
-New topics start from `_template/device/README.md` or `_template/page/README.md`. Authoring rules are in `.github/instructions/documentation.instructions.md`.
+See [Writing documentation](HOWTO.md) for structure, conventions and how to add or translate topics.

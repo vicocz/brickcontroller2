@@ -13,7 +13,7 @@ Help content in `doc/` is embedded in the app and also read on GitHub. Keep it s
 - Page topics: `doc/<lang>/pages/<page-key>/README.md`; key = view model name without `PageViewModel`, kebab-case.
 - Start new topics from `doc/_template/device/README.md` or `doc/_template/page/README.md` (templates are not embedded).
 - Write new topics in `en` first. A translation uses the same relative path under `doc/<lang>/`; lookup falls back per topic (culture, language, `en`).
-- Register every new topic in `doc/en/README.md` (and in the index of the translated language).
+- Register every new device topic in `doc/en/devices/README.md` and every new main page in `doc/en/README.md` (and in the indexes of the translated language).
 
 ## Format
 

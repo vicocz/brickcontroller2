@@ -6,6 +6,7 @@ using BrickController2.DeviceManagement;
 using BrickController2.Extensions;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using Device = BrickController2.DeviceManagement.Device;
@@ -65,11 +66,14 @@ namespace BrickController2.UI.ViewModels
                 .Select(item => new DeviceGroup(item.Key.DeviceType, $"{item.Key.VendorName} - {item.Key.DeviceTypeName}", [.. item])));
 
             ApplyChangesCommand = new SafeCommand(async () => await ApplyChangesAsync());
+            ShowDeviceHelpCommand = new SafeCommand<DeviceType>(deviceType => NavigationService.NavigateToAsync<HelpPageViewModel>(new NavigationParameters(("topic", HelpTopic.ForDevice(deviceType)))));
         }
 
         public List<DeviceGroup> GroupedFactoryDatas { get; } = new List<DeviceGroup>();
 
         public ICommand ApplyChangesCommand { get; }
+
+        public ICommand ShowDeviceHelpCommand { get; }
 
 
         private async Task ApplyChangesAsync()

@@ -16,6 +16,7 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
+            <converters:DeviceTypeToHasHelpConverter x:Key="DeviceTypeToHasHelp"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -35,11 +36,19 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding GroupName}" FontSize="Large" FontAttributes="Bold"/>
                                 </VerticalStackLayout>
+                                <controls:ColorImage Grid.Column="2" Icon="help_outline" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"
+                                       ToolTipProperties.Text="{extensions:Translate Help}"
+                                       IsVisible="{Binding DeviceType, Converter={StaticResource DeviceTypeToHasHelp}}">
+                                    <controls:ColorImage.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ShowDeviceHelpCommand, Source={RelativeSource AncestorType={x:Type viewModels:ManualDeviceListPageViewModel}}, x:DataType=viewModels:ManualDeviceListPageViewModel}" CommandParameter="{Binding DeviceType}"/>
+                                    </controls:ColorImage.GestureRecognizers>
+                                </controls:ColorImage>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>

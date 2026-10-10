@@ -1,6 +1,7 @@
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Navigation;
+using BrickController2.UI.Services.Theme;
 using BrickController2.UI.Services.Translation;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
@@ -14,6 +15,7 @@ namespace BrickController2.UI.ViewModels;
 public class HelpPageViewModel : PageViewModelBase
 {
     private readonly IHelpService _helpService;
+    private readonly IThemeService? _themeService;
     private readonly List<HelpTopic> _history = [];
 
     private int _index;
@@ -24,9 +26,11 @@ public class HelpPageViewModel : PageViewModelBase
         INavigationService navigationService,
         ITranslationService translationService,
         IHelpService helpService,
-        NavigationParameters parameters)
+        NavigationParameters parameters,
+        IThemeService? themeService = null)
         : base(navigationService, translationService)
     {
+        _themeService = themeService;
         _helpService = helpService;
         _history.Add(parameters.Get<HelpTopic>("topic"));
 
@@ -34,6 +38,13 @@ public class HelpPageViewModel : PageViewModelBase
         GoBackCommand = new SafeCommand(GoBackAsync, () => _index > 0);
         GoForwardCommand = new SafeCommand(GoForwardAsync, () => _index < _history.Count - 1);
     }
+
+    private bool IsDarkTheme() => _themeService?.CurrentTheme switch
+    {
+        ThemeType.Dark => true,
+        ThemeType.Light => false,
+        _ => Application.Current?.RequestedTheme == AppTheme.Dark
+    };
 
     /// <summary>
     /// Goes to the previous topic. Not available on the first topic (help is not left by this command).
@@ -143,7 +154,7 @@ public class HelpPageViewModel : PageViewModelBase
         }
 
         Title = HelpHtmlRenderer.GetTitle(markdown) ?? Translate("Help");
-        Source = new HtmlWebViewSource { Html = HelpHtmlRenderer.Render(markdown, topic, _helpService) };
+        Source = new HtmlWebViewSource { Html = HelpHtmlRenderer.Render(markdown, topic, _helpService, IsDarkTheme()) };
     }
 
     private static async Task OpenExternalAsync(string url)

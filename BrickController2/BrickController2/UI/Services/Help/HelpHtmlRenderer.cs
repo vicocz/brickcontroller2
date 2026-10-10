@@ -26,6 +26,9 @@ internal static class HelpHtmlRenderer
         img { max-width: 100%; height: auto; }
         """;
 
+    private const string LightStyle = ":root { color-scheme: light; } body { background: #ffffff; color: #000000; }";
+    private const string DarkStyle = ":root { color-scheme: dark; } body { background: #121212; color: #e0e0e0; }";
+
     private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
         .UsePipeTables()
         .UseAutoLinks()
@@ -34,7 +37,7 @@ internal static class HelpHtmlRenderer
     /// <summary>
     /// Renders markdown to a standalone HTML document. Links to other topics are rewritten to the help:// scheme.
     /// </summary>
-    public static string Render(string markdown, HelpTopic topic, IHelpService helpService)
+    public static string Render(string markdown, HelpTopic topic, IHelpService helpService, bool isDark = false)
     {
         var document = Markdown.Parse(markdown, Pipeline);
 
@@ -57,7 +60,7 @@ internal static class HelpHtmlRenderer
         }
 
         var body = document.ToHtml(Pipeline);
-        return $"<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>{Style}</style></head><body>{body}</body></html>";
+        return $"<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><style>{Style}{(isDark ? DarkStyle : LightStyle)}</style></head><body>{body}</body></html>";
     }
 
     /// <summary>

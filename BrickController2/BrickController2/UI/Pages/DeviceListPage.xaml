@@ -17,8 +17,13 @@
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
+            <converters:DeviceTypeToHasHelpConverter x:Key="DeviceTypeToHasHelp"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
+
+    <ContentPage.ToolbarItems>
+        <controls:HelpToolbarIcon Order="Primary" />
+    </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>
         <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
@@ -37,6 +42,10 @@
                                 </SwipeView.LeftItems>
                                 <SwipeView.RightItems>
                                     <SwipeItems Mode="Reveal">
+                                        <controls:SwipeIcon Text="{extensions:Translate Help}" Icon="help_outline" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
+                                                            IsVisible="{Binding DeviceType, Converter={StaticResource DeviceTypeToHasHelp}}"
+                                                            Command="{Binding ShowDeviceHelpCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"
+                                                            CommandParameter="{Binding .}"/>
                                         <controls:SwipeIcon Text="{extensions:Translate Settings}" Icon="settings" BackgroundColor="{DynamicResource SwipeItemBackgroundColor}"
                                                             IsVisible="{Binding HasSettings}"
                                                             Command="{Binding DeviceSettingsCommand, Source={RelativeSource AncestorType={x:Type viewModels:DeviceListPageViewModel}}, x:DataType=viewModels:DeviceListPageViewModel}"

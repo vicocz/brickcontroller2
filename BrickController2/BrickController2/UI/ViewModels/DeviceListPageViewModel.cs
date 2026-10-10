@@ -2,6 +2,7 @@
 using BrickController2.DeviceManagement;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Help;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Device = BrickController2.DeviceManagement.Device;
@@ -37,6 +38,7 @@ namespace BrickController2.UI.ViewModels
             DeleteDeviceCommand = new SafeCommand<Device>(async device => await DeleteDeviceAsync(device));
             DeviceSettingsCommand = new SafeCommand<Device>(OpenDeviceSettingsAsync);
             RenameDeviceCommand = new SafeCommand<Device>(RenameDeviceAsync);
+            ShowDeviceHelpCommand = new SafeCommand<Device>(device => NavigationService.NavigateToAsync<HelpPageViewModel>(new NavigationParameters(("topic", HelpTopic.ForDevice(device.DeviceType)))));
         }
 
         public IDeviceManager DeviceManager { get; }
@@ -47,6 +49,7 @@ namespace BrickController2.UI.ViewModels
         public ICommand DeleteDeviceCommand { get; }
         public ICommand DeviceSettingsCommand { get; }
         public ICommand RenameDeviceCommand { get; }
+        public ICommand ShowDeviceHelpCommand { get; }
 
         public bool IsBLEAdvertisingSupported { get; private set; }
 

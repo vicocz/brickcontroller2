@@ -12,6 +12,7 @@ using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.Helpers;
+using BrickController2.UI.Services.Help;
 using BrickController2.PlatformServices.InputDevice;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Dialog;
@@ -71,6 +72,8 @@ namespace BrickController2.UI.ViewModels
         }
 
         public Device Device { get; }
+
+        protected override HelpTopic? GetHelpTopic() => HelpTopic.ForDevice(Device.DeviceType);
         public bool IsBuWizzDevice => Device.DeviceType == DeviceType.BuWizz;
         public bool IsBuWizz2Device => Device.DeviceType == DeviceType.BuWizz2;
         public bool ShowScanButton => Device.CanBePowerSource && ShowChannelView;

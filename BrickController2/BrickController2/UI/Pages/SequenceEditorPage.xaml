@@ -26,6 +26,7 @@
         <controls:ToolbarIcon Icon="copy" Text="{extensions:Translate CopySequence}" Command="{Binding CopySequenceCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="file_upload" Text="{extensions:Translate ExportSequence}" Command="{Binding ExportSequenceCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="done_outline" Text="{extensions:Translate ApplyChanges}" Command="{Binding SaveSequenceCommand}" />
+        <controls:HelpToolbarIcon />
     </ContentPage.ToolbarItems>
     
     <local:PageBase.Content>

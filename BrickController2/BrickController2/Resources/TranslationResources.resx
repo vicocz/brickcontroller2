@@ -546,6 +546,15 @@
   <data name="ServoAngle" xml:space="preserve">
     <value>Servo range</value>
   </data>
+  <data name="HelpBack" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="HelpForward" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>

@@ -35,6 +35,7 @@
                         <Label Text="{extensions:Translate ExternalLibraries}" FontAttributes="Bold"/>
                         <Label Text="Autofac"/>
                         <Label Text="SQLiteNetExtensionsAsync"/>
+                        <Label Text="Markdig"/>
                         <Label Text="Microsoft.Maui"/>
                         <Label Text="Microsoft.Maui.Essentials"/>
                         <Label Text="ZXing.Net.MAUI"/>

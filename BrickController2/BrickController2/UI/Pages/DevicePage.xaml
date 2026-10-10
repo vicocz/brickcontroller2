@@ -31,6 +31,7 @@
         <controls:ToolbarIcon Icon="playlist_play" Text="{extensions:Translate ShowMacros}" Command="{Binding SwitchToMacroViewCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="mode_standby" Text="{extensions:Translate ActivateShelfMode}" Command="{Binding ActivateShelfModeCommand}" Order="Secondary" />
         <controls:ToolbarIcon Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding OpenDeviceSettingsPageCommand}" />
+        <controls:HelpToolbarIcon />
     </ContentPage.ToolbarItems>
 
     <local:PageBase.Content>

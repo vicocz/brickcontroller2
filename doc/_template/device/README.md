@@ -19,7 +19,7 @@ The device exposes <N> channels:
 3. Select the <device> from the scan results to add it.
 4. Use the device in a creation: assign its channels to controller actions.
 
-<!-- Optional sections, include only when the device supports them: -->
+Optional: include the following section only when the device supports it.
 
 ## <Special features>
 

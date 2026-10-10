@@ -11,7 +11,7 @@ public interface IHelpService
     bool HasHelp(HelpTopic topic);
 
     /// <summary>
-    /// Gets the markdown of a topic. Falls back from culture (README.cs-CZ.md) to language (README.cs.md) to default (README.md).
+    /// Gets the markdown of a topic. Falls back from the UI culture folder (for example, doc/de-AT) to its language folder (doc/de), then to the English folder (doc/en).
     /// </summary>
     Task<string?> GetHelpMarkdownAsync(HelpTopic topic, CultureInfo? culture = null);
 

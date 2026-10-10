@@ -644,7 +644,7 @@ namespace BrickController2.UI.ViewModels
                 set
                 {
                     _output = value;
-                    Device.SetOutput(Channel, (float)value / MaxValue);
+                    Device.SetOutputs(new[] { (Channel, (float)value / MaxValue) });
                     RaisePropertyChanged();
                 }
             }

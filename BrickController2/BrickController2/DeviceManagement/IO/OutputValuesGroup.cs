@@ -14,12 +14,18 @@ public class OutputValuesGroup<TValue> where TValue : struct, IEquatable<TValue>
     private readonly TValue[] _commitedOutputValues; // values applied
     private readonly TValue[] _values; // working copy of values, valid until commited
 
-    private readonly Lock _outputLock = new();
+    private readonly Lock _outputLock;
 
     private int _sendAttemptsLeft;
 
     public OutputValuesGroup(int channelCount)
+        : this(channelCount, new Lock())
     {
+    }
+
+    public OutputValuesGroup(int channelCount, Lock outputLock)
+    {
+        _outputLock = outputLock ?? new Lock();
         _outputValues = new TValue[channelCount];
         _commitedOutputValues = new TValue[channelCount];
         _values = new TValue[channelCount];

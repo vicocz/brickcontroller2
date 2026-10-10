@@ -26,7 +26,6 @@ namespace BrickController2.DeviceManagement
         private readonly int[] _outputValues;
         private readonly int[] _lastOutputValues;
         private readonly int[] _sendAttemptsLeft;
-        private readonly object _outputLock = new object();
 
         private readonly Stopwatch _lastSent_NormalMotor = new Stopwatch();
 
@@ -70,19 +69,20 @@ namespace BrickController2.DeviceManagement
             return await base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            var intValue = (int)(100 * value);
-
             lock (_outputLock)
             {
-                if (_outputValues[channel] != intValue)
+                foreach (var (channel, value) in outputs)
                 {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                    CheckChannel(channel);
+                    var intValue = (int)(100 * CutOutputValue(value));
+
+                    if (_outputValues[channel] != intValue)
+                    {
+                        _outputValues[channel] = intValue;
+                        _sendAttemptsLeft[channel] = MAX_SEND_ATTEMPTS;
+                    }
                 }
             }
         }

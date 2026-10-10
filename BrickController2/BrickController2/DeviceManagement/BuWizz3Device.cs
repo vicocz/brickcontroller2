@@ -41,7 +41,6 @@ namespace BrickController2.DeviceManagement
 
         private readonly sbyte[] _outputValues = new sbyte[6];
         private readonly sbyte[] _lastOutputValues = new sbyte[6];
-        private readonly object _outputLock = new object();
 
         private readonly ChannelOutputType[] _channelOutputTypes = new ChannelOutputType[NUMBER_OF_PU_PORTS];
         private readonly int[] _maxServoAngles = new int[NUMBER_OF_PU_PORTS];
@@ -132,19 +131,19 @@ namespace BrickController2.DeviceManagement
             return await base.ConnectAsync(reconnect, onDeviceDisconnected, channelConfigurations, startOutputProcessing, requestDeviceInformation, token);
         }
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            var sbyteValue = (sbyte)(value * 127);
-
             lock (_outputLock)
             {
-                if (_outputValues[channel] != sbyteValue)
+                foreach (var (channel, value) in outputs)
                 {
-                    _outputValues[channel] = sbyteValue;
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                    CheckChannel(channel);
+                    var sbyteValue = (sbyte)(CutOutputValue(value) * 127);
+                    if (_outputValues[channel] != sbyteValue)
+                    {
+                        _outputValues[channel] = sbyteValue;
+                        _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                    }
                 }
             }
         }

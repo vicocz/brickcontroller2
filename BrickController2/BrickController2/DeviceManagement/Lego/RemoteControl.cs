@@ -44,7 +44,7 @@ internal class RemoteControl : WirelessProtocolBasedDevice, IDeviceType<RemoteCo
 
     public bool IsEnabled => GetSettingValue(ENABLED_SETTING_NAME, DEFAULT_ENABLED);
 
-    public override void SetOutput(int channel, float value) => throw new InvalidOperationException();
+    public override void SetOutputs(IEnumerable<(int, float)> outputs) => throw new InvalidOperationException();
 
     public void ConnectInputController(IInputDeviceConnector inputController)
     {

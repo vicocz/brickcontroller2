@@ -10,6 +10,7 @@ using BrickController2.UI.ViewModels;
 using Microsoft.Maui.Controls.Xaml;
 using ZXing.Net.Maui;
 using System.Linq;
+using Microsoft.Maui.Devices;
 
 namespace BrickController2.UI.Pages;
 
@@ -32,13 +33,21 @@ public partial class ScannerPageBase
         InitializeComponent();
         AfterInitialize(vm);
         Loaded += async (_, _) => await InitializeCamerasAsync(vm.DisappearingToken);
+        Unloaded += (_, _) => ReleaseCamera();
+    }
+
+    private void ReleaseCamera()
+    {
+        _viewModel.IsTorchOn = false;
+        CameraView.IsDetecting = false;
+        // releases the native capture session (important on iOS)
+        CameraView.Handler?.DisconnectHandler();
     }
 
     private async Task InitializeCamerasAsync(CancellationToken token)
     {
         try
         {
-            // the view may need a moment
             for (var attempt = 0; attempt < 10 && !token.IsCancellationRequested; attempt++)
             {
                 _cameras.Clear();
@@ -55,14 +64,16 @@ public partial class ScannerPageBase
 
             SwitchCameraButton.IsVisible = _cameras.Count > 1;
 
-            var preferredLocation = _preferencesService.Get(CameraLocationKey, CameraLocation.Rear, PreferencesSection);
-            var selectedIndex = Math.Max(0, _cameras.FindIndex(c => c.Location == preferredLocation));
-
-            if (_cameras.Count > 0)
+            if (_cameras.Count > 1)
             {
-                // always align the view with the retrieved cameras, the default location might not be available
-                _cameraIndex = selectedIndex;
-                CameraView.SelectedCamera = _cameras[_cameraIndex];
+                var preferredLocation = _preferencesService.Get(CameraLocationKey, CameraLocation.Rear, PreferencesSection);
+                // Fallback to index 0 if preferred location isn't found
+                _cameraIndex = Math.Max(0, _cameras.FindIndex(c => c.Location == preferredLocation));
+                await ApplyCameraAsync(_cameras[_cameraIndex], token);
+            }
+            else
+            {
+                CameraView.IsDetecting = true;
             }
 
             UpdateTorchState();
@@ -70,34 +81,57 @@ public partial class ScannerPageBase
         catch (OperationCanceledException)
         {
         }
-        catch
+        catch (Exception ex)
         {
             _cameras.Clear();
             SwitchCameraButton.IsVisible = false;
+
+            System.Diagnostics.Debug.WriteLine(ex);
         }
     }
 
-    private void SwitchCameraClicked(object sender, EventArgs e)
+    private async void SwitchCameraClicked(object sender, EventArgs e)
     {
         if (_cameras.Count < 2)
         {
             return;
         }
 
-        _cameraIndex = (_cameraIndex + 1) % _cameras.Count;
-        _viewModel.IsTorchOn = false;
-        CameraView.SelectedCamera = _cameras[_cameraIndex];
-        UpdateTorchState();
-        _preferencesService.Set(CameraLocationKey, _cameras[_cameraIndex].Location, PreferencesSection);
+        try
+        {
+            _cameraIndex = (_cameraIndex + 1) % _cameras.Count;
+            _viewModel.IsTorchOn = false;
+            await ApplyCameraAsync(_cameras[_cameraIndex], _viewModel.DisappearingToken);
+            UpdateTorchState();
+            _preferencesService.Set(CameraLocationKey, _cameras[_cameraIndex].Location, PreferencesSection);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task ApplyCameraAsync(CameraInfo camera, CancellationToken token)
+    {
+        // stop, reconfigure, start - iOS cannot swap inputs reliably while running
+        CameraView.IsDetecting = false;
+        await Task.Delay(DeviceInfo.Platform == DevicePlatform.iOS ? 300 : 0, token);
+
+        CameraView.CameraLocation = camera.Location;
+        CameraView.SelectedCamera = camera;
+        CameraView.ZoomFactor = 0; // reset zoom, front camera may not support current value
+
+        token.ThrowIfCancellationRequested();
+        CameraView.IsDetecting = true;
     }
 
     private void UpdateTorchState()
     {
-        var hasCamera = _cameras.Count > 0;
-        var isRear = hasCamera && CameraView.SelectedCamera.Location == CameraLocation.Rear;
+        var isRear = _cameras.Count > 0 &&
+            CameraView?.SelectedCamera is not null &&
+            CameraView.SelectedCamera.Location == CameraLocation.Rear;
 
         // a single front camera has no torch at all, so hide the button
-        TorchButton.IsVisible = isRear || _cameras.Any(x => x.Location == CameraLocation.Rear);
+        TorchButton.IsVisible = isRear || _cameras.Exists(x => x.Location == CameraLocation.Rear);
         TorchButton.IsEnabled = isRear;
 
         if (!isRear)
@@ -118,9 +152,6 @@ public partial class ScannerPageBase
 
     private void BarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
-        if (BindingContext is ScannerPageViewModelBase viewModel)
-        {
-            viewModel.OnBarcodeDetected(e.Results);
-        }
+        _viewModel.OnBarcodeDetected(e.Results);
     }
 }

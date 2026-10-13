@@ -14,7 +14,7 @@ Each module exposes 4 channels:
 
 ## Getting started
 
-**The module is not discovered by scanning!**
+⚠️ **The module is not discovered by scanning!** ⚠️
 
 1. Open the device list and add the device manually.
 2. In the manual device list, switch on **MK 6.0 Device 1**.

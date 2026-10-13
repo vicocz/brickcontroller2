@@ -69,16 +69,12 @@ public partial class ScannerPageBase
 
             SwitchCameraButton.IsVisible = _cameras.Count > 1;
 
-            if (_cameras.Count > 1)
+            if (_cameras.Count > 0)
             {
                 var preferredLocation = _preferencesService.Get(CameraLocationKey, CameraLocation.Rear, PreferencesSection);
                 // Fallback to index 0 if preferred location isn't found
                 _cameraIndex = Math.Max(0, _cameras.FindIndex(c => c.Location == preferredLocation));
                 await ApplyCameraAsync(_cameras[_cameraIndex], token);
-            }
-            else if (_cameras.Count == 1)
-            {
-                CameraView.IsDetecting = true;
             }
 
             UpdateTorchState();

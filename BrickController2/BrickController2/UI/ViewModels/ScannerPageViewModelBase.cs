@@ -85,6 +85,7 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
     {
         // disable scanning
         IsCurrentValueValid = false;
+        CurrentValue = default!;
         // switch off the torch (page disappearing and application sleep)
         IsTorchOn = false;
 
@@ -96,7 +97,7 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
         var value = results.FirstOrDefault()?.Value;
 
         // same code as already shown, or previous one still being processed -> drop the frame
-        if (string.IsNullOrEmpty(value) || value == _currentValue ||
+        if (string.IsNullOrEmpty(value) || (value == _currentValue && IsCurrentValueValid) ||
             Interlocked.CompareExchange(ref _processing, 1, 0) != 0)
         {
             return;

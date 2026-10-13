@@ -71,7 +71,7 @@ public partial class ScannerPageBase
                 _cameraIndex = Math.Max(0, _cameras.FindIndex(c => c.Location == preferredLocation));
                 await ApplyCameraAsync(_cameras[_cameraIndex], token);
             }
-            else
+            else if (_cameras.Count == 1)
             {
                 CameraView.IsDetecting = true;
             }

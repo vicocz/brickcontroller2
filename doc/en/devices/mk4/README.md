@@ -17,7 +17,7 @@ Each module exposes 4 channels:
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
 1. Open the device list and add the device manually.
-2. In the manual device list, switch on **MK 6.0 Device 1**.
+2. In the manual device list, switch on **MK 4.0 Device 1**.
 Use **Device 2** and **Device 3** for additional modules.
 3. Power on the MK 4.0 module.
 **Device 1** is the default instance number after power on, the Led is cyclic blinking once.

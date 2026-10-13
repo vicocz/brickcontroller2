@@ -23,7 +23,7 @@ Devices with a help topic are linked. Other devices are supported by the app but
 
 - Mould King DIY Module
 - [Mould King 3.0 Powered Module](mk3/README.md)
-- Mould King 3.8 Powered Module
+- [Mould King 3.8 Powered Module](mk38/README.md)
 - [Mould King 4.0 Powered Module](mk4/README.md)
 - Mould King 5.0 Powered Module
 - [Mould King 6.0 Powered Module](mk6/README.md)

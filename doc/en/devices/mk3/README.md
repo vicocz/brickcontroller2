@@ -1,6 +1,6 @@
 # MK 3.0
 
-MK 3.0 is a Mould King Bluetooth LE module that provides connections for two LEGO cross axles.
+MK 3.0 is a Mould King Bluetooth Low Energy (BLE) module featuring two integrated motors with LEGO-compatible cross-axle outputs.
 
 ![MK 3.0](../../../../BrickController2/BrickController2/UI/Images/mk3_image.png)
 

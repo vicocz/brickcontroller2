@@ -1,6 +1,6 @@
 # MK 4.0
 
-MK 4.0 is a Mould King Bluetooth LE module that drives up to four motors. Up to three modules can be controlled at the same time.
+MK 4.0 is a Mould King Bluetooth Low Energy (BLE) module that drives up to four motors. Up to three modules can be controlled at the same time.
 
 ![MK 4.0](../../../../BrickController2/BrickController2/UI/Images/mk4_image.png)
 

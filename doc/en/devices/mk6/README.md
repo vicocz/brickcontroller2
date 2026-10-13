@@ -1,6 +1,6 @@
 # MK 6.0
 
-MK 6.0 is a Mould King Bluetooth LE module that drives up to six motors. Up to three modules can be controlled at the same time.
+MK 6.0 is a Mould King Bluetooth Low Energy (BLE) module that drives up to six motors. Up to three modules can be controlled at the same time.
 
 ![MK 6.0](../../../../BrickController2/BrickController2/UI/Images/mk6_image.png)
 

@@ -1,16 +1,15 @@
-﻿using BrickController2.UI.Services.Background;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Xaml;
+using Microsoft.Maui.Devices;
+using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Preferences;
 using BrickController2.UI.ViewModels;
-using Microsoft.Maui.Controls.Xaml;
 using ZXing.Net.Maui;
-using System.Linq;
-using Microsoft.Maui.Devices;
 
 namespace BrickController2.UI.Pages;
 
@@ -32,16 +31,22 @@ public partial class ScannerPageBase
         _preferencesService = preferencesService;
         InitializeComponent();
         AfterInitialize(vm);
-        Loaded += async (_, _) => await InitializeCamerasAsync(vm.DisappearingToken);
-        Unloaded += (_, _) => ReleaseCamera();
+
+        Loaded += OnPageLoaded;
+        Unloaded += OnPageUnloaded;
     }
 
-    private void ReleaseCamera()
+    private async void OnPageLoaded(object? sender, EventArgs e) =>
+        // The native handler is now ready, Android will find the cameras
+        await InitializeCamerasAsync(_viewModel.DisappearingToken);
+
+    private void OnPageUnloaded(object? sender, EventArgs e)
     {
         _viewModel.IsTorchOn = false;
         CameraView.IsDetecting = false;
-        // releases the native capture session (important on iOS)
-        CameraView.Handler?.DisconnectHandler();
+
+        Loaded -= OnPageLoaded;
+        Unloaded -= OnPageUnloaded;
     }
 
     private async Task InitializeCamerasAsync(CancellationToken token)
@@ -114,10 +119,16 @@ public partial class ScannerPageBase
     {
         // stop, reconfigure, start - iOS cannot swap inputs reliably while running
         CameraView.IsDetecting = false;
-        await Task.Delay(DeviceInfo.Platform == DevicePlatform.iOS ? 300 : 0, token);
 
-        CameraView.CameraLocation = camera.Location;
-        CameraView.SelectedCamera = camera;
+        if (DeviceInfo.Platform == DevicePlatform.iOS)
+        {
+            // iOS: location-based selection is the reliable path
+            CameraView.CameraLocation = camera.Location;
+        }
+        else
+        {
+            CameraView.SelectedCamera = camera;
+        }
         CameraView.ZoomFactor = 0; // reset zoom, front camera may not support current value
 
         token.ThrowIfCancellationRequested();

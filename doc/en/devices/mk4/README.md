@@ -10,7 +10,7 @@ Each module exposes 4 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 0 - 3 | Motors | -100 % to +100 % |
+| A - D | Motors | -100 % to +100 % |
 
 ## Getting started
 

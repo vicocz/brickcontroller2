@@ -10,7 +10,7 @@ Each module exposes 6 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 0 - 5 | Motors | -100 % to +100 % |
+| A - F | Motors | -100 % to +100 % |
 
 ## Getting started
 

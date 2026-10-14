@@ -20,8 +20,8 @@ Each module exposes 4 channels:
 2. In the manual device list, switch on **MK 4.0 Device 1**.
 Use **Device 2** and **Device 3** for additional modules.
 3. Power on the MK 4.0 module.
-**Device 1** is the default instance number after power on, the Led is cyclic blinking once.
-Change the instance number by short-pressing the button on the device. The Led is cyclic blinking twice for **Device 2** and three times for **Device 3**.
+**Device 1** is the default instance number after power on, the LED blinks once per cycle.
+Change the instance number by short-pressing the button on the device. The LED blinks twice per cycle for **Device 2** and three times per cycle for **Device 3**.
 4. Use the device in a creation: assign its channels to controller actions.
 
 ## Notes

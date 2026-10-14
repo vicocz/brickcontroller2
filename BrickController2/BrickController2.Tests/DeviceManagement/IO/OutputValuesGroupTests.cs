@@ -43,6 +43,23 @@ public class OutputValuesGroupTests
         lastValues.ToArray().Should().AllBeEquivalentTo(0);
     }
 
+
+    [Fact]
+    public void Initialize_SingleChangeToOne_ChangedChannelValueReturned()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<byte>(1);
+        // Act
+        group.Initialize();
+        group.SetOutput(0, 1);
+
+        var result = group.TryGetValues(out var values);
+
+        // Assert
+        result.Should().BeTrue();
+        values.ToArray().Should().BeEquivalentTo([1]);
+    }
+
     [Fact]
     public void Clear_AnyChange_ReturnsFalseAndAllDefaultValues()
     {
@@ -104,7 +121,6 @@ public class OutputValuesGroupTests
         result.Should().BeTrue();
         values.ToArray().Should().BeEquivalentTo([0, 3.14f]);
     }
-
 
     [Fact]
     public void TryGetChanges_SingleChange_OnlyChangedChannelValueReturned()

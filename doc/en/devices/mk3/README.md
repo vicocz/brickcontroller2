@@ -12,8 +12,8 @@ The MK 3.0 module exposes 4 channels:
 |---|---|---|
 | A  | Axle left | -100 % to +100 % |
 | B  | Axle right | -100 % to +100 % |
-| C  | internal Function 1 | OFF / ON |
-| D  | internal Function 2 | OFF / ON |
+| C  | Internal Function 1 | OFF / ON |
+| D  | Internal Function 2 | OFF / ON |
 
 ## Getting started
 

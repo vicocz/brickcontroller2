@@ -1,6 +1,6 @@
 # MK 4.0
 
-MK 4.0 is a Mould King Bluetooth LE module that drives up to four motors. Up to three modules can be controlled at the same time.
+MK 4.0 is a Mould King Bluetooth Low Energy (BLE) module that drives up to four motors. Up to three modules can be controlled at the same time.
 
 ![MK 4.0](../../../../BrickController2/BrickController2/UI/Images/mk4_image.png)
 
@@ -10,13 +10,18 @@ Each module exposes 4 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| 0 - 3 | Motors | -100 % to +100 % |
+| A - D | Motors | -100 % to +100 % |
 
 ## Getting started
 
-1. Power on the MK 4.0 module.
-2. Open the device list and add the device manually. The module is not discovered by scanning.
-3. In the manual device list, switch on **MK 4.0 Device 1**. Use **Device 2** and **Device 3** for additional modules.
+⚠️ **The module is not discovered by scanning!** ⚠️
+
+1. Open the device list and add the device manually.
+2. In the manual device list, switch on **MK 4.0 Device 1**.
+Use **Device 2** and **Device 3** for additional modules.
+3. Power on the MK 4.0 module.
+**Device 1** is the default instance number after power on, the LED blinks once per cycle.
+Change the instance number by short-pressing the button on the device. The LED blinks twice per cycle for **Device 2** and three times per cycle for **Device 3**.
 4. Use the device in a creation: assign its channels to controller actions.
 
 ## Notes

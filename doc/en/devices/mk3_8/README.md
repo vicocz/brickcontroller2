@@ -1,6 +1,6 @@
 # MK 3.8
 
-MK 3.8 is a Mould King Bluetooth Low Energy (BLE) module featuring three integrated motors with LEGO-compatible cross-axle outputs and provides two electrical mini-plug connectors.
+MK 3.8 is a Mould King Bluetooth Low Energy (BLE) module featuring three integrated motors with LEGO-compatible cross-axle outputs and providing two electrical mini-plug connectors.
 
 ![MK 3.8](../../../../BrickController2/BrickController2/UI/Images/mk3_8_image.png)
 

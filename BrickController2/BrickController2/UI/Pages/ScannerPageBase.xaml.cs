@@ -114,6 +114,7 @@ public partial class ScannerPageBase
         CameraView.IsDetecting = false;
         SetCurrentCamera(camera);
         CameraView.ZoomFactor = 0; // reset zoom, front camera may not support current value
+        ZoomSlider.Value = 0;
 
         token.ThrowIfCancellationRequested();
         CameraView.IsDetecting = true;

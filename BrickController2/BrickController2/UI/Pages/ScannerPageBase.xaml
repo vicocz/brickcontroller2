@@ -39,7 +39,7 @@
                         </DataTrigger>
                     </controls:FloatingActionButton.Triggers>
                 </controls:FloatingActionButton>
-                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1" Value="0" VerticalOptions="End" Margin="10,10" ValueChanged="ZoomChanged" ZIndex="3"
+                <Slider x:Name="ZoomSlider" Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1" Value="0" VerticalOptions="End" Margin="10,10" ValueChanged="ZoomChanged" ZIndex="3"
                         SemanticProperties.Description="{extensions:Translate Zoom}" ToolTipProperties.Text="{extensions:Translate Zoom}" />
 
                 <!-- Detected QR preview -->

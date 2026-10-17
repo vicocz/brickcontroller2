@@ -103,10 +103,18 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
             return;
         }
 
+        var token = DisappearingToken;
+
         MainThread.BeginInvokeOnMainThread(() =>
         {
             try
             {
+                // page disappeared meanwhile - do not restore stale state
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
                 CurrentValue = value;
                 try
                 {

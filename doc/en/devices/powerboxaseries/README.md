@@ -2,6 +2,14 @@
 
 **PowerBox - A Series** is a Bluetooth Low Energy (BLE) module that drives up to four motors.
 
+---
+⚠️ These devices are incompatible within the same creation because they use identical BLE advertising packets. ⚠️
+
+* [PowerBox - A Series](../powerboxaseries/README.md)
+* [PowerBox - M Battery](../powerboxmbattery/README.md)
+* [JIESTAR - SCM 4 Device 1](../jiestarscm4/README.md)
+---
+
 ![PowerBox - A Series](../../../../BrickController2/BrickController2/UI/Images/powerboxaseries_image.png)
 
 ## Channels

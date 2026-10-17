@@ -1,28 +1,28 @@
-# MK 3.8
+# Mould King - MK 3.8
 
-MK 3.8 is a Mould King Bluetooth Low Energy (BLE) module featuring three integrated motors with LEGO-compatible cross-axle outputs and providing two electrical mini-plug connectors.
+**Mould King - MK 3.8** is a Bluetooth Low Energy (BLE) module featuring three integrated motors with LEGO-compatible cross-axle outputs and providing two electrical mini-plug connectors.
 
-![MK 3.8](../../../../BrickController2/BrickController2/UI/Images/mk3_8_image.png)
+![Mould King - MK 3.8](../../../../BrickController2/BrickController2/UI/Images/mk3_8_image.png)
 
 ## Channels
 
-The MK 3.8 module exposes 5 channels:
+The **Mould King - MK 3.8** module exposes 5 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| A  | Axle left | -100 % to +100 % |
-| B  | Plug 1 | -100 % to +100 % |
-| C  | Axle right | -100 % to +100 % |
-| D  | Plug 2 | -100 % to +100 % |
-| E  | Axle top | left / off / right |
+| 1  | Axle left | -100 % to +100 % |
+| 2  | Plug 1 | -100 % to +100 % |
+| 3  | Axle right | -100 % to +100 % |
+| 4  | Plug 2 | -100 % to +100 % |
+| 5  | Axle top | left / off / right |
 
 ## Getting started
 
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
-1. Open the device list and add the device manually.
-2. In the manual device list, switch on **MK 3.8 Device**.
-3. Power on the MK 3.8 module.
+1. Open the device list to add the device manually.
+2. In the manual device list, switch on **Mould King - MK 3.8 Device**.
+3. Power on the **Mould King - MK 3.8** module.
 4. Use the device in a creation: assign its channels to controller actions.
 
 ## Notes

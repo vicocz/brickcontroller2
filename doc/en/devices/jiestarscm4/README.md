@@ -2,6 +2,14 @@
 
 **JIESTAR - SCM 4** is a Bluetooth Low Energy (BLE) module that drives up to four motors. Up to three modules can be controlled at the same time.
 
+---
+⚠️ These devices are incompatible within the same creation because they use identical BLE advertising packets. ⚠️
+
+* [PowerBox - A Series](../powerboxaseries/README.md)
+* [PowerBox - M Battery](../powerboxmbattery/README.md)
+* [JIESTAR - SCM 4 Device 1](../jiestarscm4/README.md)
+---
+
 ![JIESTAR - SCM 4](../../../../BrickController2/BrickController2/UI/Images/jiestarscm4_image.png)
 
 ## Channels

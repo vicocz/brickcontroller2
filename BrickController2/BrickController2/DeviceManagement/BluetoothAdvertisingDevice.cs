@@ -12,6 +12,11 @@ namespace BrickController2.DeviceManagement
     internal abstract class BluetoothAdvertisingDevice : Device, IBluetoothDevice
     {
         /// <summary>
+        /// Placeholder for the app id in the telegrams
+        /// </summary>
+        protected const byte APPID = 0x00;
+
+        /// <summary>
         /// BluetoothAdvertisingDeviceHandler
         /// </summary>
         protected readonly BluetoothAdvertisingDeviceHandler _bluetoothAdvertisingDeviceHandler;

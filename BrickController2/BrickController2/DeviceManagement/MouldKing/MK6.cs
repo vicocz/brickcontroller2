@@ -16,22 +16,22 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     /// <summary>
     /// Telegram connect to MK6.0 (switch MK6.0 to Bluetooth mode)
     /// </summary>
-    private static readonly byte[] Telegram_Connect = new byte[] { 0x6D, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x92, };
+    private static readonly byte[] Telegram_Connect = [0x6d, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x92];
 
     /// <summary>
     /// Base Telegram for Device 1
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_1 = new byte[] { 0x61, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9E };
+    private static readonly byte[] Telegram_Base_Device_1 = [0x61, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9e];
 
     /// <summary>
     /// Base Telegram for Device 2
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_2 = new byte[] { 0x62, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9D };
+    private static readonly byte[] Telegram_Base_Device_2 = [0x62, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9d];
 
     /// <summary>
     /// Base Telegram for Device 3
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_3 = new byte[] { 0x63, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9C };
+    private static readonly byte[] Telegram_Base_Device_3 = [0x63, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9c];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent

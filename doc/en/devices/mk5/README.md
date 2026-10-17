@@ -1,30 +1,30 @@
-# MK 5.0
+# Mould King - MK 5.0
 
-MK 5.0 is a Mould King Bluetooth Low Energy (BLE) module featuring three integrated motors with LEGO-compatible cross-axle outputs.
+**Mould King - MK 5.0** is a Bluetooth Low Energy (BLE) module featuring three integrated motors with LEGO-compatible cross-axle outputs.
 
-![MK 5.0](../../../../BrickController2/BrickController2/UI/Images/mk5_image.png)
+![Mould King - MK 5.0](../../../../BrickController2/BrickController2/UI/Images/mk5_image.png)
 
 ## Channels
 
-Each module exposes 5 channels:
+The **Mould King - MK 5.0** module exposes 5 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| A | Motors A+B | -100 % to +100 % |
-| B | Motor T | -100 % to +100 % |
-| C | Effect Shot | OFF / ON |
-| D | Motors A⇄B+T | -100 % to +100 % |
-| E Ⓥ | Lock Motor T: A⇄B | OFF / ON |
+| 1 | Motors A+B | -100 % to +100 % |
+| 2 | Motor T | -100 % to +100 % |
+| 3 | Effect Shot | OFF / ON |
+| 4 | Motors A⇄B+T | -100 % to +100 % |
+| 5 Ⓥ | Lock Motor T: A⇄B | OFF / ON |
 
-Channel E is a Ⓥirtual channel. When enabled, it modifies the behavior of Channel D so that Motors A and B rotate in opposite directions while Motor T remains unchanged.
+Channel 5 is a Ⓥirtual channel. When enabled, it modifies the behavior of Channel 4 so that Motors A and B rotate in opposite directions while Motor T remains unchanged.
 
 ## Getting started
 
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
-1. Open the device list and add the device manually.
-2. In the manual device list, switch on **MK 5.0 Device**.
-3. Power on the MK 5.0 module.
+1. Open the device list to add the device manually.
+2. In the manual device list, switch on **Mould King - MK 5.0 Device**.
+3. Power on the **Mould King - MK 5.0** module.
 4. Use the device in a creation: assign its channels to controller actions.
 
 ## Notes

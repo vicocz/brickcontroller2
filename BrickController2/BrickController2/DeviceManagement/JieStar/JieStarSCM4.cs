@@ -17,22 +17,22 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
     /// Telegram to connect to the SCM4 devices
     /// This telegram is sent on init and on reconnect conditions matching
     /// </summary>
-    private static readonly byte[] Telegram_Connect_Device = [0xa4, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0x5b];
+    private static readonly byte[] Telegram_Connect_Device = [0xa4, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x5b];
 
     /// <summary>
     /// Base Telegram for SCM4 device 1
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_1 = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+    private static readonly byte[] Telegram_Base_Device_1 = [0x40, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0xbf];
 
     /// <summary>
     /// Base Telegram for SCM4 device 2
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_2 = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+    private static readonly byte[] Telegram_Base_Device_2 = [0x40, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0xbf];
 
     /// <summary>
     /// Base Telegram for SCM4 device 3
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_3 = [0x40, 0x1d, 0x74, 0x80, 0x80, 0x80, 0x80, 0xbf];
+    private static readonly byte[] Telegram_Base_Device_3 = [0x40, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0xbf];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -46,7 +46,7 @@ internal class JieStarSCM4 : JieStarBase, IDeviceType<JieStarSCM4>
 
     public static DeviceType Type => DeviceType.JieStarSCM4;
 
-    public static string TypeName => "JIESTAR SCM 4";
+    public static string TypeName => "SCM 4";
 
     public override DeviceType DeviceType => Type;
 

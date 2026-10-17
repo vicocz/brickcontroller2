@@ -14,14 +14,14 @@ internal class MK3_8 : MKBaseNibble, IDeviceType<MK3_8>
     /// <summary>
     /// Telegram to connect to MK3.8
     /// </summary>
-    private static readonly byte[] Telegram_Connect = [ 0xB1, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x4F, 0xC1 ];
+    private static readonly byte[] Telegram_Connect = [0xb1, APPID, APPID, 0x80, 0x80, 0x80, 0x4f, 0xc1];
 
     /// <summary>
     /// Base Telegram for MK3.8
     /// * channels 0..3 start at offset 3 and are analog channels
     /// * channel 4 starts at offset 2 is left/right channel
     /// </summary>
-    private static readonly byte[] Telegram_Base = [ 0x81, 0x7B, 0x00, 0x99, 0x99, 0x99, 0x99, 0x99, 0x99, 0xC2 ];
+    private static readonly byte[] Telegram_Base = [0x81, APPID, 0x00, 0x99, 0x99, 0x99, 0x99, 0x99, 0x99, 0xc2];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -37,7 +37,6 @@ internal class MK3_8 : MKBaseNibble, IDeviceType<MK3_8>
       : base(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 0, Telegram_Connect, Telegram_Base)
     {
         // This is an exception - the second byte of the AppIdentifier is used as setvalue for channel 5
-        _telegram_Connect[2] = 0x00;
         _telegram_Base[2] = 0x00;
     }
 

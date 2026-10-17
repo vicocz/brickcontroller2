@@ -1,27 +1,27 @@
-# MK 3.0
+# Mould King - MK 3.0
 
-MK 3.0 is a Mould King Bluetooth Low Energy (BLE) module featuring two integrated motors with LEGO-compatible cross-axle outputs.
+**Mould King - MK 3.0** is a Bluetooth Low Energy (BLE) module featuring two integrated motors with LEGO-compatible cross-axle outputs.
 
-![MK 3.0](../../../../BrickController2/BrickController2/UI/Images/mk3_image.png)
+![Mould King - MK 3.0](../../../../BrickController2/BrickController2/UI/Images/mk3_image.png)
 
 ## Channels
 
-The MK 3.0 module exposes 4 channels:
+The **Mould King - MK 3.0** module exposes 4 channels:
 
 | Channels | Purpose | Output |
 |---|---|---|
-| A  | Axle left | -100 % to +100 % |
-| B  | Axle right | -100 % to +100 % |
-| C  | Internal Function 1 | OFF / ON |
-| D  | Internal Function 2 | OFF / ON |
+| 1  | Axle left | -100 % to +100 % |
+| 2  | Axle right | -100 % to +100 % |
+| 3  | Internal Function 1 | OFF / ON |
+| 4  | Internal Function 2 | OFF / ON |
 
 ## Getting started
 
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
-1. Open the device list and add the device manually.
-2. In the manual device list, switch on **MK 3.0 Device**.
-3. Power on the MK 3.0 module.
+1. Open the device list to add the device manually.
+2. In the manual device list, switch on **Mould King - MK 3.0 Device**.
+3. Power on the **Mould King - MK 3.0** module.
 4. Use the device in a creation: assign its channels to controller actions.
 
 ## Notes

@@ -45,5 +45,6 @@
     <uap:Capability Name="removableStorage"/>
     <DeviceCapability Name="location"/>
     <DeviceCapability Name="bluetooth"/>
+    <DeviceCapability Name="webcam"/>
   </Capabilities>
 </Package>

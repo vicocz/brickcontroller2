@@ -7,6 +7,7 @@ using Microsoft.Maui.ApplicationModel;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Input;
 using ZXing.Net.Maui;
 
@@ -18,6 +19,7 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
     private string? _currentValue;
     private bool _currentValueValidity;
     private bool _isTorchOn;
+    private int _processing;
 
     public ScannerPageViewModelBase(
         INavigationService navigationService,
@@ -83,6 +85,7 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
     {
         // disable scanning
         IsCurrentValueValid = false;
+        CurrentValue = default!;
         // switch off the torch (page disappearing and application sleep)
         IsTorchOn = false;
 
@@ -91,20 +94,44 @@ public abstract class ScannerPageViewModelBase : PageViewModelBase
 
     internal void OnBarcodeDetected(BarcodeResult[] results)
     {
-        // update preview
-        CurrentValue = results.First().Value;
-        // update validity
-        try
+        var value = results.FirstOrDefault()?.Value;
+
+        // same code as already shown, or previous one still being processed -> drop the frame
+        if (string.IsNullOrEmpty(value) || (value == _currentValue && IsCurrentValueValid) ||
+            Interlocked.CompareExchange(ref _processing, 1, 0) != 0)
         {
-            ValidateQrCode(CurrentValue);
-            IsCurrentValueValid = true;
+            return;
         }
-        catch
+
+        var token = DisappearingToken;
+
+        MainThread.BeginInvokeOnMainThread(() =>
         {
-            IsCurrentValueValid = false;
-        }
-        // update button availability
-        MainThread.BeginInvokeOnMainThread(() => ImportCommand.RaiseCanExecuteChanged());
+            try
+            {
+                // page disappeared meanwhile - do not restore stale state
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                CurrentValue = value;
+                try
+                {
+                    ValidateQrCode(value);
+                    IsCurrentValueValid = true;
+                }
+                catch
+                {
+                    IsCurrentValueValid = false;
+                }
+                ImportCommand.RaiseCanExecuteChanged();
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _processing, 0);
+            }
+        });
     }
 
     protected abstract IShareable ValidateQrCode(string qr);

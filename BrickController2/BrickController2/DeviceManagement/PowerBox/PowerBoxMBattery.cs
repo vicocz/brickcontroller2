@@ -34,7 +34,7 @@ internal class PowerBoxMBattery : PowerBoxBaseByte, IDeviceType<PowerBoxMBattery
 
     public static DeviceType Type => DeviceType.PowerBoxMBattery;
 
-    public static string TypeName => "PowerBox M Battery";
+    public static string TypeName => "M Battery";
 
     public override DeviceType DeviceType => Type;
 

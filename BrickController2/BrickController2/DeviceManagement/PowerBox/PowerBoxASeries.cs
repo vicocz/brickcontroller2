@@ -34,7 +34,7 @@ internal class PowerBoxASeries : PowerBoxBaseNibble, IDeviceType<PowerBoxASeries
 
     public static DeviceType Type => DeviceType.PowerBoxASeries;
 
-    public static string TypeName => "PowerBox A Series";
+    public static string TypeName => "A Series";
 
     public override DeviceType DeviceType => Type;
 

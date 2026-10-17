@@ -20,10 +20,10 @@ internal class PowerBox : Vendor<PowerBox>
 
         // manually added devices
         builder.RegisterDevice<PowerBoxMBattery>()
-            .WithDeviceFactory(PowerBoxMBattery.Device, $"{PowerBoxMBattery.TypeName} Device")
+            .WithDeviceFactory(PowerBoxMBattery.Device, $"{PowerBoxMBattery.TypeName}")
             .WithImage("powerboxmbattery_image.png");
 
         builder.RegisterDevice<PowerBoxASeries>()
-            .WithDeviceFactory(PowerBoxASeries.Device, $"{PowerBoxASeries.TypeName} Device");
+            .WithDeviceFactory(PowerBoxASeries.Device, $"{PowerBoxASeries.TypeName}");
     }
 }

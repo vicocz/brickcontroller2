@@ -46,7 +46,7 @@ internal class JieStarSCM8 : JieStarBase, IDeviceType<JieStarSCM8>
 
     public static DeviceType Type => DeviceType.JieStarSCM8;
 
-    public static string TypeName => "JIESTAR SCM 8";
+    public static string TypeName => "SCM 8";
 
     public override DeviceType DeviceType => Type;
 

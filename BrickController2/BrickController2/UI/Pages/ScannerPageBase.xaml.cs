@@ -44,9 +44,6 @@ public partial class ScannerPageBase
     {
         _viewModel.IsTorchOn = false;
         CameraView.IsDetecting = false;
-
-        Loaded -= OnPageLoaded;
-        Unloaded -= OnPageUnloaded;
     }
 
     private async Task InitializeCamerasAsync(CancellationToken token)
@@ -115,7 +112,15 @@ public partial class ScannerPageBase
     {
         // stop, reconfigure, start - iOS cannot swap inputs reliably while running
         CameraView.IsDetecting = false;
+        SetCurrentCamera(camera);
+        CameraView.ZoomFactor = 0; // reset zoom, front camera may not support current value
 
+        token.ThrowIfCancellationRequested();
+        CameraView.IsDetecting = true;
+    }
+
+    private void SetCurrentCamera(CameraInfo camera)
+    {
         if (DeviceInfo.Platform == DevicePlatform.iOS)
         {
             // iOS: location-based selection is the reliable path
@@ -125,17 +130,26 @@ public partial class ScannerPageBase
         {
             CameraView.SelectedCamera = camera;
         }
-        CameraView.ZoomFactor = 0; // reset zoom, front camera may not support current value
+    }
 
-        token.ThrowIfCancellationRequested();
-        CameraView.IsDetecting = true;
+    private bool IsRearCameraActive()
+    {
+        if (_cameras.Count == 0 || CameraView is null)
+        {
+            return false;
+        }
+
+        // iOS: camera is selected by location (see SetCurrentCamera)
+        var location = DeviceInfo.Platform == DevicePlatform.iOS
+            ? CameraView.CameraLocation
+            : CameraView.SelectedCamera?.Location;
+
+        return location == CameraLocation.Rear;
     }
 
     private void UpdateTorchState()
     {
-        var isRear = _cameras.Count > 0 &&
-            CameraView?.SelectedCamera is not null &&
-            CameraView.SelectedCamera.Location == CameraLocation.Rear;
+        var isRear = IsRearCameraActive();
 
         // a single front camera has no torch at all, so hide the button
         TorchButton.IsVisible = isRear || _cameras.Exists(x => x.Location == CameraLocation.Rear);

@@ -36,7 +36,7 @@ public sealed class MouldKingMK3_8DatagramTests : MouldKingDatagramTestsBase
 
         device.TryGetTelegram(true, out byte[] payload).Should().BeTrue();
         payload[1].Should().Be(AppIdentifier1);
-        payload[2].Should().Be(0x00); // This is an exception - the second byte of the AppIdentifier is used as setvalue for channel 5
+        payload[2].Should().Be(AppIdentifier2);
     }
 
     /// <summary>

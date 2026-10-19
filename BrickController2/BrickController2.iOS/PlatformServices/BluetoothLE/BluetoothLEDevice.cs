@@ -17,6 +17,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
         private TaskCompletionSource<IEnumerable<IGattService>?>? _connectCompletionSource = null;
         private TaskCompletionSource<IEnumerable<IGattCharacteristic>?>? _discoverCompletionSource = null;
         private TaskCompletionSource<byte[]?>? _readCompletionSource = null;
+        private CBCharacteristic? _readCharacteristic = null;
         private TaskCompletionSource<bool>? _writeCompletionSource = null;
 
         private Action<Guid, byte[]?>? _onCharacteristicChanged = null;
@@ -126,6 +127,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
 
                     var nativeCharacteristic = ((GattCharacteristic)characteristic).Characteristic;
 
+                    _readCharacteristic = nativeCharacteristic;
                     _readCompletionSource = new TaskCompletionSource<byte[]?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
                     _peripheral.ReadValue(nativeCharacteristic);
@@ -136,6 +138,7 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
                 lock (_lock)
                 {
                     _readCompletionSource = null;
+                    _readCharacteristic = null;
                     return result;
                 }
             }
@@ -290,17 +293,18 @@ namespace BrickController2.iOS.PlatformServices.BluetoothLE
             {
                 var data = error is null ? characteristic.Value?.ToArray() : null;
 
-                if (_readCompletionSource is not null)
+                if (_readCompletionSource is not null &&
+                    _readCharacteristic is not null &&
+                    characteristic.UUID.Equals(_readCharacteristic.UUID))
                 {
                     _readCompletionSource.TrySetResult(data);
+                    return;
                 }
-                else
+
+                if (error is null)
                 {
-                    if (error is null)
-                    {
-                        var guid = characteristic.UUID.ToGuid();
-                        _onCharacteristicChanged?.Invoke(guid, data);
-                    }
+                    var guid = characteristic.UUID.ToGuid();
+                    _onCharacteristicChanged?.Invoke(guid, data);
                 }
             }
         }

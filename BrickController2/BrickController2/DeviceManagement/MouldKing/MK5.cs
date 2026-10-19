@@ -20,12 +20,12 @@ internal class MK5 : MKBaseNibble, IDeviceType<MK5>
     /// <summary>
     /// Telegram connect to MK5.0
     /// </summary>
-    private static readonly byte[] Telegram_Connect = [0xad, 0x7b, 0xa7, 0x80, 0x80, 0x80, 0x4f, 0x52];
+    private static readonly byte[] Telegram_Connect = [0xad, APPID, APPID, 0x80, 0x80, 0x80, 0x4f, 0x52];
 
     /// <summary>
     /// Base Telegram
     /// </summary>
-    private static readonly byte[] Telegram_Base = [0x7d, 0x7b, 0xa7, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x82];
+    private static readonly byte[] Telegram_Base = [0x7d, APPID, APPID, 0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x82];
 
     /// <summary>
     /// After this timespan and all channel's values equal to zero the connect telegram is sent

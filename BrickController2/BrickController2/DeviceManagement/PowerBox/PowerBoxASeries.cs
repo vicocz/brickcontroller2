@@ -15,12 +15,12 @@ internal class PowerBoxASeries : PowerBoxBaseNibble, IDeviceType<PowerBoxASeries
     /// Telegram to connect to the PowerBox devices
     /// This telegram is sent on init and on reconnect conditions matching
     /// </summary>
-    private static readonly byte[] Telegram_Connect_Device = [0xa4, 0xfe, 0x19, 0x80, 0x80, 0x80, 0x00, 0x5b];
+    private static readonly byte[] Telegram_Connect_Device = [0xa4, APPID, APPID, 0x80, 0x80, 0x80, 0x00, 0x5b];
 
     /// <summary>
     /// Base Telegram for PowerBox devices
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device = [0x40, 0xfe, 0x19, 0x00, 0x00, 0x00, 0x00, 0xbf];
+    private static readonly byte[] Telegram_Base_Device = [0x40, APPID, APPID, 0x00, 0x00, 0x00, 0x00, 0xbf];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -34,7 +34,7 @@ internal class PowerBoxASeries : PowerBoxBaseNibble, IDeviceType<PowerBoxASeries
 
     public static DeviceType Type => DeviceType.PowerBoxASeries;
 
-    public static string TypeName => "PowerBox A Series";
+    public static string TypeName => "A Series";
 
     public override DeviceType DeviceType => Type;
 

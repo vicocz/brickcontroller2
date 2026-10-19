@@ -14,12 +14,12 @@ internal class MK3 : MKBaseByte, IDeviceType<MK3>
     /// <summary>
     /// Telegram connect to MK3.0 (switch MK3.0 to Bluetooth mode)
     /// </summary>
-    private static readonly byte[] Telegram_Connect = [0xaa, 0x7b, 0x7a, 0x00, 0x00, 0x00, 0x00, 0x55];
+    private static readonly byte[] Telegram_Connect = [0xaa, APPID, APPID, 0x00, 0x00, 0x00, 0x00, 0x55];
 
     /// <summary>
     /// Base Telegram
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device = [0x66, 0x7b, 0xa7, 0x80, 0x80, 0x80, 0x80, 0x99];
+    private static readonly byte[] Telegram_Base_Device = [0x66, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x99];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent

@@ -21,20 +21,28 @@ Devices with a help topic are linked. Other devices are supported by the app but
 
 ## Mould King
 
-- Mould King DIY Module
+- [Mould King DIY Module](mk_diy/README.md)
 - [Mould King 3.0 Powered Module](mk3/README.md)
-- [Mould King 3.8 Powered Module](mk38/README.md)
+- [Mould King 3.8 Powered Module](mk3_8/README.md)
 - [Mould King 4.0 Powered Module](mk4/README.md)
 - [Mould King 5.0 Powered Module](mk5/README.md)
 - [Mould King 6.0 Powered Module](mk6/README.md)
+
+## JIESTAR
+
+- [JieStar SCM4 4 Channel Smart Creative Module](jiestarscm4/README.md)
+- [JieStar SCM8 8 Channel Smart Creative Module](jiestarscm8/README.md)
+
+## PowerBox
+
+- [PowerBox A Series](powerboxaseries/README.md)
+- [PowerBox M Battery](powerboxmbattery/README.md)
 
 ## Other vendors
 
 - [CaDA Race Car](cada_racecar/README.md)
 - [Circuit Cubes](circuitcubes/README.md)
-- JieStar 4 and 8 Channel Smart Creative Module
 - [PFx Brick](pfxbrick/README.md)
-- PowerBox MBattery and A Series
 - [SBrick and SBrick Plus](sbrick/README.md)
 - [SBrick Light](sbricklight/README.md)
 

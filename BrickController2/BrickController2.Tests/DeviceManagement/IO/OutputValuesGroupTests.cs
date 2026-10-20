@@ -138,4 +138,78 @@ public class OutputValuesGroupTests
         group.TryGetChanges(out var values).Should().BeFalse();
         values.Should().NotBeNull().And.BeEmpty();
     }
+
+    [Fact]
+    public void AccumulateOutput_ZeroValue_ReturnsFalseAndNoChangeReported()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<float>(3);
+
+        // Act
+        var result = group.AccumulateOutput(1, 0.0f);
+
+        // Assert
+        result.Should().BeFalse();
+        group.TryGetValues(out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void AccumulateOutput_NonZeroValue_ReturnsTrueAndChangeReported()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<float>(3);
+
+        // Act
+        var result = group.AccumulateOutput(1, 2.5f);
+
+        // Assert
+        result.Should().BeTrue();
+        group.TryGetValues(out var values).Should().BeTrue();
+        values[1].Should().Be(2.5f);
+    }
+
+    [Fact]
+    public void AccumulateOutput_NegativeValue_AccumulatesNegatively()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<int>(2);
+        group.AccumulateOutput(1, 10);
+        group.TryGetValues(out _);
+        group.Commit();
+
+        // Act
+        group.AccumulateOutput(1, -4);
+
+        // Assert
+        group.TryGetValues(out var values).Should().BeTrue();
+        values[1].Should().Be(6);
+    }
+
+    [Fact]
+    public void AccumulateOutput_AfterSetOutput_AddsOnTop()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<float>(2);
+        group.SetOutput(0, 1.0f);
+
+        // Act
+        group.AccumulateOutput(0, 2.0f);
+
+        // Assert
+        group.TryGetValues(out var values).Should().BeTrue();
+        values[0].Should().Be(3.0f);
+    }
+
+    [Fact]
+    public void AccumulateOutput_NonZeroValue_SetsMaxSendAttempts()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<int>(1);
+        group.AccumulateOutput(0, 1);
+
+        // Assert — change must be reported one time, then stop
+        group.TryGetValues(out _).Should().BeTrue($"attempt 1 should return true");
+        group.Commit();
+        group.TryGetValues(out _).Should().BeFalse("no more send attempts should remain");
+    }
 }

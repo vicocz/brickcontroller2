@@ -19,8 +19,8 @@
   </PropertyGroup>
   <!--App information-->
   <PropertyGroup>
-    <ApplicationDisplayVersion>2026.2</ApplicationDisplayVersion>
-    <ApplicationVersion>50</ApplicationVersion>
+    <ApplicationDisplayVersion>2026.3</ApplicationDisplayVersion>
+    <ApplicationVersion>51</ApplicationVersion>
   </PropertyGroup>
   <!--Language information-->
   <PropertyGroup>

@@ -28,6 +28,7 @@ A topic missing in a language is therefore shown in English. A translation uses 
 - The first line is a level-1 heading, used as the help page title.
 - Cross-links use relative paths, e.g. `[Controller profile](../controller-profile/README.md)`.
 - App images are referenced from `BrickController2/UI/Images` using relative paths (`../../../../BrickController2/BrickController2/UI/Images/<name>.png` from a device topic). Only `.png` files from that folder are inlined in the app. Images in other locations (e.g. next to the topic) are not embedded and do not show in the app help.
+- UI icons are Markdown images of `doc/icons/<Icon value>.svg` (e.g. `../../../icons/settings.svg` from a page topic). The file name equals the `Icon` value in XAML. They are embedded and inlined in the app help (dark theme aware). Add missing icons as described in `doc/icons/README.md`.
 
 ## Adding a topic
 

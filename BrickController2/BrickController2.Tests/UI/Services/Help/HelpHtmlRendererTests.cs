@@ -43,11 +43,34 @@ public class HelpHtmlRendererTests
             .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}_template{Path.DirectorySeparatorChar}"))
             .SelectMany(file => image.Matches(File.ReadAllText(file)).Select(m => (file, url: m.Groups["url"].Value)))
             .Where(item => !File.Exists(Path.GetFullPath(item.url, Path.GetDirectoryName(item.file)!))
-                || !item.url.Replace('\\', '/').Contains("UI/Images/", StringComparison.OrdinalIgnoreCase))
+                || !IsAllowedImage(item.url))
             .Select(item => $"{Path.GetRelativePath(docRoot, item.file)}: {item.url}")
             .ToList();
 
         invalid.Should().BeEmpty();
+    }
+
+    private static bool IsAllowedImage(string url)
+    {
+        var normalized = url.Replace('\\', '/');
+        return normalized.Contains("UI/Images/", StringComparison.OrdinalIgnoreCase)
+            || (normalized.Contains("icons/", StringComparison.OrdinalIgnoreCase) && normalized.EndsWith(".svg", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public void Render_InlinesIconAsSvgDataUri()
+    {
+        var html = HelpHtmlRenderer.Render("![](../../../icons/settings.svg)", Topic, Mock.Of<IHelpService>());
+
+        html.Should().Contain("data:image/svg+xml;base64,").And.Contain("class=\"icon\"");
+    }
+
+    [Fact]
+    public void Render_KeepsUnknownIconUnchanged()
+    {
+        var html = HelpHtmlRenderer.Render("![](../../../icons/unknown_icon.svg)", Topic, Mock.Of<IHelpService>());
+
+        html.Should().Contain("icons/unknown_icon.svg").And.NotContain("data:image");
     }
 
     private static string? FindDocRoot()

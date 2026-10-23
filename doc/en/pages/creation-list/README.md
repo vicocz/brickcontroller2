@@ -6,8 +6,8 @@ A creation represents one of your models together with the controller setup that
 
 - Add a new creation with the floating ![](../../../icons/add.svg) button (**Add a new creation**).
 - Tap a creation to open it and edit its controller profiles.
-- Swipe a creation to the right to ![](../../../icons/share.svg) **Share** or ![](../../../icons/play_arrow.svg) **Play** it.
-- Swipe a creation to the left to ![](../../../icons/cancel.svg) **Delete** it.
+- Swipe a creation to the left to ![](../../../icons/share.svg) **Share** or ![](../../../icons/play_arrow.svg) **Play** it.
+- Swipe a creation to the right to ![](../../../icons/cancel.svg) **Delete** it.
 
 ## Toolbar
 

@@ -53,10 +53,10 @@ Devices with a detailed help page are linked.
 
 ## Swipe actions
 
-- ![](../../../icons/cancel.svg) **Delete** - remove the device from the list.
-- ![](../../../icons/help_outline.svg) **Help** - show the help of the device.
-- ![](../../../icons/settings.svg) **Settings** - open the settings of the device.
-- ![](../../../icons/edit.svg) **Rename** - rename the device.
+- ![](../../../icons/cancel.svg) **Delete** - remove the device from the list (swipe to the right).
+- ![](../../../icons/help_outline.svg) **Help** - show the help of the device (swipe to the left).
+- ![](../../../icons/settings.svg) **Settings** - open the settings of the device (swipe to the left).
+- ![](../../../icons/edit.svg) **Rename** - rename the device (swipe to the left).
 
 ## See also
 

@@ -6,8 +6,8 @@ A sequence is a reusable series of control points that automates the output valu
 
 - Add a new sequence with the floating ![](../../../icons/add.svg) button (**Add a new sequence**).
 - Tap a sequence to open it in the [sequence editor](../sequence-editor/README.md).
-- Swipe a sequence to the right to ![](../../../icons/share.svg) **Share** it.
-- Swipe a sequence to the left to ![](../../../icons/cancel.svg) **Delete** it.
+- Swipe a sequence to the left to ![](../../../icons/share.svg) **Share** it.
+- Swipe a sequence to the right to ![](../../../icons/cancel.svg) **Delete** it.
 
 ## Toolbar
 

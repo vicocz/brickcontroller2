@@ -20,9 +20,9 @@ This page shows the controller profiles of a creation.
 
 ## Swipe actions
 
-- ![](../../../icons/play_arrow.svg) **Play** - start the creation with this profile (swipe it to the right).
-- ![](../../../icons/copy.svg) **Copy** - copy a profile (swipe it to the right).
-- ![](../../../icons/cancel.svg) **Delete** - delete a profile (swipe it to the left).
+- ![](../../../icons/play_arrow.svg) **Play** - start the creation with this profile (swipe it to the left).
+- ![](../../../icons/copy.svg) **Copy** - copy a profile (swipe it to the left).
+- ![](../../../icons/cancel.svg) **Delete** - delete a profile (swipe it to the right).
 
 ## Other buttons
 

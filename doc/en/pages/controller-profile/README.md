@@ -37,9 +37,9 @@ The same button or joystick can have separate events for different controllers.
 
 ## Swipe actions
 
-- ![](../../../icons/cancel.svg) **Delete** - delete an event or action (swipe to the left).
-- ![](../../../icons/add.svg) **Add** - add an action to an event (swipe to the right).
-- ![](../../../icons/settings.svg) **Channel setup** - open the channel setup of an action (swipe to the right).
+- ![](../../../icons/cancel.svg) **Delete** - delete an event or action (swipe to the right).
+- ![](../../../icons/add.svg) **Add** - add an action to an event (swipe to the left).
+- ![](../../../icons/settings.svg) **Channel setup** - open the channel setup of an action (swipe to the left).
 
 ## Other buttons
 

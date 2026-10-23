@@ -15,7 +15,7 @@ Each control point has:
 - **Value (%)** - the output value, from -100 to 100 in steps of 5. Negative values drive the channel in the opposite direction.
 - **Duration (ms)** - how long this control point lasts. Tap the duration to change it.
 
-Use the floating ![](../../../icons/add.svg) button (**Add a new control point**) to add a control point. Use the ![](../../../icons/cancel.svg) button on a row to delete it.
+Use the floating ![](../../../icons/add.svg) button (**Add a new control point**) to add a control point. Use the ![](../../../icons/clear.svg) button on a row to delete it.
 
 ## Toolbar
 

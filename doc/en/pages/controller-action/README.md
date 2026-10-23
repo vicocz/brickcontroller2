@@ -55,6 +55,13 @@ The channel type defines what the output means for the connected motor. It is av
 
 For servo and stepper channel types, a channel setup button appears next to the channel type.
 
+## Buttons and toolbar
+
+- ![](../../../icons/done_outline.svg) **Apply changes** - save the action and close the page.
+- ![](../../../icons/contactless.svg) **Show the device details** - open the selected device.
+- ![](../../../icons/settings.svg) **Setup the channel** / **Edit the sequence** - open the channel setup or edit the selected sequence.
+- ![](../../../icons/cached.svg) **Reload macros** - reload the macros of the device.
+
 ## See also
 
 - [Controller profile](../controller-profile/README.md)

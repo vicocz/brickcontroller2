@@ -15,13 +15,13 @@ Each control point has:
 - **Value (%)** - the output value, from -100 to 100 in steps of 5. Negative values drive the channel in the opposite direction.
 - **Duration (ms)** - how long this control point lasts. Tap the duration to change it.
 
-Use the floating **+** button to add a control point. Use the **x** button on a row to delete it.
+Use the floating ![](../../../icons/add.svg) button (**Add a new control point**) to add a control point. Use the ![](../../../icons/clear.svg) button on a row to delete it.
 
 ## Toolbar
 
-- **Share** - share the sequence as text.
-- **Share as file** - share the sequence as a file.
-- **Copy** (overflow menu) - copy the sequence to the clipboard.
-- **Export** (overflow menu) - export the sequence to a file.
-- **Apply changes** - save the sequence and close the editor.
-- **Help** (overflow menu) - show this page.
+- ![](../../../icons/share.svg) **Share** - share the sequence as text.
+- ![](../../../icons/upload_file.svg) **Share the sequence as file** - share the sequence as a file.
+- ![](../../../icons/copy.svg) **Copy the sequence to clipboard** (overflow menu) - copy the sequence to the clipboard.
+- ![](../../../icons/file_upload.svg) **Export the sequence** (overflow menu) - export the sequence to a file.
+- ![](../../../icons/done_outline.svg) **Apply changes** - save the sequence and close the editor.
+- ![](../../../icons/help_outline.svg) **Help** (overflow menu) - show this page.

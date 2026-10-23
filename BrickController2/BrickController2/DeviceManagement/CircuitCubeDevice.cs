@@ -28,7 +28,6 @@ namespace BrickController2.DeviceManagement
 
         private readonly int[] _outputValues = new int[3];
         private readonly int[] _lastOutputValues = new int[3];
-        private readonly object _outputLock = new object();
 
         private volatile int _sendAttemptsLeft;
 
@@ -48,20 +47,19 @@ namespace BrickController2.DeviceManagement
         public override string BatteryVoltageSign => "V";
         protected override bool AutoConnectOnFirstConnect => false;
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            // Per channel range of 0 to 255
-            var intValue = (int)(value * 255);
-
             lock (_outputLock)
             {
-                if (_outputValues[channel] != intValue)
+                foreach (var (channel, value) in outputs)
                 {
-                    _outputValues[channel] = intValue;
-                    _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                    CheckChannel(channel);
+                    var intValue = (int)(CutOutputValue(value) * 255);
+                    if (_outputValues[channel] != intValue)
+                    {
+                        _outputValues[channel] = intValue;
+                        _sendAttemptsLeft = MAX_SEND_ATTEMPTS;
+                    }
                 }
             }
         }

@@ -17,7 +17,7 @@ The device exposes 2 channels:
 ## Getting started
 
 1. Make sure the phone has an infrared emitter and the receiver is switched on.
-2. Open the device list and press **Manually add devices**, then select the infrared device and apply the changes.
+2. Open the device list and press ![](../../../icons/playlist_add.svg) **Manually add devices**, then select the infrared device and apply the changes.
 3. Use the device in a creation: assign its channels to controller actions.
 
 ## See also

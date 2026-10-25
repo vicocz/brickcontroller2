@@ -20,7 +20,7 @@ The light channels switch on when the output exceeds 50 % in either direction.
 ## Getting started
 
 1. Power on the car.
-2. Open the device list and press **Scan for new devices**. Found devices are added to the list.
+2. Open the device list and press ![](../../../icons/search.svg) **Scan for new devices**. Found devices are added to the list.
 3. Use the device in a creation: assign its channels to controller actions.
 
 ## See also

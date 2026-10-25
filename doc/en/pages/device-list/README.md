@@ -18,7 +18,7 @@ Press ![](../../../icons/search.svg) **Scan for new devices**
 
 Some devices cannot be detected by scanning. They do not connect to the app, but are controlled by Bluetooth advertising, so there is nothing to scan for.
 
-Press ![](../../../icons/playlist_add.svg) **Manually add devices**
+1. Press ![](../../../icons/playlist_add.svg) **Manually add devices**
 2. Select the devices to add. Unselect a device to remove it.
 3. Apply the changes.
 

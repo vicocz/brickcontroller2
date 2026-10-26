@@ -15,7 +15,7 @@ The device exposes 1 channel:
 ## Getting started
 
 1. Power on the train hub by pressing its button.
-2. Open the device list and press **Scan for new devices**. Found devices are added to the list.
+2. Open the device list and press ![](../../../icons/search.svg) **Scan for new devices**. Found devices are added to the list.
 3. Use the device in a creation: assign its channel to a controller action.
 
 ## See also

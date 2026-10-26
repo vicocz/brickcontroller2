@@ -16,7 +16,7 @@ Each **Mould King - MK 4.0** module exposes 4 channels:
 
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
-1. Open the device list to add the device manually.
+1. Open the device list and press ![](../../../icons/playlist_add.svg) **Manually add devices**.
 2. In the manual device list, switch on **Mould King - MK 4.0 Device 1**.
 Use **Device 2** and **Device 3** for additional modules.
 3. Power on the **Mould King MK 4.0** module.

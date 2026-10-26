@@ -15,9 +15,8 @@ The device exposes 3 channels:
 ## Getting started
 
 1. Power on the Circuit Cubes Bluetooth cube.
-2. Open the device list and scan for devices.
-3. Select the Circuit Cubes device from the scan results to add it.
-4. Use the device in a creation: assign its channels to controller actions.
+2. Open the device list and press ![](../../../icons/search.svg) **Scan for new devices**. Found devices are added to the list.
+3. Use the device in a creation: assign its channels to controller actions.
 
 ## Notes
 

@@ -16,7 +16,7 @@ LEGO Powered Up Remote Control (88010) is a Bluetooth LE remote. It has no outpu
 ## Getting started
 
 1. Power on the remote by pressing its green button.
-2. Open the device list and press **Scan for new devices**. Found devices are added to the list.
+2. Open the device list and press ![](../../../icons/search.svg) **Scan for new devices**. Found devices are added to the list.
 3. Open the device page and enable the remote control. It is disabled by default.
 4. Assign its buttons to controller actions.
 

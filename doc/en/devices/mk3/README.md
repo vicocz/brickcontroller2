@@ -19,7 +19,7 @@ The **Mould King - MK 3.0** module exposes 4 channels:
 
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
-1. Open the device list to add the device manually.
+1. Open the device list and press ![](../../../icons/playlist_add.svg) **Manually add devices**.
 2. In the manual device list, switch on **Mould King - MK 3.0 Device**.
 3. Power on the **Mould King - MK 3.0** module.
 4. Use the device in a creation: assign its channels to controller actions.

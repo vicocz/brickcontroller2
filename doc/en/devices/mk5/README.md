@@ -23,7 +23,7 @@ Channel 5 is a Ⓥirtual channel. When enabled, it modifies the behavior of Chan
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
 1. Open the device list and press ![](../../../icons/playlist_add.svg) **Manually add devices**.
-2. In the manual device list, switch on **Mould King - MK 5.0 Device**.
+2. In the manual device list, switch on **Mould King - MK 5.0 Device**. Then tap ![](../../../icons/done_outline.svg) **Apply changes**.
 3. Power on the **Mould King - MK 5.0** module.
 4. Use the device in a creation: assign its channels to controller actions.
 

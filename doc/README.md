@@ -18,7 +18,7 @@ Typical flow: add devices, create a creation, add a controller profile, assign g
 | Language | Index | Content |
 |---|---|---|
 | English | [en](en/README.md) | Device and page topics |
-| Deutsch | [de](de/README.md) | Not translated yet, English is shown |
+| Deutsch | [de](de/README.md) | German translations of device and page topics |
 | Magyar | [hu](hu/README.md) | Not translated yet, English is shown |
 
 The same help is available inside the app via the **Help** button on pages and devices.

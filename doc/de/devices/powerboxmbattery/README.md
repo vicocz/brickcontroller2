@@ -23,7 +23,7 @@ Das **PowerBox - M Battery**-Modul stellt 1 Kanal bereit:
 **Das Modul wird nicht durch die Suche gefunden.**
 
 1. Öffne die Geräteliste, tippe auf ![](../../../icons/playlist_add.svg) **Geräte manuell hinzufügen**.
-2. Aktiviere in der Liste zum manuellen Hinzufügen **PowerBox - M Battery Gerät**.
+2. Aktiviere in der Liste zum manuellen Hinzufügen **PowerBox - M Battery Gerät**. Tippe anschließend auf ![](../../../icons/done_outline.svg) **Änderungen übernehmen**.
 3. Schalte das **PowerBox - M Battery**-Modul ein.
 4. Verwende das Gerät in einer Kreation und weise seinen Kanal einer Steuerungsaktion zu.
 

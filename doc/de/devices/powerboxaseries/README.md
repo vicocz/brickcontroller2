@@ -23,7 +23,7 @@ Das **PowerBox - A Series**-Modul stellt 4 Kanäle bereit:
 **Das Modul wird nicht durch die Suche gefunden.**
 
 1. Öffne die Geräteliste, tippe auf ![](../../../icons/playlist_add.svg) **Geräte manuell hinzufügen**.
-2. Aktiviere in der Liste zum manuellen Hinzufügen **PowerBox - A Series Gerät**.
+2. Aktiviere in der Liste zum manuellen Hinzufügen **PowerBox - A Series Gerät**. Tippe anschließend auf ![](../../../icons/done_outline.svg) **Änderungen übernehmen**.
 3. Schalte das **PowerBox - A Series**-Modul ein.
 4. Verwende das Gerät in einer Kreation und weise seine Kanäle Steuerungsaktionen zu.
 

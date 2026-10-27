@@ -20,7 +20,7 @@ Das **Mould King - MK 3.0**-Modul stellt 4 Kanäle bereit:
 **Das Modul wird nicht durch die Suche gefunden.**
 
 1. Öffne die Geräteliste, tippe auf ![](../../../icons/playlist_add.svg) **Geräte manuell hinzufügen**.
-2. Aktiviere in der Liste zum manuellen Hinzufügen **Mould King - MK 3.0 Gerät**.
+2. Aktiviere in der Liste zum manuellen Hinzufügen **Mould King - MK 3.0 Gerät**. Tippe anschließend auf ![](../../../icons/done_outline.svg) **Änderungen übernehmen**.
 3. Schalte das **Mould King - MK 3.0**-Modul ein.
 4. Verwende das Gerät in einer Kreation und weise seine Kanäle Steuerungsaktionen zu.
 

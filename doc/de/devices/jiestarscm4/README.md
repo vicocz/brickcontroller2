@@ -23,7 +23,7 @@ Jedes **JIESTAR - SCM 4**-Modul stellt 4 Kanäle bereit:
 **Das Modul wird nicht durch die Suche gefunden.**
 
 1. Öffne die Geräteliste, tippe auf ![](../../../icons/playlist_add.svg) **Geräte manuell hinzufügen**.
-2. Aktiviere in der Liste zum manuellen Hinzufügen **JIESTAR - SCM 4 Gerät 1**. Für weitere Module verwendest du **Gerät 2** und **Gerät 3**.
+2. Aktiviere in der Liste zum manuellen Hinzufügen **JIESTAR - SCM 4 Gerät 1**. Für weitere Module verwendest du **Gerät 2** und **Gerät 3**. Tippe anschließend auf ![](../../../icons/done_outline.svg) **Änderungen übernehmen**.
 3. Schalte das **JIESTAR - SCM 4**-Modul ein. Nach dem Einschalten ist **Gerät 1** standardmäßig eingestellt; die LED blinkt einmal pro Zyklus. Ändere die Gerätenummer mit einem kurzen Druck auf die Gerätetaste. Für **Gerät 2** blinkt die LED zweimal pro Zyklus, für **Gerät 3** dreimal.
 4. Verwende das Gerät in einer Kreation und weise seine Kanäle Steuerungsaktionen zu.
 

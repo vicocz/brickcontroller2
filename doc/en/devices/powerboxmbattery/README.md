@@ -25,7 +25,7 @@ The **PowerBox - M Battery** module exposes 1 channel:
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
 1. Open the device list and press ![](../../../icons/playlist_add.svg) **Manually add devices**.
-2. In the manual device list, switch on **PowerBox - M Battery Device**.
+2. In the manual device list, switch on **PowerBox - M Battery Device**. Then tap ![](../../../icons/done_outline.svg) **Apply changes**.
 3. Power on the **PowerBox - M Battery** module.
 4. Use the device in a creation: assign its channels to controller actions.
 

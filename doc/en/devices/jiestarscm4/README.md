@@ -25,8 +25,7 @@ Each **JIESTAR - SCM 4** module exposes 4 channels:
 ⚠️ **The module is not discovered by scanning!** ⚠️
 
 1. Open the device list and press ![](../../../icons/playlist_add.svg) **Manually add devices**.
-2. In the manual device list, switch on **JIESTAR - SCM 4 Device 1**.
-Use **Device 2** and **Device 3** for additional modules.
+2. In the manual device list, switch on **JIESTAR - SCM 4 Device 1**. Use **Device 2** and **Device 3** for additional modules. Then tap ![](../../../icons/done_outline.svg) **Apply changes**.
 3. Power on the **JIESTAR - SCM 4** module.
 **Device 1** is the default instance number after power on, the LED blinks once per cycle.
 Change the instance number by short-pressing the button on the device. The LED blinks twice per cycle for **Device 2** and three times per cycle for **Device 3**.

@@ -21,7 +21,7 @@ Das Gerät stellt 4 Kanäle bereit:
 ## Hinweise
 
 - Die Anschlüsse sind mit LEGO Power Functions kompatibel.
-- Die Ausgabe wird schrittweise geändert (Beschleunigungsschritt: 1/7).
+- Bei Tasten- und Achsenaktionen vom Typ **Beschleuniger** beträgt der Beschleunigungsschritt 1/7.
 - Auch SBrick Plus wird unterstützt, allerdings nur mit seinen Ausgangsanschlüssen.
 - Die Akkuspannung wird auf der Geräteseite angezeigt.
 

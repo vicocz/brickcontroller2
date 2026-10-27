@@ -11,7 +11,7 @@ There are two ways to add a device.
 Most devices are detected by scanning.
 
 1. Power on the device.
-Press ![](../../../icons/search.svg) **Scan for new devices**
+2. Press ![](../../../icons/search.svg) **Scan for new devices**
 3. The detected devices are added to the list.
 
 ### Manually added devices
@@ -20,7 +20,7 @@ Some devices cannot be detected by scanning. They do not connect to the app, but
 
 1. Press ![](../../../icons/playlist_add.svg) **Manually add devices**
 2. Select the devices to add. Unselect a device to remove it.
-3. Apply the changes.
+3. Tap ![](../../../icons/done_outline.svg) **Apply changes**.
 
 Manual adding is available only when the phone supports Bluetooth LE advertising. Devices that depend on other hardware, such as Power Functions infrared, are offered only when the phone supports it.
 

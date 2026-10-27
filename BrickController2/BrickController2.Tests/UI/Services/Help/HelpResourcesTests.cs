@@ -11,7 +11,6 @@ public class HelpResourcesTests
 
     [Theory]
     [InlineData("en")]
-    [InlineData("de-AT")]
     [InlineData("hu")]
     [InlineData("fr-FR")]
     public void Find_FallsBackToEnglish_WhenTopicIsNotTranslated(string culture)

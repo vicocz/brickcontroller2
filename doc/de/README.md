@@ -4,7 +4,7 @@ BrickController 2 ist eine plattformübergreifende App für Android, iOS und Win
 
 ## So funktioniert die App
 
-1. **Geräte hinzufügen.** Geräte sind die Empfänger in deinem Modell, zum Beispiel Hubs, Steine und Module. Die meisten Geräte findest du mit dder Bluetooth Suchfunktion der App, einige fügst du manuell hinzu. Jedes Gerät stellt Kanäle bereit, etwa Motor- oder Lichtausgänge.
+1. **Geräte hinzufügen.** Geräte sind die Empfänger in deinem Modell, zum Beispiel Hubs, Steine und Module. Die meisten Geräte findest du mit der Bluetooth Suchfunktion der App, einige fügst du manuell hinzu. Jedes Gerät stellt Kanäle bereit, etwa Motor- oder Lichtausgänge.
 2. **Eine Kreation erstellen.** Eine Kreation steht für ein Modell und enthält alle Einstellungen, die du zum Steuern benötigst.
 3. **Steuerungsprofile einrichten.** Eine Kreation kann ein oder mehrere Steuerungsprofile enthalten, zum Beispiel für verschiedene Gamepads oder Fahrmodi.
 4. **Steuerungsaktionen zuweisen.** Eine Steuerungsaktion verbindet eine Gamepad-Taste oder -Achse mit einem Gerätekanal. Einstellungen wie Richtung, Geschwindigkeit und Tastenverhalten legen fest, wie der Kanal reagiert.

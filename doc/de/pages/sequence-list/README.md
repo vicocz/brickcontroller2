@@ -14,7 +14,7 @@ Eine Sequenz ist eine wiederverwendbare Folge von Steuerungspunkten, mit der du 
 - ![](../../../icons/qr_code_scanner.svg) **QR-Code scannen** – Importiere eine geteilte Sequenz, indem du ihren QR-Code scannst.
 - ![](../../../icons/note_add.svg) **Sequenz aus einer Datei importieren** – Importiere eine Sequenz aus einer Datei.
 - ![](../../../icons/paste.svg) **Sequenz aus der Zwischenablage importieren** – Füge eine kopierte Sequenz ein.
-- ![](../../../icons/file_download.svg) **Sequenz importieren** (Überlaufmenü) – Importiere eine Sequenz aus Text.
+- ![](../../../icons/file_download.svg) **Sequenz importieren** (Überlaufmenü) – Importiere eine zuvor exportierte Sequenzdatei aus dem gemeinsamen Speicherverzeichnis.
 - ![](../../../icons/help_outline.svg) **Hilfe** (Überlaufmenü) – Öffne diese Hilfeseite.
 
 ## Siehe auch

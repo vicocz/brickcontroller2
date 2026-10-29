@@ -44,6 +44,35 @@ public class OutputValuesGroupTests
     }
 
     [Fact]
+    public void Initialize_NoCommit_TryGetChangesIsReportedFiveTimesOnly()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<byte>(3);
+        // Act
+        group.Initialize();
+
+        // Assert
+        for (int i = 0; i < 5; i++)
+        {
+            group.TryGetChanges(out var changes).Should().BeTrue();
+            changes.Should().BeEquivalentTo([new KeyValuePair<int, float>(int.MaxValue, 0)]);
+        }
+        group.TryGetChanges(out var _).Should().BeFalse();
+    }
+
+    [Fact]
+    public void SetOutput_TheSameValue_FalseReturned()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<float>(2);
+        group.Clear();
+        group.SetOutput(1, 1).Should().BeTrue();
+
+        // Act & Assert
+        group.SetOutput(1, 1).Should().BeFalse();
+    }
+
+    [Fact]
     public void Clear_AnyChange_ReturnsFalseAndAllDefaultValues()
     {
         // Arrange
@@ -105,12 +134,33 @@ public class OutputValuesGroupTests
         values.ToArray().Should().BeEquivalentTo([0, 3.14f]);
     }
 
+    [Fact]
+    public void TryGetChanges_RepeatedCallWithoutCommit_ChangedChannelValueAlwaysReturned()
+    {
+        // Arrange
+        var group = new OutputValuesGroup<float>(2);
+        group.Clear();
+        group.SetOutput(1, 3.14f);
+
+        // Act
+        var result1 = group.TryGetChanges(out var changes1);
+        var result2 = group.TryGetChanges(out var changes2);
+
+        // Assert
+        result1.Should().BeTrue();
+        changes1.Should().NotBeNull().And.ContainSingle();
+        changes1.Should().BeEquivalentTo([new KeyValuePair<int, float>(1, 3.14f)]);
+        result2.Should().BeTrue();
+        changes2.Should().NotBeNull().And.NotBeSameAs(changes1);
+        changes2.Should().BeEquivalentTo(changes1);
+    }
 
     [Fact]
     public void TryGetChanges_SingleChange_OnlyChangedChannelValueReturned()
     {
         // Arrange
         var group = new OutputValuesGroup<float>(2);
+        group.Clear();
         group.SetOutput(1, 3.14f);
 
         // Act
@@ -127,6 +177,7 @@ public class OutputValuesGroupTests
     {
         // Arrange
         var group = new OutputValuesGroup<short>(2);
+        group.Clear();
         group.SetOutput(0, 7);
         group.TryGetChanges(out var changedValues).Should().BeTrue();
         changedValues.Should().BeEquivalentTo([new KeyValuePair<int, short>(0, 7)]);
@@ -137,5 +188,45 @@ public class OutputValuesGroupTests
         // Assert
         group.TryGetChanges(out var values).Should().BeFalse();
         values.Should().NotBeNull().And.BeEmpty();
+    }
+
+    [Theory]
+    [InlineData(4)]
+    public void TryGetValues_FloatAllChannelsSetToOneBeforeFirstCall_ReturnsTrue(int channelCount)
+    {
+        // Arrange
+        var group = new OutputValuesGroup<float>(channelCount);
+        group.Initialize();
+        for (int i = 0; i < channelCount; i++)
+        {
+            group.SetOutput(i, 1.0f);
+        }
+
+        // Act
+        var result = group.TryGetValues(out var values);
+
+        // Assert
+        result.Should().BeTrue();
+        values.ToArray().Should().AllBeEquivalentTo(1.0f);
+    }
+
+    [Theory]
+    [InlineData(3)]
+    public void TryGetChanges_IntAllChannelsSetToOneBeforeFirstCall_ReturnsTrue(int channelCount)
+    {
+        // Arrange
+        var group = new OutputValuesGroup<int>(channelCount);
+        group.Initialize();
+        for (int i = 0; i < channelCount; i++)
+        {
+            group.SetOutput(i, 1);
+        }
+
+        // Act
+        var result = group.TryGetChanges(out var changes);
+
+        // Assert
+        result.Should().BeTrue();
+        changes.Should().BeEquivalentTo([new KeyValuePair<int, int>(int.MaxValue, 1)]);
     }
 }

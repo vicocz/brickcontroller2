@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement.MouldKing;
 using FluentAssertions;
 using System;
+using System.Linq;
 using Xunit;
 
 namespace BrickController2.Tests.DeviceManagement.MouldKing;
@@ -112,10 +113,7 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
         MK4 device = new MK4("MK4", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         // Set the output values for the device
-        for (int i = 0; i < setValues.Length; i++)
-        {
-            device.SetOutput(i, setValues[i]);
-        }
+        device.SetOutputs(setValues.Select((value, index) => (channel: index, value)));
 
         // Get the command datagram payload
         device.TryGetTelegram(false, out byte[] payload).Should().BeTrue();
@@ -136,7 +134,7 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
     {
         MK4 device = new MK4("MK4", deviceAddress, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
-        Action action = () => device.SetOutput(device.NumberOfChannels, 0);
+        Action action = () => device.SetOutputs(new[] { (device.NumberOfChannels, 0f) });
 
         action.Should().Throw<ArgumentOutOfRangeException>();
     }
@@ -163,12 +161,9 @@ public sealed class MouldKingMK4DatagramTests : MouldKingDatagramTestsBase
         MK4 device3 = new MK4("MK4", MK4.Device3, _deviceRepository.Object, _bluetoothLEService.Object, _mkPlatformService, _manager.Object);
 
         // Set the output values for the device
-        for (int i = 0; i < setValues1.Length; i++)
-        {
-            device1.SetOutput(i, setValues1[i]);
-            device2.SetOutput(i, setValues2[i]);
-            device3.SetOutput(i, setValues3[i]);
-        }
+        device1.SetOutputs(setValues1.Select((value, index) => (channel: index, value)));
+        device2.SetOutputs(setValues2.Select((value, index) => (channel: index, value)));
+        device3.SetOutputs(setValues3.Select((value, index) => (channel: index, value)));
 
         // Get the command datagram payload
         device1.TryGetTelegram(false, out byte[] payload1).Should().BeTrue();

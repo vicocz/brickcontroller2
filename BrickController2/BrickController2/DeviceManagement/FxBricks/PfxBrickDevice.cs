@@ -41,6 +41,31 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
     private static readonly IReadOnlyCollection<float> DefaultVolumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+    private const string IncreaseBrightnessMacroId = "IncreaseBrightness";
+    private const string DecreaseBrightnessMacroId = "DecreaseBrightness";
+    private const string IncreaseBrightnessMacroNameKey = "PfxIncreaseBrightnessMacro";
+    private const string DecreaseBrightnessMacroNameKey = "PfxDecreaseBrightnessMacro";
+
+    private readonly record struct LightEffect(string NameKey, byte LightFxId, byte Param1 = 0x00, byte Param2 = 0x00, byte Param3 = 0x00);
+
+    private static readonly IReadOnlyDictionary<string, LightEffect> LightEffectMacros = new Dictionary<string, LightEffect>
+    {
+        ["LightFlash50Pos"] = new("PfxLightFlash50PosMacro", PfxProtocol.EVT_LIGHTFX_FLASH_50_POS, 0x04, 0x03),
+        ["LightFlash50Neg"] = new("PfxLightFlash50NegMacro", PfxProtocol.EVT_LIGHTFX_FLASH_50_NEG, 0x04, 0x03),
+        ["LightStrobePos"] = new("PfxLightStrobePosMacro", PfxProtocol.EVT_LIGHTFX_STROBE_POS, 0x04, 0x04, 0x01),
+        ["LightStrobeNeg"] = new("PfxLightStrobeNegMacro", PfxProtocol.EVT_LIGHTFX_STROBE_NEG, 0x04, 0x04, 0x01),
+        ["LightGyralitePos"] = new("PfxLightGyralitePosMacro", PfxProtocol.EVT_LIGHTFX_GYRALITE_POS, 0x04, 0x09),
+        ["LightGyraliteNeg"] = new("PfxLightGyraliteNegMacro", PfxProtocol.EVT_LIGHTFX_GYRALITE_NEG, 0x04, 0x09),
+        ["LightFlicker"] = new("PfxLightFlickerMacro", PfxProtocol.EVT_LIGHTFX_FLICKER, 0x01, 0x06),
+        ["LightRandomBlink"] = new("PfxLightRandomBlinkMacro", PfxProtocol.EVT_LIGHTFX_RANDOM_BLINK, 0x02, 0x03),
+        ["LightPhotonTorpedo"] = new("PfxLightPhotonTorpedoMacro", PfxProtocol.EVT_LIGHTFX_PHOTON_TORPEDO, 0x0A),
+        ["LightLaserPulse"] = new("PfxLightLaserPulseMacro", PfxProtocol.EVT_LIGHTFX_LASER_PULSE, 0x01),
+        ["LightScifiEngineGlow"] = new("PfxLightScifiEngineGlowMacro", PfxProtocol.EVT_LIGHTFX_SCIFI_ENGINE_GLOW, 0x08, 0x09),
+        ["LightLighthouse"] = new("PfxLightLighthouseMacro", PfxProtocol.EVT_LIGHTFX_LIGHTHOUSE, 0x0A),
+        ["LightBrokenLight"] = new("PfxLightBrokenLightMacro", PfxProtocol.EVT_LIGHTFX_BROKEN_LIGHT, 0x02, 0x00, 0x02),
+        ["LightSoundModulated"] = new("PfxLightSoundModulatedMacro", PfxProtocol.EVT_LIGHTFX_SOUND_MODULATED, 0x03),
+    };
     private static readonly IReadOnlyList<MacroDescriptor> DefaultStaticMacros =
     [
         new MacroDescriptor(id: SetVolumeMacroId,
@@ -61,6 +86,21 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             nameKey: StopScriptMacroNameKey,
             scope: MacroScope.Device,
             kind: MacroKind.OneShot),
+        new MacroDescriptor(
+            id: IncreaseBrightnessMacroId,
+            nameKey: IncreaseBrightnessMacroNameKey,
+            scope: MacroScope.Channel,
+            kind: MacroKind.OneShot),
+        new MacroDescriptor(
+            id: DecreaseBrightnessMacroId,
+            nameKey: DecreaseBrightnessMacroNameKey,
+            scope: MacroScope.Channel,
+            kind: MacroKind.OneShot),
+        .. LightEffectMacros.Select(m => new MacroDescriptor(
+            id: m.Key,
+            nameKey: m.Value.NameKey,
+            scope: MacroScope.Channel,
+            kind: MacroKind.Repeatable)),
     ];
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
@@ -152,9 +192,58 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         {
             return EnqueueMacroCommandAsync(PfxProtocol.DecreaseVolume(), token);
         }
+        else if (LightEffectMacros.TryGetValue(invocation.DescriptorId, out var lightEffect))
+        {
+            // light effects are supported on light channels only
+            if (!TryGetLightChannel(invocation, out var lightChannel))
+            {
+                return Task.FromResult(false);
+            }
+
+            return ExecuteLightEffectAsync(lightChannel, lightEffect, token);
+        }
+        else if (invocation.DescriptorId is IncreaseBrightnessMacroId or DecreaseBrightnessMacroId)
+        {
+            if (!TryGetLightChannel(invocation, out var lightChannel))
+            {
+                return Task.FromResult(false);
+            }
+
+            var lightFxId = invocation.DescriptorId == IncreaseBrightnessMacroId
+                ? PfxProtocol.EVT_LIGHTFX_INC_BRIGHTNESS
+                : PfxProtocol.EVT_LIGHTFX_DEC_BRIGHTNESS;
+            return EnqueueMacroCommandAsync(PfxProtocol.SetLightEffect(lightChannel, lightFxId, PfxProtocol.EVT_LIGHTFX_TRANSITION_ON), token);
+        }
 
         // unknown command
         return Task.FromResult(false);
+    }
+
+    private bool TryGetLightChannel(MacroInvocation invocation, out int lightChannel)
+    {
+        if (invocation.Channel is int channel && channel >= PF_CHANNELS && channel < NumberOfChannels)
+        {
+            lightChannel = channel - PF_CHANNELS;
+            return true;
+        }
+
+        lightChannel = -1;
+        return false;
+    }
+
+    private async Task<bool> ExecuteLightEffectAsync(int lightChannel, LightEffect lightEffect, CancellationToken token)
+    {
+        // effects run at the light's current brightness, so ensure full brightness first
+        var brightnessSet = await EnqueueMacroCommandAsync(PfxProtocol.SetBrightness(lightChannel, 255), token).ConfigureAwait(false);
+
+        var effectSet = await EnqueueMacroCommandAsync(PfxProtocol.SetLightEffect(lightChannel,
+            lightEffect.LightFxId,
+            PfxProtocol.EVT_LIGHTFX_TRANSITION_TOGGLE,
+            lightEffect.Param1,
+            lightEffect.Param2,
+            lightEffect.Param3), token).ConfigureAwait(false);
+
+        return brightnessSet && effectSet;
     }
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)

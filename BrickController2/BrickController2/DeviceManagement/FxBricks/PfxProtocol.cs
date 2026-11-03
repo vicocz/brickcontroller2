@@ -45,8 +45,27 @@ internal static class PfxProtocol
     public const byte MOTOR_SPEED_FLAG_HIRES = 0x80;
 
     // Light FX IDs
+    public const byte EVT_LIGHTFX_NONE = 0x00;
     public const byte EVT_LIGHTFX_ON_OFF_TOGGLE = 0x01;
+    public const byte EVT_LIGHTFX_INC_BRIGHTNESS = 0x02;
+    public const byte EVT_LIGHTFX_DEC_BRIGHTNESS = 0x03;
     public const byte EVT_LIGHTFX_SET_BRIGHTNESS = 0x04;
+    public const byte EVT_LIGHTFX_FLASH_50_POS = 0x05;
+    public const byte EVT_LIGHTFX_FLASH_50_NEG = 0x06;
+    public const byte EVT_LIGHTFX_STROBE_POS = 0x07;
+    public const byte EVT_LIGHTFX_STROBE_NEG = 0x08;
+    public const byte EVT_LIGHTFX_GYRALITE_POS = 0x09;
+    public const byte EVT_LIGHTFX_GYRALITE_NEG = 0x0A;
+    public const byte EVT_LIGHTFX_FLICKER = 0x0B;
+    public const byte EVT_LIGHTFX_RANDOM_BLINK = 0x0C;
+    public const byte EVT_LIGHTFX_PHOTON_TORPEDO = 0x0D;
+    public const byte EVT_LIGHTFX_LASER_PULSE = 0x0E;
+    public const byte EVT_LIGHTFX_SCIFI_ENGINE_GLOW = 0x0F;
+    public const byte EVT_LIGHTFX_LIGHTHOUSE = 0x10;
+    public const byte EVT_LIGHTFX_BROKEN_LIGHT = 0x11;
+    public const byte EVT_LIGHTFX_STATUS_INDICATOR = 0x12;
+    public const byte EVT_LIGHTFX_SOUND_MODULATED = 0x13;
+    public const byte EVT_LIGHTFX_MOTOR_MODULATED = 0x14;
 
     public const byte LIGHT_OUTPUT_BASE = 0x01;
     public const byte LIGHT_OUTPUT_1 = 0x01;
@@ -70,6 +89,7 @@ internal static class PfxProtocol
     public const byte EVT_LIGHTFX_TRANSITION_TOGGLE = 0x00;
     public const byte EVT_LIGHTFX_TRANSITION_ON = 0x01;
     public const byte EVT_LIGHTFX_TRANSITION_OFF = 0x02;
+    public const byte EVT_LIGHTFX_TRANSITION_ON_DURATION = 0x03;
 
     // Sound FX IDs (SOUND_FX_ID, section 6.2.14)
     public const byte EVT_SOUNDFX_NONE = 0x00;
@@ -134,6 +154,20 @@ internal static class PfxProtocol
             lightFxId: EVT_LIGHTFX_ON_OFF_TOGGLE,
             lightOutputMask: lightOutputMask,
             lightParam4: value);
+
+    /// <summary>
+    /// Apply the light effect <paramref name="lightFxId"/> to the selected <paramref name="lightChannel"/> using the given <paramref name="transition"/>.
+    /// Meaning of <paramref name="param1"/> - <paramref name="param3"/> depends on the effect (e.g. PERIOD, FADE_FACTOR, DUTY_CYCLE).
+    /// </summary>
+    public static byte[] SetLightEffect(int lightChannel, byte lightFxId, byte transition = EVT_LIGHTFX_TRANSITION_TOGGLE,
+        byte param1 = 0x00, byte param2 = 0x00, byte param3 = 0x00)
+        => TestEventAction(EVT_COMMAND_NONE,
+            lightFxId: lightFxId,
+            lightOutputMask: lightChannel == int.MaxValue ? LIGHT_OUTPUT_ALL : (byte)(LIGHT_OUTPUT_BASE << lightChannel),
+            lightParam1: param1,
+            lightParam2: param2,
+            lightParam3: param3,
+            lightParam4: transition);
 
     /// <summary>
     /// Request the total number of files stored on the PFx Brick file system.

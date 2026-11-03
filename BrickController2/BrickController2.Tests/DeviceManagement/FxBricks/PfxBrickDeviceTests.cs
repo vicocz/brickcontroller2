@@ -29,6 +29,7 @@ public class PfxBrickDeviceTests
         lightMacros.Should().OnlyContain(m => m.Scope == MacroScope.Channel && m.Kind == MacroKind.Repeatable && m.Choices.Count == 0);
         lightMacros.Select(m => m.Id).Should().Contain(["LightFlash50Pos", "LightLighthouse", "LightSoundModulated"]);
         lightMacros.Select(m => m.Id).Should().NotContain("LightMotorModulated");
+        lightMacros.Should().OnlyContain(m => m.Channels != null && m.Channels.SequenceEqual(new[] { 2, 3, 4, 5, 6, 7, 8, 9 }));
     }
 
     [Theory]

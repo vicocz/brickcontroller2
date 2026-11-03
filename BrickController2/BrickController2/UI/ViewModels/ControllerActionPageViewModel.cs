@@ -533,7 +533,9 @@ namespace BrickController2.UI.ViewModels
         private async Task SelectMacroAsync()
         {
             var actionScope = Action.MacroScope;
-            var macros = AvailableMacros.Where(m => m.Scope == actionScope).ToArray();
+            var macros = AvailableMacros
+                .Where(m => m.Scope == actionScope && (!Action.HasChannel || m.SupportsChannel(Action.Channel)))
+                .ToArray();
             if (SelectedDevice is null || macros.Length == 0)
             {
                 await _dialogService.ShowMessageBoxAsync(

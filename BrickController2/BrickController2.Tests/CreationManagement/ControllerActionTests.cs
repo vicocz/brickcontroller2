@@ -107,6 +107,24 @@ public class ControllerActionTests
     }
 
     [Fact]
+    public void IsValidMacro_ReturnsFalse_WhenChannelIsNotSupported()
+    {
+        var action = CreateAction(default, channel: 1);
+        var macro = new MacroDescriptor(action.MacroId, "name", MacroScope.Channel, MacroKind.OneShot, channels: [2, 3]);
+
+        Assert.False(action.IsValidMacro(macro));
+    }
+
+    [Fact]
+    public void IsValidMacro_ReturnsTrue_WhenChannelIsSupported()
+    {
+        var action = CreateAction(default, channel: 2);
+        var macro = new MacroDescriptor(action.MacroId, "name", MacroScope.Channel, MacroKind.OneShot, channels: [2, 3]);
+
+        Assert.True(action.IsValidMacro(macro));
+    }
+
+    [Fact]
     public void IsValidMacro_ReturnsFalse_WhenButtonTypeIsNotMacro()
     {
         var action = CreateAction(default);

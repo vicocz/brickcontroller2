@@ -50,81 +50,63 @@ namespace BrickController2.UI.Controls
             }
         }
 
-        private void SetChannelText()
+        private void SetChannelText() => Text = GetChannelText(DeviceType, Channel);
+
+        /// <summary>
+        /// Returns the channel label as displayed to the user for the given device type.
+        /// </summary>
+        public static string GetChannelText(DeviceType deviceType, int channel)
         {
-            switch (DeviceType)
+            string Pick(string[] labels) => labels[Math.Min(Math.Max(channel, 0), labels.Length - 1)];
+
+            switch (deviceType)
             {
                 case DeviceType.Boost:
                 case DeviceType.DuploTrainHub:
                 case DeviceType.PoweredUp:
                 case DeviceType.TechnicHub:
                 case DeviceType.WeDo2:
-                    SetChannelText(_controlPlusChannelLetters);
-                    break;
+                    return Pick(_controlPlusChannelLetters);
                 case DeviceType.TechnicMove:
-                    if (Channel == TechnicMoveDevice.CHANNEL_VM)
-                        Text = "AB";
-                    else
-                        SetChannelText(_technicMove);
-                    break;
+                    return channel == TechnicMoveDevice.CHANNEL_VM ? "AB" : Pick(_technicMove);
 
                 case DeviceType.PfxBrick:
-                    SetChannelText(_pfxBricks);
-                    break;
+                    return Pick(_pfxBricks);
 
                 case DeviceType.CircuitCubes:
-                    SetChannelText(_circuitCubesChannelLetters);
-                    break;
+                    return Pick(_circuitCubesChannelLetters);
 
                 case DeviceType.BuWizz3:
-                    SetChannelText(_buwizz3ChannelLetters);
-                    break;
+                    return Pick(_buwizz3ChannelLetters);
 
                 case DeviceType.Infrared:
-                    Text = Channel == 0 ?
+                    return channel == 0 ?
                         TranslationHelper.Translate("Blue") :
                         TranslationHelper.Translate("Red");
-                    break;
 
                 case DeviceType.MK3:
                 case DeviceType.MK3_8:
                 case DeviceType.MK4:
                 case DeviceType.MK6:
                 case DeviceType.MK_DIY:
-                    SetChannelText(_mkDefaultChannelLetters);
-                    break;
+                    return Pick(_mkDefaultChannelLetters);
 
                 case DeviceType.MK5:
-                    SetChannelText(_mk5ChannelLetters);
-                    break;
+                    return Pick(_mk5ChannelLetters);
 
                 case DeviceType.SBrickLight: // e.g. C or C.3
-                    if (Channel < SBrickProtocol.LIGHT_PORTS_COUNT)
-                    {
-                        // channel as base port
-                        SetChannelText(_sBrickLightChannelLetters);
-                    }
-                    else
-                    {
-                        // port with subchannel
-                        Text = $"{_sBrickLightChannelLetters[Channel % 8]}.{Channel / 8}";
-                    }
-                    break;
+                    return channel < SBrickProtocol.LIGHT_PORTS_COUNT
+                        ? Pick(_sBrickLightChannelLetters) // channel as base port
+                        : $"{_sBrickLightChannelLetters[channel % 8]}.{channel / 8}"; // port with subchannel
                 case DeviceType.JieStarSCM4:
                 case DeviceType.JieStarSCM8:
-                    SetChannelText(_jieStarChannelLetters);
-                    break;
+                    return Pick(_jieStarChannelLetters);
                 case DeviceType.PowerBoxMBattery:
                 case DeviceType.PowerBoxASeries:
-                    SetChannelText(_powerBoxChannelLetters);
-                    break;
+                    return Pick(_powerBoxChannelLetters);
                 default:
-                    Text = $"{Channel + 1}";
-                    break;
+                    return $"{channel + 1}";
             }
         }
-
-        private void SetChannelText(string[] labels)
-            => Text = labels[Math.Min(Math.Max(Channel, 0), labels.Length - 1)];
     }
 }

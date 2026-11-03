@@ -66,6 +66,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         ["LightBrokenLight"] = new("PfxLightBrokenLightMacro", PfxProtocol.EVT_LIGHTFX_BROKEN_LIGHT, 0x02, 0x00, 0x02),
         ["LightSoundModulated"] = new("PfxLightSoundModulatedMacro", PfxProtocol.EVT_LIGHTFX_SOUND_MODULATED, 0x03),
     };
+    private static readonly IReadOnlyList<int> LightMacroChannels = [.. Enumerable.Range(PF_CHANNELS, LIGHT_CHANNELS)];
     private static readonly IReadOnlyList<MacroDescriptor> DefaultStaticMacros =
     [
         new MacroDescriptor(id: SetVolumeMacroId,
@@ -90,17 +91,20 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             id: IncreaseBrightnessMacroId,
             nameKey: IncreaseBrightnessMacroNameKey,
             scope: MacroScope.Channel,
-            kind: MacroKind.OneShot),
+            kind: MacroKind.OneShot,
+            channels: LightMacroChannels),
         new MacroDescriptor(
             id: DecreaseBrightnessMacroId,
             nameKey: DecreaseBrightnessMacroNameKey,
             scope: MacroScope.Channel,
-            kind: MacroKind.OneShot),
+            kind: MacroKind.OneShot,
+            channels: LightMacroChannels),
         .. LightEffectMacros.Select(m => new MacroDescriptor(
             id: m.Key,
             nameKey: m.Value.NameKey,
             scope: MacroScope.Channel,
-            kind: MacroKind.Repeatable)),
+            kind: MacroKind.Repeatable,
+            channels: LightMacroChannels)),
     ];
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);

@@ -103,6 +103,7 @@ namespace BrickController2.UI.ViewModels
                         // validate output type for given channel change
                         ValidateChannelType(Action.Channel, Action.ChannelOutputType);
                         NotifySBrickLightChanges();
+                        ClearUnsupportedMacro();
                     }
                     NotifyScopeChanges();
                 }
@@ -372,6 +373,27 @@ namespace BrickController2.UI.ViewModels
             {
                 SelectedDevice = result.SelectedItem;
             }
+        }
+
+        private void ClearUnsupportedMacro()
+        {
+            if (string.IsNullOrEmpty(Action.MacroId) || SelectedDevice is null)
+            {
+                return;
+            }
+
+            var macro = SelectedDevice.AvailableMacros.FirstOrDefault(m => m.Id == Action.MacroId && m.Scope == MacroScope.Channel);
+            if (macro is null || macro.SupportsChannel(Action.Channel))
+            {
+                return;
+            }
+
+            Action.MacroId = string.Empty;
+            Action.MacroChoice = default;
+
+            RaisePropertyChanged(nameof(SelectedMacro));
+            RaisePropertyChanged(nameof(SelectedMacroDisplayName));
+            RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
         }
 
         private async Task SelectScopeAsync()

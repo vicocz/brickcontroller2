@@ -235,20 +235,19 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         return false;
     }
 
-    private async Task<bool> ExecuteLightEffectAsync(int lightChannel, LightEffect lightEffect, CancellationToken token)
-    {
-        // effects run at the light's current brightness, so ensure full brightness first
-        var brightnessSet = await EnqueueMacroCommandAsync(PfxProtocol.SetBrightness(lightChannel, 255), token).ConfigureAwait(false);
-
-        var effectSet = await EnqueueMacroCommandAsync(PfxProtocol.SetLightEffect(lightChannel,
-            lightEffect.LightFxId,
-            PfxProtocol.EVT_LIGHTFX_TRANSITION_TOGGLE,
-            lightEffect.Param1,
-            lightEffect.Param2,
-            lightEffect.Param3), token).ConfigureAwait(false);
-
-        return brightnessSet && effectSet;
-    }
+    private Task<bool> ExecuteLightEffectAsync(int lightChannel, LightEffect lightEffect, CancellationToken token) =>
+        // effects run at the light's current brightness, so ensure full brightness first;
+        // both writes are one queued operation so they are cancelled/drained together
+        EnqueueMacroCommandsAsync(
+        [
+            PfxProtocol.SetBrightness(lightChannel, 255),
+            PfxProtocol.SetLightEffect(lightChannel,
+                lightEffect.LightFxId,
+                PfxProtocol.EVT_LIGHTFX_TRANSITION_TOGGLE,
+                lightEffect.Param1,
+                lightEffect.Param2,
+                lightEffect.Param3),
+        ], token);
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {

@@ -58,5 +58,31 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+
+	<!--
+		Required by the iOS 27+ SDK: the app must adopt the UIScene-based life cycle,
+		otherwise UIKit aborts the launch with "UIScene life cycle is required".
+	-->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<!-- false = single window (same behavior as before); true = multiple windows on iPad -->
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<!-- Configuration for the regular (main) application window -->
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<!-- Default scene configuration name requested by .NET MAUI -->
+					<key>UISceneConfigurationName</key>
+					<string>__MAUI_DEFAULT_SCENE_CONFIGURATION__</string>
+					<!-- Must match [Register("SceneDelegate")] in SceneDelegate.cs -->
+					<key>UISceneDelegateClassName</key>
+					<string>SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </dict>
 </plist>

@@ -391,9 +391,11 @@ namespace BrickController2.UI.ViewModels
             Action.MacroId = string.Empty;
             Action.MacroChoice = default;
 
+            RaisePropertyChanged(nameof(HasMacroChoices));
             RaisePropertyChanged(nameof(SelectedMacro));
             RaisePropertyChanged(nameof(SelectedMacroDisplayName));
             RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+            SelectMacroChoiceCommand.RaiseCanExecuteChanged();
         }
 
         private async Task SelectScopeAsync()

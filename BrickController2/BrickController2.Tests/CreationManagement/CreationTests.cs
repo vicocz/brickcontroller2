@@ -40,6 +40,7 @@ public class CreationTests
         Assert.Equal("device-1", reference.DeviceId);
         Assert.Equal("macro-1", reference.MacroId);
         Assert.Equal(MacroScope.Channel, reference.Scope);
+        Assert.Equal(0, reference.Channel);
     }
 
     [Fact]
@@ -54,6 +55,7 @@ public class CreationTests
         Assert.Equal("device-1", reference.DeviceId);
         Assert.Equal("macro-1", reference.MacroId);
         Assert.Equal(MacroScope.Device, reference.Scope);
+        Assert.Null(reference.Channel);
     }
 
     [Fact]

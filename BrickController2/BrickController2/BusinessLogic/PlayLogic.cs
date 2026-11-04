@@ -58,7 +58,7 @@ namespace BrickController2.BusinessLogic
                 var device = _deviceManager.GetDeviceById(mr.DeviceId);
                 return device == null         // device not found
                     || !device.SupportsMacros // no macro support
-                    || !device.AvailableMacros.Any(m => m.IsMatch(mr.MacroId, mr.Scope, mr.Choice));
+                    || !device.AvailableMacros.Any(m => m.IsMatch(mr.MacroId, mr.Scope, mr.Choice, mr.Channel));
             }))
             {
                 return CreationValidationResult.MissingMacro;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickController2.DeviceManagement.Macros;
 
@@ -9,8 +10,10 @@ public sealed record MacroDescriptor
         string nameKey,
         MacroScope scope,
         MacroKind kind,
-        IReadOnlyList<MacroChoice>? choices = null)
+        IReadOnlyList<MacroChoice>? choices = null,
+        IReadOnlyList<int>? channels = null)
     {
+        Channels = channels;
         Id = id;
         NameKey = nameKey;
         Scope = scope;
@@ -24,8 +27,16 @@ public sealed record MacroDescriptor
     public MacroKind Kind { get; }
     public IReadOnlyList<MacroChoice> Choices { get; }
 
-    public bool IsMatch(string macroId, MacroScope macroScope, MacroChoiceValue value) => Id == macroId
+    /// <summary>
+    /// Optional channels a channel macro can be assigned to; <c>null</c> means any channel.
+    /// </summary>
+    public IReadOnlyList<int>? Channels { get; }
+
+    public bool SupportsChannel(int channel) => Channels is null || Channels.Contains(channel);
+
+    public bool IsMatch(string macroId, MacroScope macroScope, MacroChoiceValue value, int? channel = null) => Id == macroId
         && Scope == macroScope
+        && (channel is null || SupportsChannel(channel.Value))
         && (Choices.Count == 0 || (value.HasValue && Contains(value)));
 
     private bool Contains(MacroChoiceValue value)

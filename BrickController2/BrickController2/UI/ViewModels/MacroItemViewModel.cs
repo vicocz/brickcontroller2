@@ -1,6 +1,7 @@
 ﻿using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.Macros;
 using BrickController2.UI.Commands;
+using BrickController2.UI.Controls;
 using BrickController2.UI.Extensions;
 using BrickController2.UI.Services.Dialog;
 using BrickController2.UI.Services.Translation;
@@ -45,6 +46,45 @@ public class MacroItemViewModel
 
     private async Task ExecuteMacroAsync()
     {
+        int? channel = null;
+
+        if (_descriptor.Scope == MacroScope.Channel)
+        {
+            var channels = _descriptor.Channels ?? [.. Enumerable.Range(0, _device.NumberOfChannels)];
+            if (channels.Count == 0)
+            {
+                return;
+            }
+
+            if (channels.Count == 1)
+            {
+                channel = channels[0];
+            }
+            else
+            {
+                var channelLabels = channels.Select(c => DeviceChannelLabel.GetChannelText(_device.DeviceType, c)).ToArray();
+
+                var channelResult = await _dialogService.ShowSelectionDialogAsync(
+                    channelLabels,
+                    Translate("Channel"),
+                    Translate("Cancel"),
+                    default);
+
+                if (!channelResult.IsOk)
+                {
+                    return;
+                }
+
+                var channelIndex = Array.IndexOf(channelLabels, channelResult.SelectedItem);
+                if (channelIndex < 0)
+                {
+                    return;
+                }
+
+                channel = channels[channelIndex];
+            }
+        }
+
         MacroChoiceValue choiceValue = default;
 
         if (_descriptor.Choices.Count == 1)
@@ -79,7 +119,7 @@ public class MacroItemViewModel
         {
             await _dialogService.ShowProgressDialogAsync(
                 false,
-                async (progressDialog, token) => await _device.ExecuteMacroAsync(new MacroInvocation(_descriptor.Id, choiceValue, null), token),
+                async (progressDialog, token) => await _device.ExecuteMacroAsync(new MacroInvocation(_descriptor.Id, choiceValue, channel), token),
                 Translate("Executing"),
                 token: default);
         }

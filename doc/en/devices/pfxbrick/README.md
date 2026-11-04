@@ -29,6 +29,29 @@ Sound is controlled by macros that can be assigned to controller actions:
 - **Set volume** sets the volume to a chosen level.
 - **Increase volume** and **Decrease volume** change the volume by a step.
 
+## Light effects
+
+Light macros are channel macros: assign them to a controller action on a light channel (1 - 8). They are ignored on motor channels (A - B).
+
+- **Increase brightness**: increase brightness one step.
+- **Decrease brightness**: decrease brightness one step.
+
+Each press of a light effect toggles it on or off:
+
+- **Flash 50 %** / **Flash 50 % (inverted)**: 50 % duty cycle flasher.
+- **Strobe** / **Strobe (inverted)**: strobe light flasher.
+- **Gyralite** / **Gyralite (inverted)**: fading MARS/Gyralite flasher.
+- **Flicker**: random flickering light.
+- **Random blink**: random blinking light.
+- **Photon torpedo**: photon torpedo effect.
+- **Laser pulse**: shooting laser effect.
+- **Sci-fi engine glow**: glowing/pulsating engine glow effect.
+- **Lighthouse**: rotating lighthouse effect.
+- **Broken light**: flickering faulty light effect.
+- **Sound modulated**: sound modulated light intensity.
+
+An effect and its inverted variant (opposite phase) can be used on two channels to make them alternate.
+
 ## Scripts
 
 Script macros can be assigned to controller actions:

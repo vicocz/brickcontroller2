@@ -29,6 +29,29 @@ Du kannst Ton über Makros steuern, die du Steuerungsaktionen zuweisen kannst:
 - **Lautstärke einstellen** legt eine bestimmte Lautstärke fest.
 - **Lautstärke erhöhen** und **Lautstärke verringern** ändern die Lautstärke schrittweise.
 
+## Lichteffekte
+
+Lichtmakros sind Kanalmakros: Weise sie einer Steuerungsaktion auf einem Leuchtenkanal (1 - 8) zu. Auf Motorkanälen (A - B) sind sie nicht verfügbar.
+
+- **Helligkeit erhöhen**: erhöht die Helligkeit um eine Stufe.
+- **Helligkeit verringern**: verringert die Helligkeit um eine Stufe.
+
+Jeder Tastendruck schaltet einen Lichteffekt ein oder aus:
+
+- **Blinken 50 %** / **Blinken 50 % (invertiert)**: Blinklicht mit 50 % Tastverhältnis.
+- **Stroboskop** / **Stroboskop (invertiert)**: Stroboskop-Blinklicht.
+- **Gyralite** / **Gyralite (invertiert)**: weich überblendendes MARS/Gyralite-Blinklicht.
+- **Flackern**: zufällig flackerndes Licht.
+- **Zufälliges Blinken**: zufällig blinkendes Licht.
+- **Photonentorpedo**: Photonentorpedo-Effekt.
+- **Laserpuls**: Laserschuss-Effekt.
+- **Sci-Fi-Triebwerksglühen**: glühender/pulsierender Triebwerkseffekt.
+- **Leuchtturm**: rotierender Leuchtturm-Effekt.
+- **Defektes Licht**: flackernder Effekt einer defekten Leuchte.
+- **Tonmoduliert**: Lichtintensität folgt dem Ton.
+
+Ein Effekt und seine invertierte Variante (Gegenphase) können auf zwei Kanälen verwendet werden, damit diese abwechselnd leuchten.
+
 ## Skripte
 
 Du kannst Skriptmakros Steuerungsaktionen zuweisen:

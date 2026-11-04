@@ -807,6 +807,54 @@
   <data name="PfxStopScriptMacro" xml:space="preserve">
     <value>Az aktuális szkript leállítása</value>
   </data>
+  <data name="PfxIncreaseBrightnessMacro" xml:space="preserve">
+    <value>Fény: Fényerő növelése</value>
+  </data>
+  <data name="PfxDecreaseBrightnessMacro" xml:space="preserve">
+    <value>Fény: Fényerő csökkentése</value>
+  </data>
+  <data name="PfxLightFlash50PosMacro" xml:space="preserve">
+    <value>Fény: Villogás 50%</value>
+  </data>
+  <data name="PfxLightFlash50NegMacro" xml:space="preserve">
+    <value>Fény: Villogás 50% (fordított)</value>
+  </data>
+  <data name="PfxLightStrobePosMacro" xml:space="preserve">
+    <value>Fény: Stroboszkóp</value>
+  </data>
+  <data name="PfxLightStrobeNegMacro" xml:space="preserve">
+    <value>Fény: Stroboszkóp (fordított)</value>
+  </data>
+  <data name="PfxLightGyralitePosMacro" xml:space="preserve">
+    <value>Fény: Gyralite</value>
+  </data>
+  <data name="PfxLightGyraliteNegMacro" xml:space="preserve">
+    <value>Fény: Gyralite (fordított)</value>
+  </data>
+  <data name="PfxLightFlickerMacro" xml:space="preserve">
+    <value>Fény: Vibrálás</value>
+  </data>
+  <data name="PfxLightRandomBlinkMacro" xml:space="preserve">
+    <value>Fény: Véletlenszerű villogás</value>
+  </data>
+  <data name="PfxLightPhotonTorpedoMacro" xml:space="preserve">
+    <value>Fény: Fotontorpedó</value>
+  </data>
+  <data name="PfxLightLaserPulseMacro" xml:space="preserve">
+    <value>Fény: Lézerimpulzus</value>
+  </data>
+  <data name="PfxLightScifiEngineGlowMacro" xml:space="preserve">
+    <value>Fény: Sci-fi hajtómű izzás</value>
+  </data>
+  <data name="PfxLightLighthouseMacro" xml:space="preserve">
+    <value>Fény: Világítótorony</value>
+  </data>
+  <data name="PfxLightBrokenLightMacro" xml:space="preserve">
+    <value>Fény: Meghibásodott lámpa</value>
+  </data>
+  <data name="PfxLightSoundModulatedMacro" xml:space="preserve">
+    <value>Fény: Hang szerint modulált</value>
+  </data>
   <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
     <value>Kimeneti szint beállítása</value>
   </data>

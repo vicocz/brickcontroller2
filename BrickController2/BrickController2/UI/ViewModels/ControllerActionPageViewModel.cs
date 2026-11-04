@@ -103,6 +103,7 @@ namespace BrickController2.UI.ViewModels
                         // validate output type for given channel change
                         ValidateChannelType(Action.Channel, Action.ChannelOutputType);
                         NotifySBrickLightChanges();
+                        ClearUnsupportedMacro();
                     }
                     NotifyScopeChanges();
                 }
@@ -374,6 +375,29 @@ namespace BrickController2.UI.ViewModels
             }
         }
 
+        private void ClearUnsupportedMacro()
+        {
+            if (string.IsNullOrEmpty(Action.MacroId) || SelectedDevice is null)
+            {
+                return;
+            }
+
+            var macro = SelectedDevice.AvailableMacros.FirstOrDefault(m => m.Id == Action.MacroId && m.Scope == MacroScope.Channel);
+            if (macro is null || macro.SupportsChannel(Action.Channel))
+            {
+                return;
+            }
+
+            Action.MacroId = string.Empty;
+            Action.MacroChoice = default;
+
+            RaisePropertyChanged(nameof(HasMacroChoices));
+            RaisePropertyChanged(nameof(SelectedMacro));
+            RaisePropertyChanged(nameof(SelectedMacroDisplayName));
+            RaisePropertyChanged(nameof(SelectedMacroChoiceDisplayName));
+            SelectMacroChoiceCommand.RaiseCanExecuteChanged();
+        }
+
         private async Task SelectScopeAsync()
         {
             var channelName = Translate("Channel");
@@ -533,7 +557,9 @@ namespace BrickController2.UI.ViewModels
         private async Task SelectMacroAsync()
         {
             var actionScope = Action.MacroScope;
-            var macros = AvailableMacros.Where(m => m.Scope == actionScope).ToArray();
+            var macros = AvailableMacros
+                .Where(m => m.Scope == actionScope && (!Action.HasChannel || m.SupportsChannel(Action.Channel)))
+                .ToArray();
             if (SelectedDevice is null || macros.Length == 0)
             {
                 await _dialogService.ShowMessageBoxAsync(

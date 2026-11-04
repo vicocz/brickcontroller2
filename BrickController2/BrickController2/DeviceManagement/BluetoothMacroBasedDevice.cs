@@ -19,7 +19,7 @@ internal abstract class BluetoothMacroBasedDevice : BluetoothDevice
 
     private readonly ConcurrentQueue<QueuedMacroCommand> _macroCommandQueue = new();
 
-    private readonly record struct QueuedMacroCommand(Func<CancellationToken, Task<byte[]?>> Resolve,
+    private readonly record struct QueuedMacroCommand(Func<CancellationToken, Task<IReadOnlyList<byte[]>?>> Resolve,
         TaskCompletionSource<bool> Completion,
         CancellationToken CallerToken)
     {
@@ -123,7 +123,16 @@ internal abstract class BluetoothMacroBasedDevice : BluetoothDevice
     protected Task<bool> EnqueueMacroCommandAsync(byte[] command, CancellationToken token)
         => EnqueueMacroCommandAsync(_ => Task.FromResult<byte[]?>(command), token);
 
+    /// <summary>
+    /// Enqueues several commands as a single queued operation; they are written in order and cancelled together.
+    /// </summary>
+    protected Task<bool> EnqueueMacroCommandsAsync(IReadOnlyList<byte[]> commands, CancellationToken token)
+        => EnqueueMacroCommandsCoreAsync(_ => Task.FromResult<IReadOnlyList<byte[]>?>(commands), token);
+
     protected Task<bool> EnqueueMacroCommandAsync(Func<CancellationToken, Task<byte[]?>> resolve, CancellationToken token)
+        => EnqueueMacroCommandsCoreAsync(async t => await resolve(t).ConfigureAwait(false) is { } command ? [command] : null, token);
+
+    private Task<bool> EnqueueMacroCommandsCoreAsync(Func<CancellationToken, Task<IReadOnlyList<byte[]>?>> resolve, CancellationToken token)
     {
         var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -165,21 +174,30 @@ internal abstract class BluetoothMacroBasedDevice : BluetoothDevice
                 return false;
             }
 
-            var resolvedCommand = await queued.Resolve(linkedToken).ConfigureAwait(false);
-            if (resolvedCommand is null)
+            var resolvedCommands = await queued.Resolve(linkedToken).ConfigureAwait(false);
+            if (resolvedCommands is null || resolvedCommands.Count == 0)
             {
                 queued.TrySetResult(false);
                 return false; // resolution failed (e.g. unknown file), nothing to write
             }
 
-            if (linkedToken.IsCancellationRequested)
+            var macroResult = true;
+            foreach (var resolvedCommand in resolvedCommands)
             {
-                // caller cancelled while we were resolving the file id; don't send the command
-                queued.TrySetCanceled(token);
-                return false;
+                if (linkedToken.IsCancellationRequested)
+                {
+                    // caller cancelled while we were resolving/writing; don't send the remaining commands
+                    queued.TrySetCanceled(token);
+                    return false;
+                }
+
+                if (!await WriteMacroCommandAsync(resolvedCommand, linkedToken).ConfigureAwait(false))
+                {
+                    macroResult = false;
+                    break;
+                }
             }
 
-            var macroResult = await WriteMacroCommandAsync(resolvedCommand, linkedToken).ConfigureAwait(false);
             queued.TrySetResult(macroResult);
             return true;
         }

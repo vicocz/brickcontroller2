@@ -41,6 +41,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     private static readonly Guid CHARACTERISTIC_UUID_NOTIFY = new("49535343-1e4d-4bd9-ba61-23c647249616");
 
     private static readonly IReadOnlyCollection<float> DefaultVolumes = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    private static readonly IReadOnlyCollection<float> LightEffectBrightnessLevels = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
     private const string IncreaseBrightnessMacroId = "IncreaseBrightness";
     private const string DecreaseBrightnessMacroId = "DecreaseBrightness";
@@ -103,8 +104,9 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
             id: m.Key,
             nameKey: m.Value.NameKey,
             scope: MacroScope.Channel,
-            kind: MacroKind.Repeatable,
-            channels: LightMacroChannels)),
+            kind: MacroKind.OneShot,
+            channels: LightMacroChannels,
+            choices: [.. LightEffectBrightnessLevels.Select(MacroChoice.Create)])),
     ];
 
     private readonly OutputValuesGroup<short> _motorOutputs = new(PF_CHANNELS);
@@ -204,7 +206,11 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                 return Task.FromResult(false);
             }
 
-            return ExecuteLightEffectAsync(lightChannel, lightEffect, token);
+            var brightness = invocation.ChoiceValue.TryGet<float>(out var brightnessPercent)
+                ? (byte)Math.Clamp(Math.Round(brightnessPercent * 255 / 100), 0, 255)
+                : (byte)255;
+
+            return ExecuteLightEffectAsync(lightChannel, lightEffect, brightness, token);
         }
         else if (invocation.DescriptorId is IncreaseBrightnessMacroId or DecreaseBrightnessMacroId)
         {
@@ -235,12 +241,13 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
         return false;
     }
 
-    private Task<bool> ExecuteLightEffectAsync(int lightChannel, LightEffect lightEffect, CancellationToken token) =>
-        // effects run at the light's current brightness, so ensure full brightness first;
+    private Task<bool> ExecuteLightEffectAsync(int lightChannel, LightEffect lightEffect, byte brightness, CancellationToken token)
+    {
+        // effects run at the light's current brightness, so apply requested brightness first;
         // both writes are one queued operation so they are cancelled/drained together
-        EnqueueMacroCommandsAsync(
+        return EnqueueMacroCommandsAsync(
         [
-            PfxProtocol.SetBrightness(lightChannel, 255),
+            PfxProtocol.SetBrightness(lightChannel, brightness),
             PfxProtocol.SetLightEffect(lightChannel,
                 lightEffect.LightFxId,
                 PfxProtocol.EVT_LIGHTFX_TRANSITION_TOGGLE,
@@ -248,6 +255,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
                 lightEffect.Param2,
                 lightEffect.Param3),
         ], token);
+    }
 
     protected override async Task<bool> ValidateServicesAsync(IEnumerable<IGattService>? services, CancellationToken token)
     {
@@ -399,7 +407,7 @@ internal class PfxBrickDevice : BluetoothMacroBasedDevice
     }
 
     private async Task<bool> SendLightValuesAsync(IEnumerable<KeyValuePair<int, short>> changes, CancellationToken token)
-    {            
+    {
         bool result = true;
         foreach (var change in changes)
         {

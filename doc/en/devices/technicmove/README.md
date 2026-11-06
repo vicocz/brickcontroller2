@@ -29,5 +29,6 @@ When enabled, port C works as a steering servo. Virtual channel **AB** drives po
 
 ## See also
 
+- [Channel setup](../../pages/channel-setup/README.md) (for port C in PLAYVM mode)
 - [Devices](../../pages/device-list/README.md)
 - [Controller action](../../pages/controller-action/README.md)

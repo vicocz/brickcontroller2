@@ -22,5 +22,6 @@ Ports A and B are the hub's built-in motor ports.
 
 ## See also
 
+- [Channel setup](../../pages/channel-setup/README.md)
 - [Devices](../../pages/device-list/README.md)
 - [Controller action](../../pages/controller-action/README.md)

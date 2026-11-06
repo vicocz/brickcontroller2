@@ -30,5 +30,6 @@ Wenn der PLAYVM-Modus aktiviert ist, funktioniert Anschluss C als Lenkservo. Der
 
 ## Siehe auch
 
+- [Kanaleinrichtung](../../pages/channel-setup/README.md) (für Anschluss C im PLAYVM-Modus)
 - [Geräte](../../pages/device-list/README.md)
 - [Steuerungsaktion](../../pages/controller-action/README.md)

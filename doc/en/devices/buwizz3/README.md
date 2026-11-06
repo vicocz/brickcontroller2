@@ -39,5 +39,6 @@ Shelf mode disconnects the battery from the device, for example for storage or t
 
 ## See also
 
+- [Channel setup](../../pages/channel-setup/README.md)
 - [Devices](../../pages/device-list/README.md)
 - [Controller action](../../pages/controller-action/README.md)

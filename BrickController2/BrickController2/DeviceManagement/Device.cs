@@ -1,5 +1,6 @@
 ﻿using BrickController2.CreationManagement;
 using BrickController2.Helpers;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.Settings;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace BrickController2.DeviceManagement
         private string _batteryVoltage = "-";
 
         private volatile DeviceState _deviceState;
-        protected int _outputLevel;
+        private int _outputLevel;
 
         internal Device(string name, string address, IDeviceRepository deviceRepository)
         {
@@ -69,12 +70,27 @@ namespace BrickController2.DeviceManagement
             protected set { _deviceState = value; RaisePropertyChanged(); }
         }
 
-        public int OutputLevel => _outputLevel;
+        public int OutputLevel
+        {
+            get => Volatile.Read(ref _outputLevel);
+            protected set
+            {
+                if (Interlocked.Exchange(ref _outputLevel, value) != value)
+                {
+                    RaisePropertyChanged();
+                }
+            }
+        }
         public bool HasOutputChannel => NumberOfChannels > 0;
 
         public abstract int NumberOfChannels { get; }
         public virtual int NumberOfOutputLevels => 1;
         public virtual int DefaultOutputLevel => 1;
+
+        public virtual float AccelarationStep => 0.1F;
+        public virtual bool SupportsMacros => false;
+        public virtual bool SupportsDynamicMacros => false;
+        public virtual IReadOnlyList<MacroDescriptor> AvailableMacros => [];
 
         /// <summary>
         /// Check whether the output type specified in <paramref name="outputType"/> is supported
@@ -97,6 +113,11 @@ namespace BrickController2.DeviceManagement
 
         public virtual bool CanSetOutputLevel => false;
         public virtual void SetOutputLevel(int value) { }
+
+        public virtual ValueTask<IReadOnlyList<MacroDescriptor>> GetMacrosAsync(bool forceRefresh = false, CancellationToken token = default)
+             => ValueTask.FromResult(AvailableMacros);
+        public virtual Task<bool> ExecuteMacroAsync(MacroInvocation invocation, CancellationToken token)
+            => throw new InvalidOperationException("Macros are not supported for this type of device.");
 
         public virtual bool CanResetOutput(int channel) => false;
         public virtual Task ResetOutputAsync(int channel, float value, CancellationToken token)

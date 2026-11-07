@@ -2,7 +2,6 @@
 using BrickController2.DeviceManagement.CaDA;
 using BrickController2.PlatformServices.BluetoothLE;
 using BrickController2.UI.Services.AppIdentifier;
-using BrickController2.UI.Services.Preferences;
 using FluentAssertions;
 using Moq;
 using System.Collections.Generic;
@@ -12,17 +11,20 @@ namespace BrickController2.Tests.DeviceManagement.CaDA;
 
 public class CaDADeviceManagerTests
 {
+    private const byte AppIdentifier1 = 0x61; // This is the first byte of an randomly chosen AppIdentifier for UnitTesting
+    private const byte AppIdentifier2 = 0x62; // This is the second byte of an randomly chosen AppIdentifier for UnitTesting
+    private const byte AppIdentifier3 = 0x63; // This is the third byte of an randomly chosen AppIdentifier for UnitTesting
+
     private readonly CaDADeviceManager _manager;
-    private readonly Mock<IPreferencesService> _preferencesService = new(MockBehavior.Strict);
+    private readonly Mock<IAppIdentifierService> _appIdentifierService = new(MockBehavior.Strict);
     private readonly Mock<ICaDAPlatformService> _cadaPlatformService = new(MockBehavior.Strict);
 
     public CaDADeviceManagerTests()
     {
-        _preferencesService.Setup(x => x.ContainsKey("Identifier", "App")).Returns(true);
-        _preferencesService.Setup(x => x.Get("Identifier", "", "App")).Returns("YWJj");
+        _appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { AppIdentifier1, AppIdentifier2 });
+        _appIdentifierService.Setup(x => x.GetAppId(3)).Returns(new byte[] { AppIdentifier1, AppIdentifier2, AppIdentifier3 });
 
-        IAppIdentifierService appIdentifierService = new AppIdentifierService(_preferencesService.Object);
-        _manager = new CaDADeviceManager(appIdentifierService, _cadaPlatformService.Object);
+        _manager = new CaDADeviceManager(_appIdentifierService.Object, _cadaPlatformService.Object);
     }
 
     [Fact]
@@ -155,9 +157,9 @@ public class CaDADeviceManagerTests
     {
         var appId = _manager.GetAppId();
         appId.Length.Should().Be(3);
-        appId.Span[0].Should().Be(0x61); // 'a' = 0x61
-        appId.Span[1].Should().Be(0x62); // 'b' = 0x62
-        appId.Span[2].Should().Be(0x63); // 'c' = 0x63
+        appId.Span[0].Should().Be(AppIdentifier1);
+        appId.Span[1].Should().Be(AppIdentifier2);
+        appId.Span[2].Should().Be(AppIdentifier3);
     }
 
     [Fact]

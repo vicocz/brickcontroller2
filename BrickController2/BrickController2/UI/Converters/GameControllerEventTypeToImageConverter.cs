@@ -17,7 +17,7 @@ namespace BrickController2.UI.Converters
         {
             return eventType switch
             {
-                InputDeviceEventType.Button => "abc",
+                InputDeviceEventType.Button => "hdr_auto",
                 InputDeviceEventType.Axis => "gamepad",
                 _ => null,
             };

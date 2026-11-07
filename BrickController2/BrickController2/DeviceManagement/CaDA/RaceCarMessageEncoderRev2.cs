@@ -66,7 +66,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
     public byte[] Encode(ReadOnlySpan<Half> values, bool connectDevice = false)
     {
         // check params
-        if (values.Length != 3)
+        if (values.Length != 4)
         {
             throw new ArgumentException("Invalid input data.", nameof(values));
         }
@@ -86,6 +86,10 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         // Map input (-1.0 to 1.0) to Steering (0x00 to 0xFF)
         byte steering = Clamp(HalfByte + (values[1] * HalfByte));
 
+        byte lightsBits = (byte)(
+            (values[2] != Half.Zero ? (byte)0x01 : (byte)0x00) |
+            (values[3] != Half.Zero ? (byte)0x02 : (byte)0x00));
+
         // header: PAIRING : COMMAND
         var header = connectDevice ? (byte)0xAA : (byte)0xBB;
 
@@ -94,7 +98,7 @@ public class RaceCarMessageEncoderRev2 : IMessageEncoder
         _data[7] = throttle;
         _data[8] = steering;
         // flags: lights on/off
-        _data[9] = MapAsFlag(values[2]);
+        _data[9] = lightsBits; // bitfield: 0x01 frontlights, 0x02 rearlights
         _data[10] = 0x00; // reset checksum before recalculating
         _data[11] = (connectDevice || (throttle == 0x80 && steering == 0x80))
             ? _defaultSequenceValue

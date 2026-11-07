@@ -16,22 +16,22 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     /// <summary>
     /// Telegram connect to MK6.0 (switch MK6.0 to Bluetooth mode)
     /// </summary>
-    private static readonly byte[] Telegram_Connect = new byte[] { 0x6D, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x92, };
+    private static readonly byte[] Telegram_Connect = [0x6d, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x92];
 
     /// <summary>
     /// Base Telegram for Device 1
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_1 = new byte[] { 0x61, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9E };
+    private static readonly byte[] Telegram_Base_Device_1 = [0x61, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9e];
 
     /// <summary>
     /// Base Telegram for Device 2
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_2 = new byte[] { 0x62, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9D };
+    private static readonly byte[] Telegram_Base_Device_2 = [0x62, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9d];
 
     /// <summary>
     /// Base Telegram for Device 3
     /// </summary>
-    private static readonly byte[] Telegram_Base_Device_3 = new byte[] { 0x63, 0x7B, 0xA7, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9C };
+    private static readonly byte[] Telegram_Base_Device_3 = [0x63, APPID, APPID, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x9c];
 
     /// <summary>
     /// after this timespan and all channel's values equal to zero the connect telegram is sent
@@ -44,20 +44,14 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
     protected override ushort ManufacturerId => MKProtocol.ManufacturerID;
 
     /// <summary>
-    /// number of bytes containing channel values in base telegram
-    /// </summary>
-    protected override int BaseTelegram_ChannelBytesCount => 6;
-
-    /// <summary>
     /// offset to position of first channel in base telegram
     /// </summary>
     protected override int BaseTelegram_ChannelStartOffset => 3;
 
-    public MK6(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
-      : base(name, address, deviceData, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
+    public MK6(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager)
+      : base(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, 3, MK6.Telegram_Connect, MK6.GetTelegramBase(address))
     {
     }
-
 
     public static DeviceType Type => DeviceType.MK6;
 
@@ -67,12 +61,18 @@ internal class MK6 : MKBaseByte, IDeviceType<MK6>
 
     public override int NumberOfChannels => 6;
 
+    protected override (byte value, bool flag) ProcessChannelValue(int channelNo, float value) => channelNo switch
+    {
+        >= 0 and <= 5 => SetOutput_AnalogChannel(value),
+        _ => throw new ArgumentOutOfRangeException(nameof(channelNo), channelNo, "Channel number must be between 0 and 5.")
+    };
+
     /// <summary>
     /// Get reference to Base-Telegram for the given address
     /// </summary>
     /// <param name="address">address</param>
     /// <returns>reference to Base-Telegram</returns>
-    private static byte[] GetTelegramBase(string address)
+    private static ReadOnlySpan<byte> GetTelegramBase(string address)
     {
         return address switch
         {

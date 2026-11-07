@@ -195,6 +195,9 @@
   <data name="BluetoothDevicesWillNOTBeAvailable" xml:space="preserve">
     <value>Bluetooth devices will NOT be available</value>
   </data>
+  <data name="CameraWillNOTBeAvailable" xml:space="preserve">
+    <value>Camera will NOT be available</value>
+  </data>
   <data name="BluetoothIsTurnedOff" xml:space="preserve">
     <value>Bluetooth is turned off.</value>
   </data>
@@ -209,6 +212,9 @@
   </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz output level</value>
+  </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Set output level</value>
   </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Calibrating...</value>
@@ -366,6 +372,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Failed to import the sequence.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Failed to reload macros.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>File already exits</value>
   </data>
@@ -492,6 +501,9 @@
   <data name="Reseting" xml:space="preserve">
     <value>Reseting...</value>
   </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Reloading macros</value>
+  </data>
   <data name="Saving" xml:space="preserve">
     <value>Saving...</value>
   </data>
@@ -534,6 +546,15 @@
   <data name="ServoAngle" xml:space="preserve">
     <value>Servo range</value>
   </data>
+  <data name="HelpBack" xml:space="preserve">
+    <value>Previous page</value>
+  </data>
+  <data name="HelpForward" xml:space="preserve">
+    <value>Next page</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>
@@ -572,6 +593,9 @@
   </data>
   <data name="Version" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="ActionNotValid" xml:space="preserve">
+    <value>The action is not valid. Please check its configuration.</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>Warning</value>
@@ -639,6 +663,12 @@
   <data name="ActivateShelfMode" xml:space="preserve">
     <value>Activate shelf mode</value>
   </data>
+  <data name="SwitchCamera" xml:space="preserve">
+    <value>Switch camera</value>
+  </data>
+  <data name="ToggleTorch" xml:space="preserve">
+    <value>Toggle torch</value>
+  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Activation of the shelf mode has failed:</value>
   </data>
@@ -648,11 +678,23 @@
   <data name="Applying" xml:space="preserve">
     <value>Applying...</value>
   </data>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Go to Macros</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>No macros available for this device.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>Execution of the macro has failed:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
   </data>
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Default output level</value>
+  </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Default volume level</value>
   </data>
   <data name="On" xml:space="preserve">
     <value>On</value>
@@ -764,5 +806,152 @@
   </data>
   <data name="OrientationSensor" xml:space="preserve">
     <value>Tilt Steering</value>
+  </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Play audio</value>
+  </data>
+  <data name="PfxToggleSoundMacro" xml:space="preserve">
+    <value>Toggle audio</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Stop audio</value>
+  </data>
+  <data name="PfxRunScriptMacro" xml:space="preserve">
+    <value>Run script</value>
+  </data>
+  <data name="PfxStopScriptMacro" xml:space="preserve">
+    <value>Stop current script</value>
+  </data>
+  <data name="PfxIncreaseBrightnessMacro" xml:space="preserve">
+    <value>Light: Increase brightness</value>
+  </data>
+  <data name="PfxDecreaseBrightnessMacro" xml:space="preserve">
+    <value>Light: Decrease brightness</value>
+  </data>
+  <data name="PfxLightFlash50PosMacro" xml:space="preserve">
+    <value>Light: Flash 50%</value>
+  </data>
+  <data name="PfxLightFlash50NegMacro" xml:space="preserve">
+    <value>Light: Flash 50% (inverted)</value>
+  </data>
+  <data name="PfxLightStrobePosMacro" xml:space="preserve">
+    <value>Light: Strobe</value>
+  </data>
+  <data name="PfxLightStrobeNegMacro" xml:space="preserve">
+    <value>Light: Strobe (inverted)</value>
+  </data>
+  <data name="PfxLightGyralitePosMacro" xml:space="preserve">
+    <value>Light: Gyralite</value>
+  </data>
+  <data name="PfxLightGyraliteNegMacro" xml:space="preserve">
+    <value>Light: Gyralite (inverted)</value>
+  </data>
+  <data name="PfxLightFlickerMacro" xml:space="preserve">
+    <value>Light: Flicker</value>
+  </data>
+  <data name="PfxLightRandomBlinkMacro" xml:space="preserve">
+    <value>Light: Random blink</value>
+  </data>
+  <data name="PfxLightPhotonTorpedoMacro" xml:space="preserve">
+    <value>Light: Photon torpedo</value>
+  </data>
+  <data name="PfxLightLaserPulseMacro" xml:space="preserve">
+    <value>Light: Laser pulse</value>
+  </data>
+  <data name="PfxLightScifiEngineGlowMacro" xml:space="preserve">
+    <value>Light: Sci-fi engine glow</value>
+  </data>
+  <data name="PfxLightLighthouseMacro" xml:space="preserve">
+    <value>Light: Lighthouse</value>
+  </data>
+  <data name="PfxLightBrokenLightMacro" xml:space="preserve">
+    <value>Light: Broken light</value>
+  </data>
+  <data name="PfxLightSoundModulatedMacro" xml:space="preserve">
+    <value>Light: Sound modulated</value>
+  </data>
+  <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
+    <value>Set output level</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Set volume</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Increase volume</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Decrease volume</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Go to Sensors</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Run Macro</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Go to Channels</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Scope:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Kind:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Choices:</value>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Executing...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Immediate</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Repeatable</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Press a button on the game controller</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Move a joystick on the game controller</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Expand</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Collapse</value>
+  </data>
+  <data name="AddControllerAxisEvent" xml:space="preserve">
+    <value>Add a new controller axis event</value>
+  </data>
+  <data name="AddControllerButtonEvent" xml:space="preserve">
+    <value>Add a new controller button event</value>
+  </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Reload macros</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>There is a missing or misconfigured macro.</value>
+  </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Macro parameters</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Macro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Select macro parameter</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Select macro</value>
+  </data>
+  <data name="ShortMacro" xml:space="preserve">
+    <value>M:</value>
   </data>
 </root>

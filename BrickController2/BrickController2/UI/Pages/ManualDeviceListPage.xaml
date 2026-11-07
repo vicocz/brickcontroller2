@@ -5,17 +5,18 @@
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:converters="clr-namespace:BrickController2.UI.Converters"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
-    xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls"
     xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
     x:Class="BrickController2.UI.Pages.ManualDeviceListPage"
     x:Name="Page"
+    x:DataType="viewModels:ManualDeviceListPageViewModel"
     Title="{extensions:Translate AddDevicesManually}"
-    ios:Page.UseSafeArea="True"
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <local:PageBase.Resources>
         <ResourceDictionary>
             <converters:DeviceTypeToSmallImageConverter x:Key="DeviceTypeToSmallImage"/>
+            <converters:DeviceTypeToHasHelpConverter x:Key="DeviceTypeToHasHelp"/>
         </ResourceDictionary>
     </local:PageBase.Resources>
 
@@ -30,26 +31,34 @@
                 <!-- Device list -->
                 <CollectionView ItemsSource="{Binding GroupedFactoryDatas}" IsGrouped="True">
                     <CollectionView.GroupHeaderTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:ManualDeviceListPageViewModel+DeviceGroup">
                             <Grid Style="{StaticResource CollectionItemGridStyle}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Image Grid.Column="0" Source="{Binding DeviceType, Converter={StaticResource DeviceTypeToSmallImage}}" WidthRequest="50" HeightRequest="50"/>
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding GroupName}" FontSize="Large" FontAttributes="Bold"/>
                                 </VerticalStackLayout>
+                                <controls:ColorImage Grid.Column="2" Icon="help_outline" Color="{DynamicResource PrimaryColor}" WidthRequest="30" HeightRequest="30" VerticalOptions="Center"
+                                       ToolTipProperties.Text="{extensions:Translate Help}"
+                                       IsVisible="{Binding DeviceType, Converter={StaticResource DeviceTypeToHasHelp}}">
+                                    <controls:ColorImage.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding ShowDeviceHelpCommand, Source={RelativeSource AncestorType={x:Type viewModels:ManualDeviceListPageViewModel}}, x:DataType=viewModels:ManualDeviceListPageViewModel}" CommandParameter="{Binding DeviceType}"/>
+                                    </controls:ColorImage.GestureRecognizers>
+                                </controls:ColorImage>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.GroupHeaderTemplate>
                     <CollectionView.GroupFooterTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:ManualDeviceListPageViewModel+DeviceGroup">
                             <BoxView Style="{StaticResource DividerBoxViewStyle}" Margin="6,6,6,0"/>
                         </DataTemplate>
                     </CollectionView.GroupFooterTemplate>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate>
+                        <DataTemplate x:DataType="viewModels:ManualDeviceListPageViewModel+DeviceEntry">
                             <Grid Style="{StaticResource CollectionItemGridStyle}" Padding="0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="50"/>
@@ -57,7 +66,8 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Label Grid.Column="1" Text="{Binding DeviceFactoryData.Address}" FontSize="Medium" VerticalTextAlignment="Center"/>
-                                <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"/>
+                                <Switch Grid.Column="2" IsToggled="{Binding Selected}" ToolTipProperties.Text="{extensions:Translate AddDevice}" HorizontalOptions="End"
+                                        MinimumWidthRequest="{OnPlatform WinUI=80, Default=-1}"/>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

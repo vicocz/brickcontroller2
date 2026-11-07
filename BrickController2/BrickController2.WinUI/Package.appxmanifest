@@ -8,7 +8,7 @@
 
   <Identity
     Name="com.scn.BrickController2"
-    Publisher="CN=Vit Nemecky" />
+    Publisher="CN=Vít Německý" />
 
   <Properties>
     <DisplayName>BrickController2</DisplayName>
@@ -45,5 +45,6 @@
     <uap:Capability Name="removableStorage"/>
     <DeviceCapability Name="location"/>
     <DeviceCapability Name="bluetooth"/>
+    <DeviceCapability Name="webcam"/>
   </Capabilities>
 </Package>

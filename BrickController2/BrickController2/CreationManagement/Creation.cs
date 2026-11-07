@@ -38,9 +38,9 @@ namespace BrickController2.CreationManagement
             return Name;
         }
 
-        public IEnumerable<string> GetDeviceIds()
+        public IReadOnlySet<string> GetDeviceIds()
         {
-            var deviceIds = new List<string>();
+            var deviceIds = new HashSet<string>();
 
             foreach (var profile in ControllerProfiles)
             {
@@ -49,10 +49,7 @@ namespace BrickController2.CreationManagement
                     foreach (var controllerAction in controllerEvent.ControllerActions)
                     {
                         var deviceId = controllerAction.DeviceId;
-                        if (!deviceIds.Contains(deviceId))
-                        {
-                            deviceIds.Add(deviceId);
-                        }
+                        deviceIds.Add(deviceId);
                     }
                 }
             }
@@ -60,9 +57,9 @@ namespace BrickController2.CreationManagement
             return deviceIds;
         }
 
-        public IEnumerable<string> GetSequenceNames()
+        public IReadOnlySet<string> GetSequenceNames()
         {
-            var sequenceNames = new List<string>();
+            var sequenceNames = new HashSet<string>();
 
             foreach (var profile in ControllerProfiles)
             {
@@ -73,16 +70,35 @@ namespace BrickController2.CreationManagement
                         if (controllerAction.ButtonType == ControllerButtonType.Sequence)
                         {
                             var sequenceName = controllerAction.SequenceName;
-                            if (!sequenceNames.Contains(sequenceName))
-                            {
-                                sequenceNames.Add(sequenceName);
-                            }
+                            sequenceNames.Add(sequenceName);
                         }
                     }
                 }
             }
 
             return sequenceNames;
+        }
+
+        public IReadOnlyCollection<(string DeviceId, string MacroId, DeviceManagement.Macros.MacroScope Scope, DeviceManagement.Macros.MacroChoiceValue Choice, int? Channel)> GetMacroReferences()
+        {
+            var macroReferences = new HashSet<(string, string, DeviceManagement.Macros.MacroScope, DeviceManagement.Macros.MacroChoiceValue, int?)>();
+
+            foreach (var profile in ControllerProfiles)
+            {
+                foreach (var controllerEvent in profile.ControllerEvents)
+                {
+                    foreach (var controllerAction in controllerEvent.ControllerActions)
+                    {
+                        if (controllerAction.ButtonType == ControllerButtonType.Macro)
+                        {
+                            int? channel = controllerAction.HasChannel ? controllerAction.Channel : null;
+                            macroReferences.Add((controllerAction.DeviceId, controllerAction.MacroId, controllerAction.MacroScope, controllerAction.MacroChoice, channel));
+                        }
+                    }
+                }
+            }
+
+            return macroReferences;
         }
     }
 }

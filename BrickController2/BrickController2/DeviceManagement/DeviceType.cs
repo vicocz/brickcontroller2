@@ -26,5 +26,8 @@
         SBrickLight,
         JieStarSCM4,
         JieStarSCM8,
+        PowerBoxMBattery,
+        PowerBoxASeries,
+        MK3,
     }
 }

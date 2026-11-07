@@ -2,6 +2,10 @@
 
 Cross platform mobile application for controlling your creations using a bluetooth gamepad.
 
+## Documentation
+
+See the [user guide](doc/en/README.md) for help on [devices](doc/en/README.md#devices) and [pages](doc/en/README.md#pages) of the app. Other languages are listed in [doc/README.md](doc/README.md). The same help is available inside the app.
+
 ## Supported platforms
 
 - Android 5.0+
@@ -25,14 +29,17 @@ Cross platform mobile application for controlling your creations using a bluetoo
 - Lego Duplo Train Hub
 - Circuit Cubes
 - Mould King DIY Module
+- Mould King 3.0 Powered Module
 - Mould King 3.8 Powered Module
 - Mould King 4.0 Powered Module
 - Mould King 5.0 Powered Module
 - Mould King 6.0 Powered Module
 - CaDA Race Car
-- PFx Brick (lights & Power Functions ports only)
+- PFx Brick
 - JieStar 4 Channel Smart Creative Module
 - JieStar 8 Channel Smart Creative Module
+- PowerBox MBattery
+- PowerBox A Series
 
 ## Supported controllers
 - Generic Bluetooth / USB gamepads
@@ -48,6 +55,7 @@ or Visual Studio for Mac.
 ## 3rd party libraries used
 
 - [Autofac IOC container](https://github.com/autofac/Autofac)
+- [Markdig](https://github.com/xoofx/markdig)
 - [SQLite-Net-Extensions Async](https://bitbucket.org/twincoders/sqlite-net-extensions)
 - [ZXing.Net.Maui](https://github.com/Redth/ZXing.Net.Maui)
 

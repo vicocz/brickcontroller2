@@ -17,6 +17,9 @@ internal class MouldKing : Vendor<MouldKing>
         builder.ContainerBuilder.RegisterDevice<MK_DIY>(DeviceType.MK_DIY);
 
         // manually added devices
+        builder.RegisterDevice<MK3>()
+            .WithDeviceFactory(MK3.Device, MK3.TypeName);
+
         builder.RegisterDevice<MK3_8>()
             .WithDeviceFactory(MK3_8.Device, MK3_8.TypeName);
 

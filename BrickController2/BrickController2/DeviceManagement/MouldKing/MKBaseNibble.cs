@@ -44,10 +44,20 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// </summary>
     protected readonly int _instanceNo;
 
-    protected MKBaseNibble(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, byte[] telegram_Connect, byte[] telegram_Base)
-        : base(name, address, deviceData, deviceRepository, bleService)
+    protected MKBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, ReadOnlySpan<byte> telegram_Connect, ReadOnlySpan<byte> telegram_Base)
+        : this(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, instanceNo, telegram_Connect, telegram_Base.ToArray())
     {
-        _telegram_Connect = telegram_Connect;
+    }
+
+    protected MKBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, ReadOnlySpan<byte> telegram_Connect, SharedTelegram sharedTelegram_Base)
+        : this(name, address, deviceRepository, bleService, mkPlatformService, mkDeviceManager, instanceNo, telegram_Connect, sharedTelegram_Base.Payload)
+    {
+    }
+
+    private MKBaseNibble(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService, IMKPlatformService mkPlatformService, IMouldKingDeviceManager mkDeviceManager, int instanceNo, ReadOnlySpan<byte> telegram_Connect, byte[] telegram_Base)
+        : base(name, address, deviceRepository, bleService)
+    {
+        _telegram_Connect = telegram_Connect.ToArray();
         _telegram_Base = telegram_Base;
         _mkPlatformService = mkPlatformService;
 
@@ -62,6 +72,9 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         _telegram_Base[2] = appId[1];
 
         _storedValues = new float[NumberOfChannels]; // initialize output values for all channels
+
+        // initialize all channels in _telegram_Base and _storedValues to zero value
+        InitDevice();
     }
 
     /// <summary>
@@ -187,32 +200,14 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// This method sets the device to initial state before advertising starts
     /// All channels are initialized with zeroValue.
     /// </summary>
-    protected override void InitDevice()
-    {
-        const float zeroValue = 0.0f;
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            _storedValues[channelNo] = zeroValue;   // restore stored values to zero
-            SetChannelOutput(channelNo, zeroValue); // set all channels to zero using the channel specific function
-        }
-    }
+    protected override void InitDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Disconnects the device and resets the output state of all channels to zero.
     /// </summary>
     /// <remarks>This method ensures that all channels are set to a zero output state during the disconnection
     /// process. It is intended to be called as part of the device's disconnection workflow.</remarks>
-    protected override void DisconnectDevice()
-    {
-        const float zeroValue = 0.0f;
-
-        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
-        {
-            // call _bluetoothAdvertisingDeviceHandler.SetChannelState() to set global channel state to zero
-            SetChannelOutput(channelNo, zeroValue);
-        }
-    }
+    protected override void DisconnectDevice() => ResetAllChannelsToZero();
 
     /// <summary>
     /// Attempts to retrieve the RF payload for the specified telegram type.
@@ -224,7 +219,7 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
     /// <param name="payload">When this method returns, contains the RF payload as a byte array if the operation succeeds; otherwise, <see
     /// langword="null"/>.</param>
     /// <returns><see langword="true"/> if the RF payload was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    protected bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
+    protected internal bool TryGetTelegram(bool getConnectTelegram, out byte[] payload)
     {
         if (getConnectTelegram)
         {
@@ -272,5 +267,19 @@ internal abstract class MKBaseNibble : BluetoothAdvertisingDevice
         // instance 1:  4.. 7
         // instance 2:  8..11
         return _instanceNo * NumberOfChannels + channelNo;
+    }
+
+    /// <summary>
+    /// Resets the value and the output state of all channels to zero.
+    /// </summary>
+    private void ResetAllChannelsToZero()
+    {
+        const float zeroValue = 0.0f;
+
+        for (int channelNo = 0; channelNo < NumberOfChannels; channelNo++)
+        {
+            _storedValues[channelNo] = zeroValue;
+            SetChannelOutput(channelNo, zeroValue);
+        }
     }
 }

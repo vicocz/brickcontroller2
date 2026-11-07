@@ -39,7 +39,7 @@ internal class MK_DIY : BluetoothDevice
 
     private IGattCharacteristic? _characteristic_AE3B_CMD;
 
-    public MK_DIY(string name, string address, byte[] deviceData, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
+    public MK_DIY(string name, string address, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
         : base(name, address, deviceRepository, bleService)
     {
     }

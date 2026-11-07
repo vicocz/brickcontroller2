@@ -59,7 +59,7 @@ public class MessageEncoderFactoryTests
         result.Should().NotBeNull()
             .And.BeOfType<RaceCarMessageEncoderRev2>();
 
-        var encoded = result!.Encode([Half.Zero, Half.Zero, Half.Zero], true);
+        var encoded = result!.Encode([Half.Zero, Half.Zero, Half.Zero, Half.Zero], true);
         encoded.Length.Should().Be(16);
         // Verify deviceId is present in output (bytes 3-4)
         encoded[3].Should().Be(0xC9);

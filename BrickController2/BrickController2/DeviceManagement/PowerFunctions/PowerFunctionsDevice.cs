@@ -20,6 +20,7 @@ namespace BrickController2.DeviceManagement.PowerFunctions
         public static string TypeName => "Power Functions";
         public override DeviceType DeviceType => Type;
         public override int NumberOfChannels => 2;
+        public override float AccelarationStep => 1.0f / 7.0f;
 
         public override async Task<DeviceConnectionResult> ConnectAsync(
             bool reconnect,

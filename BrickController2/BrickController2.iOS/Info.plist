@@ -20,12 +20,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>MinimumOSVersion</key>
-	<string>12.2</string>
 	<key>CFBundleDisplayName</key>
 	<string>BrickController2</string>
-	<key>CFBundleIdentifier</key>
-	<string>com.scn.brickcontroller2</string>
 	<key>CFBundleName</key>
 	<string>BrickController2</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
@@ -40,10 +36,6 @@
 	<string>Location access is required to use SBrick, BuWizz or Powered-Up devices.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera is required in order to import a creation via QR code from another application.</string>
-	<key>CFBundleShortVersionString</key>
-	<string>3.4</string>
-	<key>CFBundleVersion</key>
-	<string>50</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>Bluetooth access is required to use SBrick, BuWizz or Powered-Up devices.</string>
 	<key>NSContactsUsageDescription</key>
@@ -64,5 +56,33 @@
 	<string>LaunchScreen</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
+	<!--
+		Required by the iOS 27+ SDK: the app must adopt the UIScene-based life cycle,
+		otherwise UIKit aborts the launch with "UIScene life cycle is required".
+	-->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<!-- false = single window (same behavior as before); true = multiple windows on iPad -->
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<!-- Configuration for the regular (main) application window -->
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<!-- Default scene configuration name requested by .NET MAUI -->
+					<key>UISceneConfigurationName</key>
+					<string>__MAUI_DEFAULT_SCENE_CONFIGURATION__</string>
+					<!-- Must match [Register("SceneDelegate")] in SceneDelegate.cs -->
+					<key>UISceneDelegateClassName</key>
+					<string>SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
 </dict>
 </plist>

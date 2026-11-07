@@ -2,6 +2,7 @@
 using Android.Hardware.Input;
 using Android.Content;
 using BrickController2.InputDeviceManagement;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.PlatformServices.InputDeviceService;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
@@ -78,14 +79,16 @@ namespace BrickController2.Droid.PlatformServices.GameController
             }
         }
 
-        internal bool OnGameControllerButtonEvent(KeyEvent e, float buttonValue)
+        internal bool OnGameControllerButtonEvent(KeyEvent e, bool isPressed)
         {
             if (!TryGetControllerByDeviceId(e.DeviceId, out var gamepadController)) // fetch matching GamepadController from table
             {
                 return false;
             }
 
-            return gamepadController.OnButtonEvent(e, buttonValue);
+            var eventName = e.KeyCode.ToString();
+            gamepadController.RaiseButtonEventConditionally(eventName, isPressed);
+            return true;
         }
 
         internal bool OnGameControllerAxisEvent(MotionEvent e)
@@ -95,7 +98,10 @@ namespace BrickController2.Droid.PlatformServices.GameController
                 return false;
             }
 
-            return gamepadController.OnAxisEvent(e);
+            // grab all changed axis event
+            var events = gamepadController.GetAxisEvents(e);
+            gamepadController.RaiseEvent(events);
+            return true;
         }
 
         public override void Initialize()

@@ -43,9 +43,11 @@ namespace BrickController2.CreationManagement
             set { _controlPoints = value ?? new ObservableCollection<SequenceControlPoint>(); RaisePropertyChanged(); }
         }
 
+        [JsonIgnore]
         public string? ControlPointsBlobbed { get; set; }
 
         [Ignore]
+        [JsonIgnore]
         public int TotalDurationMs
         {
             get

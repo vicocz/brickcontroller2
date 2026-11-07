@@ -1,7 +1,6 @@
 using Autofac;
 using BrickController2.DeviceManagement;
 using BrickController2.DeviceManagement.CaDA;
-using BrickController2.DeviceManagement.DI;
 using BrickController2.PlatformServices.BluetoothLE;
 using FluentAssertions;
 using Moq;

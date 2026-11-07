@@ -12,16 +12,17 @@ namespace BrickController2.Tests.DeviceManagement.MouldKing;
 
 public class MouldKingDeviceManagerTests
 {
+    private const byte AppIdentifier1 = 0x61; // This is the first byte of an randomly chosen AppIdentifier for UnitTesting
+    private const byte AppIdentifier2 = 0x62; // This is the second byte of an randomly chosen AppIdentifier for UnitTesting
+
     private readonly MouldKingDeviceManager _manager;
-    private readonly Mock<IPreferencesService> _preferencesService = new(MockBehavior.Strict);
+    private readonly Mock<IAppIdentifierService> _appIdentifierService = new(MockBehavior.Strict);
 
     public MouldKingDeviceManagerTests()
     {
-        _preferencesService.Setup(x => x.ContainsKey("Identifier", "App")).Returns(true);
-        _preferencesService.Setup(x => x.Get("Identifier", "", "App")).Returns("YWJj");
+        _appIdentifierService.Setup(x => x.GetAppId(2)).Returns(new byte[] { AppIdentifier1, AppIdentifier2 });
 
-        IAppIdentifierService appIdentifierService = new AppIdentifierService(_preferencesService.Object);
-        _manager = new MouldKingDeviceManager(appIdentifierService);
+        _manager = new MouldKingDeviceManager(_appIdentifierService.Object);
     }
 
     [Fact]

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BrickController2.CreationManagement;
 using BrickController2.DeviceManagement;
+using BrickController2.DeviceManagement.Macros;
 using BrickController2.PlatformServices.InputDevice;
 
 using static BrickController2.PlatformServices.InputDevice.InputDevices;
@@ -36,8 +39,9 @@ namespace BrickController2.BusinessLogic
         {
             var deviceIds = creation.GetDeviceIds();
             var sequenceNames = creation.GetSequenceNames();
+            var macroReferences = creation.GetMacroReferences();
 
-            if (deviceIds == null || deviceIds.Count() == 0)
+            if (deviceIds.Count == 0)
             {
                 return CreationValidationResult.MissingControllerAction;
             }
@@ -45,9 +49,19 @@ namespace BrickController2.BusinessLogic
             {
                 return CreationValidationResult.MissingDevice;
             }
-            else if (sequenceNames != null && sequenceNames.Any(sn => _creationManager.Sequences.FirstOrDefault(s => s.Name == sn) == null))
+            else if (sequenceNames.Any(sn => _creationManager.Sequences.FirstOrDefault(s => s.Name == sn) == null))
             {
                 return CreationValidationResult.MissingSequence;
+            }
+            else if (macroReferences.Any(mr =>
+            {
+                var device = _deviceManager.GetDeviceById(mr.DeviceId);
+                return device == null         // device not found
+                    || !device.SupportsMacros // no macro support
+                    || !device.AvailableMacros.Any(m => m.IsMatch(mr.MacroId, mr.Scope, mr.Choice, mr.Channel));
+            }))
+            {
+                return CreationValidationResult.MissingMacro;
             }
 
             return CreationValidationResult.Ok;
@@ -56,9 +70,22 @@ namespace BrickController2.BusinessLogic
         public bool ValidateControllerAction(ControllerAction controllerAction)
         {
             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
-            var sequence = _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName);
+            if (device == null)
+            {
+                return false;
+            }
 
-            return device != null && (controllerAction.ButtonType != ControllerButtonType.Sequence || sequence != null);
+            if (controllerAction.ButtonType == ControllerButtonType.Sequence)
+            {
+                return _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName) != null;
+            }
+
+            if (controllerAction.ButtonType == ControllerButtonType.Macro)
+            {
+                return device.AvailableMacros.Any(controllerAction.IsValidMacro);
+            }
+
+            return true;
         }
 
         public void StartPlay()
@@ -90,6 +117,10 @@ namespace BrickController2.BusinessLogic
                         foreach (var controllerAction in controllerEvent.ControllerActions)
                         {
                             var device = _deviceManager.GetDeviceById(controllerAction.DeviceId);
+                            if (device is null)
+                            {
+                                continue;
+                            }
                             var channel = controllerAction.Channel;
 
                             if (gameControllerEvent.Key.EventType == InputDeviceEventType.Button)
@@ -100,12 +131,22 @@ namespace BrickController2.BusinessLogic
                                     continue;
                                 }
 
-                                var outputValue = ProcessButtonEvent(isPressed, controllerAction, device!.DeviceType);
+                                // handle macros separately as there is no real output value assigned
+                                if (controllerAction.ButtonType == ControllerButtonType.Macro)
+                                {
+                                    if (isPressed)
+                                    {
+                                        InvokeMacro(controllerAction, device);
+                                    }
+                                    continue;
+                                }
+
+                                var outputValue = ProcessButtonEvent(isPressed, controllerAction, device);
                                 device.SetOutput(channel, outputValue);
                             }
                             else if (gameControllerEvent.Key.EventType == InputDeviceEventType.Axis)
                             {
-                                var (useAxisValue, axisValue) = ProcessAxisEvent(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction, device!.DeviceType);
+                                var (useAxisValue, axisValue) = ProcessAxisEvent(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction, device);
                                 if (useAxisValue)
                                 {
                                     StoreAxisOutputValue(axisValue, controllerAction.DeviceId, controllerAction.Channel, controllerEvent.EventType, controllerEvent.EventCode);
@@ -124,7 +165,32 @@ namespace BrickController2.BusinessLogic
             return controllerAction.ButtonType == ControllerButtonType.Normal || isPressed;
         }
 
-        private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, DeviceType deviceType)
+        private static void InvokeMacro(ControllerAction action, Device device, CancellationToken token = default)
+        {
+            var macro = device.AvailableMacros.FirstOrDefault(m => m.Id == action.MacroId && m.Scope == action.MacroScope);
+            if (macro == null)
+            {
+                return;
+            }
+
+            _ = ExecuteMacroSafelyAsync();
+
+            async Task ExecuteMacroSafelyAsync()
+            {
+                try
+                {
+                    int? channel = macro.Scope == MacroScope.Channel ? action.Channel : null;
+                    var invocation = new MacroInvocation(macro.Id, action.MacroChoice, channel);
+                    await device.ExecuteMacroAsync(invocation, token);
+                }
+                catch
+                {
+                    // fire-and-forget: swallow macro execution errors
+                }
+            }
+        }
+
+        private float ProcessButtonEvent(bool isPressed, ControllerAction controllerAction, Device device)
         {
             var previousOutputs = GetPreviousOutputs(controllerAction);
             float currentOutput = 0;
@@ -176,7 +242,7 @@ namespace BrickController2.BusinessLogic
                     break;
 
                 case ControllerButtonType.Accelerator:
-                    var accelarationStep = GetAccelarationStep(deviceType);
+                    var accelarationStep = device.AccelarationStep;
                     accelarationStep = controllerAction.IsInvert ? -accelarationStep : accelarationStep;
                     currentOutput = Math.Min(Math.Max(previousOutputs[0] + accelarationStep, -1), 1);
                     break;
@@ -215,7 +281,7 @@ namespace BrickController2.BusinessLogic
             buttonOutputs[0] = value;
         }
 
-        private (bool UseAxisValue, float AxisValue) ProcessAxisEvent(string gameControllerEventCode, float axisValue, ControllerAction controllerAction, DeviceType deviceType)
+        private (bool UseAxisValue, float AxisValue) ProcessAxisEvent(string gameControllerEventCode, float axisValue, ControllerAction controllerAction, Device device)
         {
             var previousAxisValue = GetPreviousAxisOutput(gameControllerEventCode, controllerAction);
 
@@ -317,7 +383,7 @@ namespace BrickController2.BusinessLogic
                 case ControllerAxisType.Accelerator:
                     if (Math.Abs(axisValue) == 1)
                     {
-                        var accelarationStep = GetAccelarationStep(deviceType);
+                        var accelarationStep = device.AccelarationStep;
                         axisValue = Math.Min(Math.Max(previousAxisValue + (axisValue * accelarationStep), -1), 1);
                     }
                     else
@@ -415,21 +481,6 @@ namespace BrickController2.BusinessLogic
             }
 
             return outputValue;
-        }
-
-        private float GetAccelarationStep(DeviceType deviceType)
-        {
-            switch (deviceType)
-            {
-                case DeviceType.BuWizz:
-                case DeviceType.BuWizz2:
-                case DeviceType.Infrared:
-                case DeviceType.SBrick:
-                    return 1F / 7;
-
-                default:
-                    return 0.1F;
-            }
         }
     }
 }

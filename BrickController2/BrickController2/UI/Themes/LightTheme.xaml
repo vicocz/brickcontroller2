@@ -41,6 +41,7 @@
     <Color x:Key="ProgressColor">DarkGreen</Color>
     <Color x:Key="PickerTextColor">DarkBlue</Color>
     <Color x:Key="FloatingButtonColor">Red</Color>
+    <Color x:Key="FloatingButtonExpandedColor">DarkRed</Color>  
     <Color x:Key="InlineButtonColor">Green</Color>
 
 </ResourceDictionary>

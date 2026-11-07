@@ -31,7 +31,7 @@ namespace BrickController2.DeviceManagement
             // apply values (if any) or default
             SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
             // update output value again to apply settings
-            _outputLevel = DefaultOutputLevel;
+            OutputLevel = DefaultOutputLevel;
         }
 
         public override DeviceType DeviceType => DeviceType.BuWizz;
@@ -39,6 +39,8 @@ namespace BrickController2.DeviceManagement
         public override int NumberOfOutputLevels => 3;
         public override int DefaultOutputLevel => (int)GetSettingValue(DefaultOutputLevelName, DefaultLevel);
         protected override bool AutoConnectOnFirstConnect => false;
+
+        public override float AccelarationStep => 1.0f / 7.0f;
 
         public override void SetOutput(int channel, float value)
         {
@@ -53,8 +55,8 @@ namespace BrickController2.DeviceManagement
 
         public override void SetOutputLevel(int value)
         {
-            var outputLevelValue = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
-            _outputGroup.SetOutput(4, outputLevelValue);
+            OutputLevel = Math.Max(0, Math.Min(NumberOfOutputLevels - 1, value));
+            _outputGroup.SetOutput(4, OutputLevel);
         }
 
         public override bool CanBePowerSource => true;

@@ -1,4 +1,5 @@
-﻿using BrickController2.PlatformServices.InputDevice;
+﻿using BrickController2.DeviceManagement.Macros;
+using BrickController2.PlatformServices.InputDevice;
 using BrickController2.Helpers;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -253,11 +254,14 @@ namespace BrickController2.CreationManagement
             int maxServoAngle,
             int servoBaseAngle,
             int stepperAngle,
-            string sequenceName)
+            string sequenceName,
+            string macroId,
+            MacroChoiceValue macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {
-                var controllerAction = controllerEvent.ControllerActions.FirstOrDefault(ca => ca.DeviceId == deviceId && ca.Channel == channel);
+                var controllerAction = controllerEvent.ControllerActions.FirstOrDefault(ca => ca.IsBoundTo(deviceId, channel, macroId));
+
                 if (controllerAction != null)
                 {
                     controllerAction.IsInvert = isInvert;
@@ -272,6 +276,8 @@ namespace BrickController2.CreationManagement
                     controllerAction.ServoBaseAngle = servoBaseAngle;
                     controllerAction.StepperAngle = stepperAngle;
                     controllerAction.SequenceName = sequenceName;
+                    controllerAction.MacroId = macroId;
+                    controllerAction.MacroChoice = macroChoiceValue;
                     await _creationRepository.UpdateControllerActionAsync(controllerAction);
                 }
                 else
@@ -291,7 +297,9 @@ namespace BrickController2.CreationManagement
                         MaxServoAngle = maxServoAngle,
                         ServoBaseAngle = servoBaseAngle,
                         StepperAngle = stepperAngle,
-                        SequenceName = sequenceName
+                        SequenceName = sequenceName,
+                        MacroId = macroId,
+                        MacroChoice = macroChoiceValue
                     };
                     await _creationRepository.InsertControllerActionAsync(controllerEvent, controllerAction);
                 }
@@ -325,11 +333,13 @@ namespace BrickController2.CreationManagement
             int maxServoAngle,
             int servoBaseAngle,
             int stepperAngle,
-            string sequenceName)
+            string sequenceName,
+            string macroId,
+            MacroChoiceValue macroChoiceValue)
         {
             using (await _asyncLock.LockAsync())
             {
-                var otherControllerAction = controllerAction.ControllerEvent?.ControllerActions.FirstOrDefault(ca => ca.Id != controllerAction.Id && ca.DeviceId == deviceId && ca.Channel == channel);
+                var otherControllerAction = controllerAction.ControllerEvent?.ControllerActions.FirstOrDefault(ca => ca.Id != controllerAction.Id && ca.IsBoundTo(deviceId, channel, macroId));
                 if (otherControllerAction is not null)
                 {
                     var parent = otherControllerAction.ControllerEvent;
@@ -351,16 +361,10 @@ namespace BrickController2.CreationManagement
                 controllerAction.ServoBaseAngle = servoBaseAngle;
                 controllerAction.StepperAngle = stepperAngle;
                 controllerAction.SequenceName = sequenceName;
+                controllerAction.MacroId = macroId;
+                controllerAction.MacroChoice = macroChoiceValue;
                 await _creationRepository.UpdateControllerActionAsync(controllerAction);
             }
-        }
-
-        public async Task ImportSequenceAsync(string sequenceFilename)
-        {
-            var sequenceJson = await File.ReadAllTextAsync(sequenceFilename);
-            var sequence = JsonConvert.DeserializeObject<Sequence>(sequenceJson);
-
-            await ImportSequenceAsync(sequence!);
         }
 
         public async Task ImportSequenceAsync(Sequence sequence)
@@ -463,7 +467,9 @@ namespace BrickController2.CreationManagement
                                         controllerAction.MaxServoAngle,
                                         controllerAction.ServoBaseAngle,
                                         controllerAction.StepperAngle,
-                                        sequenceName);
+                                        sequenceName,
+                                        controllerAction.MacroId,
+                                        controllerAction.MacroChoice);
                                 }
                             }
                         }

@@ -195,6 +195,9 @@
   <data name="BluetoothDevicesWillNOTBeAvailable" xml:space="preserve">
     <value>Bluetooth-Geräte werden NICHT verfügbar sein</value>
   </data>
+  <data name="CameraWillNOTBeAvailable" xml:space="preserve">
+    <value>Die Kamera wird NICHT verfügbar sein</value>
+  </data>
   <data name="BluetoothIsTurnedOff" xml:space="preserve">
     <value>Bluetooth ist ausgeschaltet</value>
   </data>
@@ -209,6 +212,9 @@
   </data>
   <data name="BuWizzOutputLevel" xml:space="preserve">
     <value>BuWizz Ausgabestufe</value>
+  </data>
+  <data name="Macro_SetOutputLevel" xml:space="preserve">
+    <value>Ausgabestufe setzen</value>
   </data>
   <data name="Calibrating" xml:space="preserve">
     <value>Kalibriere...</value>
@@ -366,6 +372,9 @@
   <data name="FailedToImportSequence" xml:space="preserve">
     <value>Fehler beim Importieren der Sequenz.</value>
   </data>
+  <data name="FailedToReloadMacros" xml:space="preserve">
+    <value>Fehler beim Neuladen der Makros.</value>
+  </data>
   <data name="FileAlreadyExists" xml:space="preserve">
     <value>Datei existiert bereits</value>
   </data>
@@ -492,6 +501,9 @@
   <data name="Reseting" xml:space="preserve">
     <value>Zurücksetzen...</value>
   </data>
+  <data name="ReloadingMacros" xml:space="preserve">
+    <value>Makros werden neu geladen</value>
+  </data>
   <data name="Saving" xml:space="preserve">
     <value>Speichern...</value>
   </data>
@@ -534,6 +546,9 @@
   <data name="ServoAngle" xml:space="preserve">
     <value>Servobereich</value>
   </data>
+  <data name="Help" xml:space="preserve">
+    <value>Hilfe</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Einstellungen</value>
   </data>
@@ -572,6 +587,9 @@
   </data>
   <data name="Version" xml:space="preserve">
     <value>Version</value>
+  </data>
+  <data name="ActionNotValid" xml:space="preserve">
+    <value>Die Aktion ist ungültig. Bitte überprüfe die Konfiguration.</value>
   </data>
   <data name="Warning" xml:space="preserve">
     <value>Warnung</value>
@@ -639,6 +657,12 @@
   <data name="ActivateShelfMode" xml:space="preserve">
     <value>Shelf-Modus aktivieren</value>
   </data>
+  <data name="SwitchCamera" xml:space="preserve">
+    <value>Kamera wechseln</value>
+  </data>
+  <data name="ToggleTorch" xml:space="preserve">
+    <value>Lampe umschalten</value>
+  </data>
   <data name="ActivateShelfModeFailed" xml:space="preserve">
     <value>Fehler beim Aktivieren des Shelf-Modus:</value>
   </data>
@@ -648,11 +672,23 @@
   <data name="Applying" xml:space="preserve">
     <value>Übernehme...</value>
   </data>
+  <data name="ShowMacros" xml:space="preserve">
+    <value>Gehe zu Makros</value>
+  </data>
+  <data name="NoMacrosAvailable" xml:space="preserve">
+    <value>Für dieses Gerät sind keine Makros verfügbar.</value>
+  </data>
+  <data name="ExecuteMacroFailed" xml:space="preserve">
+    <value>Die Ausführung des Makros ist fehlgeschlagen:</value>
+  </data>
   <data name="BuWizz2DefaultOutputLevel" xml:space="preserve">
     <value>Grundwert Ausgabestufe</value>
   </data>
   <data name="BuWizzDefaultOutputLevel" xml:space="preserve">
     <value>Grundwert Ausgabestufe</value>
+  </data>
+  <data name="PfxBrickDefaultVolumeLevel" xml:space="preserve">
+    <value>Standard-Lautstärke</value>
   </data>
   <data name="On" xml:space="preserve">
     <value>An</value>
@@ -764,5 +800,158 @@
   </data>
   <data name="OrientationSensor" xml:space="preserve">
     <value>Neigungssteuerung</value>
+  </data>
+  <data name="PfxPlaySoundMacro" xml:space="preserve">
+    <value>Audio abspielen</value>
+  </data>
+  <data name="PfxToggleSoundMacro" xml:space="preserve">
+    <value>Audio umschalten</value>
+  </data>
+  <data name="PfxStopSoundMacro" xml:space="preserve">
+    <value>Audio stoppen</value>
+  </data>
+  <data name="PfxRunScriptMacro" xml:space="preserve">
+    <value>Skript ausführen</value>
+  </data>
+  <data name="PfxStopScriptMacro" xml:space="preserve">
+    <value>Das aktuelle Skript stoppen</value>
+  </data>
+  <data name="PfxIncreaseBrightnessMacro" xml:space="preserve">
+    <value>Licht: Helligkeit erhöhen</value>
+  </data>
+  <data name="PfxDecreaseBrightnessMacro" xml:space="preserve">
+    <value>Licht: Helligkeit verringern</value>
+  </data>
+  <data name="PfxLightFlash50PosMacro" xml:space="preserve">
+    <value>Licht: Blinken 50 %</value>
+  </data>
+  <data name="PfxLightFlash50NegMacro" xml:space="preserve">
+    <value>Licht: Blinken 50 % (invertiert)</value>
+  </data>
+  <data name="PfxLightStrobePosMacro" xml:space="preserve">
+    <value>Licht: Stroboskop</value>
+  </data>
+  <data name="PfxLightStrobeNegMacro" xml:space="preserve">
+    <value>Licht: Stroboskop (invertiert)</value>
+  </data>
+  <data name="PfxLightGyralitePosMacro" xml:space="preserve">
+    <value>Licht: Gyralite</value>
+  </data>
+  <data name="PfxLightGyraliteNegMacro" xml:space="preserve">
+    <value>Licht: Gyralite (invertiert)</value>
+  </data>
+  <data name="PfxLightFlickerMacro" xml:space="preserve">
+    <value>Licht: Flackern</value>
+  </data>
+  <data name="PfxLightRandomBlinkMacro" xml:space="preserve">
+    <value>Licht: Zufälliges Blinken</value>
+  </data>
+  <data name="PfxLightPhotonTorpedoMacro" xml:space="preserve">
+    <value>Licht: Photonentorpedo</value>
+  </data>
+  <data name="PfxLightLaserPulseMacro" xml:space="preserve">
+    <value>Licht: Laserpuls</value>
+  </data>
+  <data name="PfxLightScifiEngineGlowMacro" xml:space="preserve">
+    <value>Licht: Sci-Fi-Triebwerksglühen</value>
+  </data>
+  <data name="PfxLightLighthouseMacro" xml:space="preserve">
+    <value>Licht: Leuchtturm</value>
+  </data>
+  <data name="PfxLightBrokenLightMacro" xml:space="preserve">
+    <value>Licht: Defektes Licht</value>
+  </data>
+  <data name="PfxLightSoundModulatedMacro" xml:space="preserve">
+    <value>Licht: Tonmoduliert</value>
+  </data>
+  <data name="BuWizz2SetOutputLevelMacro" xml:space="preserve">
+    <value>Ausgabestufe einstellen</value>
+  </data>
+  <data name="PfxSetVolumeMacro" xml:space="preserve">
+    <value>Lautstärke einstellen</value>
+  </data>
+  <data name="PfxIncreaseVolumeMacro" xml:space="preserve">
+    <value>Lautstärke erhöhen</value>
+  </data>
+  <data name="PfxDecreaseVolumeMacro" xml:space="preserve">
+    <value>Volumen verringern</value>
+  </data>
+  <data name="ShowSensors" xml:space="preserve">
+    <value>Gehe zu Sensoren</value>
+  </data>
+  <data name="ExecuteMacro" xml:space="preserve">
+    <value>Makro ausführen</value>
+  </data>
+  <data name="ShowChannels" xml:space="preserve">
+    <value>Gehe zu den Kanälen</value>
+  </data>
+  <data name="Scope" xml:space="preserve">
+    <value>Umfang:</value>
+  </data>
+  <data name="Kind" xml:space="preserve">
+    <value>Art:</value>
+  </data>
+  <data name="Choices" xml:space="preserve">
+    <value>Auswahlmöglichkeiten:</value>
+  </data>
+  <data name="Executing" xml:space="preserve">
+    <value>Ausführung...</value>
+  </data>
+  <data name="OneShot" xml:space="preserve">
+    <value>Sofort</value>
+  </data>
+  <data name="Repeatable" xml:space="preserve">
+    <value>Wiederholbar</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Drücken Sie eine Taste auf dem Controller.</value>
+  </data>
+  <data name="PressOrMoveJoy" xml:space="preserve">
+    <value>Bewegen Sie einen Joystick auf dem Controller.</value>
+  </data>
+  <data name="Expand" xml:space="preserve">
+    <value>Expandieren</value>
+  </data>
+  <data name="Collapse" xml:space="preserve">
+    <value>Einklappen</value>
+  </data>
+  <data name="AddControllerAxisEvent" xml:space="preserve">
+    <value>neues Controller-Achsenereignis erstellen</value>
+  </data>
+  <data name="AddControllerButtonEvent" xml:space="preserve">
+    <value>neues Controller-Tastenereignis erstellen</value>
+  </data>
+  <data name="ReloadMacros" xml:space="preserve">
+    <value>Makros neu laden</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Kanal</value>
+  </data>
+  <data name="MissingMacro" xml:space="preserve">
+    <value>Fehlendes oder falsches Makro</value>
+  </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="MacroChoice" xml:space="preserve">
+    <value>Makroparameter</value>
+  </data>
+  <data name="Macro" xml:space="preserve">
+    <value>Makro</value>
+  </data>
+  <data name="SelectMacroChoice" xml:space="preserve">
+    <value>Makroparameter auswählen</value>
+  </data>
+  <data name="SelectMacro" xml:space="preserve">
+    <value>Makro auswählen</value>
+  </data>
+  <data name="ShortMacro" xml:space="preserve">
+    <value>M:</value>
+  </data>
+  <data name="HelpBack" xml:space="preserve">
+    <value>Vorherige Seite</value>
+  </data>
+  <data name="HelpForward" xml:space="preserve">
+    <value>Nächste Seite</value>
   </data>
 </root>

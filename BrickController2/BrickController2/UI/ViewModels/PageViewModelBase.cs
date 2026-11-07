@@ -1,5 +1,7 @@
 ﻿using BrickController2.Helpers;
 using BrickController2.UI.Commands;
+using BrickController2.UI.Extensions;
+using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
@@ -18,6 +20,9 @@ namespace BrickController2.UI.ViewModels
             TranslationService = translationService;
 
             BackCommand = new SafeCommand(() => NavigationService.NavigateBackAsync());
+            ShowHelpCommand = new SafeCommand(
+                () => NavigationService.NavigateToAsync<HelpPageViewModel>(new NavigationParameters(("topic", GetHelpTopic()!))),
+                () => HasHelp);
         }
 
         public virtual void OnAppearing()
@@ -36,13 +41,22 @@ namespace BrickController2.UI.ViewModels
 
         public ICommand BackCommand { get; }
 
+        public ICommand ShowHelpCommand { get; }
+
+        public bool HasHelp => GetHelpTopic() is { } topic && HelpResources.Exists(topic);
+
+        /// <summary>
+        /// Help topic of the page. By default derived from the view model name (e.g. CreationListPageViewModel => pages/creation-list).
+        /// </summary>
+        protected virtual HelpTopic? GetHelpTopic() => HelpTopic.ForPage(GetType().Name);
+
         protected INavigationService NavigationService { get; }
         protected ITranslationService TranslationService { get; }
 
         protected internal CancellationToken DisappearingToken => _disappearingTokenSource?.Token ?? default;
 
         protected string Translate(string key) => TranslationService.Translate(key);
-        protected string Translate(string key, string extra) => Translate(key) + " " + extra;
-        protected string Translate(string key, Exception ex) => Translate(key, ex.Message);
+        protected string Translate(string key, string extra) => TranslationService.Translate(key, extra);
+        protected string Translate(string key, Exception ex) => TranslationService.Translate(key, ex);
     }
 }

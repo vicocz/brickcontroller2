@@ -19,6 +19,7 @@ using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Localization;
 using BrickController2.Windows.PlatformServices.Permission;
 using BrickController2.Windows.PlatformServices.SharedFileStorage;
+using Microsoft.Maui.ApplicationModel;
 
 namespace BrickController2.Windows.PlatformServices.DI;
 
@@ -31,9 +32,20 @@ public class PlatformServicesModule : Module
         builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
         builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
         builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
-        builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
-        builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
-        builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
+        if (AppInfo.Current.PackagingModel == AppPackagingModel.Unpackaged)
+        {
+            builder.RegisterType<GrantedPermission>()
+                .As<IReadWriteExternalStoragePermission>()
+                .As<IBluetoothPermission>()
+                .As<ICameraPermission>()
+                .SingleInstance();
+        }
+        else
+        {
+            builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
+            builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
+            builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
+        }
         builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
         builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
         builder.RegisterType<JieStarPlatformService>().As<IJieStarPlatformService>().SingleInstance();

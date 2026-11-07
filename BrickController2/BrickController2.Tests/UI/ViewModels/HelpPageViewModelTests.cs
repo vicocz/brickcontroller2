@@ -1,3 +1,4 @@
+using BrickController2.PlatformServices.Localization;
 using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
@@ -19,6 +20,7 @@ public class HelpPageViewModelTests
     private readonly Mock<INavigationService> _navigationServiceMock = new();
     private readonly Mock<ITranslationService> _translationServiceMock = new();
     private readonly Mock<IHelpService> _helpServiceMock = new();
+    private readonly Mock<ILocalizationService> _localizationServiceMock = new();
 
     private readonly HelpPageViewModel _viewModel;
 
@@ -37,6 +39,7 @@ public class HelpPageViewModelTests
             _navigationServiceMock.Object,
             _translationServiceMock.Object,
             _helpServiceMock.Object,
+            _localizationServiceMock.Object,
             new NavigationParameters(("topic", TopicA)));
         _viewModel.OnAppearing();
     }
@@ -115,6 +118,29 @@ public class HelpPageViewModelTests
 
         _viewModel.GoForwardCommand.CanExecute(null).Should().BeFalse();
         _viewModel.GoBackCommand.CanExecute(null).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("en")]
+    [InlineData("de")]
+    [InlineData("hu-HU")]
+    public void OnAppearing_UsesCultureFromLocalizationService(string cultureName)
+    {
+        // Arrange
+        var culture = new CultureInfo(cultureName);
+        _localizationServiceMock.SetupGet(l => l.CurrentCultureInfo).Returns(culture);
+        var viewModel = new HelpPageViewModel(
+            _navigationServiceMock.Object,
+            _translationServiceMock.Object,
+            _helpServiceMock.Object,
+            _localizationServiceMock.Object,
+            new NavigationParameters(("topic", TopicA)));
+
+        // Act
+        viewModel.OnAppearing();
+
+        // Assert
+        _helpServiceMock.Verify(h => h.GetHelpMarkdownAsync(TopicA, culture), Times.Once);
     }
 
     [Fact]

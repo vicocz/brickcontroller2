@@ -1,3 +1,4 @@
+using BrickController2.PlatformServices.Localization;
 using BrickController2.UI.Commands;
 using BrickController2.UI.Services.Help;
 using BrickController2.UI.Services.Navigation;
@@ -15,6 +16,7 @@ namespace BrickController2.UI.ViewModels;
 public class HelpPageViewModel : PageViewModelBase
 {
     private readonly IHelpService _helpService;
+    private readonly ILocalizationService _localizationService;
     private readonly IThemeService? _themeService;
     private readonly List<HelpTopic> _history = [];
 
@@ -26,12 +28,14 @@ public class HelpPageViewModel : PageViewModelBase
         INavigationService navigationService,
         ITranslationService translationService,
         IHelpService helpService,
+        ILocalizationService localizationService,
         NavigationParameters parameters,
         IThemeService? themeService = null)
         : base(navigationService, translationService)
     {
         _themeService = themeService;
         _helpService = helpService;
+        _localizationService = localizationService;
         _history.Add(parameters.Get<HelpTopic>("topic"));
 
         Title = Translate("Help");
@@ -147,7 +151,7 @@ public class HelpPageViewModel : PageViewModelBase
     {
         var version = ++_loadVersion;
 
-        var markdown = await _helpService.GetHelpMarkdownAsync(topic);
+        var markdown = await _helpService.GetHelpMarkdownAsync(topic, _localizationService.CurrentCultureInfo);
         if (markdown is null || version != _loadVersion)
         {
             return;

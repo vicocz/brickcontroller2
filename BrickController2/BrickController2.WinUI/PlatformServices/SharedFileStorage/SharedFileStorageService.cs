@@ -1,5 +1,5 @@
 ﻿using BrickController2.PlatformServices.SharedFileStorage;
-using BrickController2.Windows.PlatformServices.Package;
+using Microsoft.Maui.ApplicationModel;
 using System;
 using System.IO;
 using Windows.Storage;
@@ -22,12 +22,7 @@ public class SharedFileStorageService : ISharedFileStorageService
     {
         try
         {
-            if (PackageHelper.IsPackaged)
-            {
-                // returns i.e. C:\Users\me\AppData\Local\Packages\com.scn.BrickController2_t9dkejnmt9jgw\RoamingState
-                return ApplicationData.Current.RoamingFolder.Path; // throws an uncatchable exception if the app is not packaged
-            }
-            else
+            if (AppInfo.Current.PackagingModel == AppPackagingModel.Unpackaged)
             {
                 // return i.e. C:\\Users\\me\\AppData\\Roaming\\BrickController2
                 string bc2StorageDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ISharedFileStorageService.SharedDirectoryName);
@@ -38,6 +33,11 @@ public class SharedFileStorageService : ISharedFileStorageService
                 }
 
                 return bc2StorageDirectory;
+            }
+            else
+            {
+                // returns i.e. C:\Users\me\AppData\Local\Packages\com.scn.BrickController2_t9dkejnmt9jgw\RoamingState
+                return ApplicationData.Current.RoamingFolder.Path; // throws an uncatchable exception if the app is not packaged
             }
         }
         catch (Exception)

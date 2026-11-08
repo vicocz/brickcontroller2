@@ -4,6 +4,7 @@
     {
         Normal,
         Train,
-        Accelerator
+        Accelerator,
+        Sequence,
     }
 }

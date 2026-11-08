@@ -14,6 +14,8 @@ namespace BrickController2.BusinessLogic
 {
     public class PlayLogic : IPlayLogic
     {
+        private const float AXIS_TRIGGER_RATIO = 0.5F;
+
         private readonly ICreationManager _creationManager;
         private readonly IDeviceManager _deviceManager;
         private readonly ISequencePlayer _sequencePlayer;
@@ -21,6 +23,7 @@ namespace BrickController2.BusinessLogic
         private readonly IDictionary<(string DeviceId, int Channel), float[]> _previousOutputs = new Dictionary<(string, int), float[]>();
         private readonly IDictionary<(string EventCode, string DeviceId, int Channel), float> _previousAxisOutputs = new Dictionary<(string, string, int), float>();
         private readonly IDictionary<(string DeviceId, int Channel), bool> _disabledOutputForAxises = new Dictionary<(string, int), bool>();
+        private readonly IDictionary<(string EventCode, string DeviceId, int Channel), bool> _axisTriggerStates = new Dictionary<(string, string, int), bool>();
         private readonly IDictionary<(string DeviceId, int Channel), IDictionary<(InputDeviceEventType EventType, string EventCode), float>> _axisOutputValues = new Dictionary<(string, int), IDictionary<(InputDeviceEventType, string), float>>();
 
         public PlayLogic(
@@ -75,7 +78,7 @@ namespace BrickController2.BusinessLogic
                 return false;
             }
 
-            if (controllerAction.ButtonType == ControllerButtonType.Sequence)
+            if (controllerAction.UsesSequence)
             {
                 return _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName) != null;
             }
@@ -90,11 +93,13 @@ namespace BrickController2.BusinessLogic
 
         public void StartPlay()
         {
+            _axisTriggerStates.Clear();
             _sequencePlayer.StartPlayer();
         }
 
         public void StopPlay()
         {
+            _axisTriggerStates.Clear();
             _sequencePlayer.StopPlayer();
         }
 
@@ -146,6 +151,12 @@ namespace BrickController2.BusinessLogic
                             }
                             else if (gameControllerEvent.Key.EventType == InputDeviceEventType.Axis)
                             {
+                                if (controllerAction.AxisType == ControllerAxisType.Sequence)
+                                {
+                                    ProcessAxisSequenceTrigger(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction);
+                                    continue;
+                                }
+
                                 var (useAxisValue, axisValue) = ProcessAxisEvent(gameControllerEvent.Key.EventCode, gameControllerEvent.Value, controllerAction, device);
                                 if (useAxisValue)
                                 {
@@ -281,10 +292,36 @@ namespace BrickController2.BusinessLogic
             buttonOutputs[0] = value;
         }
 
-        private (bool UseAxisValue, float AxisValue) ProcessAxisEvent(string gameControllerEventCode, float axisValue, ControllerAction controllerAction, Device device)
+        private void ProcessAxisSequenceTrigger(string eventCode, float axisValue, ControllerAction controllerAction)
         {
-            var previousAxisValue = GetPreviousAxisOutput(gameControllerEventCode, controllerAction);
+            var key = (eventCode, controllerAction.DeviceId, controllerAction.Channel);
+            _axisTriggerStates.TryGetValue(key, out var wasActive);
 
+            var (isInDeadZone, normalizedValue) = NormalizeAxisValue(axisValue, controllerAction);
+            var isActive = !isInDeadZone && normalizedValue >= AXIS_TRIGGER_RATIO;
+            if (isActive == wasActive)
+            {
+                return;
+            }
+
+            _axisTriggerStates[key] = isActive;
+
+            if (isActive)
+            {
+                var sequence = _creationManager.Sequences.FirstOrDefault(s => s.Name == controllerAction.SequenceName);
+                if (sequence != null)
+                {
+                    _sequencePlayer.StartSequence(controllerAction.DeviceId, controllerAction.Channel, false, sequence);
+                }
+            }
+            else
+            {
+                _sequencePlayer.StopSequence(controllerAction.DeviceId, controllerAction.Channel);
+            }
+        }
+
+        private static (bool IsInDeadZone, float Value) NormalizeAxisValue(float axisValue, ControllerAction controllerAction)
+        {
             axisValue = controllerAction.IsInvert ? -axisValue : axisValue;
 
             var axisDeadZone = controllerAction.AxisDeadZonePercent / 100F;
@@ -306,7 +343,22 @@ namespace BrickController2.BusinessLogic
             }
 
             axisValue = controllerAction.AxisActiveZonePercent > 0 ? axisValue * 100F / controllerAction.AxisActiveZonePercent : axisValue;
-            
+
+            return (false, axisValue);
+        }
+
+        private (bool UseAxisValue, float AxisValue) ProcessAxisEvent(string gameControllerEventCode, float axisValue, ControllerAction controllerAction, Device device)
+        {
+            var previousAxisValue = GetPreviousAxisOutput(gameControllerEventCode, controllerAction);
+
+            var (isInDeadZone, normalizedValue) = NormalizeAxisValue(axisValue, controllerAction);
+            if (isInDeadZone)
+            {
+                return (true, 0);
+            }
+
+            axisValue = normalizedValue;
+
             if (controllerAction.AxisCharacteristic == ControllerAxisCharacteristic.Exponential)
             {
                 // Cheat :)

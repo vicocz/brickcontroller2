@@ -80,6 +80,29 @@ namespace BrickController2.BusinessLogic
             }
         }
 
+        public void StartSequence(string deviceId, int channel, bool invert, Sequence sequence)
+        {
+            lock (_sequences)
+            {
+                if (!_sequences.ContainsKey((deviceId, channel)))
+                {
+                    _sequences[(deviceId, channel)] = (sequence, invert, null);
+                }
+            }
+        }
+
+        public void StopSequence(string deviceId, int channel)
+        {
+            lock (_sequences)
+            {
+                if (_sequences.Remove((deviceId, channel)))
+                {
+                    var device = _deviceManager.GetDeviceById(deviceId);
+                    device?.SetOutput(channel, 0);
+                }
+            }
+        }
+
         private void ProcessSequences()
         {
             try

@@ -145,6 +145,11 @@ namespace BrickController2.CreationManagement
         [JsonIgnore]
         internal MacroScope MacroScope => HasChannel ? MacroScope.Channel : MacroScope.Device;
 
+        [Ignore]
+        [JsonIgnore]
+        internal bool UsesSequence => ButtonType == ControllerButtonType.Sequence || AxisType == ControllerAxisType.Sequence;
+
+
         public override string ToString()
         {
             return HasChannel

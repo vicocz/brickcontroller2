@@ -404,6 +404,97 @@ public class PlayLogicTests
         }
     }
 
+    [Fact]
+    public void ProcessGameControllerEvent_StartsSequence_WhenAxisReachesHalfOfRange()
+    {
+        var sequence = SetupAxisSequenceAction();
+
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.5f));
+
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(DeviceId, 3, false, sequence), Times.Once);
+        _deviceMock.Verify(d => d.SetOutput(It.IsAny<int>(), It.IsAny<float>()), Times.Never);
+    }
+
+    [Fact]
+    public void ProcessGameControllerEvent_DoesNotStartSequence_WhenAxisIsBelowHalfOfRange()
+    {
+        SetupAxisSequenceAction();
+
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.4f));
+
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<Sequence>()), Times.Never);
+    }
+
+    [Fact]
+    public void ProcessGameControllerEvent_StopsSequence_WhenAxisFallsBelowHalfOfRange()
+    {
+        var sequence = SetupAxisSequenceAction();
+
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.8f));
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.2f));
+
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(DeviceId, 3, false, sequence), Times.Once);
+        _sequencePlayerMock.Verify(sp => sp.StopSequence(DeviceId, 3), Times.Once);
+    }
+
+    [Fact]
+    public void ProcessGameControllerEvent_StartsSequenceOnce_WhenAxisStaysAboveHalfOfRange()
+    {
+        var sequence = SetupAxisSequenceAction();
+
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.6f));
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.9f));
+
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(DeviceId, 3, false, sequence), Times.Once);
+        _sequencePlayerMock.Verify(sp => sp.StopSequence(It.IsAny<string>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public void ProcessGameControllerEvent_StartsSequenceOnNegativeSide_WhenActionIsInverted()
+    {
+        var sequence = SetupAxisSequenceAction(isInvert: true);
+
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.8f));
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<Sequence>()), Times.Never);
+
+        _playLogic.ProcessGameControllerEvent(AxisEvent(-0.8f));
+
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(DeviceId, 3, false, sequence), Times.Once);
+    }
+
+    [Fact]
+    public void ProcessGameControllerEvent_UsesRangeAfterDeadZone_WhenSequenceTriggeredByAxis()
+    {
+        var sequence = SetupAxisSequenceAction(deadZonePercent: 20);
+
+        // (0.55 - 0.2) / 0.8 = 0.4375 -> below half of the range
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.55f));
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<Sequence>()), Times.Never);
+
+        // (0.7 - 0.2) / 0.8 = 0.625 -> above half of the range
+        _playLogic.ProcessGameControllerEvent(AxisEvent(0.7f));
+
+        _sequencePlayerMock.Verify(sp => sp.StartSequence(DeviceId, 3, false, sequence), Times.Once);
+    }
+
+    private Sequence SetupAxisSequenceAction(bool isInvert = false, int deadZonePercent = 0)
+    {
+        var sequence = new Sequence { Name = "seq-1" };
+        _creationManagerMock.SetupGet(cm => cm.Sequences).Returns([sequence]);
+        _sequencePlayerMock.Setup(sp => sp.StartSequence(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<Sequence>()));
+        _sequencePlayerMock.Setup(sp => sp.StopSequence(It.IsAny<string>(), It.IsAny<int>()));
+
+        var action = CreateControllerAction(channel: 3, isInvert: isInvert, sequenceName: "seq-1");
+        action.AxisType = ControllerAxisType.Sequence;
+        action.AxisDeadZonePercent = deadZonePercent;
+        _playLogic.ActiveProfile = CreateProfile(CreateEvent(action, InputDeviceEventType.Axis));
+
+        return sequence;
+    }
+
+    private static InputDeviceEventArgs AxisEvent(float value)
+        => new(ControllerId, InputDeviceEventType.Axis, EventCode, value);
+
     private static InputDeviceEventArgs ButtonEvent(float value)
         => new(ControllerId, InputDeviceEventType.Button, EventCode, value);
 

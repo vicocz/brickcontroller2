@@ -67,7 +67,7 @@ namespace BrickController2.CreationManagement
                 {
                     foreach (var controllerAction in controllerEvent.ControllerActions)
                     {
-                        if (controllerAction.ButtonType == ControllerButtonType.Sequence)
+                        if (controllerAction.UsesSequence)
                         {
                             var sequenceName = controllerAction.SequenceName;
                             sequenceNames.Add(sequenceName);

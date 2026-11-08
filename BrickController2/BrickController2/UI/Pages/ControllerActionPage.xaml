@@ -191,8 +191,16 @@
                                 <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Button}">
                                     <Setter Property="IsVisible" Value="True"/>
                                 </DataTrigger>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.AxisType}" Value="{x:Static creationManagement:ControllerAxisType.Sequence}">
+                                    <Setter Property="IsVisible" Value="True"/>
+                                </DataTrigger>
                             </VerticalStackLayout.Triggers>
                             <Grid ColumnSpacing="6">
+                                <Grid.Triggers>
+                                    <DataTrigger TargetType="Grid" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
+                                        <Setter Property="IsVisible" Value="False"/>
+                                    </DataTrigger>
+                                </Grid.Triggers>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="3*"/>
@@ -206,6 +214,9 @@
                             <VerticalStackLayout IsVisible="False">
                                 <VerticalStackLayout.Triggers>
                                     <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.ButtonType}" Value="{x:Static creationManagement:ControllerButtonType.Sequence}">
+                                        <Setter Property="IsVisible" Value="True"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.AxisType}" Value="{x:Static creationManagement:ControllerAxisType.Sequence}">
                                         <Setter Property="IsVisible" Value="True"/>
                                     </DataTrigger>
                                 </VerticalStackLayout.Triggers>
@@ -278,6 +289,9 @@
                             <VerticalStackLayout.Triggers>
                                 <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding ControllerEvent.EventType}" Value="{x:Static gameController:InputDeviceEventType.Axis}">
                                     <Setter Property="IsVisible" Value="True"/>
+                                </DataTrigger>
+                                <DataTrigger TargetType="VerticalStackLayout" Binding="{Binding Action.AxisType}" Value="{x:Static creationManagement:ControllerAxisType.Sequence}">
+                                    <Setter Property="IsVisible" Value="False"/>
                                 </DataTrigger>
                             </VerticalStackLayout.Triggers>
                             <Grid ColumnSpacing="6">

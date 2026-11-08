@@ -495,7 +495,7 @@ namespace BrickController2.UI.ViewModels
             var channelScope = IsChannelScope;
             var buttonTypes = Enum.GetNames<ControllerButtonType>()
                 .Where(n => (channelScope && n != nameof(ControllerButtonType.Macro)) ||
-                    (allowMacro && n == nameof(ControllerButtonType.Macro)))
+                        (allowMacro && n == nameof(ControllerButtonType.Macro)))
                 .ToArray();
 
             var result = await _dialogService.ShowSelectionDialogAsync(

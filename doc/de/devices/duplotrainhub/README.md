@@ -20,5 +20,6 @@ Das Gerät stellt 1 Kanal bereit:
 
 ## Siehe auch
 
+- [Kanaleinrichtung](../../pages/channel-setup/README.md)
 - [Geräte](../../pages/device-list/README.md)
 - [Steuerungsaktion](../../pages/controller-action/README.md)

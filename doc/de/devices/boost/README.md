@@ -22,5 +22,6 @@ Die Anschlüsse A und B sind die integrierten Motoranschlüsse des Hubs.
 
 ## Siehe auch
 
+- [Kanaleinrichtung](../../pages/channel-setup/README.md)
 - [Geräte](../../pages/device-list/README.md)
 - [Steuerungsaktion](../../pages/controller-action/README.md)

@@ -1,5 +1,4 @@
 ﻿using BrickController2.PlatformServices.SharedFileStorage;
-using Microsoft.Maui.ApplicationModel;
 using System;
 using System.IO;
 using Windows.Storage;
@@ -8,7 +7,12 @@ namespace BrickController2.Windows.PlatformServices.SharedFileStorage;
 
 public class SharedFileStorageService : ISharedFileStorageService
 {
-    private readonly string? _sharedStorageBaseDirectory = InitialGetSharedStorageBaseDirectory();
+    private readonly string? _sharedStorageBaseDirectory;
+
+    public SharedFileStorageService(string? sharedStorageDirectory)
+    {
+        _sharedStorageBaseDirectory = sharedStorageDirectory;
+    }
 
     public bool IsSharedStorageAvailable => _sharedStorageBaseDirectory != null;
 
@@ -18,27 +22,31 @@ public class SharedFileStorageService : ISharedFileStorageService
 
     public string? SharedStorageDirectory => _sharedStorageBaseDirectory;
 
-    private static string? InitialGetSharedStorageBaseDirectory()
+    public static string? GetPackagedSharedStorageDirectory()
     {
         try
         {
-            if (AppInfo.Current.PackagingModel == AppPackagingModel.Unpackaged)
-            {
-                // return i.e. C:\\Users\\me\\AppData\\Roaming\\BrickController2
-                string bc2StorageDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ISharedFileStorageService.SharedDirectoryName);
+            return ApplicationData.Current.RoamingFolder.Path;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 
-                if (!Directory.Exists(bc2StorageDirectory))
-                {
-                    Directory.CreateDirectory(bc2StorageDirectory);
-                }
+    public static string? GetUnpackagedSharedStorageDirectory()
+    {
+        try
+        {
+            // return i.e. C:\\Users\\me\\AppData\\Roaming\\BrickController2
+            string bc2StorageDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ISharedFileStorageService.SharedDirectoryName);
 
-                return bc2StorageDirectory;
-            }
-            else
+            if (!Directory.Exists(bc2StorageDirectory))
             {
-                // returns i.e. C:\Users\me\AppData\Local\Packages\com.scn.BrickController2_t9dkejnmt9jgw\RoamingState
-                return ApplicationData.Current.RoamingFolder.Path; // throws an uncatchable exception if the app is not packaged
+                Directory.CreateDirectory(bc2StorageDirectory);
             }
+
+            return bc2StorageDirectory;
         }
         catch (Exception)
         {

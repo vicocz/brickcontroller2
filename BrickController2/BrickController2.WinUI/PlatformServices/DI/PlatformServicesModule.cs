@@ -31,9 +31,11 @@ public class PlatformServicesModule : Module
         builder.RegisterType<GameControllerService>().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
         builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
         builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
-        builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
         if (AppInfo.Current.PackagingModel == AppPackagingModel.Unpackaged)
         {
+            builder.Register(_ => new SharedFileStorageService(SharedFileStorageService.GetUnpackagedSharedStorageDirectory()))
+                .As<ISharedFileStorageService>()
+                .SingleInstance();
             builder.RegisterType<GrantedPermission>()
                 .As<IReadWriteExternalStoragePermission>()
                 .As<IBluetoothPermission>()
@@ -42,6 +44,9 @@ public class PlatformServicesModule : Module
         }
         else
         {
+            builder.Register(_ => new SharedFileStorageService(SharedFileStorageService.GetPackagedSharedStorageDirectory()))
+                .As<ISharedFileStorageService>()
+                .SingleInstance();
             builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
             builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
             builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();

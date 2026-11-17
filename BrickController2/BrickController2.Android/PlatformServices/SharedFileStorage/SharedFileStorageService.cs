@@ -9,8 +9,6 @@ namespace BrickController2.Droid.PlatformServices.SharedFileStorage
 {
     public class SharedFileStorageService : NotifyPropertyChangedSource, ISharedFileStorageService
     {
-        private static string _brickController2SharedDirectory = "BrickController2";
-
         public bool _isPermissionGranted = false;
 
         public bool IsSharedStorageAvailable => IsPermissionGranted && SharedStorageDirectory is not null;
@@ -68,7 +66,7 @@ namespace BrickController2.Droid.PlatformServices.SharedFileStorage
                         return null;
                     }
 
-                    var bc2StorageDirectory = Path.Combine(storageDirectory, _brickController2SharedDirectory);
+                    var bc2StorageDirectory = Path.Combine(storageDirectory, ISharedFileStorageService.SharedDirectoryName);
 
                     if (!Directory.Exists(bc2StorageDirectory))
                     {

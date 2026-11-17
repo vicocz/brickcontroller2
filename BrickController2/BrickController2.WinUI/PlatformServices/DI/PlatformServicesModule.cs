@@ -19,6 +19,7 @@ using BrickController2.Windows.PlatformServices.Infrared;
 using BrickController2.Windows.PlatformServices.Localization;
 using BrickController2.Windows.PlatformServices.Permission;
 using BrickController2.Windows.PlatformServices.SharedFileStorage;
+using Microsoft.Maui.ApplicationModel;
 
 namespace BrickController2.Windows.PlatformServices.DI;
 
@@ -30,10 +31,26 @@ public class PlatformServicesModule : Module
         builder.RegisterType<GameControllerService>().As<IInputDeviceService>().As<IStartable>().SingleInstance(); // ensure it's started as soon as the container is built in Autofac
         builder.RegisterType<BleService>().As<IBluetoothLEService>().SingleInstance();
         builder.RegisterType<LocalizationService>().As<ILocalizationService>().SingleInstance();
-        builder.RegisterType<SharedFileStorageService>().As<ISharedFileStorageService>().SingleInstance();
-        builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
-        builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
-        builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
+        if (AppInfo.Current.PackagingModel == AppPackagingModel.Unpackaged)
+        {
+            builder.Register(_ => new SharedFileStorageService(SharedFileStorageService.GetUnpackagedSharedStorageDirectory()))
+                .As<ISharedFileStorageService>()
+                .SingleInstance();
+            builder.RegisterType<GrantedPermission>()
+                .As<IReadWriteExternalStoragePermission>()
+                .As<IBluetoothPermission>()
+                .As<ICameraPermission>()
+                .SingleInstance();
+        }
+        else
+        {
+            builder.Register(_ => new SharedFileStorageService(SharedFileStorageService.GetPackagedSharedStorageDirectory()))
+                .As<ISharedFileStorageService>()
+                .SingleInstance();
+            builder.RegisterType<ReadWriteExternalStoragePermission>().As<IReadWriteExternalStoragePermission>().InstancePerDependency();
+            builder.RegisterType<BluetoothPermission>().As<IBluetoothPermission>().InstancePerDependency();
+            builder.RegisterType<CameraPermission>().As<ICameraPermission>().InstancePerDependency();
+        }
         builder.RegisterType<MKPlatformService>().As<IMKPlatformService>().SingleInstance();
         builder.RegisterType<CaDAPlatformService>().As<ICaDAPlatformService>().SingleInstance();
         builder.RegisterType<JieStarPlatformService>().As<IJieStarPlatformService>().SingleInstance();

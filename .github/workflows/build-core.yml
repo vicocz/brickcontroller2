@@ -51,7 +51,7 @@ jobs:
         --collect:"XPlat Code Coverage"
     - name: Generate Coverage Report
       if: always()
-      uses: danielpalme/ReportGenerator-GitHub-Action@5
+      uses: danielpalme/ReportGenerator-GitHub-Action@5f3701a41d14548c9b8e575a5c235230e515cbc0
       with:
         reports: 'TestResults/**/coverage.cobertura.xml'
         targetdir: 'CoverageReport'

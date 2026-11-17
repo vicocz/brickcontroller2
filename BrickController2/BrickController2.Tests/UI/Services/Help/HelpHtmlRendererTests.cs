@@ -73,6 +73,38 @@ public class HelpHtmlRendererTests
         html.Should().Contain("icons/unknown_icon.svg").And.NotContain("data:image");
     }
 
+    [Fact]
+    public void GetIconDataUri_IconWithStyle_StyleRemoved()
+    {
+        // Act
+        var dataUri = HelpHtmlRenderer.GetIconDataUri("../../../icons/settings.svg");
+
+        // Assert
+        dataUri.Should().StartWith("data:image/svg+xml;base64,");
+        var svg = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(dataUri!["data:image/svg+xml;base64,".Length..]));
+        svg.Should().Contain("<path").And.NotContain("<style").And.NotContain("prefers-color-scheme");
+    }
+
+    [Fact]
+    public void Icons_ContainDarkModeStyle()
+    {
+        // Arrange
+        var docRoot = FindDocRoot();
+        if (docRoot is null)
+        {
+            return; // repository sources are not available (e.g. packaged test run)
+        }
+
+        // Act
+        var invalid = Directory.EnumerateFiles(Path.Combine(docRoot, "icons"), "*.svg")
+            .Where(file => !File.ReadAllText(file).Contains("prefers-color-scheme:dark"))
+            .Select(Path.GetFileName)
+            .ToList();
+
+        // Assert
+        invalid.Should().BeEmpty();
+    }
+
     private static string? FindDocRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)

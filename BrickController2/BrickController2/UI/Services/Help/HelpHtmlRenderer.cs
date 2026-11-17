@@ -13,6 +13,7 @@ namespace BrickController2.UI.Services.Help;
 internal static class HelpHtmlRenderer
 {
     private static readonly Regex Heading = new(@"^#\s+(?<title>.+)$", RegexOptions.Multiline | RegexOptions.Compiled);
+    private static readonly Regex SvgStyle = new(@"<style\b[^>]*>.*?</style>", RegexOptions.Singleline | RegexOptions.Compiled);
 
     private const string Style = """
         :root { color-scheme: light dark; }
@@ -101,9 +102,10 @@ internal static class HelpHtmlRenderer
             return null;
         }
 
-        using var memory = new MemoryStream();
-        stream.CopyTo(memory);
-        return "data:image/svg+xml;base64," + Convert.ToBase64String(memory.ToArray());
+        // the embedded style adapts the icon to the browser color scheme, the app theme is applied by the help page style instead
+        using var reader = new StreamReader(stream);
+        var svg = SvgStyle.Replace(reader.ReadToEnd(), string.Empty);
+        return "data:image/svg+xml;base64," + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(svg));
     }
 
     /// <summary>

@@ -10,6 +10,12 @@ Sources:
 
 To add an icon, find it in the Material Icons set (Outlined), download its SVG (24 px) from Google Fonts or the package above, and save it as `<Icon value>.svg`.
 
+Add this style right after the opening `<svg>` tag of every icon, so the icon stays visible when the markdown is viewed in a browser in dark mode (the app removes it and applies its own theme):
+
+```xml
+<style>path{fill:#1f2328}@media (prefers-color-scheme:dark){path{fill:#f0f6fc}}</style>
+```
+
 The file name equals the `Icon` value used in XAML (e.g. `Icon="settings"` -> `settings.svg`).
 Reference an icon from a page topic with a Markdown image pointing to `../../../icons/<name>.svg`.
 

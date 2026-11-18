@@ -178,8 +178,10 @@ namespace BrickController2.DeviceManagement
                     }
                     else if (channelConfig.OutputType == ChannelOutputType.StepperMotor)
                     {
-                        // just configure angle reporting as for servo
+                        // configure angle reporting as for servo
                         await SetupChannelForPortInformationAsync(channel, token);
+                        // stepper origin is the current position, so zero steps hold the motor in place
+                        _calibratedZeroAngles[channel] = ChannelRelativePositions.Get(channel).Current;
                     }
                 }
 

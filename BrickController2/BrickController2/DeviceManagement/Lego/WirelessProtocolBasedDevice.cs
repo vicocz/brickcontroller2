@@ -45,6 +45,7 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
     {
         // reset output values & positions
         ResetOutputValues();
+        InitializeChannelInfo();
         ChannelConfigs.Clear();
 
         // Initialize configuration per channel
@@ -73,12 +74,17 @@ internal abstract class WirelessProtocolBasedDevice : BluetoothDevice
         return portId < NumberOfChannels;
     }
 
-    protected virtual void ResetOutputValues()
+    protected virtual void InitializeChannelInfo()
     {
         // reset status values & positions
         ChannelAbsPositions.Clear();
         ChannelRelativePositions.Clear();
         AttachedPeripherals.Clear();
+    }
+
+    protected virtual void ResetOutputValues()
+    {
+        // any output values to be sent should be reset
     }
 
     protected override async Task ProcessOutputsAsync(CancellationToken token)

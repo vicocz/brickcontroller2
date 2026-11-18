@@ -8,11 +8,15 @@ LEGO Technic Move Hub is a Bluetooth LE hub with three motor ports (A, B, C) and
 
 The device exposes 9 channels:
 
-| Channels | Purpose | Output |
-|---|---|---|
-| 1 - 2 | Ports A, B | -100 % to +100 % |
-| 3 | Port C (motor or steering servo) | -100 % to +100 % |
-| 4 - 9 | Lights 1 - 6 | 0 % to 100 % |
+| Channels | Purpose | Output | Supported types |
+|---|---|---|---|
+| 1 - 2 | Ports A, B | -100 % to +100 % | Motor, stepper (without PLAYVM) |
+| 3 | Port C (motor or steering servo) | -100 % to +100 % | Motor (without PLAYVM), servo, stepper (without PLAYVM) |
+| 4 - 9 | Lights 1 - 6 | 0 % to 100 % | Light |
+
+## Stepper mode
+
+Each press of a controller button or full axis value (+100 % or -100 %)
 
 ## Getting started
 
@@ -22,7 +26,9 @@ The device exposes 9 channels:
 
 ## PLAYVM mode
 
-When enabled, port C works as a steering servo. Virtual channel **AB** drives ports A and B together as drive motors. When disabled, port C works as a normal motor.
+PLAYVM is the mode that matches the behavior of the original LEGO app.
+
+When enabled, port C works as a steering servo. Virtual channel **AB** drives ports A and B together as drive motors. When disabled, ports A, B and C work as independent channels: motor, stepper, and on port C also servo.
 
  ## Settings
  - **PLAYVM mode**: Enables PLAYVM behavior. The default is enabled.

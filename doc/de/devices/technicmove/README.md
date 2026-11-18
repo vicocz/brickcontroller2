@@ -8,11 +8,15 @@ Der LEGO Technic Move Hub ist ein Bluetooth-LE-Hub mit drei Motoranschlüssen (A
 
 Das Gerät stellt 9 Kanäle bereit:
 
-| Kanäle | Zweck | Ausgabe |
-|---|---|---|
-| 1 - 2 | Anschlüsse A, B | -100 % bis +100 % |
-| 3 | Anschluss C (Motor oder Lenkservo) | -100 % bis +100 % |
-| 4 - 9 | Leuchten 1 - 6 | 0 % bis 100 % |
+| Kanäle | Zweck | Ausgabe | Unterstützte Typen |
+|---|---|---|---|
+| 1 - 2 | Anschlüsse A, B | -100 % bis +100 % | Motor, Schrittmotor (ohne PLAYVM) |
+| 3 | Anschluss C (Motor oder Lenkservo) | -100 % bis +100 % | Motor (ohne PLAYVM), Servo, Schrittmotor (ohne PLAYVM) |
+| 4 - 9 | Leuchten 1 - 6 | 0 % bis 100 % | Licht |
+
+## Schrittmodus
+
+Jeder Druck auf eine Controller-Taste oder voller Achsenwert (+100 % oder -100 %)
 
 ## Erste Schritte
 
@@ -22,7 +26,9 @@ Das Gerät stellt 9 Kanäle bereit:
 
 ## PLAYVM-Modus
 
-Wenn der PLAYVM-Modus aktiviert ist, funktioniert Anschluss C als Lenkservo. Der virtuelle Kanal **AB** steuert die Anschlüsse A und B gemeinsam als Antriebsmotoren. Ist der Modus deaktiviert, funktioniert Anschluss C als normaler Motor.
+PLAYVM ist der Modus, der dem Verhalten der originalen LEGO-App entspricht.
+
+Wenn der PLAYVM-Modus aktiviert ist, funktioniert Anschluss C als Lenkservo. Der virtuelle Kanal **AB** steuert die Anschlüsse A und B gemeinsam als Antriebsmotoren. Ist der Modus deaktiviert, funktionieren die Anschlüsse A, B und C als unabhängige Kanäle: Motor, Schrittmotor und an Anschluss C zusätzlich Servo.
 
 ## Einstellungen
 

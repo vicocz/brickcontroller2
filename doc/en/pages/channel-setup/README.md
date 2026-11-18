@@ -7,15 +7,15 @@ Use this page to test and adjust a servo or stepper motor channel on a connected
 - Check the device, channel and channel type. In channel test mode, select a supported **Channel type**.
 - For a stepper motor, set the **Stepper angle**, then test the movement with **Step back** and **Step forward**.
 - For a servo motor, test positions from -100 % to +100 %. If the device supports it, you can also adjust the **Servo range**.
-- Set the **Base angle** for a servo or stepper channel. For servo channels, you can also calibrate it automatically. For stepper channels, the base angle is used for testing only and is not saved.
-- Use **Reset** below **Base angle** to move the output to the selected base angle.
+- Set the **Base angle** for a servo or stepper channel. For servo channels, you can also calibrate it automatically. For stepper channels, the base angle is used for testing only and is not applied.
+- Use ![](../../../icons/settings_backup_restore.svg) next to a slider to restore its default value. Use the **Reset** button below **Base angle** to move the output to the selected base angle.
 
 ## How to
 
 1. Adjust the angle slider. The value changes in 5-degree steps.
 2. Use the test buttons to check the motor. Servo test buttons set positions at -100 %, -50 %, 0 %, +50 % and +100 %. Stepper test buttons move the motor backward or forward by the selected step angle.
 3. For a servo, use **Auto calibrate** if the device supports it. You can also adjust the **Base angle** slider manually.
-4. Select **Apply changes** to keep your settings. For stepper channels, only the **Stepper angle** is saved; the **Base angle** is used for testing only. Leaving the page disconnects the device.
+4. Select **Apply changes** to apply your settings to the controller action. For stepper channels, only the **Stepper angle** is applied; the **Base angle** is used for testing only. Leaving the page disconnects the device.
 
 ## Notes
 
@@ -23,11 +23,11 @@ Use this page to test and adjust a servo or stepper motor channel on a connected
 - In channel test mode, the channel type selector only offers types supported by the device and channel.
 - Automatic calibration is available only for supported servo outputs.
 - The **Servo range** can only be changed on devices that support it. On other devices, such as Technic Move, the slider is disabled.
-- When you open this page in channel test mode from a device page, **Apply changes** is unavailable and your test settings are not saved.
+- When you open this page in channel test mode from a device page, **Apply changes** is unavailable and your test settings are not applied.
 
 ## Toolbar
 
-- ![](../../../icons/done_outline.svg) **Apply changes** - save the channel settings and close the page.
+- ![](../../../icons/done_outline.svg) **Apply changes** - apply the channel settings to the controller action and close the page.
 
 ## Floating buttons
 

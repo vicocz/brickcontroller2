@@ -30,6 +30,8 @@ namespace BrickController2.DeviceManagement
         private readonly OutputValuesGroup<Half> _outputValues = new(9);
         private readonly OutputValuesGroup<Half> _playVmValues = new(2);
         private readonly int[] _calibratedZeroAngles = new int[3]; // zero ABS angles for steering ABC channels in non PLAYVM mode
+        private readonly int[] _stepperCounter = new int[3]; // number of steps applied to stepper channels A, B, C
+        private readonly Half[] _lastStepperValues = new Half[3]; // last processed stepper input values for A, B, C
 
         private bool _applyPlayVmMode;
         private TaskCompletionSource<bool>? _playVmCalibrationTcs;
@@ -92,10 +94,7 @@ namespace BrickController2.DeviceManagement
                 CHANNEL_C when _applyPlayVmMode => _playVmValues.SetOutput(PLAYVM_CHANNEL_STEER, rawValue),
                 // Light channels 1 - 6 require absolute value
                 >= CHANNEL_1 and <= CHANNEL_6 => _outputValues.SetOutput(channel, Half.Abs(rawValue)),
-                // stepper channels accumulate the input value as a step coefficient
-                _ when channel >= CHANNEL_A && channel <= CHANNEL_C && GetOutputType(channel) == ChannelOutputType.StepperMotor
-                    => _outputValues.AccumulateOutput(channel, (Half)validatedValue),
-                // rest of ports: such as A, B or C when not in PLAYVM mode - use value as is
+                // rest of ports: such as A, B or C when not in PLAYVM mode (incl. stepper) - use value as is
                 _ => _outputValues.SetOutput(CheckChannel(channel), rawValue)
             };
         }
@@ -182,6 +181,8 @@ namespace BrickController2.DeviceManagement
                         await SetupChannelForPortInformationAsync(channel, token);
                         // stepper origin is the current position, so zero steps hold the motor in place
                         _calibratedZeroAngles[channel] = ChannelRelativePositions.Get(channel).Current;
+                        _stepperCounter[channel] = 0;
+                        _lastStepperValues[channel] = Half.Zero;
                     }
                 }
 
@@ -214,6 +215,8 @@ namespace BrickController2.DeviceManagement
         {
             base.InitializeChannelInfo();
             _calibratedZeroAngles.AsSpan().Clear();
+            _stepperCounter.AsSpan().Clear();
+            _lastStepperValues.AsSpan().Clear();
         }
 
         protected override async Task<bool> SendOutputValuesAsync(CancellationToken token)
@@ -459,16 +462,32 @@ namespace BrickController2.DeviceManagement
             return WriteAsync(cmd, token);
         }
 
-        private ValueTask<bool> SendPortOutput_StepperAsync(int channel, Half value, CancellationToken token)
+        private async ValueTask<bool> SendPortOutput_StepperAsync(int channel, Half value, CancellationToken token)
         {
-            // value is the accumulated step coefficient from SetOutput
+            // step only on full change, otherwise just remember the value
+            if (value == _lastStepperValues[channel] || Half.Abs(value) != (Half)100)
+            {
+                _lastStepperValues[channel] = value;
+                return true;
+            }
+
+            var steps = _stepperCounter[channel] + (value > Half.Zero ? 1 : -1);
             var targetPosition = _calibratedZeroAngles[channel]
-                + (int)value * ChannelConfigs.Get(channel).StepperAngle;
+                + steps * ChannelConfigs.Get(channel).StepperAngle;
 
             var portId = GetPortId(channel);
             var servoSpeed = channel == CHANNEL_C ? (byte)50 : (byte)30;
             var cmd = BuildPortOutput_GotoAbsPosition(portId, targetPosition, servoSpeed);
-            return WriteAsync(cmd, token);
+
+            if (!await WriteAsync(cmd, token))
+            {
+                return false;
+            }
+
+            // apply step only after successful write to stay idempotent on retries
+            _stepperCounter[channel] = steps;
+            _lastStepperValues[channel] = value;
+            return true;
         }
 
         private async ValueTask<bool> SendAllOutputValuesAsync(Half value, CancellationToken token)

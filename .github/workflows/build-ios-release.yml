@@ -93,7 +93,7 @@ jobs:
   publish-release:
     needs: build-ios
     if: github.event_name == 'release' && github.event.action == 'published'
-    runs-on: macos-latest
+    runs-on: xcode-27
     name: Publish iOS Release
     permissions:
       contents: write

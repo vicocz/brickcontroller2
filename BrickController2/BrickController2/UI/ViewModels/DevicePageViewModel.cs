@@ -665,6 +665,7 @@ namespace BrickController2.UI.ViewModels
 
             internal void UpdateCommandsAvailability()
             {
+                RaisePropertyChanged(nameof(IsServoOrStepperSupported));
                 TestServoStepperCommand.RaiseCanExecuteChanged();
             }
 

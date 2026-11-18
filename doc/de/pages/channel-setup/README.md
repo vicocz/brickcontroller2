@@ -23,7 +23,7 @@ Auf dieser Seite kannst du einen Servomotor- oder Schrittmotorkanal eines verbun
 1. Stelle den Winkel mit dem Schieberegler ein. Der Wert ändert sich in 5-Grad-Schritten.
 2. Teste den Motor mit den Testschaltflächen. Die Servotestschaltflächen stellen Positionen von -100 %, -50 %, 0 %, +50 % und +100 % ein. Die Schrittmotortestschaltflächen bewegen den Motor mit dem eingestellten Schrittwinkel zurück oder nach vorn.
 3. Verwende bei einem Servo **Automatisch kalibrieren**, sofern das Gerät dies unterstützt. Du kannst den **Basiswinkel** auch manuell einstellen.
-4. Wähle **Änderungen übernehmen**, um die Einstellungen in die Steuerungsaktion zu übernehmen. Bei Schrittmotorkanälen wird nur der **Schrittwinkel** übernommen; der **Basiswinkel** dient nur zum Testen. Beim Verlassen der Seite wird die Verbindung zum Gerät getrennt.
+4. Wähle ![](../../../icons/done_outline.svg) **Änderungen übernehmen**, um die Einstellungen in die Steuerungsaktion zu übernehmen. Bei Schrittmotorkanälen wird nur der **Schrittwinkel** übernommen; der **Basiswinkel** dient nur zum Testen. Beim Verlassen der Seite wird die Verbindung zum Gerät getrennt.
 
 ## Hinweise
 

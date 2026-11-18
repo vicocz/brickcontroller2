@@ -15,7 +15,7 @@ Use this page to test and adjust a servo or stepper motor channel on a connected
 1. Adjust the angle slider. The value changes in 5-degree steps.
 2. Use the test buttons to check the motor. Servo test buttons set positions at -100 %, -50 %, 0 %, +50 % and +100 %. Stepper test buttons move the motor backward or forward by the selected step angle.
 3. For a servo, use **Auto calibrate** if the device supports it. You can also adjust the **Base angle** slider manually.
-4. Select **Apply changes** to apply your settings to the controller action. For stepper channels, only the **Stepper angle** is applied; the **Base angle** is used for testing only. Leaving the page disconnects the device.
+4. Select ![](../../../icons/done_outline.svg) **Apply changes** to apply your settings to the controller action. For stepper channels, only the **Stepper angle** is applied; the **Base angle** is used for testing only. Leaving the page disconnects the device.
 
 ## Notes
 

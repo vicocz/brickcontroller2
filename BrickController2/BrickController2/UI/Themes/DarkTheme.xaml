@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -22,6 +22,7 @@
     <Color x:Key="HeaderItemColor">White</Color>
     <Color x:Key="DividerColor">#303030</Color>
     <Color x:Key="FooterBackgroudColor">#303030</Color>
+    <Color x:Key="FooterActiveColor">#ff6b6b</Color>
     <Color x:Key="DialogBackgroundColor">#202020</Color>
     <Color x:Key="DialogBorderColor">Gray</Color>
     <Color x:Key="DeleteSwipeItemBackgroundColor">Red</Color>

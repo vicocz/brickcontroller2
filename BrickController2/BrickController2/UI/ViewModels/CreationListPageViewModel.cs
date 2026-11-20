@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -57,6 +57,7 @@ namespace BrickController2.UI.ViewModels
             this._cameraPermission = cameraPermission;
             _readWriteExternalStoragePermission = readWriteExternalStoragePermission;
             SharedFileStorageService = sharedFileStorageService;
+            NavigationService.RegisterRootViewModel(this);
 
             ImportCreationCommand = commandFactory.ImportItemFromFileCommand(this);
             ImportCreationFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
@@ -68,10 +69,6 @@ namespace BrickController2.UI.ViewModels
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
             PlayCreationCommand = new SafeCommand<Creation>(PlayAsync);
             ShareCreationCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationSharePageViewModel>(new NavigationParameters(("item", creation))));
-            NavigateToDevicesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<DeviceListPageViewModel>());
-            NavigateToInputDeviceTesterCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<InputDeviceTesterPageViewModel>());
-            NavigateToSequencesCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<SequenceListPageViewModel>());
-            NavigateToAboutCommand = new SafeCommand(async () => await NavigationService.NavigateToAsync<AboutPageViewModel>());
         }
 
         public ObservableCollection<Creation> Creations => _creationManager.Creations;
@@ -88,10 +85,6 @@ namespace BrickController2.UI.ViewModels
         public ICommand ImportCreationFromFileCommand { get; }
         public ICommand PasteCreationCommand { get; }
         public ICommand ScanCreationCommand { get; }
-        public ICommand NavigateToDevicesCommand { get; }
-        public ICommand NavigateToInputDeviceTesterCommand { get; }
-        public ICommand NavigateToSequencesCommand { get; }
-        public ICommand NavigateToAboutCommand { get; }
 
         public override async void OnAppearing()
         {

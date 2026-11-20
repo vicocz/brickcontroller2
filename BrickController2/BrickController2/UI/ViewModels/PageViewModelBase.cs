@@ -6,6 +6,7 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels
@@ -23,12 +24,50 @@ namespace BrickController2.UI.ViewModels
             ShowHelpCommand = new SafeCommand(
                 () => NavigationService.NavigateToAsync<HelpPageViewModel>(new NavigationParameters(("topic", GetHelpTopic()!))),
                 () => HasHelp);
+
+            NavigateRootCommand = new SafeCommand(async (object? key) => await (key as string switch
+            {
+                RootKeys.Creations => NavigationService.NavigateToRootAsync<CreationListPageViewModel>(RootKeys.Creations),
+                RootKeys.Devices => NavigationService.NavigateToRootAsync<DeviceListPageViewModel>(RootKeys.Devices),
+                RootKeys.Sequences => NavigationService.NavigateToRootAsync<SequenceListPageViewModel>(RootKeys.Sequences),
+                _ => Task.CompletedTask
+            }));
+            ToggleMoreMenuCommand = new SafeCommand(() => { NavState.IsMoreMenuOpen = !NavState.IsMoreMenuOpen; });
+            MoreAboutCommand = new SafeCommand(() => NavigationService.NavigateToMoreAsync<AboutPageViewModel>());
+            MoreSettingsCommand = new SafeCommand(() => NavigationService.NavigateToMoreAsync<SettingsPageViewModel>(
+                new NavigationParameters(("parent", NavigationService.GetRootViewModel<CreationListPageViewModel>()!))));
+            MoreInputTesterCommand = new SafeCommand(() => NavigationService.NavigateToMoreAsync<InputDeviceTesterPageViewModel>());
+            MoreHelpCommand = new SafeCommand(
+                () => NavigationService.NavigateToMoreAsync<HelpPageViewModel>(
+                    new NavigationParameters(("topic", (HasHelp ? GetHelpTopic() : null) ?? HelpTopic.ForPage(nameof(CreationListPageViewModel))))));
         }
+
+        public NavigationState NavState => NavigationService.State;
+
+        /// <summary>
+        /// Bottom bar root this page belongs to; null when the page does not define one.
+        /// </summary>
+        public virtual string? RootKey => this switch
+        {
+            CreationListPageViewModel => RootKeys.Creations,
+            DeviceListPageViewModel => RootKeys.Devices,
+            SequenceListPageViewModel => RootKeys.Sequences,
+            AboutPageViewModel or SettingsPageViewModel or InputDeviceTesterPageViewModel or HelpPageViewModel => RootKeys.More,
+            _ => null
+        };
+
+        public ICommand NavigateRootCommand { get; }
+        public ICommand ToggleMoreMenuCommand { get; }
+        public ICommand MoreAboutCommand { get; }
+        public ICommand MoreSettingsCommand { get; }
+        public ICommand MoreInputTesterCommand { get; }
+        public ICommand MoreHelpCommand { get; }
 
         public virtual void OnAppearing()
         {
             _disappearingTokenSource?.Cancel();
             _disappearingTokenSource = new CancellationTokenSource();
+            NavigationService.UpdateActiveRoot();
         }
 
         public virtual void OnDisappearing()

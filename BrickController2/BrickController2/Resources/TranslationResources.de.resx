@@ -549,6 +549,9 @@
   <data name="Help" xml:space="preserve">
     <value>Hilfe</value>
   </data>
+  <data name="More" xml:space="preserve">
+    <value>Mehr</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Einstellungen</value>
   </data>

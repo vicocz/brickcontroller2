@@ -2,6 +2,7 @@ using BrickController2.UI.DI;
 using BrickController2.UI.Pages;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Localization;
+using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Theme;
 using BrickController2.UI.ViewModels;
 using Microsoft.Maui;
@@ -20,12 +21,14 @@ namespace BrickController2
         private readonly PageFactory _pageFactory;
         private readonly Func<Page, NavigationPage> _navigationPageFactory;
         private readonly BackgroundService _backgroundService;
+        private readonly INavigationService _navigationService;
 
 		public App(
             ViewModelFactory viewModelFactory, 
             PageFactory pageFactory, 
             Func<Page, NavigationPage> navigationPageFactory,
             BackgroundService backgroundService,
+            INavigationService navigationService,
 			IThemeService themeService,
 			ILocalizationService localizationService)
 		{
@@ -35,6 +38,7 @@ namespace BrickController2
             _pageFactory = pageFactory;
             _navigationPageFactory = navigationPageFactory;
             _backgroundService = backgroundService;
+            _navigationService = navigationService;
 
 			Application.Current!.RequestedThemeChanged += (s, e) =>
 			{
@@ -55,7 +59,7 @@ namespace BrickController2
         {
             // recreate the root page to apply the change
             if (Windows[0].Page is NavigationPage navigationPage &&
-                navigationPage.RootPage.BindingContext is CreationListPageViewModel viewModel)
+                _navigationService.GetRootViewModel<CreationListPageViewModel>() is { } viewModel)
             {
                 // reset view model
                 navigationPage.RootPage.BindingContext = null;
@@ -73,6 +77,9 @@ namespace BrickController2
         private NavigationPage GetMainPage(CreationListPageViewModel? viewModel = default)
         {
             var vm = viewModel ?? _viewModelFactory(typeof(CreationListPageViewModel), null);
+            _navigationService.RegisterRootViewModel(vm);
+            _navigationService.State.ActiveRootKey = RootKeys.Creations;
+            _navigationService.State.IsMoreMenuOpen = false;
             var page = _pageFactory(typeof(CreationListPage), vm);
             var navigationPage = _navigationPageFactory(page);
             navigationPage.BarBackgroundColor = Colors.Red;

@@ -549,6 +549,9 @@
   <data name="Help" xml:space="preserve">
     <value>Súgó</value>
   </data>
+  <data name="More" xml:space="preserve">
+    <value>Továbbiak</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Beállítások</value>
   </data>

@@ -555,6 +555,9 @@
   <data name="Help" xml:space="preserve">
     <value>Help</value>
   </data>
+  <data name="More" xml:space="preserve">
+    <value>More</value>
+  </data>
   <data name="Settings" xml:space="preserve">
     <value>Settings</value>
   </data>

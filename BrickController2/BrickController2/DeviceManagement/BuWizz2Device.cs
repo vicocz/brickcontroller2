@@ -36,7 +36,7 @@ namespace BrickController2.DeviceManagement
                 choices: [.. Enum.GetValues<BuWizz2OutputLevels>().Select(MacroChoice.Create)]),
         ];
 
-        private readonly OutputValuesGroup<int> _outputGroup = new(4);
+        private readonly OutputValuesGroup<int> _outputGroup;
 
         private DateTime _batteryMeasurementTimestamp;
         private byte _batteryVoltageRaw;
@@ -49,6 +49,8 @@ namespace BrickController2.DeviceManagement
         public BuWizz2Device(string name, string address, byte[] deviceData, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            _outputGroup = new(4, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+
             // On BuWizz2 with manufacturer data 0x4e054257001e the ports are swapped
             // (no normal BuWizz2es manufacturer data is 0x4e054257001b)
             var swapChannels = deviceData != null && deviceData.Length >= 6 && deviceData[5] == 0x1E;
@@ -74,13 +76,18 @@ namespace BrickController2.DeviceManagement
 
         public override string BatteryVoltageSign => "V";
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
-
-            var intValue = (int)(value * 255);
-            _outputGroup.SetOutput(channel, intValue);
+            lock (_outputLock)
+            {
+                foreach (var (channel, value) in outputs)
+                {
+                    CheckChannel(channel);
+                    float setValue = CutOutputValue(value);
+                    var intValue = (int)(setValue * 255);
+                    _outputGroup.SetOutput(channel, intValue);
+                }
+            }
         }
 
         public override bool CanSetOutputLevel => true;

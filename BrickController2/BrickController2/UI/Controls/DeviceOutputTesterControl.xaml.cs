@@ -80,7 +80,7 @@ namespace BrickController2.UI.Controls
                 set
                 {
                     _output = value;
-                    Device.SetOutput(Channel, (float)value / MaxValue);
+                    Device.SetOutputs(new[] { (Channel, (float)value / MaxValue) });
                     RaisePropertyChanged();
                 }
             }

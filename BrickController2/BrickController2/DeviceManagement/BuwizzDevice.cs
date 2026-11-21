@@ -21,13 +21,15 @@ namespace BrickController2.DeviceManagement
         private const string DefaultOutputLevelName = "BuWizzDefaultOutputLevel";
         private const BuWizzOutputLevels DefaultLevel = BuWizzOutputLevels.Normal;
 
-        private readonly OutputValuesGroup<int> _outputGroup = new(5);
+        private readonly OutputValuesGroup<int> _outputGroup;
 
         private IGattCharacteristic? _characteristic;
 
         public BuWizzDevice(string name, string address, IEnumerable<NamedSetting> settings, IDeviceRepository deviceRepository, IBluetoothLEService bleService)
             : base(name, address, deviceRepository, bleService)
         {
+            _outputGroup = new(5, _outputLock); // create with lock to ensure thread safety and data consistency when updating output values
+
             // apply values (if any) or default
             SetSettingValue(DefaultOutputLevelName, settings, DefaultLevel);
             // update output value again to apply settings
@@ -42,13 +44,19 @@ namespace BrickController2.DeviceManagement
 
         public override float AccelarationStep => 1.0f / 7.0f;
 
-        public override void SetOutput(int channel, float value)
+        public override void SetOutputs(IEnumerable<(int, float)> outputs)
         {
-            CheckChannel(channel);
-            value = CutOutputValue(value);
+            lock (_outputLock)
+            {
+                foreach (var (channel, value) in outputs)
+                {
+                    CheckChannel(channel);
+                    float cutValue = CutOutputValue(value);
 
-            var intValue = (int)(value * 255);
-            _outputGroup.SetOutput(channel, intValue);
+                    var intValue = (int)(cutValue * 255);
+                    _outputGroup.SetOutput(channel, intValue);
+                }
+            }
         }
 
         public override bool CanSetOutputLevel => true;

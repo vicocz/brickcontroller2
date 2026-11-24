@@ -65,14 +65,7 @@ namespace BrickController2.UI.Services.Navigation
                     else
                     {
                         navigation.InsertPageBefore(page, oldRoot);
-                        if (navigation.NavigationStack.Count > 2)
-                        {
-                            await navigation.PopToRootAsync();
-                        }
-                        else
-                        {
-                            navigation.RemovePage(oldRoot);
-                        }
+                        await navigation.PopToRootAsync();
                     }
                 }
 
@@ -87,26 +80,38 @@ namespace BrickController2.UI.Services.Navigation
         public async Task NavigateToMoreAsync<T>(NavigationParameters? parameters = null) where T : PageViewModelBase
         {
             State.IsMoreMenuOpen = false;
-
-            var navigation = Navigation;
-            var top = navigation.NavigationStack.LastOrDefault();
-            if (top?.BindingContext is PageViewModelBase { RootKey: RootKeys.More } current)
+            if (_isSwitchingRoot)
             {
-                if (current is T)
+                return;
+            }
+
+            _isSwitchingRoot = true;
+            try
+            {
+                var navigation = Navigation;
+                var top = navigation.NavigationStack.LastOrDefault();
+                if (top?.BindingContext is PageViewModelBase { RootKey: RootKeys.More } current)
                 {
-                    return;
+                    if (current is T)
+                    {
+                        return;
+                    }
+
+                    // replace the current More page instead of stacking another one
+                    await NavigateToAsync<T>(parameters);
+                    navigation.RemovePage(top);
+                }
+                else
+                {
+                    await NavigateToAsync<T>(parameters);
                 }
 
-                // replace the current More page instead of stacking another one
-                await NavigateToAsync<T>(parameters);
-                navigation.RemovePage(top);
+                State.ActiveRootKey = RootKeys.More;
             }
-            else
+            finally
             {
-                await NavigateToAsync<T>(parameters);
+                _isSwitchingRoot = false;
             }
-
-            State.ActiveRootKey = RootKeys.More;
         }
 
         public void UpdateActiveRoot()

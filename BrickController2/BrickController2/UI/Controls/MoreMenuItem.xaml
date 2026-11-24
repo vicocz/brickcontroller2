@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+             x:Class="BrickController2.UI.Controls.MoreMenuItem"
+             x:Name="Root">
+    <Grid x:DataType="controls:MoreMenuItem">
+        <HorizontalStackLayout Padding="12,10" Spacing="12" InputTransparent="True">
+            <controls:ColorImage Icon="{Binding Icon, Source={x:Reference Root}}" Style="{StaticResource FooterColorImageStyle}"/>
+            <Label Text="{Binding Text, Source={x:Reference Root}}" VerticalOptions="Center"/>
+        </HorizontalStackLayout>
+        <Button BackgroundColor="Transparent"
+                Command="{Binding Command, Source={x:Reference Root}}"
+                SemanticProperties.Description="{Binding Text, Source={x:Reference Root}}"/>
+    </Grid>
+</ContentView>

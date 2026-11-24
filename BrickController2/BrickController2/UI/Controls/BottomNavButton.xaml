@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+             x:Class="BrickController2.UI.Controls.BottomNavButton"
+             x:Name="Root">
+    <Border x:DataType="controls:BottomNavButton" Padding="2" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
+        <Grid>
+            <VerticalStackLayout HorizontalOptions="Center" Spacing="6" InputTransparent="True">
+                <controls:ColorImage Icon="{Binding Icon, Source={x:Reference Root}}" Style="{StaticResource FooterColorImageStyle}">
+                    <controls:ColorImage.Triggers>
+                        <DataTrigger TargetType="controls:ColorImage" Binding="{Binding IsActive, Source={x:Reference Root}}" Value="True">
+                            <Setter Property="Color" Value="{DynamicResource FooterActiveColor}"/>
+                        </DataTrigger>
+                    </controls:ColorImage.Triggers>
+                </controls:ColorImage>
+                <Label Text="{Binding Text, Source={x:Reference Root}}" FontSize="Small">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsActive, Source={x:Reference Root}}" Value="True">
+                            <Setter Property="FontAttributes" Value="Bold"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </VerticalStackLayout>
+            <Button BackgroundColor="Transparent" Command="{Binding Command, Source={x:Reference Root}}" CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" SemanticProperties.Description="{Binding Text, Source={x:Reference Root}}"/>
+        </Grid>
+    </Border>
+</ContentView>

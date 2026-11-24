@@ -281,123 +281,19 @@
                         BackgroundColor="{DynamicResource PageBackgroundColor}" StrokeShape="RoundRectangle 8"
                         IsVisible="{Binding BindingContext.NavState.IsMoreMenuOpen, Source={RelativeSource TemplatedParent}}">
                     <VerticalStackLayout Spacing="2">
-                        <HorizontalStackLayout Padding="12,10" Spacing="12">
-                            <HorizontalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.MoreAboutCommand, Source={RelativeSource TemplatedParent}}"/>
-                            </HorizontalStackLayout.GestureRecognizers>
-                            <controls:ColorImage Icon="info" Style="{StaticResource FooterColorImageStyle}"/>
-                            <Label Text="{extensions:Translate About}" VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout Padding="12,10" Spacing="12">
-                            <HorizontalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.MoreSettingsCommand, Source={RelativeSource TemplatedParent}}"/>
-                            </HorizontalStackLayout.GestureRecognizers>
-                            <controls:ColorImage Icon="settings" Style="{StaticResource FooterColorImageStyle}"/>
-                            <Label Text="{extensions:Translate Settings}" VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout Padding="12,10" Spacing="12">
-                            <HorizontalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.MoreInputTesterCommand, Source={RelativeSource TemplatedParent}}"/>
-                            </HorizontalStackLayout.GestureRecognizers>
-                            <controls:ColorImage Icon="sports_esports" Style="{StaticResource FooterColorImageStyle}"/>
-                            <Label Text="{extensions:Translate InputDevices}" VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
-                        <HorizontalStackLayout Padding="12,10" Spacing="12">
-                            <HorizontalStackLayout.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.MoreHelpCommand, Source={RelativeSource TemplatedParent}}"/>
-                            </HorizontalStackLayout.GestureRecognizers>
-                            <controls:ColorImage Icon="help_outline" Style="{StaticResource FooterColorImageStyle}"/>
-                            <Label Text="{extensions:Translate Help}" VerticalOptions="Center"/>
-                        </HorizontalStackLayout>
+                        <controls:MoreMenuItem Icon="sports_esports" Text="{extensions:Translate InputDevices}" Command="{Binding BindingContext.MoreInputTesterCommand, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:MoreMenuItem Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding BindingContext.MoreSettingsCommand, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:MoreMenuItem Icon="help_outline" Text="{extensions:Translate Help}" Command="{Binding BindingContext.MoreHelpCommand, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:MoreMenuItem Icon="info" Text="{extensions:Translate About}" Command="{Binding BindingContext.MoreAboutCommand, Source={RelativeSource TemplatedParent}}"/>
                     </VerticalStackLayout>
                 </Border>
 
                 <Grid Grid.Row="1" Style="{StaticResource FooterGridStyle}">
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6" MaximumWidthRequest="480" HorizontalOptions="Fill">
-                        <Border Grid.Column="0" Padding="2" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" CommandParameter="Creations"/>
-                            </Border.GestureRecognizers>
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
-                                <controls:ColorImage Icon="commute" Style="{StaticResource FooterColorImageStyle}">
-                                    <controls:ColorImage.Triggers>
-                                        <DataTrigger TargetType="controls:ColorImage" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="Creations">
-                                            <Setter Property="Color" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </controls:ColorImage.Triggers>
-                                </controls:ColorImage>
-                                <Label Text="{extensions:Translate Creations}" FontSize="Small">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="Creations">
-                                            <Setter Property="TextColor" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </VerticalStackLayout>
-                        </Border>
-                        <Border Grid.Column="1" Padding="2" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" CommandParameter="Devices"/>
-                            </Border.GestureRecognizers>
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
-                                <controls:ColorImage Icon="hub" Style="{StaticResource FooterColorImageStyle}">
-                                    <controls:ColorImage.Triggers>
-                                        <DataTrigger TargetType="controls:ColorImage" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="Devices">
-                                            <Setter Property="Color" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </controls:ColorImage.Triggers>
-                                </controls:ColorImage>
-                                <Label Text="{extensions:Translate Devices}" FontSize="Small">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="Devices">
-                                            <Setter Property="TextColor" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </VerticalStackLayout>
-                        </Border>
-                        <Border Grid.Column="2" Padding="2" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" CommandParameter="Sequences"/>
-                            </Border.GestureRecognizers>
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
-                                <controls:ColorImage Icon="format_list_bulleted" Style="{StaticResource FooterColorImageStyle}">
-                                    <controls:ColorImage.Triggers>
-                                        <DataTrigger TargetType="controls:ColorImage" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="Sequences">
-                                            <Setter Property="Color" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </controls:ColorImage.Triggers>
-                                </controls:ColorImage>
-                                <Label Text="{extensions:Translate Sequences}" FontSize="Small">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="Sequences">
-                                            <Setter Property="TextColor" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </VerticalStackLayout>
-                        </Border>
-                        <Border Grid.Column="3" Padding="2" BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding BindingContext.ToggleMoreMenuCommand, Source={RelativeSource TemplatedParent}}"/>
-                            </Border.GestureRecognizers>
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
-                                <controls:ColorImage Icon="more_horiz" Style="{StaticResource FooterColorImageStyle}">
-                                    <controls:ColorImage.Triggers>
-                                        <DataTrigger TargetType="controls:ColorImage" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="More">
-                                            <Setter Property="Color" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </controls:ColorImage.Triggers>
-                                </controls:ColorImage>
-                                <Label Text="{extensions:Translate More}" FontSize="Small">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}" Value="More">
-                                            <Setter Property="TextColor" Value="{DynamicResource FooterActiveColor}"/>
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
-                            </VerticalStackLayout>
-                        </Border>
+                        <controls:BottomNavButton Grid.Column="0" Key="Creations" Icon="category" Text="{extensions:Translate Creations}" CommandParameter="Creations" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:BottomNavButton Grid.Column="1" Key="Devices" Icon="hub" Text="{extensions:Translate Devices}" CommandParameter="Devices" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:BottomNavButton Grid.Column="2" Key="Sequences" Icon="format_list_bulleted" Text="{extensions:Translate Sequences}" CommandParameter="Sequences" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:BottomNavButton Grid.Column="3" Key="More" Icon="more_horiz" Text="{extensions:Translate More}" Command="{Binding BindingContext.ToggleMoreMenuCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
                     </Grid>
                 </Grid>
             </Grid>

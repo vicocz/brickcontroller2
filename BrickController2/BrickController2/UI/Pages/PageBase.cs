@@ -39,13 +39,20 @@ namespace BrickController2.UI.Pages
             _dialogServer = FindDialogServer();
             if (_dialogServer is View dialogView)
             {
-                dialogView.PropertyChanged += (_, e) =>
+                void OnDialogPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
                 {
                     if (e.PropertyName == nameof(VisualElement.IsVisible))
                     {
                         UpdateNavigationEnabled();
                     }
+                }
+
+                Appearing += (_, _) =>
+                {
+                    dialogView.PropertyChanged += OnDialogPropertyChanged;
+                    UpdateNavigationEnabled();
                 };
+                Disappearing += (_, _) => dialogView.PropertyChanged -= OnDialogPropertyChanged;
             }
         }
 

@@ -9,7 +9,7 @@
             <controls:ColorImage Icon="{Binding Icon, Source={x:Reference Root}}" Style="{StaticResource FooterColorImageStyle}"/>
             <Label Text="{Binding Text, Source={x:Reference Root}}" VerticalOptions="Center"/>
         </HorizontalStackLayout>
-        <Button BackgroundColor="Transparent"
+        <Button BackgroundColor="Transparent" BorderColor="Transparent" BorderWidth="0" Padding="0" CornerRadius="8"
                 Command="{Binding Command, Source={x:Reference Root}}"
                 SemanticProperties.Description="{Binding Text, Source={x:Reference Root}}"/>
     </Grid>

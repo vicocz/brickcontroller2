@@ -22,7 +22,7 @@
                     </Label.Triggers>
                 </Label>
             </VerticalStackLayout>
-            <Button BackgroundColor="Transparent" Command="{Binding Command, Source={x:Reference Root}}" CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" SemanticProperties.Description="{Binding Text, Source={x:Reference Root}}"/>
+            <Button BackgroundColor="Transparent" BorderColor="Transparent" BorderWidth="0" Padding="0" CornerRadius="8" Command="{Binding Command, Source={x:Reference Root}}" CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" SemanticProperties.Description="{Binding Text, Source={x:Reference Root}}"/>
         </Grid>
     </Border>
 </ContentView>

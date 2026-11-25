@@ -37,6 +37,29 @@ namespace BrickController2.UI.Pages
         {
             BindingContext = vm;
             _dialogServer = FindDialogServer();
+            if (_dialogServer is View dialogView)
+            {
+                dialogView.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(VisualElement.IsVisible))
+                    {
+                        UpdateNavigationEnabled();
+                    }
+                };
+            }
+        }
+
+        private void UpdateNavigationEnabled()
+        {
+            if (BindingContext is PageViewModelBase { NavState: { } navState })
+            {
+                var dialogOpen = (_dialogServer as View)?.IsVisible == true;
+                navState.IsNavigationEnabled = !dialogOpen;
+                if (dialogOpen)
+                {
+                    navState.IsMoreMenuOpen = false;
+                }
+            }
         }
 
         protected override void OnBindingContextChanged()
@@ -49,6 +72,7 @@ namespace BrickController2.UI.Pages
             base.OnAppearing();
 
             _dialogServerHost.RegisterDialogServer(_dialogServer!);
+            UpdateNavigationEnabled();
 
             _backgroundService.ApplicationSleepEvent += OnApplicationSleep!;
             _backgroundService.ApplicationResumeEvent += OnApplicationResume!;

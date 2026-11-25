@@ -277,18 +277,20 @@
                     </BoxView.GestureRecognizers>
                 </BoxView>
 
-                <Border Grid.Row="0" HorizontalOptions="End" VerticalOptions="End" Margin="8" Padding="4"
+                <Grid Grid.Row="0" MaximumWidthRequest="480" HorizontalOptions="Fill" VerticalOptions="End" IsVisible="{Binding BindingContext.NavState.IsMoreMenuOpen, Source={RelativeSource TemplatedParent}}">
+                    <Border HorizontalOptions="End" Margin="8" Padding="4"
                         BackgroundColor="{DynamicResource PageBackgroundColor}" StrokeShape="RoundRectangle 8"
                         IsVisible="{Binding BindingContext.NavState.IsMoreMenuOpen, Source={RelativeSource TemplatedParent}}">
-                    <VerticalStackLayout Spacing="2">
-                        <controls:MoreMenuItem Icon="sports_esports" Text="{extensions:Translate InputDevices}" Command="{Binding BindingContext.MoreInputTesterCommand, Source={RelativeSource TemplatedParent}}"/>
-                        <controls:MoreMenuItem Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding BindingContext.MoreSettingsCommand, Source={RelativeSource TemplatedParent}}"/>
-                        <controls:MoreMenuItem Icon="help_outline" Text="{extensions:Translate Help}" Command="{Binding BindingContext.MoreHelpCommand, Source={RelativeSource TemplatedParent}}"/>
-                        <controls:MoreMenuItem Icon="info" Text="{extensions:Translate About}" Command="{Binding BindingContext.MoreAboutCommand, Source={RelativeSource TemplatedParent}}"/>
-                    </VerticalStackLayout>
-                </Border>
+                        <VerticalStackLayout Spacing="2">
+                            <controls:MoreMenuItem Icon="sports_esports" Text="{extensions:Translate InputDevices}" Command="{Binding BindingContext.MoreInputTesterCommand, Source={RelativeSource TemplatedParent}}"/>
+                            <controls:MoreMenuItem Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding BindingContext.MoreSettingsCommand, Source={RelativeSource TemplatedParent}}"/>
+                            <controls:MoreMenuItem Icon="help_outline" Text="{extensions:Translate Help}" Command="{Binding BindingContext.MoreHelpCommand, Source={RelativeSource TemplatedParent}}"/>
+                            <controls:MoreMenuItem Icon="info" Text="{extensions:Translate About}" Command="{Binding BindingContext.MoreAboutCommand, Source={RelativeSource TemplatedParent}}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
 
-                <Grid Grid.Row="1" Style="{StaticResource FooterGridStyle}">
+                <Grid Grid.Row="1" Style="{StaticResource FooterGridStyle}" IsEnabled="{Binding BindingContext.NavState.IsNavigationEnabled, Source={RelativeSource TemplatedParent}}">
                     <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6" MaximumWidthRequest="480" HorizontalOptions="Fill">
                         <controls:BottomNavButton Grid.Column="0" Key="Creations" Icon="category" Text="{extensions:Translate Creations}" CommandParameter="Creations" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
                         <controls:BottomNavButton Grid.Column="1" Key="Devices" Icon="hub" Text="{extensions:Translate Devices}" CommandParameter="Devices" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>

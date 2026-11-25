@@ -14,7 +14,7 @@ namespace BrickController2.UI.Services.Navigation
         private readonly PageFactory _pageFactory;
         private readonly ViewModelFactory _viewModelFactory;
 
-        private readonly Dictionary<Type, PageViewModelBase> _rootViewModels = new();
+        private readonly Dictionary<Type, PageViewModelBase> _rootViewModels = [];
         private bool _isSwitchingRoot;
 
         public NavigationService(PageFactory pageFactory, ViewModelFactory viewModelFactory, NavigationState state)
@@ -34,7 +34,7 @@ namespace BrickController2.UI.Services.Navigation
         public async Task NavigateToRootAsync<T>(string rootKey, NavigationParameters? parameters = null) where T : PageViewModelBase
         {
             State.IsMoreMenuOpen = false;
-            if (_isSwitchingRoot)
+            if (_isSwitchingRoot || !State.IsNavigationEnabled)
             {
                 return;
             }
@@ -80,7 +80,7 @@ namespace BrickController2.UI.Services.Navigation
         public async Task NavigateToMoreAsync<T>(NavigationParameters? parameters = null) where T : PageViewModelBase
         {
             State.IsMoreMenuOpen = false;
-            if (_isSwitchingRoot)
+            if (_isSwitchingRoot || !State.IsNavigationEnabled)
             {
                 return;
             }
@@ -124,7 +124,7 @@ namespace BrickController2.UI.Services.Navigation
 
             for (var i = stack.Count - 1; i >= 0; i--)
             {
-                if ((stack[i]?.BindingContext as PageViewModelBase)?.RootKey is { } key)
+                if (stack[i]?.BindingContext is PageViewModelBase { RootKey: { } key })
                 {
                     State.ActiveRootKey = key;
                     return;

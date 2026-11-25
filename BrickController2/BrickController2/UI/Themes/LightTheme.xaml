@@ -22,7 +22,7 @@
     <Color x:Key="HeaderItemColor">Black</Color>
     <Color x:Key="DividerColor">#c0c0c0</Color>
     <Color x:Key="FooterBackgroudColor">#e0e0e0</Color>
-    <Color x:Key="FooterActiveColor">#d32f2f</Color>
+    <Color x:Key="FooterActiveColor">DarkRed</Color>
     <Color x:Key="DialogBackgroundColor">White</Color>
     <Color x:Key="DialogBorderColor">White</Color>
     <Color x:Key="DeleteSwipeItemBackgroundColor">LightPink</Color>

@@ -17,6 +17,20 @@ public class NavigationState : NotifyPropertyChangedSource
 {
     private string _activeRootKey = RootKeys.Creations;
     private bool _isMoreMenuOpen;
+    private bool _isNavigationEnabled = true;
+
+    public bool IsNavigationEnabled
+    {
+        get => _isNavigationEnabled;
+        set
+        {
+            if (_isNavigationEnabled != value)
+            {
+                _isNavigationEnabled = value;
+                RaisePropertyChanged();
+            }
+        }
+    }
 
     public string ActiveRootKey
     {

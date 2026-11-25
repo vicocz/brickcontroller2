@@ -49,7 +49,7 @@ namespace BrickController2.UI.Services.Navigation
                 {
                     if (navigation.NavigationStack.Count > 1)
                     {
-                        await navigation.PopToRootAsync();
+                        await navigation.PopToRootAsync(false);
                     }
                 }
                 else
@@ -60,12 +60,12 @@ namespace BrickController2.UI.Services.Navigation
 
                     if (oldRoot is null)
                     {
-                        await navigation.PushAsync(page);
+                        await navigation.PushAsync(page, false);
                     }
                     else
                     {
                         navigation.InsertPageBefore(page, oldRoot);
-                        await navigation.PopToRootAsync();
+                        await navigation.PopToRootAsync(false);
                     }
                 }
 
@@ -98,12 +98,12 @@ namespace BrickController2.UI.Services.Navigation
                     }
 
                     // replace the current More page instead of stacking another one
-                    await NavigateToAsync<T>(parameters);
+                    await PushMoreAsync<T>(navigation, parameters);
                     navigation.RemovePage(top);
                 }
                 else
                 {
-                    await NavigateToAsync<T>(parameters);
+                    await PushMoreAsync<T>(navigation, parameters);
                 }
 
                 State.ActiveRootKey = RootKeys.More;
@@ -112,6 +112,13 @@ namespace BrickController2.UI.Services.Navigation
             {
                 _isSwitchingRoot = false;
             }
+        }
+
+        private Task PushMoreAsync<T>(INavigation navigation, NavigationParameters? parameters) where T : PageViewModelBase
+        {
+            var vm = _viewModelFactory(typeof(T), parameters);
+            var page = _pageFactory(GetPageType<T>(), vm);
+            return navigation.PushAsync(page, false);
         }
 
         public void UpdateActiveRoot()

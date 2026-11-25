@@ -13,19 +13,12 @@ Eine Kreation enthält eines deiner Modelle und die dazugehörige Steuerungseinr
 
 - ![](../../../icons/qr_code_scanner.svg) **QR-Code scannen** – Importiere eine geteilte Kreation, indem du ihren QR-Code scannst.
 - ![](../../../icons/note_add.svg) **Kreation aus einer Datei importieren** – Importiere eine Kreation aus einer Datei.
-- ![](../../../icons/settings.svg) **Einstellungen** – Öffne die App-Einstellungen.
 - ![](../../../icons/file_download.svg) **Kreation importieren** (Überlaufmenü) – Importiere eine Kreation aus Text.
 - ![](../../../icons/paste.svg) **Kreation aus der Zwischenablage importieren** (Überlaufmenü) – Füge eine kopierte Kreation ein.
 - ![](../../../icons/help_outline.svg) **Hilfe** (Überlaufmenü) – Öffne diese Hilfeseite.
-
-## Untere Navigation
-
-- ![](../../../icons/hub.svg) **Geräte** – Suche und verwalte deine Geräte.
-- ![](../../../icons/sports_esports.svg) **Eingabegeräte** – Teste verbundene Gamecontroller und Tastaturen.
-- ![](../../../icons/format_list_bulleted.svg) **Sequenzen** – Verwalte wiederverwendbare Steuerungssequenzen.
-- ![](../../../icons/info.svg) **Info** – Zeige Informationen zur App an.
 
 ## Siehe auch
 
 - [Kreation](../creation/README.md)
 - [Geräte](../device-list/README.md)
+- [Navigationsleiste](../navigation-bar/README.md)

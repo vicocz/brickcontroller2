@@ -20,6 +20,10 @@ Sequences add timed series of outputs, for example light effects, that a control
 
 Other pages are reached from these and have their own help, available via the **Help** button.
 
+## Navigation bar
+
+See [Navigation bar](pages/navigation-bar/README.md).
+
 ## Devices
 
 See [Supported devices](devices/README.md).

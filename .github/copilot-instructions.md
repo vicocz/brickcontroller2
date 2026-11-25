@@ -52,6 +52,7 @@ game controllers or on-screen controls.
 - Use `DisappearingToken` for work that must stop when the page disappears.
 - Help topic is derived from the view model name (`CreationListPageViewModel` → `pages/creation-list`); override `GetHelpTopic()` if needed.
 - Value converters live in `UI/Converters` and are named `*Converter`.
+- Navigation bar (bottom bar items and `controls:MoreMenuItem` entries in `App.xaml`) is documented in `doc/en/pages/navigation-bar/README.md` (and translations). When adding, removing or renaming a bar item or a More menu item, update that page (and translations) in the same change.
 
 ### Localization
 - All user-visible strings come from `Resources/TranslationResources.resx` (with `.de`, `.hu`, ... variants).

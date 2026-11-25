@@ -12,7 +12,7 @@ on:
       - 'BrickController2/BrickController2/**'
       - 'BrickController2/BrickController2.Tests/**'
   pull_request:
-    branches:    
+    branches:
       - default
       - 'release/**'
     paths:
@@ -34,7 +34,7 @@ jobs:
     - uses: actions/checkout@v6
     - uses: ./.github/actions/setup-maui
       with:
-        install-workload: 'false'
+        workload-id: maui-windows
 
     - name: Restore Dependencies
       run: dotnet restore BrickController2/BrickController2/BrickController2.csproj

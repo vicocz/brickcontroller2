@@ -1,139 +1,48 @@
-﻿using BrickController2.InputDeviceManagement.Sensors;
-using BrickController2.PlatformServices.InputDeviceService;
-using BrickController2.UI.Commands;
-using BrickController2.UI.Services.Dialog;
-using BrickController2.UI.Services.Localization;
-using BrickController2.UI.Services.Navigation;
-using BrickController2.UI.Services.Theme;
+﻿using BrickController2.UI.Services.Navigation;
+using BrickController2.UI.Services.Settings;
 using BrickController2.UI.Services.Translation;
-using Microsoft.Maui.Controls;
-using System;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrickController2.UI.ViewModels
 {
+    /// <summary>
+    /// View model of the settings page. It only renders the rows it receives as <see cref="ISettingsItem"/>
+    /// (built-in rows and platform rows, all registered in Autofac) and attaches/detaches them with the page.
+    /// </summary>
     public class SettingsPageViewModel : PageViewModelBase
     {
-        private const int ProgressDialogDelayMs = 500;
-
-        private readonly IThemeService _themeService;
-        private readonly ILocalizationService _localizationService;
-        private readonly IInputDeviceService<OrientationSensorController> _orientationSensorService;
-        private readonly CreationListPageViewModel _parentViewModel;
-        private readonly IDialogService _dialogService;
-
         public SettingsPageViewModel(
             INavigationService navigationService,
             ITranslationService translationService,
-            IDialogService dialogService,
-            IThemeService themeService,
-            ILocalizationService localizationService,
-            IInputDeviceService<OrientationSensorController> orientationSensorService,
-            NavigationParameters parameters) : 
+            IEnumerable<ISettingsItem> settingsItems) :
             base(navigationService, translationService)
         {
-            _themeService = themeService;
-            _dialogService = dialogService;
-            _localizationService = localizationService;
-            _orientationSensorService = orientationSensorService;
-            _parentViewModel = parameters.Get<CreationListPageViewModel>("parent");
-            SelectThemeCommand = new SafeCommand(SelectThemeAsync);
-            SelectLanguageCommand = new SafeCommand(SelectAppLanguageAsync);
+            // OrderBy is stable: rows with equal Order keep their registration order
+            SettingsItems = settingsItems.OrderBy(i => i.Order).ToList();
         }
 
-        public ThemeType CurrentTheme
+        /// <summary>
+        /// All rows of the settings page in display order (ascending <see cref="ISettingsItem.Order"/>).
+        /// </summary>
+        public IReadOnlyList<ISettingsItem> SettingsItems { get; }
+
+        public override void OnAppearing()
         {
-            get => _themeService.CurrentTheme;
-            set
+            base.OnAppearing();
+            foreach (var item in SettingsItems)
             {
-                if (CurrentTheme != value)
-                {
-                    _themeService.CurrentTheme = value;
-                    RaisePropertyChanged();
-                }
+                item.Attach();
             }
         }
 
-        public Language CurrentLanguage
+        public override void OnDisappearing()
         {
-            get => _localizationService.CurrentLanguage;
-            set
+            foreach (var item in SettingsItems)
             {
-                if (_localizationService.CurrentLanguage != value)
-                {
-                    _localizationService.CurrentLanguage = value;
-                    RaisePropertyChanged();
-                }
+                item.Detach();
             }
-        }
-
-        public ICommand SelectThemeCommand { get; }
-        public ICommand SelectLanguageCommand { get; }
-
-        public bool IsOrientationSensorSupported => _orientationSensorService.IsSupported;
-
-        public bool IsOrientationSensorEnabled
-        {
-            get => _orientationSensorService.IsEnabled;
-            set
-            {
-                if (IsOrientationSensorEnabled != value)
-                {
-                    _orientationSensorService.IsEnabled = value;
-                    RaisePropertyChanged();
-                }
-            }
-        }
-
-        private async Task SelectThemeAsync()
-        {
-            var result = await _dialogService.ShowSelectionDialogAsync(
-                Enum.GetNames<ThemeType>(),
-                Translate("Theme"),
-                Translate("Cancel"),
-                DisappearingToken);
-
-            if (result.IsOk)
-            {
-                CurrentTheme = Enum.Parse<ThemeType>(result.SelectedItem);
-            }
-        }
-
-        private async Task SelectAppLanguageAsync()
-        {
-            var result = await _dialogService.ShowSelectionDialogAsync(
-                Enum.GetNames<Language>(),
-                Translate("Language"),
-                Translate("Cancel"),
-                DisappearingToken);
-
-            if (result.IsOk && Enum.TryParse<Language>(result.SelectedItem, out var currentLanguage))
-            {
-                // apply the change
-                CurrentLanguage = currentLanguage;
-
-                // use some notification via progress dialog
-                await _dialogService.ShowProgressDialogAsync(
-                    false,
-                    (progressDialog, token) =>
-                    {
-                        // recreate the root page to apply the change
-                        if (Application.Current is App myApp)
-                        {
-                            myApp.ReloadRootPage();
-                        }
-                        // some delay to show the progress dialog
-                        return Task.Delay(ProgressDialogDelayMs, token);
-                    },
-                    Translate("Applying"),
-                    token: DisappearingToken);
-
-                // back to the previous page
-                await NavigationService.NavigateBackAsync();
-                // workaround for settings cmd available
-                _parentViewModel.OpenSettingsPageCommand.RaiseCanExecuteChanged();
-            }
+            base.OnDisappearing();
         }
     }
 }

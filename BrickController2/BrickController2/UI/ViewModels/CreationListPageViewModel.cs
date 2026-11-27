@@ -62,7 +62,7 @@ namespace BrickController2.UI.ViewModels
             ImportCreationFromFileCommand = commandFactory.ImportItemFromJsonFileCommand(this);
             ScanCreationCommand = new SafeCommand(ScanCreationAsync, () => BarcodeScanning.IsSupported);
             PasteCreationCommand = commandFactory.PasteItemFromClipboardCommand(this);
-            OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(new NavigationParameters(("parent", this))), () => !_dialogService.IsDialogOpen);
+            OpenSettingsPageCommand = new SafeCommand(async () => await navigationService.NavigateToAsync<SettingsPageViewModel>(), () => !_dialogService.IsDialogOpen);
             AddCreationCommand = new SafeCommand(async () => await AddCreationAsync());
             CreationTappedCommand = new SafeCommand<Creation>(async creation => await NavigationService.NavigateToAsync<CreationPageViewModel>(new NavigationParameters(("creation", creation))));
             DeleteCreationCommand = new SafeCommand<Creation>(async creation => await DeleteCreationAsync(creation));
@@ -98,6 +98,10 @@ namespace BrickController2.UI.ViewModels
             if (!_isRequestingPermission)
             {
                 base.OnAppearing();
+
+                // the settings command depends on the dialog state, which may have changed while another page
+                // (e.g. the settings page after a language change) was shown
+                OpenSettingsPageCommand.RaiseCanExecuteChanged();
 
                 await LoadCreationsAndDevicesAsync();
                 await RequestPermissionsAsync();

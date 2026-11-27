@@ -29,8 +29,8 @@ namespace BrickController2.UI.DI
             // Register services
 
             builder.RegisterType<NavigationService>().As<INavigationService>().SingleInstance();
-            builder.RegisterType<MainThreadService>().As<IMainThreadService>().SingleInstance();
-            builder.RegisterType<BackgroundService>().AsSelf().As<IBackgroundService>().SingleInstance();
+            builder.RegisterType<NavigationState>().AsSelf().SingleInstance();
+            builder.RegisterType<MainThreadService>().As<IMainThreadService>().SingleInstance();            builder.RegisterType<BackgroundService>().AsSelf().As<IBackgroundService>().SingleInstance();
             builder.RegisterType<TranslationService>().AsSelf().As<ITranslationService>().SingleInstance();
             builder.RegisterType<PreferencesService>().AsSelf().As<IPreferencesService>().SingleInstance();
             builder.RegisterType<ThemeService>().AsSelf().As<IThemeService>().SingleInstance();

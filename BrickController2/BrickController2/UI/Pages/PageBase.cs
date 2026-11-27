@@ -26,12 +26,47 @@ namespace BrickController2.UI.Pages
 
             // Cross-platform safe-area handling (replaces old iOS-only Page.UseSafeArea)
             SafeAreaEdges = SafeAreaEdges.All;
+
+            if (Application.Current?.Resources.TryGetValue("BottomNavPageTemplate", out var template) == true && template is ControlTemplate controlTemplate)
+            {
+                ControlTemplate = controlTemplate;
+            }
         }
 
         protected void AfterInitialize(IPageViewModel vm)
         {
             BindingContext = vm;
             _dialogServer = FindDialogServer();
+            if (_dialogServer is View dialogView)
+            {
+                void OnDialogPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+                {
+                    if (e.PropertyName == nameof(VisualElement.IsVisible))
+                    {
+                        UpdateNavigationEnabled();
+                    }
+                }
+
+                Appearing += (_, _) =>
+                {
+                    dialogView.PropertyChanged += OnDialogPropertyChanged;
+                    UpdateNavigationEnabled();
+                };
+                Disappearing += (_, _) => dialogView.PropertyChanged -= OnDialogPropertyChanged;
+            }
+        }
+
+        private void UpdateNavigationEnabled()
+        {
+            if (BindingContext is PageViewModelBase { NavState: { } navState })
+            {
+                var dialogOpen = (_dialogServer as View)?.IsVisible == true;
+                navState.IsNavigationEnabled = !dialogOpen;
+                if (dialogOpen)
+                {
+                    navState.IsMoreMenuOpen = false;
+                }
+            }
         }
 
         protected override void OnBindingContextChanged()
@@ -44,6 +79,7 @@ namespace BrickController2.UI.Pages
             base.OnAppearing();
 
             _dialogServerHost.RegisterDialogServer(_dialogServer!);
+            UpdateNavigationEnabled();
 
             _backgroundService.ApplicationSleepEvent += OnApplicationSleep!;
             _backgroundService.ApplicationResumeEvent += OnApplicationResume!;
@@ -56,6 +92,11 @@ namespace BrickController2.UI.Pages
         {
             base.OnDisappearing();
 
+            if (BindingContext is PageViewModelBase { NavState: { } navState })
+            {
+                navState.IsMoreMenuOpen = false;
+            }
+
             OnDisappearingInternal();
 
             _dialogServerHost.UnregisterDialogServer(_dialogServer!);
@@ -66,6 +107,12 @@ namespace BrickController2.UI.Pages
 
         protected override bool OnBackButtonPressed()
         {
+            if (BindingContext is PageViewModelBase { NavState.IsMoreMenuOpen: true } pageViewModel)
+            {
+                pageViewModel.NavState.IsMoreMenuOpen = false;
+                return true;
+            }
+
             var result = ((BindingContext as IPageViewModel)?.OnBackButtonPressed()) ?? true;
             return result && base.OnBackButtonPressed();
         }

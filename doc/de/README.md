@@ -20,6 +20,10 @@ BrickController 2 ist eine plattformübergreifende App für Android, iOS und Win
 
 Weitere Seiten erreichst du von hier aus. Die jeweilige Hilfe öffnest du über die Schaltfläche **Hilfe**.
 
+## Navigationsleiste
+
+Siehe [Navigationsleiste](pages/navigation-bar/README.md).
+
 ## Geräte
 
 Siehe [Unterstützte Geräte](devices/README.md).

@@ -1,22 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Application
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:BrickController2.UI.Controls"
     xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
     x:Class="BrickController2.App">
-    
-	<Application.Resources>
+
+    <Application.Resources>
         <ResourceDictionary Source="UI/Themes/LightTheme.xaml"/>
 
         <!-- Global targets -->
-        
+
         <Style TargetType="Label">
             <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
 
         <Style TargetType="controls:DeviceChannelLabel">
-            <Setter Property="Text" Value="1"/> <!--Workaround for default channel label if there is no device type defined-->
+            <Setter Property="Text" Value="1"/>
+            <!--Workaround for default channel label if there is no device type defined-->
             <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
 
@@ -80,12 +81,12 @@
             <Setter Property="Padding" Value="10"/>
             <Setter Property="ColumnSpacing" Value="6"/>
         </Style>
-        
+
         <Style x:Key="NavigationBarLabelStyle" TargetType="Label">
             <Setter Property="TextColor" Value="{DynamicResource NavigationBarItemColor}"/>
             <Setter Property="FontSize" Value="Large"/>
         </Style>
-        
+
         <!-- Header bar -->
 
         <Style x:Key="HeaderGridStyle" TargetType="Grid">
@@ -107,7 +108,7 @@
             <Setter Property="HeightRequest" Value="20"/>
             <Setter Property="Color" Value="{DynamicResource PrimaryColor}"/>
         </Style>
-        
+
         <!-- CollectionView related -->
 
         <Style x:Key="CollectionViewHeaderGridStyle" TargetType="Grid">
@@ -115,14 +116,14 @@
             <Setter Property="Padding" Value="10"/>
             <Setter Property="ColumnSpacing" Value="6"/>
         </Style>
-        
+
         <Style x:Key="CollectionItemGridStyle" TargetType="Grid">
             <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="ColumnSpacing" Value="6"/>
             <Setter Property="RowSpacing" Value="6"/>
         </Style>
-        
+
         <Style x:Key="CollectionViewEmptyLabelStyle" TargetType="Label">
             <Setter Property="TextColor" Value="{DynamicResource TertiaryTextColor}"/>
             <Setter Property="FontSize" Value="Medium"/>
@@ -165,7 +166,7 @@
             <Setter Property="WidthRequest" Value="{OnIdiom 280, Desktop=360}"/>
             <Setter Property="Padding" Value="20"/>
         </Style>
-        
+
         <!-- Picker button -->
 
         <Style x:Key="PickerButtonStyle" TargetType="Button">
@@ -198,8 +199,8 @@
                     </VisualStateGroup>
                 </VisualStateGroupList>
             </Setter>
-        </Style>        
-        
+        </Style>
+
         <!-- Floating button styles -->
         <Style x:Key="FloatingActionButtonStyle" TargetType="controls:FloatingActionButton">
             <Setter Property="BackgroundColor" Value="{DynamicResource FloatingButtonColor}"/>
@@ -248,7 +249,7 @@
                     <Setter Property="TooltipKey" Value="Collapse" />
                 </DataTrigger>
             </Style.Triggers>
-        </Style>        
+        </Style>
 
         <!-- Misc -->
 
@@ -263,6 +264,42 @@
         <Style x:Key="PickerStyle" TargetType="Picker">
             <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
         </Style>
+
+        <!-- Shared bottom navigation bar -->
+
+        <ControlTemplate x:Key="BottomNavPageTemplate">
+            <Grid RowSpacing="0" RowDefinitions="*,Auto">
+                <ContentPresenter Grid.Row="0"/>
+
+                <BoxView Grid.Row="0" Color="#66000000" IsVisible="{Binding BindingContext.NavState.IsMoreMenuOpen, Source={RelativeSource TemplatedParent}}">
+                    <BoxView.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding BindingContext.ToggleMoreMenuCommand, Source={RelativeSource TemplatedParent}}"/>
+                    </BoxView.GestureRecognizers>
+                </BoxView>
+
+                <Grid Grid.Row="0" MaximumWidthRequest="480" HorizontalOptions="Fill" VerticalOptions="End" IsVisible="{Binding BindingContext.NavState.IsMoreMenuOpen, Source={RelativeSource TemplatedParent}}">
+                    <Border HorizontalOptions="End" Margin="8" Padding="4"
+                        BackgroundColor="{DynamicResource PageBackgroundColor}" StrokeShape="RoundRectangle 8"
+                        IsVisible="{Binding BindingContext.NavState.IsMoreMenuOpen, Source={RelativeSource TemplatedParent}}">
+                        <VerticalStackLayout Spacing="2">
+                            <controls:MoreMenuItem Icon="sports_esports" Text="{extensions:Translate InputDevices}" Command="{Binding BindingContext.MoreInputTesterCommand, Source={RelativeSource TemplatedParent}}"/>
+                            <controls:MoreMenuItem Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding BindingContext.MoreSettingsCommand, Source={RelativeSource TemplatedParent}}"/>
+                            <controls:MoreMenuItem Icon="help_outline" Text="{extensions:Translate Help}" Command="{Binding BindingContext.MoreHelpCommand, Source={RelativeSource TemplatedParent}}"/>
+                            <controls:MoreMenuItem Icon="info" Text="{extensions:Translate About}" Command="{Binding BindingContext.MoreAboutCommand, Source={RelativeSource TemplatedParent}}"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="1" Style="{StaticResource FooterGridStyle}" IsEnabled="{Binding BindingContext.NavState.IsNavigationEnabled, Source={RelativeSource TemplatedParent}}">
+                    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="6" MaximumWidthRequest="480" HorizontalOptions="Fill">
+                        <controls:BottomNavButton Grid.Column="0" Key="Creations" Icon="category" Text="{extensions:Translate Creations}" CommandParameter="Creations" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:BottomNavButton Grid.Column="1" Key="Devices" Icon="hub" Text="{extensions:Translate Devices}" CommandParameter="Devices" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:BottomNavButton Grid.Column="2" Key="Sequences" Icon="format_list_bulleted" Text="{extensions:Translate Sequences}" CommandParameter="Sequences" Command="{Binding BindingContext.NavigateRootCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                        <controls:BottomNavButton Grid.Column="3" Key="More" Icon="more_horiz" Text="{extensions:Translate More}" Command="{Binding BindingContext.ToggleMoreMenuCommand, Source={RelativeSource TemplatedParent}}" ActiveKey="{Binding BindingContext.NavState.ActiveRootKey, Source={RelativeSource TemplatedParent}}"/>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </ControlTemplate>
 
     </Application.Resources>
 </Application>

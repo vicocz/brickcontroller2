@@ -4,6 +4,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Dialog;
+using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.ViewModels;
 
 namespace BrickController2.UI.Pages
@@ -26,11 +27,6 @@ namespace BrickController2.UI.Pages
 
             // Cross-platform safe-area handling (replaces old iOS-only Page.UseSafeArea)
             SafeAreaEdges = SafeAreaEdges.All;
-
-            if (Application.Current?.Resources.TryGetValue("BottomNavPageTemplate", out var template) == true && template is ControlTemplate controlTemplate)
-            {
-                ControlTemplate = controlTemplate;
-            }
         }
 
         protected void AfterInitialize(IPageViewModel vm)
@@ -60,12 +56,7 @@ namespace BrickController2.UI.Pages
         {
             if (BindingContext is PageViewModelBase { NavState: { } navState })
             {
-                var dialogOpen = (_dialogServer as View)?.IsVisible == true;
-                navState.IsNavigationEnabled = !dialogOpen;
-                if (dialogOpen)
-                {
-                    navState.IsMoreMenuOpen = false;
-                }
+                navState.IsNavigationEnabled = (_dialogServer as View)?.IsVisible != true;
             }
         }
 
@@ -92,11 +83,6 @@ namespace BrickController2.UI.Pages
         {
             base.OnDisappearing();
 
-            if (BindingContext is PageViewModelBase { NavState: { } navState })
-            {
-                navState.IsMoreMenuOpen = false;
-            }
-
             OnDisappearingInternal();
 
             _dialogServerHost.UnregisterDialogServer(_dialogServer!);
@@ -107,12 +93,6 @@ namespace BrickController2.UI.Pages
 
         protected override bool OnBackButtonPressed()
         {
-            if (BindingContext is PageViewModelBase { NavState.IsMoreMenuOpen: true } pageViewModel)
-            {
-                pageViewModel.NavState.IsMoreMenuOpen = false;
-                return true;
-            }
-
             var result = ((BindingContext as IPageViewModel)?.OnBackButtonPressed()) ?? true;
             return result && base.OnBackButtonPressed();
         }

@@ -6,7 +6,6 @@ using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Translation;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace BrickController2.UI.ViewModels
@@ -25,14 +24,6 @@ namespace BrickController2.UI.ViewModels
                 () => NavigationService.NavigateToAsync<HelpPageViewModel>(new NavigationParameters(("topic", GetHelpTopic()!))),
                 () => HasHelp);
 
-            NavigateRootCommand = new SafeCommand(async (object? key) => await (key as string switch
-            {
-                RootKeys.Creations => NavigationService.NavigateToRootAsync<CreationListPageViewModel>(RootKeys.Creations),
-                RootKeys.Devices => NavigationService.NavigateToRootAsync<DeviceListPageViewModel>(RootKeys.Devices),
-                RootKeys.Sequences => NavigationService.NavigateToRootAsync<SequenceListPageViewModel>(RootKeys.Sequences),
-                _ => Task.CompletedTask
-            }));
-            ToggleMoreMenuCommand = new SafeCommand(() => { NavState.IsMoreMenuOpen = !NavState.IsMoreMenuOpen; });
             MoreAboutCommand = new SafeCommand(() => NavigationService.NavigateToMoreAsync<AboutPageViewModel>());
             MoreSettingsCommand = new SafeCommand(() => NavigationService.NavigateToMoreAsync<SettingsPageViewModel>(
                 new NavigationParameters(("parent", NavigationService.GetRootViewModel<CreationListPageViewModel>()!))));
@@ -56,8 +47,6 @@ namespace BrickController2.UI.ViewModels
             _ => null
         };
 
-        public ICommand NavigateRootCommand { get; }
-        public ICommand ToggleMoreMenuCommand { get; }
         public ICommand MoreAboutCommand { get; }
         public ICommand MoreSettingsCommand { get; }
         public ICommand MoreInputTesterCommand { get; }
@@ -67,7 +56,6 @@ namespace BrickController2.UI.ViewModels
         {
             _disappearingTokenSource?.Cancel();
             _disappearingTokenSource = new CancellationTokenSource();
-            NavigationService.UpdateActiveRoot();
         }
 
         public virtual void OnDisappearing()

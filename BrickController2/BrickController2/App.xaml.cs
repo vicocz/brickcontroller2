@@ -4,6 +4,7 @@ using BrickController2.UI.Services.Background;
 using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Theme;
+using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
 using Microsoft.Maui;
 using Microsoft.Maui.ApplicationModel;
@@ -11,6 +12,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Xaml;
 using Microsoft.Maui.Graphics;
 using System;
+using System.Linq;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Skip)]
 namespace BrickController2
@@ -21,14 +23,16 @@ namespace BrickController2
         private readonly PageFactory _pageFactory;
         private readonly Func<Page, NavigationPage> _navigationPageFactory;
         private readonly BackgroundService _backgroundService;
-        private readonly INavigationService _navigationService;
+		private readonly INavigationService _navigationService;
+		private readonly ITranslationService _translationService;
 
 		public App(
-            ViewModelFactory viewModelFactory, 
-            PageFactory pageFactory, 
-            Func<Page, NavigationPage> navigationPageFactory,
-            BackgroundService backgroundService,
-            INavigationService navigationService,
+			ViewModelFactory viewModelFactory, 
+			PageFactory pageFactory, 
+			Func<Page, NavigationPage> navigationPageFactory,
+			BackgroundService backgroundService,
+			INavigationService navigationService,
+			ITranslationService translationService,
 			IThemeService themeService,
 			ILocalizationService localizationService)
 		{
@@ -39,6 +43,7 @@ namespace BrickController2
             _navigationPageFactory = navigationPageFactory;
             _backgroundService = backgroundService;
             _navigationService = navigationService;
+            _translationService = translationService;
 
 			Application.Current!.RequestedThemeChanged += (s, e) =>
 			{
@@ -58,34 +63,49 @@ namespace BrickController2
         internal void ReloadRootPage()
         {
             // recreate the root page to apply the change
-            if (Windows[0].Page is NavigationPage navigationPage &&
-                _navigationService.GetRootViewModel<CreationListPageViewModel>() is { } viewModel)
+            if (Windows[0].Page is MainTabbedPage tabbedPage)
             {
-                // reset view model
-                navigationPage.RootPage.BindingContext = null;
-                // apply new page with the existing view model
-                Windows[0].Page = GetMainPage(viewModel);
+                foreach (var tab in tabbedPage.Children.OfType<NavigationPage>())
+                {
+                    tab.RootPage.BindingContext = null;
+                }
+                Windows[0].Page = GetTabbedMainPage();
             }
         }
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            NavigationPage navigationPage = GetMainPage();
-            return new Window(navigationPage);
+            return new Window(GetTabbedMainPage());
         }
 
-        private NavigationPage GetMainPage(CreationListPageViewModel? viewModel = default)
+        private MainTabbedPage GetTabbedMainPage()
         {
-            var vm = viewModel ?? _viewModelFactory(typeof(CreationListPageViewModel), null);
-            _navigationService.RegisterRootViewModel(vm);
             _navigationService.State.ActiveRootKey = RootKeys.Creations;
-            _navigationService.State.IsMoreMenuOpen = false;
-            var page = _pageFactory(typeof(CreationListPage), vm);
-            var navigationPage = _navigationPageFactory(page);
+
+            return new MainTabbedPage(_navigationService.State,
+                (CreateTab<CreationListPageViewModel, CreationListPage>(), Translate("Creations"), "category"),
+                (CreateTab<DeviceListPageViewModel, DeviceListPage>(), Translate("Devices"), "hub"),
+                (CreateTab<SequenceListPageViewModel, SequenceListPage>(), Translate("Sequences"), "format_list_bulleted"),
+                (CreateTab<MorePageViewModel, MorePage>(), Translate("More"), "more_horiz"));
+        }
+
+        private NavigationPage CreateTab<TViewModel, TPage>() where TViewModel : PageViewModelBase
+        {
+            var vm = _navigationService.GetRootViewModel<TViewModel>() ?? _viewModelFactory(typeof(TViewModel), null);
+            _navigationService.RegisterRootViewModel(vm);
+            var rootPage = _pageFactory(typeof(TPage), vm);
+            if (Microsoft.Maui.Devices.DeviceInfo.Platform == Microsoft.Maui.Devices.DevicePlatform.WinUI)
+            {
+                // tabs are rendered inside the toolbar on Windows, so the root title is redundant
+                rootPage.Title = string.Empty;
+            }
+            var navigationPage = _navigationPageFactory(rootPage);
             navigationPage.BarBackgroundColor = Colors.Red;
             navigationPage.BarTextColor = Colors.White;
             return navigationPage;
         }
+
+        private string Translate(string key) => _translationService.Translate(key);
 
         protected override void OnStart()
 		{

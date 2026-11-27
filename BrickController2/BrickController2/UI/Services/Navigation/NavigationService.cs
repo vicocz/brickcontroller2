@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using BrickController2.UI.DI;
+using BrickController2.UI.Pages;
 using BrickController2.UI.ViewModels;
 
 namespace BrickController2.UI.Services.Navigation
@@ -31,56 +32,9 @@ namespace BrickController2.UI.Services.Navigation
         public T? GetRootViewModel<T>() where T : PageViewModelBase =>
             _rootViewModels.TryGetValue(typeof(T), out var vm) ? (T)vm : null;
 
-        public async Task NavigateToRootAsync<T>(string rootKey, NavigationParameters? parameters = null) where T : PageViewModelBase
-        {
-            State.IsMoreMenuOpen = false;
-            if (_isSwitchingRoot || !State.IsNavigationEnabled)
-            {
-                return;
-            }
-
-            _isSwitchingRoot = true;
-            try
-            {
-                var navigation = Navigation;
-                var oldRoot = navigation.NavigationStack.FirstOrDefault();
-
-                if (oldRoot?.BindingContext is T)
-                {
-                    if (navigation.NavigationStack.Count > 1)
-                    {
-                        await navigation.PopToRootAsync(false);
-                    }
-                }
-                else
-                {
-                    var vm = GetRootViewModel<T>() ?? _viewModelFactory(typeof(T), parameters);
-                    RegisterRootViewModel(vm);
-                    var page = _pageFactory(GetPageType<T>(), vm);
-
-                    if (oldRoot is null)
-                    {
-                        await navigation.PushAsync(page, false);
-                    }
-                    else
-                    {
-                        navigation.InsertPageBefore(page, oldRoot);
-                        await navigation.PopToRootAsync(false);
-                    }
-                }
-
-                State.ActiveRootKey = rootKey;
-            }
-            finally
-            {
-                _isSwitchingRoot = false;
-            }
-        }
-
         public async Task NavigateToMoreAsync<T>(NavigationParameters? parameters = null) where T : PageViewModelBase
         {
-            State.IsMoreMenuOpen = false;
-            if (_isSwitchingRoot || !State.IsNavigationEnabled)
+            if (_isSwitchingRoot || !State.IsNavigationEnabled || RootPage is not MainTabbedPage tabbedPage)
             {
                 return;
             }
@@ -88,25 +42,11 @@ namespace BrickController2.UI.Services.Navigation
             _isSwitchingRoot = true;
             try
             {
-                var navigation = Navigation;
-                var top = navigation.NavigationStack.LastOrDefault();
-                if (top?.BindingContext is PageViewModelBase { RootKey: RootKeys.More } current)
+                var moreTab = await SwitchTabAsync(tabbedPage, RootKeys.More);
+                if (moreTab is not null)
                 {
-                    if (current is T)
-                    {
-                        return;
-                    }
-
-                    // replace the current More page instead of stacking another one
-                    await PushMoreAsync<T>(navigation, parameters);
-                    navigation.RemovePage(top);
+                    await PushMoreAsync<T>(moreTab.Navigation, parameters);
                 }
-                else
-                {
-                    await PushMoreAsync<T>(navigation, parameters);
-                }
-
-                State.ActiveRootKey = RootKeys.More;
             }
             finally
             {
@@ -121,22 +61,22 @@ namespace BrickController2.UI.Services.Navigation
             return navigation.PushAsync(page, false);
         }
 
-        public void UpdateActiveRoot()
+        private async Task<NavigationPage?> SwitchTabAsync(MainTabbedPage tabbedPage, string rootKey)
         {
-            var stack = Application.Current?.Windows.FirstOrDefault()?.Page?.Navigation.NavigationStack;
-            if (stack is null)
+            var tab = tabbedPage.FindTab(rootKey);
+            if (tab is null)
             {
-                return;
+                return null;
             }
 
-            for (var i = stack.Count - 1; i >= 0; i--)
+            if (tab.Navigation.NavigationStack.Count > 1)
             {
-                if (stack[i]?.BindingContext is PageViewModelBase { RootKey: { } key })
-                {
-                    State.ActiveRootKey = key;
-                    return;
-                }
+                await tab.PopToRootAsync(false);
             }
+
+            tabbedPage.CurrentPage = tab;
+            State.ActiveRootKey = rootKey;
+            return tab;
         }
 
         public Task NavigateToAsync<T>(NavigationParameters? parameters = null) where T : PageViewModelBase
@@ -163,7 +103,14 @@ namespace BrickController2.UI.Services.Navigation
             return Navigation.PopAsync();
         }
 
-        private static INavigation Navigation => Application.Current!.Windows[0].Page!.Navigation;
+        private static Page? RootPage => Application.Current?.Windows.FirstOrDefault()?.Page;
+
+        private static INavigation Navigation => RootPage switch
+        {
+            TabbedPage { CurrentPage: { } currentTab } => currentTab.Navigation,
+            { } page => page.Navigation,
+            _ => throw new InvalidOperationException("root page not available.")
+        };
 
         private Type GetPageType<T>() where T : PageViewModelBase
         {

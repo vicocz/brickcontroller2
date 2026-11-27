@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<local:PageBase
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:BrickController2.UI.Controls"
+    xmlns:extensions="clr-namespace:BrickController2.UI.MarkupExtensions"
+    xmlns:local="clr-namespace:BrickController2.UI.Pages"
+    xmlns:viewModels="clr-namespace:BrickController2.UI.ViewModels"
+    x:Class="BrickController2.UI.Pages.MorePage"
+    x:DataType="viewModels:MorePageViewModel"
+    Title="{extensions:Translate More}"
+    BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <local:PageBase.Content>
+        <AbsoluteLayout HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+            <ScrollView AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All">
+                <VerticalStackLayout Padding="8" Spacing="2">
+                    <controls:MoreMenuItem Icon="sports_esports" Text="{extensions:Translate InputDevices}" Command="{Binding MoreInputTesterCommand}"/>
+                    <controls:MoreMenuItem Icon="settings" Text="{extensions:Translate Settings}" Command="{Binding MoreSettingsCommand}"/>
+                    <controls:MoreMenuItem Icon="help_outline" Text="{extensions:Translate Help}" Command="{Binding MoreHelpCommand}"/>
+                    <controls:MoreMenuItem Icon="info" Text="{extensions:Translate About}" Command="{Binding MoreAboutCommand}"/>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <controls:Dialogs x:Name="Dialogs" AbsoluteLayout.LayoutBounds="0, 0, 1, 1" AbsoluteLayout.LayoutFlags="All"/>
+        </AbsoluteLayout>
+    </local:PageBase.Content>
+</local:PageBase>

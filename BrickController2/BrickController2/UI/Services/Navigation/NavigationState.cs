@@ -11,12 +11,11 @@ public static class RootKeys
 }
 
 /// <summary>
-/// Shared state of the bottom navigation bar.
+/// Shared state of the tab navigation.
 /// </summary>
 public class NavigationState : NotifyPropertyChangedSource
 {
     private string _activeRootKey = RootKeys.Creations;
-    private bool _isMoreMenuOpen;
     private bool _isNavigationEnabled = true;
 
     public bool IsNavigationEnabled
@@ -40,19 +39,6 @@ public class NavigationState : NotifyPropertyChangedSource
             if (_activeRootKey != value)
             {
                 _activeRootKey = value;
-                RaisePropertyChanged();
-            }
-        }
-    }
-
-    public bool IsMoreMenuOpen
-    {
-        get => _isMoreMenuOpen;
-        set
-        {
-            if (_isMoreMenuOpen != value)
-            {
-                _isMoreMenuOpen = value;
                 RaisePropertyChanged();
             }
         }

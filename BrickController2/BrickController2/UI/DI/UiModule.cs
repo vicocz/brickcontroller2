@@ -15,6 +15,7 @@ using BrickController2.UI.Services.Localization;
 using BrickController2.UI.Services.MainThread;
 using BrickController2.UI.Services.Navigation;
 using BrickController2.UI.Services.Preferences;
+using BrickController2.UI.Services.Settings;
 using BrickController2.UI.Services.Theme;
 using BrickController2.UI.Services.Translation;
 using BrickController2.UI.ViewModels;
@@ -62,6 +63,24 @@ namespace BrickController2.UI.DI
 
             // custom channel selectors
             builder.RegisterType<BuWizzChannelSelectorView>().Keyed<DeviceChannelSelectorViewBase>(DeviceType.BuWizz2);
+
+            // Built-in rows of the settings page (instance per dependency = one set per settings page).
+            // Platform projects register their own rows the same way; the view model sorts by ISettingsItem.Order,
+            // so the result does not depend on the module registration order (platform modules are registered before this one).
+            builder.RegisterType<ThemeSettingsItem>().As<ISettingsItem>().InstancePerDependency();
+            builder.Register(c =>
+                {
+                    var context = c.Resolve<IComponentContext>();
+                    return new LanguageSettingsItem(
+                        context.Resolve<ILocalizationService>(),
+                        context.Resolve<IDialogService>(),
+                        context.Resolve<INavigationService>(),
+                        context.Resolve<ITranslationService>(),
+                        () => (Application.Current as App)?.ReloadRootPage());
+                })
+                .As<ISettingsItem>()
+                .InstancePerDependency();
+            builder.RegisterType<OrientationSensorSettingsItem>().As<ISettingsItem>().InstancePerDependency();
 
             // Register the viewmodel factory
             builder.Register<ViewModelFactory>(c =>
